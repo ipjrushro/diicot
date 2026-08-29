@@ -18,9 +18,9 @@
             margin-top: 10px;
             padding: 8px 11px;
             width: fit-content;
-            border: 1px solid rgba(255, 196, 0, 0.22);
+            border: 1px solid rgba(255,196,0,.22);
             border-radius: 6px;
-            background: rgba(255, 196, 0, 0.05);
+            background: rgba(255,196,0,.05);
             color: #ffc400;
             font-family: inherit;
             font-size: 7px;
@@ -37,11 +37,13 @@
             transform: translateY(-1px);
         }
 
-        body.rank-modal-open {
+        body.rank-modal-open,
+        body.blacklist-modal-open {
             overflow: hidden;
         }
 
-        .rank-manager-modal {
+        .rank-manager-modal,
+        .blacklist-modal {
             position: fixed;
             inset: 0;
             z-index: 999999;
@@ -51,50 +53,61 @@
             padding: 20px;
         }
 
-        .rank-manager-modal.open {
+        .rank-manager-modal.open,
+        .blacklist-modal.open {
             display: flex;
         }
 
-        .rank-manager-overlay {
+        .rank-manager-overlay,
+        .blacklist-modal-overlay {
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, .82);
+            background: rgba(0,0,0,.84);
             backdrop-filter: blur(8px);
         }
 
-        .rank-manager-box {
+        .rank-manager-box,
+        .blacklist-modal-box {
             position: relative;
             z-index: 2;
-            width: min(470px, 100%);
+            width: min(520px,100%);
             box-sizing: border-box;
             padding: 26px;
-            background: linear-gradient(145deg, #0d131b, #080c12);
+            background: linear-gradient(145deg,#0d131b,#080c12);
             border: 1px solid rgba(255,255,255,.08);
             border-radius: 12px;
             box-shadow: 0 35px 100px rgba(0,0,0,.75);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
         }
 
-        .rank-manager-box::before {
+        .rank-manager-box::before,
+        .blacklist-modal-box::before {
             content: "";
             position: absolute;
             left: 0;
             right: 0;
             top: 0;
             height: 2px;
-            background: linear-gradient(90deg, #ffc400, transparent);
-            border-radius: 12px 12px 0 0;
+            background: linear-gradient(90deg,#ffc400,transparent);
         }
 
-        .rank-manager-top {
+        .blacklist-modal-box::before {
+            background: linear-gradient(90deg,#ff4747,transparent);
+        }
+
+        .rank-manager-top,
+        .blacklist-modal-top {
             display: flex;
-            align-items: flex-start;
             justify-content: space-between;
+            align-items: flex-start;
             gap: 20px;
             padding-bottom: 18px;
             border-bottom: 1px solid rgba(255,255,255,.06);
         }
 
-        .rank-manager-kicker {
+        .rank-manager-kicker,
+        .blacklist-modal-kicker {
             display: block;
             margin-bottom: 6px;
             color: #ffc400;
@@ -103,13 +116,19 @@
             letter-spacing: 1.3px;
         }
 
-        .rank-manager-top h3 {
+        .blacklist-modal-kicker {
+            color: #ff5656;
+        }
+
+        .rank-manager-top h3,
+        .blacklist-modal-top h3 {
             margin: 0;
             color: #fff;
             font-size: 21px;
         }
 
-        .rank-manager-close {
+        .rank-manager-close,
+        .blacklist-modal-close {
             width: 36px;
             height: 36px;
             border: 1px solid rgba(255,255,255,.08);
@@ -117,13 +136,7 @@
             background: rgba(255,255,255,.025);
             color: #76808c;
             font-size: 22px;
-            line-height: 1;
             cursor: pointer;
-        }
-
-        .rank-manager-close:hover {
-            color: #fff;
-            border-color: rgba(255,196,0,.3);
         }
 
         .rank-manager-member {
@@ -149,14 +162,6 @@
             font-size: 12px;
         }
 
-        .rank-manager-form {
-            margin-bottom: 14px;
-        }
-
-        .rank-manager-form select {
-            width: 100%;
-        }
-
         .rank-manager-warning {
             padding: 11px 13px;
             margin-top: 12px;
@@ -172,7 +177,8 @@
             margin-top: 20px;
         }
 
-        .rank-manager-message {
+        .rank-manager-message,
+        .blacklist-form-message {
             min-height: 18px;
             margin-top: 13px;
             font-size: 9px;
@@ -180,13 +186,16 @@
             text-align: center;
         }
 
-        .rank-manager-message.success {
+        .rank-manager-message.success,
+        .blacklist-form-message.success {
             color: #67ce85;
         }
 
-        .rank-manager-message.error {
-            color: #ff6b6b;
+        .rank-manager-message.error,
+        .blacklist-form-message.error {
+            color: #ff6464;
         }
+
 
         /* =====================================================
            CONDUCERE
@@ -194,7 +203,7 @@
 
         .leadership-grid {
             display: grid;
-            grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+            grid-template-columns: minmax(0,1.2fr) minmax(280px,.8fr);
             gap: 20px;
             align-items: start;
         }
@@ -211,7 +220,7 @@
             top: 0;
             bottom: 0;
             width: 2px;
-            background: linear-gradient(180deg, #ffc400, transparent);
+            background: linear-gradient(180deg,#ffc400,transparent);
         }
 
         .leadership-heading {
@@ -283,33 +292,6 @@
             background: #111820;
         }
 
-        .discord-preview-badge {
-            display: inline-flex;
-            margin-bottom: 10px;
-            padding: 4px 7px;
-            border-radius: 4px;
-            background: rgba(255,196,0,.08);
-            color: #ffc400;
-            font-size: 7px;
-            font-weight: 900;
-            letter-spacing: .8px;
-        }
-
-        .discord-preview h4 {
-            margin: 0 0 10px;
-            color: #fff;
-            font-size: 14px;
-        }
-
-        .discord-preview p {
-            margin: 0;
-            color: #c7ccd3;
-            font-size: 10px;
-            line-height: 1.7;
-            white-space: pre-wrap;
-            word-break: break-word;
-        }
-
         .discord-preview-author {
             display: flex;
             align-items: center;
@@ -340,6 +322,33 @@
             margin-top: 2px;
         }
 
+        .discord-preview-badge {
+            display: inline-flex;
+            margin-bottom: 10px;
+            padding: 4px 7px;
+            border-radius: 4px;
+            background: rgba(255,196,0,.08);
+            color: #ffc400;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: .8px;
+        }
+
+        .discord-preview h4 {
+            margin: 0 0 10px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .discord-preview p {
+            margin: 0;
+            color: #c7ccd3;
+            font-size: 10px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
         .discord-preview-footer {
             margin-top: 14px;
             padding-top: 12px;
@@ -348,1280 +357,2349 @@
             font-size: 8px;
         }
 
-        @media (max-width: 900px) {
+
+        /* =====================================================
+           BLACKLIST
+        ====================================================== */
+
+        .blacklist-stats {
+            display: grid;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .blacklist-stat-card {
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 8px;
+            background: rgba(255,255,255,.02);
+        }
+
+        .blacklist-stat-card span {
+            display: block;
+            color: #6d7885;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .blacklist-stat-card strong {
+            color: #fff;
+            font-size: 20px;
+        }
+
+        .blacklist-stat-card.danger strong {
+            color: #ff5656;
+        }
+
+        .blacklist-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .blacklist-search {
+            width: 100%;
+            max-width: 520px;
+            box-sizing: border-box;
+            padding: 12px 14px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 7px;
+            background: rgba(255,255,255,.025);
+            color: #eef1f5;
+            outline: none;
+            font: inherit;
+        }
+
+        .blacklist-search:focus {
+            border-color: rgba(255,67,67,.45);
+        }
+
+        .blacklist-add-btn {
+            border: 1px solid rgba(255,67,67,.45);
+            background: rgba(255,67,67,.06);
+            color: #ff5656;
+        }
+
+        .blacklist-add-btn:hover {
+            background: #d83b3b;
+            color: #fff;
+        }
+
+        .blacklist-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid rgba(255,255,255,.05);
+            border-radius: 9px;
+        }
+
+        .blacklist-table {
+            width: 100%;
+            min-width: 980px;
+            border-collapse: collapse;
+        }
+
+        .blacklist-table th {
+            padding: 13px 14px;
+            text-align: left;
+            color: #8090a4;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: .7px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+
+        .blacklist-table td {
+            padding: 14px;
+            color: #dfe4ea;
+            font-size: 9px;
+            border-bottom: 1px solid rgba(255,255,255,.04);
+            vertical-align: middle;
+        }
+
+        .blacklist-table tbody tr:hover {
+            background: rgba(255,255,255,.018);
+        }
+
+        .blacklist-id {
+            font-family: monospace;
+            color: #c8d2df;
+            white-space: nowrap;
+        }
+
+        .blacklist-name {
+            color: #fff;
+            font-weight: 800;
+        }
+
+        .blacklist-reason {
+            max-width: 340px;
+            line-height: 1.55;
+            color: #cdd4dc;
+        }
+
+        .blacklist-expiry.permanent {
+            color: #ff5656;
+            font-weight: 900;
+        }
+
+        .blacklist-expiry.temporary {
+            color: #f4bb57;
+            font-weight: 800;
+        }
+
+        .blacklist-status {
+            display: inline-flex;
+            min-width: 68px;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 8px;
+            border-radius: 5px;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: .6px;
+        }
+
+        .blacklist-status.active {
+            border: 1px solid rgba(255,58,58,.32);
+            background: rgba(255,58,58,.14);
+            color: #ff5353;
+        }
+
+        .blacklist-status.inactive {
+            border: 1px solid rgba(130,143,158,.16);
+            background: rgba(130,143,158,.08);
+            color: #7c8794;
+        }
+
+        .blacklist-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .blacklist-action-btn {
+            padding: 7px 9px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 5px;
+            background: rgba(255,255,255,.025);
+            color: #9aa6b5;
+            font: inherit;
+            font-size: 7px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .blacklist-action-btn:hover {
+            color: #fff;
+        }
+
+        .blacklist-action-btn.danger:hover {
+            color: #ff6262;
+            border-color: rgba(255,68,68,.35);
+        }
+
+        .blacklist-action-btn.success:hover {
+            color: #6fd692;
+            border-color: rgba(111,214,146,.3);
+        }
+
+        .blacklist-empty {
+            padding: 35px;
+            text-align: center;
+            color: #687481;
+            font-size: 9px;
+        }
+
+        .blacklist-check-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .blacklist-check-row input {
+            flex: 1;
+        }
+
+        .blacklist-user-preview {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 7px;
+            background: rgba(255,255,255,.02);
+        }
+
+        .blacklist-user-preview.show {
+            display: flex;
+        }
+
+        .blacklist-user-preview img {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+        }
+
+        .blacklist-user-preview strong {
+            color: #fff;
+            display: block;
+            font-size: 10px;
+        }
+
+        .blacklist-user-preview span {
+            color: #6e7986;
+            font-size: 8px;
+        }
+
+        .blacklist-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 13px;
+        }
+
+        .blacklist-submit {
+            width: 100%;
+            margin-top: 10px;
+            background: linear-gradient(135deg,#d93636,#9c2020);
+        }
+
+        .blacklist-confirm-text {
+            color: #aab3be;
+            line-height: 1.7;
+            font-size: 10px;
+        }
+
+        .blacklist-confirm-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        @media(max-width:900px) {
             .leadership-grid {
                 grid-template-columns: 1fr;
             }
         }
+
+        @media(max-width:760px) {
+            .blacklist-toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .blacklist-search {
+                max-width: none;
+            }
+
+            .blacklist-stats,
+            .blacklist-form-row {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
+
 </head>
 
 <body class="dashboard-body">
 
-    <!-- =====================================================
-         TOPBAR
-    ====================================================== -->
+<header class="dashboard-topbar">
 
-    <header class="dashboard-topbar">
+    <div class="brand">
+        <div class="brand-logo">D</div>
 
-        <div class="brand">
-
-            <div class="brand-logo">
-                D
-            </div>
-
-            <div class="brand-text">
-                <strong>DIICOT</strong>
-                <span>CENTRU DE COMANDĂ</span>
-            </div>
-
+        <div class="brand-text">
+            <strong>DIICOT</strong>
+            <span>CENTRU DE COMANDĂ</span>
         </div>
+    </div>
 
-        <div id="dashboard-user">
-            Se încarcă...
-        </div>
+    <div id="dashboard-user">
+        Se încarcă...
+    </div>
 
-    </header>
+</header>
 
-    <!-- =====================================================
-         DASHBOARD
-    ====================================================== -->
 
-    <div class="dashboard-layout">
+<div class="dashboard-layout">
 
-        <!-- =================================================
-             SIDEBAR
-        ================================================== -->
+    <aside class="dashboard-sidebar">
 
-        <aside class="dashboard-sidebar">
+        <a href="/" class="sidebar-link">
+            PAGINA PRINCIPALĂ
+        </a>
+
+        <button
+            type="button"
+            class="sidebar-link active"
+            data-section="overview"
+        >
+            PREZENTARE GENERALĂ
+        </button>
+
+        <button
+            type="button"
+            class="sidebar-link"
+            data-section="new-report"
+        >
+            RAPORT NOU
+        </button>
+
+        <button
+            type="button"
+            class="sidebar-link"
+            data-section="my-reports"
+        >
+            RAPOARTELE MELE
+        </button>
+
+        <button
+            type="button"
+            class="sidebar-link"
+            data-section="personnel"
+        >
+            PERSONAL DIICOT
+        </button>
+
+        <button
+            type="button"
+            class="sidebar-link admin-only"
+            data-section="leadership"
+        >
+            CONDUCERE
+        </button>
+
+        <button
+            type="button"
+            class="sidebar-link admin-only"
+            data-section="blacklist"
+        >
+            BLACKLIST
+        </button>
+
+        <button
+            type="button"
+            class="sidebar-link admin-only"
+            data-section="admin"
+        >
+            ADMINISTRARE
+        </button>
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                class="sidebar-link profile-sidebar-link"
+                data-section="profile"
+            >
+                PROFILUL MEU
+            </button>
 
             <a
-                href="/"
-                class="sidebar-link"
+                href="/logout"
+                class="sidebar-link logout-sidebar"
             >
-                PAGINA PRINCIPALĂ
+                DECONECTARE
             </a>
 
-            <button
-                type="button"
-                class="sidebar-link active"
-                data-section="overview"
-            >
-                PREZENTARE GENERALĂ
-            </button>
+        </div>
 
-            <button
-                type="button"
-                class="sidebar-link"
-                data-section="new-report"
-            >
-                RAPORT NOU
-            </button>
+    </aside>
 
-            <button
-                type="button"
-                class="sidebar-link"
-                data-section="my-reports"
-            >
-                RAPOARTELE MELE
-            </button>
 
-            <button
-                type="button"
-                class="sidebar-link"
-                data-section="personnel"
-            >
-                PERSONAL DIICOT
-            </button>
+    <main class="dashboard-content">
 
-            <button
-                type="button"
-                class="sidebar-link admin-only"
-                data-section="leadership"
-            >
-                CONDUCERE
-            </button>
+        <!-- OVERVIEW -->
 
-            <button
-                type="button"
-                class="sidebar-link admin-only"
-                data-section="admin"
-            >
-                ADMINISTRARE
-            </button>
+        <section
+            id="overview"
+            class="dashboard-section active"
+        >
 
-            <div class="sidebar-bottom">
+            <div class="dashboard-welcome">
 
-                <button
-                    type="button"
-                    class="sidebar-link profile-sidebar-link"
-                    data-section="profile"
-                >
-                    PROFILUL MEU
-                </button>
+                <span class="dashboard-kicker">
+                    BINE AI REVENIT
+                </span>
 
-                <a
-                    href="/logout"
-                    class="sidebar-link logout-sidebar"
-                >
-                    DECONECTARE
-                </a>
+                <h1 id="welcome-name">
+                    Membru DIICOT
+                </h1>
+
+                <p id="welcome-rank">
+                    Se verifică gradul...
+                </p>
 
             </div>
 
-        </aside>
+            <div class="stats-grid">
 
-        <!-- =================================================
-             CONTENT
-        ================================================== -->
-
-        <main class="dashboard-content">
-
-            <!-- =================================================
-                 OVERVIEW
-            ================================================== -->
-
-            <section
-                id="overview"
-                class="dashboard-section active"
-            >
-
-                <div class="dashboard-welcome">
-
-                    <span class="dashboard-kicker">
-                        BINE AI REVENIT
-                    </span>
-
-                    <h1 id="welcome-name">
-                        Membru DIICOT
-                    </h1>
-
-                    <p id="welcome-rank">
-                        Se verifică gradul...
-                    </p>
-
+                <div class="stat-card">
+                    <span>RAPOARTE TOTALE</span>
+                    <strong id="stat-total">0</strong>
                 </div>
 
-                <div class="stats-grid">
-
-                    <div class="stat-card">
-                        <span>RAPOARTE TOTALE</span>
-                        <strong id="stat-total">0</strong>
-                    </div>
-
-                    <div class="stat-card">
-                        <span>RAPOARTE CU POZE</span>
-                        <strong id="stat-images">0</strong>
-                    </div>
-
-                    <div class="stat-card">
-                        <span>TIPURI ACTIVITATE</span>
-                        <strong id="stat-types">0</strong>
-                    </div>
-
-                    <div class="stat-card">
-                        <span>ULTIMA ACTIVITATE</span>
-                        <strong id="stat-last" class="stat-last">-</strong>
-                    </div>
-
+                <div class="stat-card">
+                    <span>RAPOARTE CU POZE</span>
+                    <strong id="stat-images">0</strong>
                 </div>
 
-                <div class="dashboard-panel">
+                <div class="stat-card">
+                    <span>TIPURI ACTIVITATE</span>
+                    <strong id="stat-types">0</strong>
+                </div>
 
-                    <div class="panel-heading">
-                        ACTIVITATE RECENTĂ
+                <div class="stat-card">
+                    <span>ULTIMA ACTIVITATE</span>
+                    <strong id="stat-last">-</strong>
+                </div>
+
+            </div>
+
+            <div class="dashboard-panel">
+
+                <div class="panel-heading">
+                    ACTIVITATE RECENTĂ
+                </div>
+
+                <div
+                    id="recent-activity"
+                    class="empty-state"
+                >
+                    Momentan nu există activitate.
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- RAPORT NOU -->
+
+        <section
+            id="new-report"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+                <span>RAPOARTE</span>
+                <h2>Raport nou</h2>
+            </div>
+
+            <div class="dashboard-panel">
+
+                <form
+                    id="report-form"
+                    class="report-form"
+                    enctype="multipart/form-data"
+                >
+
+                    <div class="form-group">
+
+                        <label>TIP RAPORT</label>
+
+                        <select id="report-type" required>
+
+                            <option value="">
+                                Selectează tipul
+                            </option>
+
+                            <option value="RAZIE">RAZIE</option>
+                            <option value="ANTRENAMENT">ANTRENAMENT</option>
+                            <option value="JAFURI">JAFURI</option>
+                            <option value="PATRULA">PATRULĂ</option>
+                            <option value="PERCHEZITIE">PERCHEZIȚIE</option>
+                            <option value="VERIFICARE ZONA">VERIFICARE ZONĂ</option>
+                            <option value="FOCURI DE ARMA">FOCURI DE ARMĂ</option>
+
+                        </select>
+
                     </div>
+
+                    <div class="form-group">
+
+                        <label>TITLU RAPORT</label>
+
+                        <input
+                            id="report-title"
+                            maxlength="120"
+                            required
+                            placeholder="Ex: Razie Sandy Shores"
+                        >
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>DESCRIERE</label>
+
+                        <textarea
+                            id="report-description"
+                            rows="8"
+                            maxlength="5000"
+                            required
+                            placeholder="Descrie activitatea desfășurată..."
+                        ></textarea>
+
+                    </div>
+
+                    <div class="form-group">
+
+                        <label>POZE DOVADĂ</label>
+
+                        <input
+                            type="file"
+                            id="report-images"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                        >
+
+                        <small class="upload-help">
+                            Maximum 5 poze. Maximum 8 MB per imagine.
+                        </small>
+
+                        <div
+                            id="image-preview"
+                            class="image-preview-grid"
+                        ></div>
+
+                    </div>
+
+                    <button
+                        type="submit"
+                        id="submit-report"
+                        class="primary-btn dashboard-submit"
+                    >
+                        POSTEAZĂ RAPORTUL
+                    </button>
 
                     <div
-                        id="recent-activity"
-                        class="empty-state"
-                    >
-                        Momentan nu există activitate.
+                        id="report-message"
+                        class="report-message"
+                    ></div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- RAPOARTE -->
+
+        <section
+            id="my-reports"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+                <span>ACTIVITATE</span>
+                <h2>Rapoartele mele</h2>
+            </div>
+
+            <div
+                id="my-reports-container"
+                class="reports-list"
+            >
+                <div class="dashboard-panel">
+                    <div class="empty-state">
+                        Se încarcă rapoartele...
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- PERSONAL -->
+
+        <section
+            id="personnel"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+                <span>STRUCTURĂ</span>
+                <h2>Personal DIICOT</h2>
+            </div>
+
+            <div class="personnel-summary">
+                <span>MEMBRI DIICOT</span>
+                <strong id="personnel-count">0</strong>
+            </div>
+
+            <div
+                id="personnel-container"
+                class="personnel-container"
+            >
+                <div class="dashboard-panel">
+                    <div class="empty-state">
+                        Apasă pe Personal DIICOT pentru încărcare.
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- CONDUCERE -->
+
+        <section
+            id="leadership"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+                <span>CONDUCERE DIICOT</span>
+                <h2>Anunțuri oficiale</h2>
+            </div>
+
+            <div class="leadership-grid">
+
+                <div class="dashboard-panel leadership-panel">
+
+                    <div class="leadership-heading">
+                        <span>TRANSMITERE COMUNICAT</span>
+                        <h3>Trimite anunț pe Discord</h3>
+                        <p>
+                            Anunțul va fi publicat în canalul oficial.
+                        </p>
                     </div>
 
-                </div>
-
-            </section>
-
-            <!-- =================================================
-                 RAPORT NOU
-            ================================================== -->
-
-            <section
-                id="new-report"
-                class="dashboard-section"
-            >
-
-                <div class="section-title">
-                    <span>RAPOARTE</span>
-                    <h2>Raport nou</h2>
-                </div>
-
-                <div class="dashboard-panel">
-
-                    <form
-                        id="report-form"
-                        class="report-form"
-                        enctype="multipart/form-data"
-                    >
+                    <form id="announcement-form">
 
                         <div class="form-group">
 
-                            <label for="report-type">
-                                TIP RAPORT
-                            </label>
-
-                            <select
-                                id="report-type"
-                                required
-                            >
-
-                                <option value="">
-                                    Selectează tipul
-                                </option>
-
-                                <option value="RAZIE">
-                                    RAZIE
-                                </option>
-
-                                <option value="ANTRENAMENT">
-                                    ANTRENAMENT
-                                </option>
-
-                                <option value="JAFURI">
-                                    JAFURI
-                                </option>
-
-                                <option value="PATRULA">
-                                    PATRULĂ
-                                </option>
-
-                                <option value="PERCHEZITIE">
-                                    PERCHEZIȚIE
-                                </option>
-
-                                <option value="VERIFICARE ZONA">
-                                    VERIFICARE ZONĂ
-                                </option>
-
-                                <option value="FOCURI DE ARMA">
-                                    FOCURI DE ARMĂ
-                                </option>
-
-                            </select>
-
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="report-title">
-                                TITLU RAPORT
-                            </label>
+                            <label>TITLU ANUNȚ</label>
 
                             <input
-                                type="text"
-                                id="report-title"
+                                id="announcement-title"
                                 maxlength="120"
-                                placeholder="Ex: Razie Sandy Shores"
                                 required
+                                placeholder="Ex: Ședință săptămânală DIICOT"
                             >
 
                         </div>
 
                         <div class="form-group">
 
-                            <label for="report-description">
-                                DESCRIERE
-                            </label>
+                            <label>MESAJ</label>
 
                             <textarea
-                                id="report-description"
-                                rows="8"
-                                maxlength="5000"
-                                placeholder="Descrie activitatea desfășurată..."
+                                id="announcement-message-input"
+                                class="announcement-textarea"
+                                maxlength="4000"
                                 required
+                                placeholder="Scrie aici anunțul..."
                             ></textarea>
 
-                        </div>
-
-                        <div class="form-group">
-
-                            <label for="report-images">
-                                POZE DOVADĂ
-                            </label>
-
-                            <input
-                                type="file"
-                                id="report-images"
-                                accept="image/jpeg,image/png,image/webp"
-                                multiple
-                            >
-
-                            <small class="upload-help">
-                                Maximum 5 poze. JPG, PNG sau WEBP. Maximum 8 MB per imagine.
-                            </small>
-
-                            <div
-                                id="image-preview"
-                                class="image-preview-grid"
-                            ></div>
+                            <div class="announcement-meta">
+                                <span>Embed oficial DIICOT</span>
+                                <span id="announcement-counter">
+                                    0 / 4000
+                                </span>
+                            </div>
 
                         </div>
 
                         <button
                             type="submit"
-                            id="submit-report"
-                            class="primary-btn dashboard-submit"
+                            id="announcement-submit"
+                            class="primary-btn announcement-submit"
                         >
-                            POSTEAZĂ RAPORTUL
+                            TRIMITE ANUNȚUL
                         </button>
 
                         <div
-                            id="report-message"
-                            class="report-message"
+                            id="announcement-result"
+                            class="announcement-message"
                         ></div>
 
                     </form>
 
                 </div>
 
-            </section>
 
-            <!-- =================================================
-                 RAPOARTELE MELE
-            ================================================== -->
+                <div class="dashboard-panel">
 
-            <section
-                id="my-reports"
-                class="dashboard-section"
-            >
+                    <div class="leadership-heading">
+                        <span>PREVIZUALIZARE</span>
+                        <h3>Discord Embed</h3>
+                    </div>
 
-                <div class="section-title">
-                    <span>ACTIVITATE</span>
-                    <h2>Rapoartele mele</h2>
-                </div>
+                    <div class="discord-preview">
 
-                <div
-                    id="my-reports-container"
-                    class="reports-list"
-                >
+                        <div class="discord-preview-author">
 
-                    <div class="dashboard-panel">
+                            <img
+                                id="announcement-preview-avatar"
+                                src="https://cdn.discordapp.com/embed/avatars/0.png"
+                                alt="Avatar"
+                            >
 
-                        <div class="empty-state">
-                            Se încarcă rapoartele...
+                            <div>
+                                <strong id="announcement-preview-author">
+                                    Conducere DIICOT
+                                </strong>
+
+                                <span id="announcement-preview-rank">
+                                    GRAD DIICOT
+                                </span>
+                            </div>
+
+                        </div>
+
+                        <span class="discord-preview-badge">
+                            COMUNICAT OFICIAL
+                        </span>
+
+                        <h4 id="announcement-preview-title">
+                            📢 Titlul anunțului
+                        </h4>
+
+                        <p id="announcement-preview-message">
+                            Mesajul anunțului va apărea aici.
+                        </p>
+
+                        <div class="discord-preview-footer">
+                            DIICOT • Rush România • Comunicat oficial
                         </div>
 
                     </div>
 
                 </div>
 
-            </section>
+            </div>
 
-            <!-- =================================================
-                 PERSONAL DIICOT
-            ================================================== -->
+        </section>
 
-            <section
-                id="personnel"
-                class="dashboard-section"
-            >
 
-                <div class="section-title">
-                    <span>STRUCTURĂ</span>
-                    <h2>Personal DIICOT</h2>
+        <!-- BLACKLIST -->
+
+        <section
+            id="blacklist"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+                <span>CONDUCERE DIICOT</span>
+                <h2>Blacklist</h2>
+            </div>
+
+            <div class="blacklist-stats">
+
+                <div class="blacklist-stat-card">
+                    <span>TOTAL ÎNREGISTRĂRI</span>
+                    <strong id="blacklist-total">0</strong>
                 </div>
 
-                <div class="personnel-summary">
-
-                    <span>MEMBRI DIICOT</span>
-
-                    <strong id="personnel-count">
-                        0
-                    </strong>
-
+                <div class="blacklist-stat-card danger">
+                    <span>INTERZIȘI ACTIV</span>
+                    <strong id="blacklist-active">0</strong>
                 </div>
 
-                <div
-                    id="personnel-container"
-                    class="personnel-container"
-                >
-
-                    <div class="dashboard-panel">
-
-                        <div class="empty-state">
-                            Apasă pe Personal DIICOT pentru încărcare.
-                        </div>
-
-                    </div>
-
+                <div class="blacklist-stat-card">
+                    <span>INACTIVI / EXPIRAȚI</span>
+                    <strong id="blacklist-inactive">0</strong>
                 </div>
 
-            </section>
+            </div>
 
-            <!-- =================================================
-                 CONDUCERE
-            ================================================== -->
+            <div class="dashboard-panel">
 
-            <section
-                id="leadership"
-                class="dashboard-section"
-            >
+                <div class="blacklist-toolbar">
 
-                <div class="section-title">
+                    <input
+                        type="text"
+                        id="blacklist-search"
+                        class="blacklist-search"
+                        placeholder="Caută după Discord ID, nume, motiv sau autor..."
+                    >
 
-                    <span>
-                        CONDUCERE DIICOT
-                    </span>
-
-                    <h2>
-                        Anunțuri oficiale
-                    </h2>
+                    <button
+                        type="button"
+                        id="blacklist-open-add"
+                        class="primary-btn blacklist-add-btn"
+                    >
+                        + ADAUGĂ ÎN BLACKLIST
+                    </button>
 
                 </div>
 
-                <div class="leadership-grid">
+                <div class="blacklist-table-wrap">
 
-                    <!-- FORMULAR -->
+                    <table class="blacklist-table">
 
-                    <div class="dashboard-panel leadership-panel">
+                        <thead>
+                        <tr>
+                            <th>DISCORD ID</th>
+                            <th>NUME</th>
+                            <th>MOTIV</th>
+                            <th>ADĂUGAT DE</th>
+                            <th>EXPIRĂ</th>
+                            <th>STATUS</th>
+                            <th>ACȚIUNI</th>
+                        </tr>
+                        </thead>
 
-                        <div class="leadership-heading">
+                        <tbody id="blacklist-table-body">
 
-                            <span>
-                                TRANSMITERE COMUNICAT
+                        <tr>
+                            <td colspan="7">
+                                <div class="blacklist-empty">
+                                    Se încarcă...
+                                </div>
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- ADMIN -->
+
+        <section
+            id="admin"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+                <span>CONDUCERE DIICOT</span>
+                <h2>Administrare</h2>
+            </div>
+
+            <div class="admin-stats">
+
+                <div class="stat-card">
+                    <span>TOTAL RAPOARTE</span>
+                    <strong id="admin-total">0</strong>
+                </div>
+
+            </div>
+
+            <div
+                id="admin-reports-container"
+                class="reports-list"
+            ></div>
+
+        </section>
+
+
+        <!-- PROFIL -->
+
+        <section
+            id="profile"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+                <span>CONT DIICOT</span>
+                <h2>Profilul meu</h2>
+            </div>
+
+            <div class="profile-layout">
+
+                <div class="profile-main-card">
+
+                    <div class="profile-cover"></div>
+
+                    <div class="profile-main-content">
+
+                        <img
+                            id="profile-avatar"
+                            class="profile-avatar"
+                            src="https://cdn.discordapp.com/embed/avatars/0.png"
+                            alt="Avatar"
+                        >
+
+                        <div class="profile-identity">
+
+                            <span class="profile-status">
+                                MEMBRU ACTIV
                             </span>
 
-                            <h3>
-                                Trimite anunț pe Discord
+                            <h3 id="profile-name">
+                                Se încarcă...
                             </h3>
 
-                            <p>
-                                Anunțul este trimis direct în canalul oficial DIICOT sub formă de embed.
+                            <p id="profile-username">
+                                @discord
                             </p>
+
+                            <div class="profile-rank-badge">
+                                <span>GRAD ACTUAL</span>
+                                <strong id="profile-rank">-</strong>
+                            </div>
 
                         </div>
 
-                        <form id="announcement-form">
+                    </div>
+
+                </div>
+
+
+                <div class="profile-statistics">
+
+                    <div class="profile-stat-card">
+                        <span>RAPOARTE</span>
+                        <strong id="profile-total-reports">0</strong>
+                    </div>
+
+                    <div class="profile-stat-card">
+                        <span>CU DOVEZI</span>
+                        <strong id="profile-image-reports">0</strong>
+                    </div>
+
+                    <div class="profile-stat-card profile-stat-card-wide">
+                        <span>ULTIMA ACTIVITATE</span>
+                        <strong id="profile-last-activity">-</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="profile-grid">
+
+                    <div class="dashboard-panel profile-panel">
+
+                        <div class="profile-panel-heading">
+                            <div>
+                                <span>IDENTITATE</span>
+                                <h3>Editează profilul</h3>
+                            </div>
+                        </div>
+
+                        <form id="profile-form">
 
                             <div class="form-group">
 
-                                <label for="announcement-title">
-                                    TITLU ANUNȚ
-                                </label>
+                                <label>NUME PE SERVER</label>
 
                                 <input
-                                    type="text"
-                                    id="announcement-title"
-                                    maxlength="120"
-                                    placeholder="Ex: Ședință săptămânală DIICOT"
+                                    id="profile-nickname"
+                                    maxlength="32"
                                     required
                                 >
 
                             </div>
 
-                            <div class="form-group">
+                            <div class="profile-duties-section">
 
-                                <label for="announcement-message-input">
-                                    MESAJ
-                                </label>
+                                <div class="profile-duties-header">
 
-                                <textarea
-                                    id="announcement-message-input"
-                                    class="announcement-textarea"
-                                    maxlength="4000"
-                                    placeholder="Scrie aici anunțul oficial..."
-                                    required
-                                ></textarea>
+                                    <div>
+                                        <label>ATRIBUȚII</label>
+                                        <small>Maximum 8 atribuții</small>
+                                    </div>
 
-                                <div class="announcement-meta">
-
-                                    <span>
-                                        Embed oficial DIICOT
-                                    </span>
-
-                                    <span id="announcement-counter">
-                                        0 / 4000
-                                    </span>
+                                    <button
+                                        type="button"
+                                        id="add-duty"
+                                        class="profile-small-btn"
+                                    >
+                                        + ADAUGĂ
+                                    </button>
 
                                 </div>
+
+                                <div id="duties-editor"></div>
 
                             </div>
 
                             <button
                                 type="submit"
-                                id="announcement-submit"
-                                class="primary-btn announcement-submit"
+                                id="save-profile"
+                                class="primary-btn profile-save-button"
                             >
-                                TRIMITE ANUNȚUL
+                                SALVEAZĂ MODIFICĂRILE
                             </button>
 
                             <div
-                                id="announcement-result"
-                                class="announcement-message"
+                                id="profile-message"
+                                class="profile-message"
                             ></div>
 
                         </form>
 
                     </div>
 
-                    <!-- PREVIEW -->
 
-                    <div class="dashboard-panel">
+                    <div class="dashboard-panel profile-panel">
 
-                        <div class="leadership-heading">
-
-                            <span>
-                                PREVIZUALIZARE
-                            </span>
-
-                            <h3>
-                                Discord Embed
-                            </h3>
-
-                            <p>
-                                Așa va arăta aproximativ anunțul pe Discord.
-                            </p>
-
+                        <div class="profile-panel-heading">
+                            <div>
+                                <span>ACTIVITATE</span>
+                                <h3>Activitate recentă</h3>
+                            </div>
                         </div>
 
-                        <div class="discord-preview">
-
-                            <div class="discord-preview-author">
-
-                                <img
-                                    id="announcement-preview-avatar"
-                                    src="https://cdn.discordapp.com/embed/avatars/0.png"
-                                    alt="Avatar"
-                                >
-
-                                <div>
-
-                                    <strong id="announcement-preview-author">
-                                        Conducere DIICOT
-                                    </strong>
-
-                                    <span id="announcement-preview-rank">
-                                        GRAD DIICOT
-                                    </span>
-
-                                </div>
-
-                            </div>
-
-                            <span class="discord-preview-badge">
-                                COMUNICAT OFICIAL
-                            </span>
-
-                            <h4 id="announcement-preview-title">
-                                📢 Titlul anunțului
-                            </h4>
-
-                            <p id="announcement-preview-message">
-                                Mesajul anunțului va apărea aici.
-                            </p>
-
-                            <div class="discord-preview-footer">
-                                DIICOT • Rush România • Comunicat oficial
-                            </div>
-
-                        </div>
+                        <div
+                            id="profile-activity"
+                            class="profile-activity-list"
+                        ></div>
 
                     </div>
 
                 </div>
 
-            </section>
+            </div>
 
-            <!-- =================================================
-                 ADMINISTRARE
-            ================================================== -->
+        </section>
 
-            <section
-                id="admin"
-                class="dashboard-section"
-            >
+    </main>
 
-                <div class="section-title">
+</div>
 
-                    <span>
-                        CONDUCERE DIICOT
-                    </span>
 
-                    <h2>
-                        Administrare
-                    </h2>
+<!-- MODAL BLACKLIST -->
 
-                </div>
-
-                <div class="admin-stats">
-
-                    <div class="stat-card">
-
-                        <span>
-                            TOTAL RAPOARTE
-                        </span>
-
-                        <strong id="admin-total">
-                            0
-                        </strong>
-
-                    </div>
-
-                </div>
-
-                <div
-                    id="admin-reports-container"
-                    class="reports-list"
-                >
-
-                    <div class="dashboard-panel">
-
-                        <div class="empty-state">
-                            Se încarcă rapoartele...
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-            <!-- =================================================
-                 PROFIL
-            ================================================== -->
-
-            <section
-                id="profile"
-                class="dashboard-section"
-            >
-
-                <div class="section-title">
-
-                    <span>
-                        CONT DIICOT
-                    </span>
-
-                    <h2>
-                        Profilul meu
-                    </h2>
-
-                </div>
-
-                <div class="profile-layout">
-
-                    <!-- PROFIL PRINCIPAL -->
-
-                    <div class="profile-main-card">
-
-                        <div class="profile-cover"></div>
-
-                        <div class="profile-main-content">
-
-                            <img
-                                id="profile-avatar"
-                                class="profile-avatar"
-                                src="https://cdn.discordapp.com/embed/avatars/0.png"
-                                alt="Avatar Discord"
-                            >
-
-                            <div class="profile-identity">
-
-                                <span class="profile-status">
-                                    MEMBRU ACTIV
-                                </span>
-
-                                <h3 id="profile-name">
-                                    Se încarcă...
-                                </h3>
-
-                                <p id="profile-username">
-                                    @discord
-                                </p>
-
-                                <div class="profile-rank-badge">
-
-                                    <span>
-                                        GRAD ACTUAL
-                                    </span>
-
-                                    <strong id="profile-rank">
-                                        -
-                                    </strong>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- STATISTICI -->
-
-                    <div class="profile-statistics">
-
-                        <div class="profile-stat-card">
-
-                            <span>
-                                RAPOARTE
-                            </span>
-
-                            <strong id="profile-total-reports">
-                                0
-                            </strong>
-
-                        </div>
-
-                        <div class="profile-stat-card">
-
-                            <span>
-                                CU DOVEZI
-                            </span>
-
-                            <strong id="profile-image-reports">
-                                0
-                            </strong>
-
-                        </div>
-
-                        <div class="profile-stat-card profile-stat-card-wide">
-
-                            <span>
-                                ULTIMA ACTIVITATE
-                            </span>
-
-                            <strong id="profile-last-activity">
-                                -
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-                    <div class="profile-grid">
-
-                        <!-- EDITARE PROFIL -->
-
-                        <div class="dashboard-panel profile-panel">
-
-                            <div class="profile-panel-heading">
-
-                                <div>
-
-                                    <span>
-                                        IDENTITATE
-                                    </span>
-
-                                    <h3>
-                                        Editează profilul
-                                    </h3>
-
-                                </div>
-
-                            </div>
-
-                            <form id="profile-form">
-
-                                <div class="form-group">
-
-                                    <label for="profile-nickname">
-                                        NUME PE SERVER
-                                    </label>
-
-                                    <input
-                                        type="text"
-                                        id="profile-nickname"
-                                        maxlength="32"
-                                        placeholder="Numele tău pe Discord"
-                                        required
-                                    >
-
-                                    <small class="profile-help">
-                                        Profilul se salvează pe site. Dacă Discord permite, nickname-ul se sincronizează și pe server.
-                                    </small>
-
-                                </div>
-
-                                <div class="profile-duties-section">
-
-                                    <div class="profile-duties-header">
-
-                                        <div>
-
-                                            <label>
-                                                ATRIBUȚII
-                                            </label>
-
-                                            <small>
-                                                Maximum 8 atribuții
-                                            </small>
-
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            id="add-duty"
-                                            class="profile-small-btn"
-                                        >
-                                            + ADAUGĂ
-                                        </button>
-
-                                    </div>
-
-                                    <div id="duties-editor">
-
-                                        <div class="profile-no-duties">
-                                            Nu ai adăugat nicio atribuție.
-                                        </div>
-
-                                    </div>
-
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    id="save-profile"
-                                    class="primary-btn profile-save-button"
-                                >
-                                    SALVEAZĂ MODIFICĂRILE
-                                </button>
-
-                                <div
-                                    id="profile-message"
-                                    class="profile-message"
-                                ></div>
-
-                            </form>
-
-                        </div>
-
-                        <!-- ACTIVITATE PROFIL -->
-
-                        <div class="dashboard-panel profile-panel">
-
-                            <div class="profile-panel-heading">
-
-                                <div>
-
-                                    <span>
-                                        ACTIVITATE
-                                    </span>
-
-                                    <h3>
-                                        Activitate recentă
-                                    </h3>
-
-                                </div>
-
-                            </div>
-
-                            <div
-                                id="profile-activity"
-                                class="profile-activity-list"
-                            >
-
-                                <div class="empty-state">
-                                    Nu există activitate.
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
-
-            </section>
-
-        </main>
-
-    </div>
-
-    <!-- =====================================================
-         MODAL GESTIONARE GRAD
-    ====================================================== -->
+<div
+    id="blacklist-entry-modal"
+    class="blacklist-modal"
+>
 
     <div
-        id="rank-manager-modal"
-        class="rank-manager-modal"
-    >
+        id="blacklist-entry-overlay"
+        class="blacklist-modal-overlay"
+    ></div>
 
-        <div
-            class="rank-manager-overlay"
-            id="rank-manager-overlay"
-        ></div>
+    <div class="blacklist-modal-box">
 
-        <div class="rank-manager-box">
+        <div class="blacklist-modal-top">
 
-            <div class="rank-manager-top">
-
-                <div>
-
-                    <span class="rank-manager-kicker">
-                        ADMINISTRARE PERSONAL
-                    </span>
-
-                    <h3>
-                        Gestionare grad
-                    </h3>
-
-                </div>
-
-                <button
-                    type="button"
-                    class="rank-manager-close"
-                    id="rank-manager-close"
-                >
-                    ×
-                </button>
-
-            </div>
-
-            <div class="rank-manager-member">
-
-                <span>
-                    MEMBRU SELECTAT
+            <div>
+                <span class="blacklist-modal-kicker">
+                    CONDUCERE DIICOT
                 </span>
 
-                <strong id="rank-manager-name">
-                    -
-                </strong>
-
-            </div>
-
-            <input
-                type="hidden"
-                id="rank-manager-user-id"
-            >
-
-            <div class="form-group rank-manager-form">
-
-                <label for="rank-manager-select">
-                    GRAD NOU
-                </label>
-
-                <select id="rank-manager-select">
-
-                    <option value="">
-                        Se încarcă gradele...
-                    </option>
-
-                </select>
-
-            </div>
-
-            <div class="rank-manager-warning">
-                Schimbarea gradului se aplică direct pe serverul Discord.
+                <h3 id="blacklist-modal-title">
+                    Adaugă în blacklist
+                </h3>
             </div>
 
             <button
                 type="button"
-                id="rank-manager-save"
-                class="primary-btn rank-manager-save"
+                id="blacklist-entry-close"
+                class="blacklist-modal-close"
             >
-                SALVEAZĂ GRADUL
+                ×
             </button>
-
-            <div
-                id="rank-manager-message"
-                class="rank-manager-message"
-            ></div>
 
         </div>
 
-    </div>
+        <form id="blacklist-form">
 
-    <!-- =====================================================
-         JAVASCRIPT
-    ====================================================== -->
+            <input
+                type="hidden"
+                id="blacklist-edit-id"
+            >
 
-    <script>
+            <div class="form-group">
 
-        let currentUser = null;
-        let profileDuties = [];
-        let adminDiscordRoles = [];
+                <label>DISCORD ID</label>
 
-        /* =====================================================
-           ESCAPE HTML
-        ====================================================== */
+                <div class="blacklist-check-row">
 
-        function escapeHTML(value) {
-
-            const div =
-                document.createElement("div");
-
-            div.textContent =
-                String(value ?? "");
-
-            return div.innerHTML;
-        }
-
-        /* =====================================================
-           AVATAR
-        ====================================================== */
-
-        function getAvatarURL(user) {
-
-            if (
-                user &&
-                user.id &&
-                user.avatar
-            ) {
-
-                return (
-                    `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`
-                );
-            }
-
-            return (
-                "https://cdn.discordapp.com/embed/avatars/0.png"
-            );
-        }
-
-        /* =====================================================
-           TOPBAR
-        ====================================================== */
-
-        function renderTopbarUser() {
-
-            if (!currentUser) {
-                return;
-            }
-
-            const displayName =
-                currentUser.displayName ||
-                currentUser.globalName ||
-                currentUser.username ||
-                "Membru DIICOT";
-
-            const rank =
-                currentUser.rank ||
-                "MEMBRU DIICOT";
-
-            const avatar =
-                getAvatarURL(currentUser);
-
-            document.getElementById(
-                "dashboard-user"
-            ).innerHTML = `
-
-                <div class="user-menu">
-
-                    <img
-                        src="${avatar}"
-                        class="user-avatar"
-                        alt="Avatar Discord"
+                    <input
+                        id="blacklist-discord-id"
+                        maxlength="25"
+                        placeholder="123456789012345678"
+                        required
                     >
 
-                    <div class="user-info">
+                    <button
+                        type="button"
+                        id="blacklist-check-user"
+                        class="primary-btn"
+                    >
+                        VERIFICĂ
+                    </button>
 
-                        <strong>
-                            ${escapeHTML(displayName)}
-                        </strong>
+                </div>
 
-                        <span>
-                            ${escapeHTML(rank)}
-                        </span>
+                <div
+                    id="blacklist-user-preview"
+                    class="blacklist-user-preview"
+                >
 
+                    <img
+                        id="blacklist-user-avatar"
+                        src="https://cdn.discordapp.com/embed/avatars/0.png"
+                        alt="Avatar"
+                    >
+
+                    <div>
+                        <strong id="blacklist-user-name">-</strong>
+                        <span id="blacklist-user-username">-</span>
                     </div>
 
                 </div>
-            `;
 
-            document.getElementById(
-                "welcome-name"
-            ).textContent =
-                displayName;
+            </div>
 
-            document.getElementById(
-                "welcome-rank"
-            ).textContent =
-                rank;
+            <div class="form-group">
 
-            const previewAuthor =
-                document.getElementById(
-                    "announcement-preview-author"
-                );
+                <label>NUME</label>
 
-            const previewRank =
-                document.getElementById(
-                    "announcement-preview-rank"
-                );
+                <input
+                    id="blacklist-name"
+                    maxlength="80"
+                    placeholder="Numele persoanei"
+                >
 
-            const previewAvatar =
-                document.getElementById(
-                    "announcement-preview-avatar"
-                );
+            </div>
 
-            if (previewAuthor) {
-                previewAuthor.textContent =
-                    displayName;
-            }
+            <div class="form-group">
 
-            if (previewRank) {
-                previewRank.textContent =
-                    rank;
-            }
+                <label>MOTIV</label>
 
-            if (previewAvatar) {
-                previewAvatar.src =
-                    avatar;
-            }
+                <textarea
+                    id="blacklist-reason"
+                    rows="5"
+                    maxlength="1000"
+                    required
+                    placeholder="Motivul introducerii în blacklist..."
+                ></textarea>
+
+            </div>
+
+            <div class="blacklist-form-row">
+
+                <div class="form-group">
+
+                    <label>DURATĂ</label>
+
+                    <select id="blacklist-duration">
+
+                        <option value="PERMANENT">
+                            Permanent
+                        </option>
+
+                        <option value="TEMPORARY">
+                            Temporar
+                        </option>
+
+                    </select>
+
+                </div>
+
+                <div
+                    class="form-group"
+                    id="blacklist-expiry-group"
+                    style="display:none"
+                >
+
+                    <label>EXPIRĂ LA</label>
+
+                    <input
+                        type="datetime-local"
+                        id="blacklist-expiry"
+                    >
+
+                </div>
+
+            </div>
+
+            <button
+                type="submit"
+                id="blacklist-submit"
+                class="primary-btn blacklist-submit"
+            >
+                ADAUGĂ ÎN BLACKLIST
+            </button>
+
+            <div
+                id="blacklist-form-message"
+                class="blacklist-form-message"
+            ></div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- CONFIRMARE BLACKLIST -->
+
+<div
+    id="blacklist-confirm-modal"
+    class="blacklist-modal"
+>
+
+    <div
+        id="blacklist-confirm-overlay"
+        class="blacklist-modal-overlay"
+    ></div>
+
+    <div class="blacklist-modal-box">
+
+        <div class="blacklist-modal-top">
+
+            <div>
+                <span class="blacklist-modal-kicker">
+                    CONFIRMARE
+                </span>
+
+                <h3 id="blacklist-confirm-title">
+                    Confirmare acțiune
+                </h3>
+            </div>
+
+            <button
+                id="blacklist-confirm-close"
+                class="blacklist-modal-close"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <p
+            id="blacklist-confirm-text"
+            class="blacklist-confirm-text"
+        >
+            Ești sigur?
+        </p>
+
+        <div class="blacklist-confirm-actions">
+
+            <button
+                type="button"
+                id="blacklist-confirm-cancel"
+                class="blacklist-action-btn"
+            >
+                ANULEAZĂ
+            </button>
+
+            <button
+                type="button"
+                id="blacklist-confirm-yes"
+                class="primary-btn blacklist-add-btn"
+            >
+                CONFIRMĂ
+            </button>
+
+        </div>
+
+        <div
+            id="blacklist-confirm-message"
+            class="blacklist-form-message"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL GRADE -->
+
+<div
+    id="rank-manager-modal"
+    class="rank-manager-modal"
+>
+
+    <div
+        id="rank-manager-overlay"
+        class="rank-manager-overlay"
+    ></div>
+
+    <div class="rank-manager-box">
+
+        <div class="rank-manager-top">
+
+            <div>
+                <span class="rank-manager-kicker">
+                    ADMINISTRARE PERSONAL
+                </span>
+
+                <h3>Gestionare grad</h3>
+            </div>
+
+            <button
+                id="rank-manager-close"
+                class="rank-manager-close"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <div class="rank-manager-member">
+            <span>MEMBRU SELECTAT</span>
+            <strong id="rank-manager-name">-</strong>
+        </div>
+
+        <input
+            type="hidden"
+            id="rank-manager-user-id"
+        >
+
+        <div class="form-group">
+
+            <label>GRAD NOU</label>
+
+            <select id="rank-manager-select">
+                <option value="">Se încarcă...</option>
+            </select>
+
+        </div>
+
+        <div class="rank-manager-warning">
+            Schimbarea gradului se aplică direct pe Discord.
+        </div>
+
+        <button
+            id="rank-manager-save"
+            type="button"
+            class="primary-btn rank-manager-save"
+        >
+            SALVEAZĂ GRADUL
+        </button>
+
+        <div
+            id="rank-manager-message"
+            class="rank-manager-message"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+let currentUser = null;
+let profileDuties = [];
+let adminDiscordRoles = [];
+let blacklistEntries = [];
+let blacklistConfirmAction = null;
+
+
+/* =====================================================
+   UTILS
+====================================================== */
+
+function escapeHTML(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        String(value ?? "");
+
+    return div.innerHTML;
+}
+
+
+function getAvatarURL(user) {
+
+    if (
+        user &&
+        user.id &&
+        user.avatar
+    ) {
+
+        return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
+    }
+
+    return "https://cdn.discordapp.com/embed/avatars/0.png";
+}
+
+
+/* =====================================================
+   USER
+====================================================== */
+
+function renderTopbarUser() {
+
+    if (!currentUser) return;
+
+    const displayName =
+        currentUser.displayName ||
+        currentUser.globalName ||
+        currentUser.username ||
+        "Membru DIICOT";
+
+    const rank =
+        currentUser.rank ||
+        "MEMBRU DIICOT";
+
+    const avatar =
+        getAvatarURL(currentUser);
+
+    document.getElementById(
+        "dashboard-user"
+    ).innerHTML = `
+
+        <div class="user-menu">
+
+            <img
+                src="${avatar}"
+                class="user-avatar"
+                alt="Avatar"
+            >
+
+            <div class="user-info">
+                <strong>${escapeHTML(displayName)}</strong>
+                <span>${escapeHTML(rank)}</span>
+            </div>
+
+        </div>
+    `;
+
+    document.getElementById(
+        "welcome-name"
+    ).textContent =
+        displayName;
+
+    document.getElementById(
+        "welcome-rank"
+    ).textContent =
+        rank;
+
+    document.getElementById(
+        "announcement-preview-author"
+    ).textContent =
+        displayName;
+
+    document.getElementById(
+        "announcement-preview-rank"
+    ).textContent =
+        rank;
+
+    document.getElementById(
+        "announcement-preview-avatar"
+    ).src =
+        avatar;
+}
+
+
+async function loadDashboardUser() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/me",
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+
+        if (!response.ok) {
+
+            location.replace("/");
+            return;
         }
 
-        /* =====================================================
-           LOAD USER
-        ====================================================== */
+        const data =
+            await response.json();
 
-        async function loadDashboardUser() {
+        if (
+            !data.loggedIn ||
+            !data.user
+        ) {
+
+            location.replace("/");
+            return;
+        }
+
+        currentUser =
+            data.user;
+
+        renderTopbarUser();
+
+        if (
+            Number(
+                currentUser.rankLevel || 0
+            ) < 10
+        ) {
+
+            document
+                .querySelectorAll(
+                    ".admin-only"
+                )
+                .forEach(
+                    item =>
+                        item.style.display =
+                            "none"
+                );
+        }
+
+        await loadMyReports();
+
+    }
+
+    catch {
+
+        location.replace("/");
+    }
+}
+
+
+/* =====================================================
+   NAVIGAȚIE
+====================================================== */
+
+function openSection(name) {
+
+    if (
+        [
+            "admin",
+            "leadership",
+            "blacklist"
+        ].includes(name) &&
+        (
+            !currentUser ||
+            Number(
+                currentUser.rankLevel || 0
+            ) < 10
+        )
+    ) {
+
+        return;
+    }
+
+    document
+        .querySelectorAll(
+            ".dashboard-section"
+        )
+        .forEach(
+            section =>
+                section.classList.remove(
+                    "active"
+                )
+        );
+
+    document
+        .querySelectorAll(
+            ".sidebar-link[data-section]"
+        )
+        .forEach(
+            button =>
+                button.classList.remove(
+                    "active"
+                )
+        );
+
+    document
+        .getElementById(name)
+        ?.classList
+        .add("active");
+
+    document
+        .querySelector(
+            `[data-section="${name}"]`
+        )
+        ?.classList
+        .add("active");
+}
+
+
+document
+    .querySelectorAll(
+        ".sidebar-link[data-section]"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+                function () {
+
+                    const target =
+                        this.dataset.section;
+
+                    openSection(target);
+
+                    if (target === "my-reports") {
+                        loadMyReports();
+                    }
+
+                    if (target === "personnel") {
+                        loadPersonnel();
+                    }
+
+                    if (target === "blacklist") {
+                        loadBlacklist();
+                    }
+
+                    if (target === "admin") {
+                        loadAdminReports();
+                    }
+
+                    if (target === "profile") {
+                        loadProfile();
+                    }
+                }
+            );
+        }
+    );
+
+
+/* =====================================================
+   POZE
+====================================================== */
+
+document
+    .getElementById(
+        "report-images"
+    )
+    .addEventListener(
+        "change",
+        function () {
+
+            const preview =
+                document.getElementById(
+                    "image-preview"
+                );
+
+            preview.innerHTML = "";
+
+            const files =
+                [...this.files];
+
+            if (files.length > 5) {
+
+                alert(
+                    "Maximum 5 poze."
+                );
+
+                this.value = "";
+                return;
+            }
+
+            for (const file of files) {
+
+                if (
+                    file.size >
+                    8 * 1024 * 1024
+                ) {
+
+                    alert(
+                        "O imagine depășește 8 MB."
+                    );
+
+                    this.value = "";
+                    preview.innerHTML = "";
+                    return;
+                }
+
+                const reader =
+                    new FileReader();
+
+                reader.onload =
+                    event => {
+
+                        const img =
+                            document.createElement(
+                                "img"
+                            );
+
+                        img.src =
+                            event.target.result;
+
+                        img.className =
+                            "report-preview-image";
+
+                        preview.appendChild(
+                            img
+                        );
+                    };
+
+                reader.readAsDataURL(
+                    file
+                );
+            }
+        }
+    );
+
+
+/* =====================================================
+   RAPORT NOU
+====================================================== */
+
+document
+    .getElementById(
+        "report-form"
+    )
+    .addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const button =
+                document.getElementById(
+                    "submit-report"
+                );
+
+            const message =
+                document.getElementById(
+                    "report-message"
+                );
+
+            const form =
+                new FormData();
+
+            form.append(
+                "type",
+                document.getElementById(
+                    "report-type"
+                ).value
+            );
+
+            form.append(
+                "title",
+                document.getElementById(
+                    "report-title"
+                ).value.trim()
+            );
+
+            form.append(
+                "description",
+                document.getElementById(
+                    "report-description"
+                ).value.trim()
+            );
+
+            for (
+                const file
+                of document.getElementById(
+                    "report-images"
+                ).files
+            ) {
+
+                form.append(
+                    "images",
+                    file
+                );
+            }
 
             try {
 
+                button.disabled =
+                    true;
+
+                button.textContent =
+                    "SE POSTEAZĂ...";
+
                 const response =
                     await fetch(
-                        "/api/me",
+                        "/api/reports",
                         {
+                            method: "POST",
                             credentials: "include",
-                            cache: "no-store"
+                            body: form
                         }
                     );
-
-                if (!response.ok) {
-
-                    window.location.replace("/");
-                    return;
-                }
 
                 const data =
                     await response.json();
 
-                if (
-                    !data.loggedIn ||
-                    !data.user
-                ) {
+                if (!response.ok) {
 
-                    window.location.replace("/");
-                    return;
-                }
-
-                currentUser =
-                    data.user;
-
-                renderTopbarUser();
-
-                const rankLevel =
-                    Number(
-                        currentUser.rankLevel || 0
+                    throw new Error(
+                        data.error
                     );
-
-                if (rankLevel < 10) {
-
-                    document
-                        .querySelectorAll(
-                            ".admin-only"
-                        )
-                        .forEach(
-                            element => {
-
-                                element.style.display =
-                                    "none";
-                            }
-                        );
                 }
+
+                message.textContent =
+                    "✓ Raport postat cu succes.";
+
+                this.reset();
+
+                document.getElementById(
+                    "image-preview"
+                ).innerHTML = "";
 
                 await loadMyReports();
+
+                openSection(
+                    "my-reports"
+                );
 
             }
 
             catch (error) {
 
-                console.error(
-                    "Dashboard user error:",
-                    error
-                );
+                message.textContent =
+                    error.message;
+            }
 
-                window.location.replace("/");
+            finally {
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "POSTEAZĂ RAPORTUL";
             }
         }
+    );
 
-        /* =====================================================
-           SECȚIUNI
-        ====================================================== */
 
-        function openSection(name) {
+/* =====================================================
+   RAPOARTE
+====================================================== */
 
-            if (
-                (
-                    name === "admin" ||
-                    name === "leadership"
-                ) &&
-                (
-                    !currentUser ||
-                    Number(
-                        currentUser.rankLevel || 0
-                    ) < 10
+async function loadMyReports() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/reports/my",
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+
+        if (!response.ok) return;
+
+        const data =
+            await response.json();
+
+        const reports =
+            data.reports || [];
+
+        renderReports(reports);
+
+        document.getElementById(
+            "stat-total"
+        ).textContent =
+            reports.length;
+
+        document.getElementById(
+            "stat-images"
+        ).textContent =
+            reports.filter(
+                report =>
+                    report.images?.length
+            ).length;
+
+        document.getElementById(
+            "stat-types"
+        ).textContent =
+            new Set(
+                reports.map(
+                    report =>
+                        report.type
                 )
+            ).size;
+
+        document.getElementById(
+            "stat-last"
+        ).textContent =
+            reports.length
+                ? reports[0].createdAtFormatted
+                : "-";
+
+        renderRecentActivity(
+            reports
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(error);
+    }
+}
+
+
+function createReportHTML(
+    report,
+    showAuthor = false
+) {
+
+    const images =
+        Array.isArray(
+            report.images
+        )
+            ? report.images
+            : [];
+
+    return `
+
+        <article class="report-card">
+
+            ${
+                showAuthor
+                    ? `
+                        <div class="admin-report-author">
+
+                            <span>
+                                RAPORT POSTAT DE
+                            </span>
+
+                            <strong>
+                                ${escapeHTML(report.authorName)}
+                            </strong>
+
+                            <small>
+                                @${escapeHTML(report.authorUsername)}
+                                •
+                                ${escapeHTML(report.authorRank)}
+                            </small>
+
+                        </div>
+                    `
+                    : ""
+            }
+
+            <div class="report-card-header">
+
+                <div>
+
+                    <span class="report-type">
+                        ${escapeHTML(report.type)}
+                    </span>
+
+                    <h3>
+                        ${escapeHTML(report.title)}
+                    </h3>
+
+                </div>
+
+                <span class="report-published">
+                    POSTAT
+                </span>
+
+            </div>
+
+            <p class="report-description">
+                ${escapeHTML(report.description)}
+            </p>
+
+            ${
+                images.length
+                    ? `
+                        <div class="report-images">
+
+                            ${images
+                                .map(
+                                    image => `
+                                        <a
+                                            href="${escapeHTML(image.url)}"
+                                            target="_blank"
+                                        >
+                                            <img
+                                                src="${escapeHTML(image.url)}"
+                                                alt="Dovadă"
+                                            >
+                                        </a>
+                                    `
+                                )
+                                .join("")}
+
+                        </div>
+                    `
+                    : ""
+            }
+
+            <div class="report-meta">
+
+                <span>
+                    ${escapeHTML(report.authorRank)}
+                </span>
+
+                <span>
+                    ${escapeHTML(report.createdAtFormatted)}
+                </span>
+
+            </div>
+
+        </article>
+    `;
+}
+
+
+function renderReports(reports) {
+
+    const container =
+        document.getElementById(
+            "my-reports-container"
+        );
+
+    if (!reports.length) {
+
+        container.innerHTML = `
+
+            <div class="dashboard-panel">
+                <div class="empty-state">
+                    Nu ai încă rapoarte.
+                </div>
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML =
+        reports
+            .map(
+                report =>
+                    createReportHTML(
+                        report
+                    )
+            )
+            .join("");
+}
+
+
+function renderRecentActivity(reports) {
+
+    const container =
+        document.getElementById(
+            "recent-activity"
+        );
+
+    if (!reports.length) {
+
+        container.textContent =
+            "Momentan nu există activitate.";
+
+        return;
+    }
+
+    const report =
+        reports[0];
+
+    container.innerHTML = `
+
+        <strong>
+            ${escapeHTML(report.type)}
+        </strong>
+
+        <br>
+
+        ${escapeHTML(report.title)}
+
+        <br>
+
+        <small>
+            ${escapeHTML(report.createdAtFormatted)}
+        </small>
+    `;
+}
+
+
+/* =====================================================
+   ADMIN
+====================================================== */
+
+async function loadAdminReports() {
+
+    const container =
+        document.getElementById(
+            "admin-reports-container"
+        );
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/admin/reports",
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
+            );
+        }
+
+        const reports =
+            data.reports || [];
+
+        document.getElementById(
+            "admin-total"
+        ).textContent =
+            reports.length;
+
+        container.innerHTML =
+            reports.length
+                ? reports
+                    .map(
+                        report =>
+                            createReportHTML(
+                                report,
+                                true
+                            )
+                    )
+                    .join("")
+                : `
+                    <div class="dashboard-panel">
+                        <div class="empty-state">
+                            Nu există rapoarte.
+                        </div>
+                    </div>
+                `;
+
+    }
+
+    catch (error) {
+
+        container.innerHTML =
+            escapeHTML(
+                error.message
+            );
+    }
+}
+
+
+/* =====================================================
+   PERSONAL
+====================================================== */
+
+async function loadPersonnel() {
+
+    const container =
+        document.getElementById(
+            "personnel-container"
+        );
+
+    container.innerHTML = `
+
+        <div class="dashboard-panel">
+            <div class="empty-state">
+                Se încarcă personalul...
+            </div>
+        </div>
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/personnel",
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
+            );
+        }
+
+        const personnel =
+            data.personnel || [];
+
+        document.getElementById(
+            "personnel-count"
+        ).textContent =
+            personnel.length;
+
+        if (
+            Number(
+                currentUser?.rankLevel || 0
+            ) >= 10
+        ) {
+
+            await loadDiscordRoles();
+        }
+
+        const groups = {};
+
+        personnel.forEach(
+            member => {
+
+                groups[member.rank] ||= [];
+
+                groups[member.rank].push(
+                    member
+                );
+            }
+        );
+
+        const rankOrder = [
+            "PROCUROR ȘEF",
+            "PROCUROR ȘEF ADJUNCT",
+            "PROCUROR",
+            "COORDONATOR",
+            "COMISAR ȘEF",
+            "COMISAR",
+            "SUB COMISAR",
+            "INSPECTOR PRINCIPAL",
+            "INSPECTOR",
+            "SUB INSPECTOR",
+            "AGENT PRINCIPAL",
+            "AGENT OPERATIV",
+            "AGENT STAGIAR"
+        ];
+
+        let html = "";
+
+        for (
+            const rank
+            of rankOrder
+        ) {
+
+            const members =
+                groups[rank];
+
+            if (!members?.length) {
+                continue;
+            }
+
+            html += `
+
+                <div class="personnel-rank-section">
+
+                    <div class="personnel-rank-header">
+                        <span>${escapeHTML(rank)}</span>
+                        <strong>${members.length}</strong>
+                    </div>
+
+                    <div class="personnel-grid">
+            `;
+
+            for (
+                const member
+                of members
             ) {
 
-                return;
+                const canManage =
+                    Number(
+                        currentUser.rankLevel || 0
+                    ) >= 10 &&
+                    String(
+                        currentUser.id
+                    ) !==
+                    String(
+                        member.id
+                    );
+
+                html += `
+
+                    <div class="personnel-card">
+
+                        <img
+                            class="personnel-avatar"
+                            src="${escapeHTML(member.avatar)}"
+                            alt="Avatar"
+                        >
+
+                        <div class="personnel-info">
+
+                            <strong>
+                                ${escapeHTML(member.displayName)}
+                            </strong>
+
+                            <span>
+                                ${escapeHTML(member.rank)}
+                            </span>
+
+                            <small>
+                                @${escapeHTML(member.username)}
+                            </small>
+
+                            ${
+                                canManage
+                                    ? `
+                                        <button
+                                            type="button"
+                                            class="manage-rank-btn"
+                                            data-user-id="${escapeHTML(member.id)}"
+                                            data-user-name="${escapeHTML(member.displayName)}"
+                                            data-role-id="${escapeHTML(member.rankRoleId)}"
+                                        >
+                                            GESTIONEAZĂ GRADUL
+                                        </button>
+                                    `
+                                    : ""
+                            }
+
+                        </div>
+
+                    </div>
+                `;
             }
 
-            document
-                .querySelectorAll(
-                    ".dashboard-section"
-                )
-                .forEach(
-                    section => {
-
-                        section.classList.remove(
-                            "active"
-                        );
-                    }
-                );
-
-            document
-                .querySelectorAll(
-                    ".sidebar-link[data-section]"
-                )
-                .forEach(
-                    button => {
-
-                        button.classList.remove(
-                            "active"
-                        );
-                    }
-                );
-
-            const section =
-                document.getElementById(
-                    name
-                );
-
-            const button =
-                document.querySelector(
-                    `[data-section="${name}"]`
-                );
-
-            if (section) {
-
-                section.classList.add(
-                    "active"
-                );
-            }
-
-            if (button) {
-
-                button.classList.add(
-                    "active"
-                );
-            }
+            html += `
+                    </div>
+                </div>
+            `;
         }
 
-        document
+        container.innerHTML =
+            html;
+
+        container
             .querySelectorAll(
-                ".sidebar-link[data-section]"
+                ".manage-rank-btn"
             )
             .forEach(
                 button => {
@@ -1630,1173 +2708,1577 @@
                         "click",
                         function () {
 
-                            const target =
-                                this.dataset.section;
-
-                            openSection(target);
-
-                            if (
-                                target ===
-                                "my-reports"
-                            ) {
-
-                                loadMyReports();
-                            }
-
-                            if (
-                                target ===
-                                "personnel"
-                            ) {
-
-                                loadPersonnel();
-                            }
-
-                            if (
-                                target ===
-                                "admin"
-                            ) {
-
-                                loadAdminReports();
-                            }
-
-                            if (
-                                target ===
-                                "profile"
-                            ) {
-
-                                loadProfile();
-                            }
+                            openRankManager(
+                                this.dataset.userId,
+                                this.dataset.userName,
+                                this.dataset.roleId
+                            );
                         }
                     );
                 }
             );
 
-        /* =====================================================
-           PREVIEW POZE
-        ====================================================== */
+    }
 
-        const imageInput =
-            document.getElementById(
-                "report-images"
+    catch (error) {
+
+        container.innerHTML =
+            escapeHTML(
+                error.message
+            );
+    }
+}
+
+
+async function loadDiscordRoles() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/admin/roles",
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
             );
 
-        imageInput.addEventListener(
-            "change",
-            function () {
+        const data =
+            await response.json();
 
-                const preview =
-                    document.getElementById(
-                        "image-preview"
-                    );
+        adminDiscordRoles =
+            response.ok &&
+            Array.isArray(
+                data.roles
+            )
+                ? data.roles
+                : [];
 
-                preview.innerHTML = "";
+    }
 
-                const files =
-                    Array.from(
-                        this.files
-                    );
+    catch {
 
-                if (files.length > 5) {
+        adminDiscordRoles = [];
+    }
+}
 
-                    alert(
-                        "Poți selecta maximum 5 poze."
-                    );
 
-                    this.value = "";
+function openRankManager(
+    userId,
+    name,
+    currentRole
+) {
 
-                    return;
-                }
+    document.getElementById(
+        "rank-manager-user-id"
+    ).value =
+        userId;
 
-                for (const file of files) {
+    document.getElementById(
+        "rank-manager-name"
+    ).textContent =
+        name;
 
-                    if (
-                        file.size >
-                        8 * 1024 * 1024
-                    ) {
+    document.getElementById(
+        "rank-manager-select"
+    ).innerHTML =
+        adminDiscordRoles
+            .map(
+                role => `
 
-                        alert(
-                            "O poză depășește limita de 8 MB."
-                        );
-
-                        this.value = "";
-                        preview.innerHTML = "";
-
-                        return;
-                    }
-
-                    const reader =
-                        new FileReader();
-
-                    reader.onload =
-                        function (event) {
-
-                            const image =
-                                document.createElement(
-                                    "img"
-                                );
-
-                            image.src =
-                                event.target.result;
-
-                            image.className =
-                                "report-preview-image";
-
-                            preview.appendChild(
-                                image
-                            );
-                        };
-
-                    reader.readAsDataURL(
-                        file
-                    );
-                }
-            }
-        );
-
-        /* =====================================================
-           POSTARE RAPORT
-        ====================================================== */
-
-        const reportForm =
-            document.getElementById(
-                "report-form"
-            );
-
-        reportForm.addEventListener(
-            "submit",
-            async function (event) {
-
-                event.preventDefault();
-
-                const type =
-                    document.getElementById(
-                        "report-type"
-                    ).value;
-
-                const title =
-                    document.getElementById(
-                        "report-title"
-                    ).value.trim();
-
-                const description =
-                    document.getElementById(
-                        "report-description"
-                    ).value.trim();
-
-                const images =
-                    document.getElementById(
-                        "report-images"
-                    ).files;
-
-                const button =
-                    document.getElementById(
-                        "submit-report"
-                    );
-
-                const message =
-                    document.getElementById(
-                        "report-message"
-                    );
-
-                const formData =
-                    new FormData();
-
-                formData.append(
-                    "type",
-                    type
-                );
-
-                formData.append(
-                    "title",
-                    title
-                );
-
-                formData.append(
-                    "description",
-                    description
-                );
-
-                for (
-                    let i = 0;
-                    i < images.length;
-                    i++
-                ) {
-
-                    formData.append(
-                        "images",
-                        images[i]
-                    );
-                }
-
-                try {
-
-                    button.disabled = true;
-
-                    button.textContent =
-                        "SE POSTEAZĂ...";
-
-                    message.textContent = "";
-
-                    const response =
-                        await fetch(
-                            "/api/reports",
-                            {
-                                method: "POST",
-                                credentials: "include",
-                                body: formData
-                            }
-                        );
-
-                    const data =
-                        await response.json();
-
-                    if (!response.ok) {
-
-                        throw new Error(
-                            data.error ||
-                            "Raportul nu a putut fi postat."
-                        );
-                    }
-
-                    message.textContent =
-                        "✓ Raportul a fost postat cu succes.";
-
-                    reportForm.reset();
-
-                    document.getElementById(
-                        "image-preview"
-                    ).innerHTML = "";
-
-                    await loadMyReports();
-
-                    setTimeout(
-                        function () {
-
-                            openSection(
-                                "my-reports"
-                            );
-                        },
-                        350
-                    );
-
-                }
-
-                catch (error) {
-
-                    message.textContent =
-                        error.message;
-                }
-
-                finally {
-
-                    button.disabled = false;
-
-                    button.textContent =
-                        "POSTEAZĂ RAPORTUL";
-                }
-            }
-        );
-
-        /* =====================================================
-           RAPOARTELE MELE
-        ====================================================== */
-
-        async function loadMyReports() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/reports/my",
-                        {
-                            credentials: "include",
-                            cache: "no-store"
+                    <option
+                        value="${escapeHTML(role.id)}"
+                        ${
+                            String(role.id) ===
+                            String(currentRole)
+                                ? "selected"
+                                : ""
                         }
-                    );
-
-                if (!response.ok) {
-                    return;
-                }
-
-                const data =
-                    await response.json();
-
-                const reports =
-                    data.reports || [];
-
-                renderReports(
-                    reports
-                );
-
-                updateStatistics(
-                    reports
-                );
-
-                renderRecentActivity(
-                    reports
-                );
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Reports error:",
-                    error
-                );
-            }
-        }
-
-        /* =====================================================
-           STATISTICI
-        ====================================================== */
-
-        function updateStatistics(reports) {
-
-            const total =
-                reports.length;
-
-            const withImages =
-                reports.filter(
-                    report =>
-                        Array.isArray(
-                            report.images
-                        ) &&
-                        report.images.length > 0
-                ).length;
-
-            const uniqueTypes =
-                new Set(
-                    reports.map(
-                        report =>
-                            report.type
-                    )
-                ).size;
-
-            document.getElementById(
-                "stat-total"
-            ).textContent =
-                total;
-
-            document.getElementById(
-                "stat-images"
-            ).textContent =
-                withImages;
-
-            document.getElementById(
-                "stat-types"
-            ).textContent =
-                uniqueTypes;
-
-            document.getElementById(
-                "stat-last"
-            ).textContent =
-                reports.length
-                    ? reports[0].createdAtFormatted
-                    : "-";
-        }
-
-        /* =====================================================
-           RAPOARTE HTML
-        ====================================================== */
-
-        function renderReports(reports) {
-
-            const container =
-                document.getElementById(
-                    "my-reports-container"
-                );
-
-            if (!reports.length) {
-
-                container.innerHTML = `
-
-                    <div class="dashboard-panel">
-
-                        <div class="empty-state">
-                            Nu ai încă rapoarte postate.
-                        </div>
-
-                    </div>
-                `;
-
-                return;
-            }
-
-            container.innerHTML =
-                reports
-                    .map(
-                        report =>
-                            createReportHTML(
-                                report,
-                                false
-                            )
-                    )
-                    .join("");
-        }
-
-        function createReportHTML(
-            report,
-            showAuthor
-        ) {
-
-            const images =
-                Array.isArray(
-                    report.images
-                )
-                    ? report.images
-                    : [];
-
-            const imagesHTML =
-                images.length
-
-                    ? `
-
-                        <div class="report-images">
-
-                            ${images
-                                .map(
-                                    image => `
-
-                                        <a
-                                            href="${escapeHTML(image.url)}"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            <img
-                                                src="${escapeHTML(image.url)}"
-                                                alt="Poză raport"
-                                            >
-                                        </a>
-
-                                    `
-                                )
-                                .join("")}
-
-                        </div>
-                    `
-
-                    : "";
-
-            const authorHTML =
-                showAuthor
-
-                    ? `
-
-                        <div class="admin-report-author">
-
-                            <span>
-                                RAPORT POSTAT DE
-                            </span>
-
-                            <strong>
-                                ${escapeHTML(
-                                    report.authorName ||
-                                    report.authorUsername ||
-                                    "Necunoscut"
-                                )}
-                            </strong>
-
-                            <small>
-                                @${escapeHTML(
-                                    report.authorUsername ||
-                                    "necunoscut"
-                                )}
-                                •
-                                ${escapeHTML(
-                                    report.authorRank ||
-                                    "MEMBRU DIICOT"
-                                )}
-                            </small>
-
-                        </div>
-                    `
-
-                    : "";
-
-            return `
-
-                <article class="report-card">
-
-                    ${authorHTML}
-
-                    <div class="report-card-header">
-
-                        <div>
-
-                            <span class="report-type">
-                                ${escapeHTML(report.type)}
-                            </span>
-
-                            <h3>
-                                ${escapeHTML(report.title)}
-                            </h3>
-
-                        </div>
-
-                        <span class="report-published">
-                            POSTAT
-                        </span>
-
-                    </div>
-
-                    <p class="report-description">
-                        ${escapeHTML(report.description)}
-                    </p>
-
-                    ${imagesHTML}
-
-                    <div class="report-meta">
-
-                        <span>
-                            ${escapeHTML(
-                                report.authorRank ||
-                                "MEMBRU DIICOT"
-                            )}
-                        </span>
-
-                        <span>
-                            ${escapeHTML(
-                                report.createdAtFormatted ||
-                                "-"
-                            )}
-                        </span>
-
-                    </div>
-
-                </article>
-            `;
-        }
-
-        /* =====================================================
-           ACTIVITATE RECENTĂ
-        ====================================================== */
-
-        function renderRecentActivity(reports) {
-
-            const container =
-                document.getElementById(
-                    "recent-activity"
-                );
-
-            if (!reports.length) {
-
-                container.className =
-                    "empty-state";
-
-                container.textContent =
-                    "Momentan nu există activitate.";
-
-                return;
-            }
-
-            const report =
-                reports[0];
-
-            container.className =
-                "recent-report";
-
-            container.innerHTML = `
-
-                <strong>
-                    ${escapeHTML(report.type)}
-                </strong>
-
-                <span>
-                    ${escapeHTML(report.title)}
-                </span>
-
-                <small>
-                    ${escapeHTML(
-                        report.createdAtFormatted
-                    )}
-                </small>
-            `;
-        }
-
-        /* =====================================================
-           ADMINISTRARE
-        ====================================================== */
-
-        async function loadAdminReports() {
-
-            const container =
-                document.getElementById(
-                    "admin-reports-container"
-                );
-
-            const counter =
-                document.getElementById(
-                    "admin-total"
-                );
-
-            container.innerHTML = `
-
-                <div class="dashboard-panel">
-
-                    <div class="empty-state">
-                        Se încarcă toate rapoartele...
-                    </div>
-
-                </div>
-            `;
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/admin/reports",
-                        {
-                            credentials: "include",
-                            cache: "no-store"
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error ||
-                        "Rapoartele nu au putut fi încărcate."
-                    );
-                }
-
-                const reports =
-                    data.reports || [];
-
-                counter.textContent =
-                    reports.length;
-
-                if (!reports.length) {
-
-                    container.innerHTML = `
-
-                        <div class="dashboard-panel">
-
-                            <div class="empty-state">
-                                Nu există rapoarte postate.
-                            </div>
-
-                        </div>
-                    `;
-
-                    return;
-                }
-
-                container.innerHTML =
-                    reports
-                        .map(
-                            report =>
-                                createReportHTML(
-                                    report,
-                                    true
-                                )
-                        )
-                        .join("");
-
-            }
-
-            catch (error) {
-
-                counter.textContent = "0";
-
-                container.innerHTML = `
-
-                    <div class="dashboard-panel">
-
-                        <div class="empty-state">
-                            ${escapeHTML(error.message)}
-                        </div>
-
-                    </div>
-                `;
-            }
-        }
-
-        /* =====================================================
-           PERSONAL DIICOT
-        ====================================================== */
-
-        async function loadPersonnel() {
-
-            const container =
-                document.getElementById(
-                    "personnel-container"
-                );
-
-            const counter =
-                document.getElementById(
-                    "personnel-count"
-                );
-
-            container.innerHTML = `
-
-                <div class="dashboard-panel">
-
-                    <div class="empty-state">
-                        Se încarcă personalul DIICOT...
-                    </div>
-
-                </div>
-            `;
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/personnel",
-                        {
-                            credentials: "include",
-                            cache: "no-store"
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error ||
-                        "Personalul nu a putut fi încărcat."
-                    );
-                }
-
-                const personnel =
-                    data.personnel || [];
-
-                if (
-                    currentUser &&
-                    Number(
-                        currentUser.rankLevel || 0
-                    ) >= 10
-                ) {
-
-                    await loadDiscordRoles();
-                }
-
-                counter.textContent =
-                    personnel.length;
-
-                if (!personnel.length) {
-
-                    container.innerHTML = `
-
-                        <div class="dashboard-panel">
-
-                            <div class="empty-state">
-                                Nu au fost găsiți membri DIICOT.
-                            </div>
-
-                        </div>
-                    `;
-
-                    return;
-                }
-
-                const groups = {};
-
-                personnel.forEach(
-                    member => {
-
-                        if (!groups[member.rank]) {
-
-                            groups[
-                                member.rank
-                            ] = [];
-                        }
-
-                        groups[
-                            member.rank
-                        ].push(
-                            member
-                        );
-                    }
-                );
-
-                const rankOrder = [
-                    "PROCUROR ȘEF",
-                    "PROCUROR ȘEF ADJUNCT",
-                    "PROCUROR",
-                    "COORDONATOR",
-                    "COMISAR ȘEF",
-                    "COMISAR",
-                    "SUB COMISAR",
-                    "INSPECTOR PRINCIPAL",
-                    "INSPECTOR",
-                    "SUB INSPECTOR",
-                    "AGENT PRINCIPAL",
-                    "AGENT OPERATIV",
-                    "AGENT STAGIAR"
-                ];
-
-                let html = "";
-
-                rankOrder.forEach(
-                    rank => {
-
-                        const members =
-                            groups[rank];
-
-                        if (
-                            !members ||
-                            !members.length
-                        ) {
-                            return;
-                        }
-
-                        html += `
-
-                            <div class="personnel-rank-section">
-
-                                <div class="personnel-rank-header">
-
-                                    <span>
-                                        ${escapeHTML(rank)}
-                                    </span>
-
-                                    <strong>
-                                        ${members.length}
-                                    </strong>
-
-                                </div>
-
-                                <div class="personnel-grid">
-                        `;
-
-                        members.forEach(
-                            member => {
-
-                                const canManage =
-                                    currentUser &&
-                                    Number(
-                                        currentUser.rankLevel || 0
-                                    ) >= 10 &&
-                                    String(
-                                        currentUser.id
-                                    ) !==
-                                    String(
-                                        member.id
-                                    );
-
-                                const manageButton =
-                                    canManage
-
-                                        ? `
-
-                                            <button
-                                                type="button"
-                                                class="manage-rank-btn"
-                                                data-user-id="${escapeHTML(member.id)}"
-                                                data-user-name="${escapeHTML(member.displayName)}"
-                                                data-current-role="${escapeHTML(member.rankRoleId || "")}"
-                                            >
-                                                GESTIONEAZĂ GRADUL
-                                            </button>
-                                        `
-
-                                        : "";
-
-                                html += `
-
-                                    <div class="personnel-card">
-
-                                        <img
-                                            src="${escapeHTML(member.avatar)}"
-                                            alt="Avatar"
-                                            class="personnel-avatar"
-                                        >
-
-                                        <div class="personnel-info">
-
-                                            <strong>
-                                                ${escapeHTML(member.displayName)}
-                                            </strong>
-
-                                            <span>
-                                                ${escapeHTML(member.rank)}
-                                            </span>
-
-                                            <small>
-                                                @${escapeHTML(member.username)}
-                                            </small>
-
-                                            ${manageButton}
-
-                                        </div>
-
-                                    </div>
-                                `;
-                            }
-                        );
-
-                        html += `
-
-                                </div>
-
-                            </div>
-                        `;
-                    }
-                );
-
-                container.innerHTML =
-                    html;
-
-                container
-                    .querySelectorAll(
-                        ".manage-rank-btn"
-                    )
-                    .forEach(
-                        button => {
-
-                            button.addEventListener(
-                                "click",
-                                function () {
-
-                                    openRankManager(
-                                        this.dataset.userId,
-                                        this.dataset.userName,
-                                        this.dataset.currentRole
-                                    );
-                                }
-                            );
-                        }
-                    );
-
-            }
-
-            catch (error) {
-
-                counter.textContent = "0";
-
-                container.innerHTML = `
-
-                    <div class="dashboard-panel">
-
-                        <div class="empty-state">
-                            ${escapeHTML(error.message)}
-                        </div>
-
-                    </div>
-                `;
-            }
-        }
-
-        /* =====================================================
-           LOAD GRADE
-        ====================================================== */
-
-        async function loadDiscordRoles() {
-
-            try {
-
-                const response =
-                    await fetch(
-                        "/api/admin/roles",
-                        {
-                            credentials: "include",
-                            cache: "no-store"
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error ||
-                        "Gradele nu au putut fi încărcate."
-                    );
-                }
-
-                adminDiscordRoles =
-                    Array.isArray(
-                        data.roles
-                    )
-                        ? data.roles
-                        : [];
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Discord roles error:",
-                    error
-                );
-
-                adminDiscordRoles = [];
-            }
-        }
-
-        /* =====================================================
-           OPEN MANAGER GRAD
-        ====================================================== */
-
-        function openRankManager(
-            userId,
-            displayName,
-            currentRoleId
-        ) {
-
-            if (
-                !currentUser ||
-                Number(
-                    currentUser.rankLevel || 0
-                ) < 10
-            ) {
-
-                return;
-            }
-
-            const modal =
-                document.getElementById(
-                    "rank-manager-modal"
-                );
-
-            const select =
-                document.getElementById(
-                    "rank-manager-select"
-                );
-
-            document.getElementById(
-                "rank-manager-user-id"
-            ).value =
-                userId;
-
-            document.getElementById(
-                "rank-manager-name"
-            ).textContent =
-                displayName;
-
-            const message =
-                document.getElementById(
-                    "rank-manager-message"
-                );
-
-            message.className =
-                "rank-manager-message";
-
-            message.textContent = "";
-
-            const availableRoles =
-                adminDiscordRoles;
-
-            if (!availableRoles.length) {
-
-                select.innerHTML = `
-
-                    <option value="">
-                        Nu există grade disponibile
+                    >
+                        ${escapeHTML(role.name)}
                     </option>
-                `;
+                `
+            )
+            .join("");
 
-            }
+    document.getElementById(
+        "rank-manager-modal"
+    ).classList.add(
+        "open"
+    );
 
-            else {
+    document.body.classList.add(
+        "rank-modal-open"
+    );
+}
 
-                select.innerHTML =
-                    availableRoles
-                        .map(
-                            role => `
 
-                                <option
-                                    value="${escapeHTML(role.id)}"
-                                    ${
-                                        String(role.id) ===
-                                        String(currentRoleId)
-                                            ? "selected"
-                                            : ""
-                                    }
-                                >
-                                    ${escapeHTML(role.name)}
-                                </option>
-                            `
-                        )
-                        .join("");
-            }
+function closeRankManager() {
 
-            modal.classList.add(
-                "open"
+    document.getElementById(
+        "rank-manager-modal"
+    ).classList.remove(
+        "open"
+    );
+
+    document.body.classList.remove(
+        "rank-modal-open"
+    );
+}
+
+
+async function saveMemberRank() {
+
+    const userId =
+        document.getElementById(
+            "rank-manager-user-id"
+        ).value;
+
+    const roleId =
+        document.getElementById(
+            "rank-manager-select"
+        ).value;
+
+    const message =
+        document.getElementById(
+            "rank-manager-message"
+        );
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/admin/members/${encodeURIComponent(userId)}/role`,
+                {
+                    method: "PATCH",
+                    credentials: "include",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+                            roleId
+                        })
+                }
             );
 
-            document.body.classList.add(
-                "rank-modal-open"
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
             );
         }
 
-        /* =====================================================
-           CLOSE MANAGER
-        ====================================================== */
+        message.className =
+            "rank-manager-message success";
 
-        function closeRankManager() {
+        message.textContent =
+            "✓ " + data.message;
 
-            document.getElementById(
-                "rank-manager-modal"
-            ).classList.remove(
-                "open"
-            );
+        setTimeout(
+            async () => {
 
-            document.body.classList.remove(
-                "rank-modal-open"
-            );
-        }
+                closeRankManager();
 
-        /* =====================================================
-           SALVARE GRAD
-        ====================================================== */
+                await loadPersonnel();
 
-        async function saveMemberRank() {
+            },
+            700
+        );
 
-            const userId =
+    }
+
+    catch (error) {
+
+        message.className =
+            "rank-manager-message error";
+
+        message.textContent =
+            error.message;
+    }
+}
+
+
+/* =====================================================
+   CONDUCERE
+====================================================== */
+
+const announcementTitle =
+    document.getElementById(
+        "announcement-title"
+    );
+
+const announcementMessage =
+    document.getElementById(
+        "announcement-message-input"
+    );
+
+
+function updateAnnouncementPreview() {
+
+    document.getElementById(
+        "announcement-preview-title"
+    ).textContent =
+        announcementTitle.value.trim()
+            ? `📢 ${announcementTitle.value.trim()}`
+            : "📢 Titlul anunțului";
+
+    document.getElementById(
+        "announcement-preview-message"
+    ).textContent =
+        announcementMessage.value ||
+        "Mesajul anunțului va apărea aici.";
+
+    document.getElementById(
+        "announcement-counter"
+    ).textContent =
+        `${announcementMessage.value.length} / 4000`;
+}
+
+
+announcementTitle.addEventListener(
+    "input",
+    updateAnnouncementPreview
+);
+
+announcementMessage.addEventListener(
+    "input",
+    updateAnnouncementPreview
+);
+
+
+document
+    .getElementById(
+        "announcement-form"
+    )
+    .addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const result =
                 document.getElementById(
-                    "rank-manager-user-id"
-                ).value;
-
-            const roleId =
-                document.getElementById(
-                    "rank-manager-select"
-                ).value;
-
-            const message =
-                document.getElementById(
-                    "rank-manager-message"
+                    "announcement-result"
                 );
 
             const button =
                 document.getElementById(
-                    "rank-manager-save"
+                    "announcement-submit"
                 );
-
-            if (!roleId) {
-
-                message.className =
-                    "rank-manager-message error";
-
-                message.textContent =
-                    "Selectează un grad.";
-
-                return;
-            }
 
             try {
 
-                button.disabled = true;
+                button.disabled =
+                    true;
 
                 button.textContent =
-                    "SE ACTUALIZEAZĂ...";
-
-                message.className =
-                    "rank-manager-message";
-
-                message.textContent = "";
+                    "SE TRIMITE...";
 
                 const response =
                     await fetch(
-                        `/api/admin/members/${encodeURIComponent(userId)}/role`,
+                        "/api/leadership/announcement",
+                        {
+                            method: "POST",
+                            credentials: "include",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    title:
+                                        announcementTitle.value.trim(),
+
+                                    message:
+                                        announcementMessage.value.trim()
+                                })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error
+                    );
+                }
+
+                result.className =
+                    "announcement-message success";
+
+                result.textContent =
+                    "✓ Anunț trimis pe Discord.";
+
+                this.reset();
+
+                updateAnnouncementPreview();
+
+            }
+
+            catch (error) {
+
+                result.className =
+                    "announcement-message error";
+
+                result.textContent =
+                    error.message;
+            }
+
+            finally {
+
+                button.disabled =
+                    false;
+
+                button.textContent =
+                    "TRIMITE ANUNȚUL";
+            }
+        }
+    );
+
+
+/* =====================================================
+   BLACKLIST
+====================================================== */
+
+async function loadBlacklist() {
+
+    const body =
+        document.getElementById(
+            "blacklist-table-body"
+        );
+
+    body.innerHTML = `
+
+        <tr>
+            <td colspan="7">
+                <div class="blacklist-empty">
+                    Se încarcă blacklist-ul...
+                </div>
+            </td>
+        </tr>
+    `;
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/admin/blacklist",
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
+            );
+        }
+
+        blacklistEntries =
+            data.blacklist || [];
+
+        document.getElementById(
+            "blacklist-total"
+        ).textContent =
+            data.total ?? 0;
+
+        document.getElementById(
+            "blacklist-active"
+        ).textContent =
+            data.active ?? 0;
+
+        document.getElementById(
+            "blacklist-inactive"
+        ).textContent =
+            data.inactive ?? 0;
+
+        renderBlacklist();
+
+    }
+
+    catch (error) {
+
+        body.innerHTML = `
+
+            <tr>
+                <td colspan="7">
+                    <div class="blacklist-empty">
+                        ${escapeHTML(error.message)}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+
+function renderBlacklist() {
+
+    const body =
+        document.getElementById(
+            "blacklist-table-body"
+        );
+
+    const query =
+        document.getElementById(
+            "blacklist-search"
+        ).value
+        .trim()
+        .toLowerCase();
+
+    const entries =
+        blacklistEntries.filter(
+            entry => {
+
+                if (!query) return true;
+
+                return [
+                    entry.discordId,
+                    entry.name,
+                    entry.reason,
+                    entry.addedByName,
+                    entry.addedByUsername
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase()
+                    .includes(query);
+            }
+        );
+
+    if (!entries.length) {
+
+        body.innerHTML = `
+
+            <tr>
+                <td colspan="7">
+                    <div class="blacklist-empty">
+                        Nu există rezultate.
+                    </div>
+                </td>
+            </tr>
+        `;
+
+        return;
+    }
+
+    body.innerHTML =
+        entries
+            .map(
+                entry => {
+
+                    const active =
+                        entry.status ===
+                        "ACTIVE";
+
+                    const permanent =
+                        entry.durationType ===
+                        "PERMANENT";
+
+                    return `
+
+                        <tr>
+
+                            <td>
+                                <span class="blacklist-id">
+                                    ${escapeHTML(entry.discordId)}
+                                </span>
+                            </td>
+
+                            <td>
+                                <span class="blacklist-name">
+                                    ${escapeHTML(entry.name)}
+                                </span>
+                            </td>
+
+                            <td>
+                                <div class="blacklist-reason">
+                                    ${escapeHTML(entry.reason)}
+                                </div>
+                            </td>
+
+                            <td>
+                                ${escapeHTML(
+                                    entry.addedByName ||
+                                    entry.addedByUsername ||
+                                    "-"
+                                )}
+                            </td>
+
+                            <td>
+                                <span
+                                    class="blacklist-expiry ${
+                                        permanent
+                                            ? "permanent"
+                                            : "temporary"
+                                    }"
+                                >
+                                    ${
+                                        permanent
+                                            ? "Permanent"
+                                            : escapeHTML(
+                                                entry.expiresAtFormatted ||
+                                                "-"
+                                            )
+                                    }
+                                </span>
+                            </td>
+
+                            <td>
+
+                                <span
+                                    class="blacklist-status ${
+                                        active
+                                            ? "active"
+                                            : "inactive"
+                                    }"
+                                >
+                                    ${
+                                        active
+                                            ? "INTERZIS"
+                                            : "INACTIV"
+                                    }
+                                </span>
+
+                            </td>
+
+                            <td>
+
+                                <div class="blacklist-actions">
+
+                                    <button
+                                        class="blacklist-action-btn"
+                                        data-edit-blacklist="${escapeHTML(entry.id)}"
+                                    >
+                                        EDITEAZĂ
+                                    </button>
+
+                                    ${
+                                        active
+                                            ? `
+                                                <button
+                                                    class="blacklist-action-btn danger"
+                                                    data-deactivate-blacklist="${escapeHTML(entry.id)}"
+                                                >
+                                                    DEZACTIVEAZĂ
+                                                </button>
+                                            `
+                                            : `
+                                                <button
+                                                    class="blacklist-action-btn success"
+                                                    data-reactivate-blacklist="${escapeHTML(entry.id)}"
+                                                >
+                                                    REACTIVEAZĂ
+                                                </button>
+                                            `
+                                    }
+
+                                    <button
+                                        class="blacklist-action-btn danger"
+                                        data-delete-blacklist="${escapeHTML(entry.id)}"
+                                    >
+                                        ȘTERGE
+                                    </button>
+
+                                </div>
+
+                            </td>
+
+                        </tr>
+                    `;
+                }
+            )
+            .join("");
+
+    bindBlacklistButtons();
+}
+
+
+function bindBlacklistButtons() {
+
+    document
+        .querySelectorAll(
+            "[data-edit-blacklist]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () =>
+                        openBlacklistEdit(
+                            button.dataset.editBlacklist
+                        );
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-deactivate-blacklist]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () => {
+
+                        openBlacklistConfirm(
+                            "Dezactivează blacklist",
+                            "Persoana va fi scoasă din blacklist, dar intrarea va rămâne în istoric.",
+                            async () => {
+
+                                await blacklistAction(
+                                    `/api/admin/blacklist/${encodeURIComponent(button.dataset.deactivateBlacklist)}/deactivate`,
+                                    "PATCH"
+                                );
+                            }
+                        );
+                    };
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-reactivate-blacklist]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () => {
+
+                        openBlacklistConfirm(
+                            "Reactivează blacklist",
+                            "Persoana va fi introdusă din nou în blacklist.",
+                            async () => {
+
+                                await blacklistAction(
+                                    `/api/admin/blacklist/${encodeURIComponent(button.dataset.reactivateBlacklist)}/reactivate`,
+                                    "PATCH"
+                                );
+                            }
+                        );
+                    };
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            "[data-delete-blacklist]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () => {
+
+                        openBlacklistConfirm(
+                            "Ștergere definitivă",
+                            "Intrarea va fi ștearsă definitiv.",
+                            async () => {
+
+                                await blacklistAction(
+                                    `/api/admin/blacklist/${encodeURIComponent(button.dataset.deleteBlacklist)}`,
+                                    "DELETE"
+                                );
+                            }
+                        );
+                    };
+            }
+        );
+}
+
+
+async function blacklistAction(
+    url,
+    method
+) {
+
+    const response =
+        await fetch(
+            url,
+            {
+                method,
+                credentials: "include"
+            }
+        );
+
+    const data =
+        await response.json();
+
+    if (!response.ok) {
+
+        throw new Error(
+            data.error
+        );
+    }
+
+    await loadBlacklist();
+}
+
+
+function resetBlacklistForm() {
+
+    document.getElementById(
+        "blacklist-form"
+    ).reset();
+
+    document.getElementById(
+        "blacklist-edit-id"
+    ).value = "";
+
+    document.getElementById(
+        "blacklist-discord-id"
+    ).disabled = false;
+
+    document.getElementById(
+        "blacklist-check-user"
+    ).style.display = "";
+
+    document.getElementById(
+        "blacklist-expiry-group"
+    ).style.display =
+        "none";
+
+    document.getElementById(
+        "blacklist-user-preview"
+    ).classList.remove(
+        "show"
+    );
+
+    document.getElementById(
+        "blacklist-modal-title"
+    ).textContent =
+        "Adaugă în blacklist";
+
+    document.getElementById(
+        "blacklist-submit"
+    ).textContent =
+        "ADAUGĂ ÎN BLACKLIST";
+
+    document.getElementById(
+        "blacklist-form-message"
+    ).textContent = "";
+}
+
+
+function openBlacklistAdd() {
+
+    resetBlacklistForm();
+
+    document.getElementById(
+        "blacklist-entry-modal"
+    ).classList.add(
+        "open"
+    );
+
+    document.body.classList.add(
+        "blacklist-modal-open"
+    );
+}
+
+
+function closeBlacklistModal() {
+
+    document.getElementById(
+        "blacklist-entry-modal"
+    ).classList.remove(
+        "open"
+    );
+
+    document.body.classList.remove(
+        "blacklist-modal-open"
+    );
+}
+
+
+function dateForInput(value) {
+
+    if (!value) return "";
+
+    const date =
+        new Date(value);
+
+    const pad =
+        number =>
+            String(number)
+                .padStart(2,"0");
+
+    return (
+        date.getFullYear() +
+        "-" +
+        pad(date.getMonth()+1) +
+        "-" +
+        pad(date.getDate()) +
+        "T" +
+        pad(date.getHours()) +
+        ":" +
+        pad(date.getMinutes())
+    );
+}
+
+
+function openBlacklistEdit(id) {
+
+    const entry =
+        blacklistEntries.find(
+            item =>
+                item.id === id
+        );
+
+    if (!entry) return;
+
+    resetBlacklistForm();
+
+    document.getElementById(
+        "blacklist-edit-id"
+    ).value =
+        entry.id;
+
+    document.getElementById(
+        "blacklist-discord-id"
+    ).value =
+        entry.discordId;
+
+    document.getElementById(
+        "blacklist-discord-id"
+    ).disabled =
+        true;
+
+    document.getElementById(
+        "blacklist-check-user"
+    ).style.display =
+        "none";
+
+    document.getElementById(
+        "blacklist-name"
+    ).value =
+        entry.name;
+
+    document.getElementById(
+        "blacklist-reason"
+    ).value =
+        entry.reason;
+
+    document.getElementById(
+        "blacklist-duration"
+    ).value =
+        entry.durationType;
+
+    if (
+        entry.durationType ===
+        "TEMPORARY"
+    ) {
+
+        document.getElementById(
+            "blacklist-expiry-group"
+        ).style.display = "";
+
+        document.getElementById(
+            "blacklist-expiry"
+        ).value =
+            dateForInput(
+                entry.expiresAt
+            );
+    }
+
+    document.getElementById(
+        "blacklist-modal-title"
+    ).textContent =
+        "Editează blacklist";
+
+    document.getElementById(
+        "blacklist-submit"
+    ).textContent =
+        "SALVEAZĂ MODIFICĂRILE";
+
+    document.getElementById(
+        "blacklist-entry-modal"
+    ).classList.add(
+        "open"
+    );
+
+    document.body.classList.add(
+        "blacklist-modal-open"
+    );
+}
+
+
+async function checkDiscordUser() {
+
+    const discordId =
+        document.getElementById(
+            "blacklist-discord-id"
+        ).value.trim();
+
+    const message =
+        document.getElementById(
+            "blacklist-form-message"
+        );
+
+    try {
+
+        const response =
+            await fetch(
+                `/api/admin/blacklist/check/${encodeURIComponent(discordId)}`,
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
+            );
+        }
+
+        if (
+            data.foundOnDiscord &&
+            data.discordUser
+        ) {
+
+            document.getElementById(
+                "blacklist-user-avatar"
+            ).src =
+                data.discordUser.avatar;
+
+            document.getElementById(
+                "blacklist-user-name"
+            ).textContent =
+                data.discordUser.displayName ||
+                data.discordUser.username;
+
+            document.getElementById(
+                "blacklist-user-username"
+            ).textContent =
+                "@" +
+                data.discordUser.username;
+
+            document.getElementById(
+                "blacklist-user-preview"
+            ).classList.add(
+                "show"
+            );
+
+            if (
+                !document.getElementById(
+                    "blacklist-name"
+                ).value
+            ) {
+
+                document.getElementById(
+                    "blacklist-name"
+                ).value =
+                    data.discordUser.displayName ||
+                    data.discordUser.username;
+            }
+
+            message.className =
+                "blacklist-form-message success";
+
+            message.textContent =
+                "✓ Utilizator găsit pe Discord.";
+
+        }
+
+        else {
+
+            message.textContent =
+                "Utilizatorul nu este pe server. Îl poți adăuga manual.";
+        }
+
+        if (data.blacklisted) {
+
+            message.className =
+                "blacklist-form-message error";
+
+            message.textContent =
+                "Acest Discord ID este deja în blacklist.";
+        }
+
+    }
+
+    catch (error) {
+
+        message.className =
+            "blacklist-form-message error";
+
+        message.textContent =
+            error.message;
+    }
+}
+
+
+document
+    .getElementById(
+        "blacklist-form"
+    )
+    .addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const editId =
+                document.getElementById(
+                    "blacklist-edit-id"
+                ).value;
+
+            const durationType =
+                document.getElementById(
+                    "blacklist-duration"
+                ).value;
+
+            const payload = {
+
+                name:
+                    document.getElementById(
+                        "blacklist-name"
+                    ).value.trim(),
+
+                reason:
+                    document.getElementById(
+                        "blacklist-reason"
+                    ).value.trim(),
+
+                durationType,
+
+                expiresAt:
+                    durationType ===
+                    "TEMPORARY"
+                        ? document.getElementById(
+                            "blacklist-expiry"
+                        ).value
+                        : ""
+            };
+
+            if (!editId) {
+
+                payload.discordId =
+                    document.getElementById(
+                        "blacklist-discord-id"
+                    ).value.trim();
+            }
+
+            const button =
+                document.getElementById(
+                    "blacklist-submit"
+                );
+
+            const message =
+                document.getElementById(
+                    "blacklist-form-message"
+                );
+
+            try {
+
+                button.disabled =
+                    true;
+
+                const response =
+                    await fetch(
+                        editId
+                            ? `/api/admin/blacklist/${encodeURIComponent(editId)}`
+                            : "/api/admin/blacklist",
+
+                        {
+                            method:
+                                editId
+                                    ? "PATCH"
+                                    : "POST",
+
+                            credentials:
+                                "include",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    payload
+                                )
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error
+                    );
+                }
+
+                message.className =
+                    "blacklist-form-message success";
+
+                message.textContent =
+                    "✓ " + data.message;
+
+                await loadBlacklist();
+
+                setTimeout(
+                    closeBlacklistModal,
+                    600
+                );
+
+            }
+
+            catch (error) {
+
+                message.className =
+                    "blacklist-form-message error";
+
+                message.textContent =
+                    error.message;
+            }
+
+            finally {
+
+                button.disabled =
+                    false;
+            }
+        }
+    );
+
+
+function openBlacklistConfirm(
+    title,
+    text,
+    callback
+) {
+
+    blacklistConfirmAction =
+        callback;
+
+    document.getElementById(
+        "blacklist-confirm-title"
+    ).textContent =
+        title;
+
+    document.getElementById(
+        "blacklist-confirm-text"
+    ).textContent =
+        text;
+
+    document.getElementById(
+        "blacklist-confirm-modal"
+    ).classList.add(
+        "open"
+    );
+
+    document.body.classList.add(
+        "blacklist-modal-open"
+    );
+}
+
+
+function closeBlacklistConfirm() {
+
+    document.getElementById(
+        "blacklist-confirm-modal"
+    ).classList.remove(
+        "open"
+    );
+
+    blacklistConfirmAction =
+        null;
+
+    document.body.classList.remove(
+        "blacklist-modal-open"
+    );
+}
+
+
+document.getElementById(
+    "blacklist-confirm-yes"
+).onclick =
+    async function () {
+
+        if (
+            typeof blacklistConfirmAction !==
+            "function"
+        ) return;
+
+        const message =
+            document.getElementById(
+                "blacklist-confirm-message"
+            );
+
+        try {
+
+            await blacklistConfirmAction();
+
+            message.className =
+                "blacklist-form-message success";
+
+            message.textContent =
+                "✓ Acțiune efectuată.";
+
+            setTimeout(
+                closeBlacklistConfirm,
+                400
+            );
+
+        }
+
+        catch (error) {
+
+            message.className =
+                "blacklist-form-message error";
+
+            message.textContent =
+                error.message;
+        }
+    };
+
+
+document.getElementById(
+    "blacklist-open-add"
+).onclick =
+    openBlacklistAdd;
+
+
+document.getElementById(
+    "blacklist-entry-close"
+).onclick =
+    closeBlacklistModal;
+
+
+document.getElementById(
+    "blacklist-entry-overlay"
+).onclick =
+    closeBlacklistModal;
+
+
+document.getElementById(
+    "blacklist-check-user"
+).onclick =
+    checkDiscordUser;
+
+
+document.getElementById(
+    "blacklist-confirm-close"
+).onclick =
+    closeBlacklistConfirm;
+
+
+document.getElementById(
+    "blacklist-confirm-cancel"
+).onclick =
+    closeBlacklistConfirm;
+
+
+document.getElementById(
+    "blacklist-confirm-overlay"
+).onclick =
+    closeBlacklistConfirm;
+
+
+document.getElementById(
+    "blacklist-search"
+).addEventListener(
+    "input",
+    renderBlacklist
+);
+
+
+document.getElementById(
+    "blacklist-duration"
+).addEventListener(
+    "change",
+    function () {
+
+        const temporary =
+            this.value ===
+            "TEMPORARY";
+
+        document.getElementById(
+            "blacklist-expiry-group"
+        ).style.display =
+            temporary
+                ? ""
+                : "none";
+
+        document.getElementById(
+            "blacklist-expiry"
+        ).required =
+            temporary;
+    }
+);
+
+
+/* =====================================================
+   PROFIL
+====================================================== */
+
+async function loadProfile() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/profile",
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error
+            );
+        }
+
+        const profile =
+            data.profile;
+
+        document.getElementById(
+            "profile-name"
+        ).textContent =
+            profile.displayName;
+
+        document.getElementById(
+            "profile-username"
+        ).textContent =
+            "@" + profile.username;
+
+        document.getElementById(
+            "profile-rank"
+        ).textContent =
+            profile.rank;
+
+        document.getElementById(
+            "profile-nickname"
+        ).value =
+            profile.displayName;
+
+        document.getElementById(
+            "profile-avatar"
+        ).src =
+            getAvatarURL({
+                id:
+                    profile.id,
+
+                avatar:
+                    profile.avatar
+            });
+
+        document.getElementById(
+            "profile-total-reports"
+        ).textContent =
+            profile.statistics.totalReports;
+
+        document.getElementById(
+            "profile-image-reports"
+        ).textContent =
+            profile.statistics.reportsWithImages;
+
+        document.getElementById(
+            "profile-last-activity"
+        ).textContent =
+            profile.statistics.lastActivity;
+
+        profileDuties =
+            Array.isArray(
+                profile.duties
+            )
+                ? [...profile.duties]
+                : [];
+
+        renderDutyEditor();
+
+        renderProfileActivity(
+            profile.recentActivity || []
+        );
+
+        currentUser.displayName =
+            profile.displayName;
+
+        currentUser.rank =
+            profile.rank;
+
+        currentUser.rankLevel =
+            profile.rankLevel;
+
+        renderTopbarUser();
+
+    }
+
+    catch (error) {
+
+        document.getElementById(
+            "profile-message"
+        ).textContent =
+            error.message;
+    }
+}
+
+
+function renderDutyEditor() {
+
+    const container =
+        document.getElementById(
+            "duties-editor"
+        );
+
+    if (!profileDuties.length) {
+
+        container.innerHTML = `
+
+            <div class="profile-no-duties">
+                Nu ai atribuții adăugate.
+            </div>
+        `;
+
+        return;
+    }
+
+    container.innerHTML =
+        profileDuties
+            .map(
+                (duty,index) => `
+
+                    <div class="profile-duty-editor-row">
+
+                        <input
+                            class="profile-duty-input"
+                            data-duty="${index}"
+                            maxlength="80"
+                            value="${escapeHTML(duty)}"
+                        >
+
+                        <button
+                            type="button"
+                            class="profile-duty-remove"
+                            data-remove-duty="${index}"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+                `
+            )
+            .join("");
+
+    container
+        .querySelectorAll(
+            "[data-duty]"
+        )
+        .forEach(
+            input => {
+
+                input.oninput =
+                    function () {
+
+                        profileDuties[
+                            Number(
+                                this.dataset.duty
+                            )
+                        ] =
+                            this.value;
+                    };
+            }
+        );
+
+    container
+        .querySelectorAll(
+            "[data-remove-duty]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    function () {
+
+                        profileDuties.splice(
+                            Number(
+                                this.dataset.removeDuty
+                            ),
+                            1
+                        );
+
+                        renderDutyEditor();
+                    };
+            }
+        );
+}
+
+
+document.getElementById(
+    "add-duty"
+).onclick =
+    function () {
+
+        if (
+            profileDuties.length >= 8
+        ) return;
+
+        profileDuties.push("");
+
+        renderDutyEditor();
+    };
+
+
+document
+    .getElementById(
+        "profile-form"
+    )
+    .addEventListener(
+        "submit",
+        async function (event) {
+
+            event.preventDefault();
+
+            const button =
+                document.getElementById(
+                    "save-profile"
+                );
+
+            const message =
+                document.getElementById(
+                    "profile-message"
+                );
+
+            try {
+
+                button.disabled =
+                    true;
+
+                const response =
+                    await fetch(
+                        "/api/profile",
                         {
                             method: "PATCH",
                             credentials: "include",
@@ -2808,7 +4290,19 @@
 
                             body:
                                 JSON.stringify({
-                                    roleId: roleId
+
+                                    nickname:
+                                        document.getElementById(
+                                            "profile-nickname"
+                                        ).value.trim(),
+
+                                    duties:
+                                        profileDuties
+                                            .map(
+                                                duty =>
+                                                    duty.trim()
+                                            )
+                                            .filter(Boolean)
                                 })
                         }
                     );
@@ -2819,34 +4313,20 @@
                 if (!response.ok) {
 
                     throw new Error(
-                        data.error ||
-                        "Gradul nu a putut fi modificat."
+                        data.error
                     );
                 }
 
-                message.className =
-                    "rank-manager-message success";
-
                 message.textContent =
-                    "✓ " + data.message;
+                    data.discordSynced
+                        ? "✓ Profil salvat și sincronizat cu Discord."
+                        : "✓ Profil salvat pe site.";
 
-                setTimeout(
-                    async function () {
-
-                        closeRankManager();
-
-                        await loadPersonnel();
-
-                    },
-                    800
-                );
+                await loadProfile();
 
             }
 
             catch (error) {
-
-                message.className =
-                    "rank-manager-message error";
 
                 message.textContent =
                     error.message;
@@ -2854,721 +4334,112 @@
 
             finally {
 
-                button.disabled = false;
-
-                button.textContent =
-                    "SALVEAZĂ GRADUL";
+                button.disabled =
+                    false;
             }
         }
+    );
 
-        /* =====================================================
-           PROFIL
-        ====================================================== */
 
-        async function loadProfile() {
+function renderProfileActivity(activity) {
 
-            const message =
-                document.getElementById(
-                    "profile-message"
-                );
+    const container =
+        document.getElementById(
+            "profile-activity"
+        );
 
-            message.textContent = "";
+    if (!activity.length) {
 
-            try {
+        container.innerHTML = `
 
-                const response =
-                    await fetch(
-                        "/api/profile",
-                        {
-                            credentials: "include",
-                            cache: "no-store"
-                        }
-                    );
+            <div class="empty-state">
+                Nu există activitate.
+            </div>
+        `;
 
-                const data =
-                    await response.json();
+        return;
+    }
 
-                if (!response.ok) {
+    container.innerHTML =
+        activity
+            .map(
+                item => `
 
-                    throw new Error(
-                        data.error ||
-                        "Profilul nu a putut fi încărcat."
-                    );
-                }
+                    <div class="profile-activity-item">
 
-                const profile =
-                    data.profile;
+                        <div class="profile-activity-icon">
+                            ◆
+                        </div>
 
-                document.getElementById(
-                    "profile-name"
-                ).textContent =
-                    profile.displayName;
+                        <div class="profile-activity-info">
 
-                document.getElementById(
-                    "profile-username"
-                ).textContent =
-                    `@${profile.username}`;
+                            <span>
+                                ${escapeHTML(item.type)}
+                            </span>
 
-                document.getElementById(
-                    "profile-rank"
-                ).textContent =
-                    profile.rank;
+                            <strong>
+                                ${escapeHTML(item.title)}
+                            </strong>
 
-                document.getElementById(
-                    "profile-nickname"
-                ).value =
-                    profile.displayName;
+                            <small>
+                                ${escapeHTML(item.createdAtFormatted)}
+                            </small>
 
-                document.getElementById(
-                    "profile-total-reports"
-                ).textContent =
-                    profile.statistics.totalReports;
+                        </div>
 
-                document.getElementById(
-                    "profile-image-reports"
-                ).textContent =
-                    profile.statistics.reportsWithImages;
-
-                document.getElementById(
-                    "profile-last-activity"
-                ).textContent =
-                    profile.statistics.lastActivity;
-
-                const avatar =
-                    getAvatarURL({
-                        id: profile.id,
-                        avatar: profile.avatar
-                    });
-
-                document.getElementById(
-                    "profile-avatar"
-                ).src =
-                    avatar;
-
-                profileDuties =
-                    Array.isArray(
-                        profile.duties
-                    )
-                        ? [...profile.duties]
-                        : [];
-
-                renderDutyEditor();
-
-                renderProfileActivity(
-                    profile.recentActivity || []
-                );
-
-                if (currentUser) {
-
-                    currentUser.displayName =
-                        profile.displayName;
-
-                    currentUser.rank =
-                        profile.rank;
-
-                    currentUser.rankLevel =
-                        profile.rankLevel;
-
-                    renderTopbarUser();
-                }
-
-            }
-
-            catch (error) {
-
-                message.textContent =
-                    error.message;
-            }
-        }
-
-        /* =====================================================
-           ATRIBUȚII
-        ====================================================== */
-
-        function renderDutyEditor() {
-
-            const container =
-                document.getElementById(
-                    "duties-editor"
-                );
-
-            if (!profileDuties.length) {
-
-                container.innerHTML = `
-
-                    <div class="profile-no-duties">
-                        Nu ai adăugat nicio atribuție.
                     </div>
-                `;
+                `
+            )
+            .join("");
+}
 
-                return;
-            }
 
-            container.innerHTML =
-                profileDuties
-                    .map(
-                        (duty, index) => `
+/* =====================================================
+   EVENIMENTE
+====================================================== */
 
-                            <div class="profile-duty-editor-row">
+document.getElementById(
+    "rank-manager-close"
+).onclick =
+    closeRankManager;
 
-                                <input
-                                    type="text"
-                                    maxlength="80"
-                                    value="${escapeHTML(duty)}"
-                                    data-duty-index="${index}"
-                                    class="profile-duty-input"
-                                    placeholder="Ex: Responsabil evaluare teste"
-                                >
+document.getElementById(
+    "rank-manager-overlay"
+).onclick =
+    closeRankManager;
 
-                                <button
-                                    type="button"
-                                    class="profile-duty-remove"
-                                    data-remove-duty="${index}"
-                                    title="Șterge atribuția"
-                                >
-                                    ×
-                                </button>
+document.getElementById(
+    "rank-manager-save"
+).onclick =
+    saveMemberRank;
 
-                            </div>
-                        `
-                    )
-                    .join("");
 
-            document
-                .querySelectorAll(
-                    ".profile-duty-input"
-                )
-                .forEach(
-                    input => {
+document.addEventListener(
+    "keydown",
+    event => {
 
-                        input.addEventListener(
-                            "input",
-                            function () {
+        if (
+            event.key ===
+            "Escape"
+        ) {
 
-                                const index =
-                                    Number(
-                                        this.dataset.dutyIndex
-                                    );
-
-                                profileDuties[index] =
-                                    this.value;
-                            }
-                        );
-                    }
-                );
-
-            document
-                .querySelectorAll(
-                    "[data-remove-duty]"
-                )
-                .forEach(
-                    button => {
-
-                        button.addEventListener(
-                            "click",
-                            function () {
-
-                                const index =
-                                    Number(
-                                        this.dataset.removeDuty
-                                    );
-
-                                profileDuties.splice(
-                                    index,
-                                    1
-                                );
-
-                                renderDutyEditor();
-                            }
-                        );
-                    }
-                );
+            closeRankManager();
+            closeBlacklistModal();
+            closeBlacklistConfirm();
         }
+    }
+);
 
-        /* =====================================================
-           ADAUGĂ ATRIBUȚIE
-        ====================================================== */
 
-        document
-            .getElementById(
-                "add-duty"
-            )
-            .addEventListener(
-                "click",
-                function () {
+/* =====================================================
+   START
+====================================================== */
 
-                    if (
-                        profileDuties.length >= 8
-                    ) {
+updateAnnouncementPreview();
 
-                        document.getElementById(
-                            "profile-message"
-                        ).textContent =
-                            "Poți avea maximum 8 atribuții.";
+loadDashboardUser();
 
-                        return;
-                    }
-
-                    profileDuties.push("");
-
-                    renderDutyEditor();
-
-                    const inputs =
-                        document.querySelectorAll(
-                            ".profile-duty-input"
-                        );
-
-                    if (inputs.length) {
-
-                        inputs[
-                            inputs.length - 1
-                        ].focus();
-                    }
-                }
-            );
-
-        /* =====================================================
-           SALVARE PROFIL
-        ====================================================== */
-
-        document
-            .getElementById(
-                "profile-form"
-            )
-            .addEventListener(
-                "submit",
-                async function (event) {
-
-                    event.preventDefault();
-
-                    const nickname =
-                        document.getElementById(
-                            "profile-nickname"
-                        ).value.trim();
-
-                    const message =
-                        document.getElementById(
-                            "profile-message"
-                        );
-
-                    const button =
-                        document.getElementById(
-                            "save-profile"
-                        );
-
-                    const duties =
-                        profileDuties
-                            .map(
-                                duty =>
-                                    String(
-                                        duty || ""
-                                    ).trim()
-                            )
-                            .filter(Boolean);
-
-                    try {
-
-                        button.disabled = true;
-
-                        button.textContent =
-                            "SE SALVEAZĂ...";
-
-                        message.textContent = "";
-
-                        const response =
-                            await fetch(
-                                "/api/profile",
-                                {
-                                    method: "PATCH",
-                                    credentials: "include",
-
-                                    headers: {
-                                        "Content-Type":
-                                            "application/json"
-                                    },
-
-                                    body:
-                                        JSON.stringify({
-                                            nickname: nickname,
-                                            duties: duties
-                                        })
-                                }
-                            );
-
-                        const data =
-                            await response.json();
-
-                        if (!response.ok) {
-
-                            throw new Error(
-                                data.error ||
-                                "Profilul nu a putut fi salvat."
-                            );
-                        }
-
-                        profileDuties =
-                            duties;
-
-                        if (currentUser) {
-
-                            currentUser.displayName =
-                                nickname;
-                        }
-
-                        document.getElementById(
-                            "profile-name"
-                        ).textContent =
-                            nickname;
-
-                        renderTopbarUser();
-
-                        renderDutyEditor();
-
-                        if (data.discordSynced) {
-
-                            message.textContent =
-                                "✓ Profil salvat și sincronizat cu Discord.";
-
-                        }
-
-                        else {
-
-                            message.textContent =
-                                "✓ Profil salvat pe site. Discord nu a permis schimbarea nickname-ului.";
-                        }
-
-                    }
-
-                    catch (error) {
-
-                        message.textContent =
-                            error.message;
-                    }
-
-                    finally {
-
-                        button.disabled = false;
-
-                        button.textContent =
-                            "SALVEAZĂ MODIFICĂRILE";
-                    }
-                }
-            );
-
-        /* =====================================================
-           ACTIVITATE PROFIL
-        ====================================================== */
-
-        function renderProfileActivity(activity) {
-
-            const container =
-                document.getElementById(
-                    "profile-activity"
-                );
-
-            if (!activity.length) {
-
-                container.innerHTML = `
-
-                    <div class="empty-state">
-                        Nu există activitate recentă.
-                    </div>
-                `;
-
-                return;
-            }
-
-            container.innerHTML =
-                activity
-                    .map(
-                        item => `
-
-                            <div class="profile-activity-item">
-
-                                <div class="profile-activity-icon">
-                                    ◆
-                                </div>
-
-                                <div class="profile-activity-info">
-
-                                    <span>
-                                        ${escapeHTML(item.type)}
-                                    </span>
-
-                                    <strong>
-                                        ${escapeHTML(item.title)}
-                                    </strong>
-
-                                    <small>
-                                        ${escapeHTML(
-                                            item.createdAtFormatted
-                                        )}
-                                    </small>
-
-                                </div>
-
-                            </div>
-                        `
-                    )
-                    .join("");
-        }
-
-        /* =====================================================
-           CONDUCERE - PREVIEW
-        ====================================================== */
-
-        const announcementTitleInput =
-            document.getElementById(
-                "announcement-title"
-            );
-
-        const announcementMessageInput =
-            document.getElementById(
-                "announcement-message-input"
-            );
-
-        function updateAnnouncementPreview() {
-
-            const title =
-                announcementTitleInput.value.trim();
-
-            const message =
-                announcementMessageInput.value;
-
-            document.getElementById(
-                "announcement-preview-title"
-            ).textContent =
-                title
-                    ? `📢 ${title}`
-                    : "📢 Titlul anunțului";
-
-            document.getElementById(
-                "announcement-preview-message"
-            ).textContent =
-                message ||
-                "Mesajul anunțului va apărea aici.";
-
-            document.getElementById(
-                "announcement-counter"
-            ).textContent =
-                `${announcementMessageInput.value.length} / 4000`;
-        }
-
-        announcementTitleInput.addEventListener(
-            "input",
-            updateAnnouncementPreview
-        );
-
-        announcementMessageInput.addEventListener(
-            "input",
-            updateAnnouncementPreview
-        );
-
-        /* =====================================================
-           TRIMITE ANUNȚ DISCORD
-        ====================================================== */
-
-        document
-            .getElementById(
-                "announcement-form"
-            )
-            .addEventListener(
-                "submit",
-                async function (event) {
-
-                    event.preventDefault();
-
-                    if (
-                        !currentUser ||
-                        Number(
-                            currentUser.rankLevel || 0
-                        ) < 10
-                    ) {
-
-                        return;
-                    }
-
-                    const title =
-                        announcementTitleInput
-                            .value
-                            .trim();
-
-                    const messageText =
-                        announcementMessageInput
-                            .value
-                            .trim();
-
-                    const button =
-                        document.getElementById(
-                            "announcement-submit"
-                        );
-
-                    const result =
-                        document.getElementById(
-                            "announcement-result"
-                        );
-
-                    if (!title) {
-
-                        result.className =
-                            "announcement-message error";
-
-                        result.textContent =
-                            "Introdu un titlu.";
-
-                        return;
-                    }
-
-                    if (!messageText) {
-
-                        result.className =
-                            "announcement-message error";
-
-                        result.textContent =
-                            "Introdu mesajul anunțului.";
-
-                        return;
-                    }
-
-                    try {
-
-                        button.disabled = true;
-
-                        button.textContent =
-                            "SE TRIMITE...";
-
-                        result.className =
-                            "announcement-message";
-
-                        result.textContent = "";
-
-                        const response =
-                            await fetch(
-                                "/api/leadership/announcement",
-                                {
-                                    method: "POST",
-                                    credentials: "include",
-
-                                    headers: {
-                                        "Content-Type":
-                                            "application/json"
-                                    },
-
-                                    body:
-                                        JSON.stringify({
-                                            title: title,
-                                            message: messageText
-                                        })
-                                }
-                            );
-
-                        let data = {};
-
-                        try {
-
-                            data =
-                                await response.json();
-
-                        }
-
-                        catch (_) {
-                            data = {};
-                        }
-
-                        if (!response.ok) {
-
-                            throw new Error(
-                                data.error ||
-                                "Anunțul nu a putut fi trimis."
-                            );
-                        }
-
-                        result.className =
-                            "announcement-message success";
-
-                        result.textContent =
-                            "✓ Anunțul a fost trimis pe Discord.";
-
-                        this.reset();
-
-                        updateAnnouncementPreview();
-
-                    }
-
-                    catch (error) {
-
-                        result.className =
-                            "announcement-message error";
-
-                        result.textContent =
-                            error.message;
-                    }
-
-                    finally {
-
-                        button.disabled = false;
-
-                        button.textContent =
-                            "TRIMITE ANUNȚUL";
-                    }
-                }
-            );
-
-        /* =====================================================
-           MODAL GRADE
-        ====================================================== */
-
-        document
-            .getElementById(
-                "rank-manager-close"
-            )
-            .addEventListener(
-                "click",
-                closeRankManager
-            );
-
-        document
-            .getElementById(
-                "rank-manager-overlay"
-            )
-            .addEventListener(
-                "click",
-                closeRankManager
-            );
-
-        document
-            .getElementById(
-                "rank-manager-save"
-            )
-            .addEventListener(
-                "click",
-                saveMemberRank
-            );
-
-        document.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (
-                    event.key ===
-                    "Escape"
-                ) {
-
-                    closeRankManager();
-                }
-            }
-        );
-
-        /* =====================================================
-           START
-        ====================================================== */
-
-        updateAnnouncementPreview();
-
-        loadDashboardUser();
-
-    </script>
+</script>
 
 </body>
-
 </html>
