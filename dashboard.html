@@ -11,7 +11,7 @@
 
     <style>
         /* =====================================================
-           GESTIONARE GRADE
+           GRADE
         ====================================================== */
 
         .manage-rank-btn {
@@ -27,23 +27,18 @@
             font-weight: 900;
             letter-spacing: .7px;
             cursor: pointer;
-            transition: .2s ease;
         }
 
         .manage-rank-btn:hover {
             background: #ffc400;
             color: #080b10;
-            border-color: #ffc400;
-            transform: translateY(-1px);
         }
 
-        body.rank-modal-open,
-        body.blacklist-modal-open {
+        body.modal-open {
             overflow: hidden;
         }
 
-        .rank-manager-modal,
-        .blacklist-modal {
+        .custom-modal {
             position: fixed;
             inset: 0;
             z-index: 999999;
@@ -53,149 +48,108 @@
             padding: 20px;
         }
 
-        .rank-manager-modal.open,
-        .blacklist-modal.open {
+        .custom-modal.open {
             display: flex;
         }
 
-        .rank-manager-overlay,
-        .blacklist-modal-overlay {
+        .custom-modal-overlay {
             position: absolute;
             inset: 0;
             background: rgba(0,0,0,.84);
             backdrop-filter: blur(8px);
         }
 
-        .rank-manager-box,
-        .blacklist-modal-box {
+        .custom-modal-box {
             position: relative;
             z-index: 2;
-            width: min(520px,100%);
+            width: min(530px,100%);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
             box-sizing: border-box;
             padding: 26px;
             background: linear-gradient(145deg,#0d131b,#080c12);
             border: 1px solid rgba(255,255,255,.08);
             border-radius: 12px;
             box-shadow: 0 35px 100px rgba(0,0,0,.75);
-            max-height: calc(100vh - 40px);
-            overflow-y: auto;
         }
 
-        .rank-manager-box::before,
-        .blacklist-modal-box::before {
+        .custom-modal-box::before {
             content: "";
             position: absolute;
+            top: 0;
             left: 0;
             right: 0;
-            top: 0;
             height: 2px;
             background: linear-gradient(90deg,#ffc400,transparent);
         }
 
-        .blacklist-modal-box::before {
+        .custom-modal-box.blue::before {
+            background: linear-gradient(90deg,#3b82f6,transparent);
+        }
+
+        .custom-modal-box.red::before {
             background: linear-gradient(90deg,#ff4747,transparent);
         }
 
-        .rank-manager-top,
-        .blacklist-modal-top {
+        .custom-modal-top {
             display: flex;
-            justify-content: space-between;
             align-items: flex-start;
+            justify-content: space-between;
             gap: 20px;
             padding-bottom: 18px;
+            margin-bottom: 20px;
             border-bottom: 1px solid rgba(255,255,255,.06);
         }
 
-        .rank-manager-kicker,
-        .blacklist-modal-kicker {
+        .custom-modal-kicker {
             display: block;
             margin-bottom: 6px;
             color: #ffc400;
             font-size: 8px;
             font-weight: 900;
-            letter-spacing: 1.3px;
+            letter-spacing: 1.2px;
         }
 
-        .blacklist-modal-kicker {
-            color: #ff5656;
+        .custom-modal-kicker.blue {
+            color: #68a3ff;
         }
 
-        .rank-manager-top h3,
-        .blacklist-modal-top h3 {
+        .custom-modal-kicker.red {
+            color: #ff6262;
+        }
+
+        .custom-modal-top h3 {
             margin: 0;
             color: #fff;
-            font-size: 21px;
+            font-size: 20px;
         }
 
-        .rank-manager-close,
-        .blacklist-modal-close {
+        .custom-modal-close {
             width: 36px;
             height: 36px;
             border: 1px solid rgba(255,255,255,.08);
             border-radius: 7px;
             background: rgba(255,255,255,.025);
-            color: #76808c;
+            color: #7b8794;
             font-size: 22px;
             cursor: pointer;
         }
 
-        .rank-manager-member {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            margin: 22px 0;
-            padding: 14px 15px;
-            background: rgba(255,196,0,.035);
-            border: 1px solid rgba(255,196,0,.11);
-            border-radius: 7px;
-        }
-
-        .rank-manager-member span {
-            color: #626d79;
-            font-size: 7px;
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
-
-        .rank-manager-member strong {
-            color: #f5f6f8;
-            font-size: 12px;
-        }
-
-        .rank-manager-warning {
-            padding: 11px 13px;
-            margin-top: 12px;
-            border-left: 2px solid #ffc400;
-            background: rgba(255,196,0,.035);
-            color: #737d89;
-            font-size: 8px;
-            line-height: 1.6;
-        }
-
-        .rank-manager-save {
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .rank-manager-message,
-        .blacklist-form-message {
+        .form-message {
             min-height: 18px;
-            margin-top: 13px;
+            margin-top: 12px;
             font-size: 9px;
             font-weight: 800;
             text-align: center;
         }
 
-        .rank-manager-message.success,
-        .blacklist-form-message.success {
+        .form-message.success {
             color: #67ce85;
         }
 
-        .rank-manager-message.error,
-        .blacklist-form-message.error {
-            color: #ff6464;
+        .form-message.error {
+            color: #ff6868;
         }
-
 
         /* =====================================================
            CONDUCERE
@@ -205,22 +159,6 @@
             display: grid;
             grid-template-columns: minmax(0,1.2fr) minmax(280px,.8fr);
             gap: 20px;
-            align-items: start;
-        }
-
-        .leadership-panel {
-            position: relative;
-            overflow: hidden;
-        }
-
-        .leadership-panel::before {
-            content: "";
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: linear-gradient(180deg,#ffc400,transparent);
         }
 
         .leadership-heading {
@@ -239,14 +177,11 @@
         .leadership-heading h3 {
             margin: 0 0 7px;
             color: #f5f6f8;
-            font-size: 18px;
         }
 
         .leadership-heading p {
-            margin: 0;
             color: #6d7784;
             font-size: 9px;
-            line-height: 1.7;
         }
 
         .announcement-textarea {
@@ -257,39 +192,17 @@
         .announcement-meta {
             display: flex;
             justify-content: space-between;
-            gap: 15px;
             margin-top: 7px;
             color: #59636f;
             font-size: 8px;
         }
 
-        .announcement-submit {
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .announcement-message {
-            min-height: 20px;
-            margin-top: 12px;
-            text-align: center;
-            font-size: 9px;
-            font-weight: 800;
-        }
-
-        .announcement-message.success {
-            color: #67ce85;
-        }
-
-        .announcement-message.error {
-            color: #ff6b6b;
-        }
-
         .discord-preview {
+            padding: 16px;
+            background: #111820;
             border: 1px solid rgba(255,255,255,.07);
             border-left: 4px solid #ffc400;
             border-radius: 5px;
-            padding: 16px;
-            background: #111820;
         }
 
         .discord-preview-author {
@@ -300,63 +213,252 @@
         }
 
         .discord-preview-author img {
-            width: 28px;
-            height: 28px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
-            object-fit: cover;
         }
 
-        .discord-preview-author div {
-            display: flex;
-            flex-direction: column;
+        .discord-preview-author strong,
+        .discord-preview-author span {
+            display: block;
         }
 
         .discord-preview-author strong {
-            color: #e7e9ec;
+            color: #fff;
             font-size: 9px;
         }
 
         .discord-preview-author span {
             color: #68727e;
             font-size: 7px;
-            margin-top: 2px;
-        }
-
-        .discord-preview-badge {
-            display: inline-flex;
-            margin-bottom: 10px;
-            padding: 4px 7px;
-            border-radius: 4px;
-            background: rgba(255,196,0,.08);
-            color: #ffc400;
-            font-size: 7px;
-            font-weight: 900;
-            letter-spacing: .8px;
         }
 
         .discord-preview h4 {
-            margin: 0 0 10px;
             color: #fff;
-            font-size: 14px;
         }
 
         .discord-preview p {
-            margin: 0;
             color: #c7ccd3;
             font-size: 10px;
-            line-height: 1.7;
             white-space: pre-wrap;
-            word-break: break-word;
         }
 
-        .discord-preview-footer {
-            margin-top: 14px;
-            padding-top: 12px;
-            border-top: 1px solid rgba(255,255,255,.06);
-            color: #67717d;
+        /* =====================================================
+           CONCEDII
+        ====================================================== */
+
+        .leave-balance-grid {
+            display: grid;
+            grid-template-columns: repeat(2,minmax(0,1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .leave-balance-card {
+            padding: 18px;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 9px;
+            background: rgba(255,255,255,.02);
+        }
+
+        .leave-balance-card > span {
+            display: block;
+            margin-bottom: 8px;
+            color: #718093;
             font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1px;
         }
 
+        .leave-balance-card strong {
+            color: #fff;
+            font-size: 25px;
+        }
+
+        .leave-balance-card small {
+            color: #64707d;
+            font-size: 10px;
+        }
+
+        .leave-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 18px;
+        }
+
+        .leave-toolbar h3 {
+            margin: 0 0 5px;
+            color: #fff;
+        }
+
+        .leave-toolbar p {
+            margin: 0;
+            color: #687481;
+            font-size: 9px;
+        }
+
+        .leave-table-wrap,
+        .blacklist-table-wrap {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid rgba(255,255,255,.05);
+            border-radius: 8px;
+        }
+
+        .leave-table,
+        .blacklist-table {
+            width: 100%;
+            min-width: 950px;
+            border-collapse: collapse;
+        }
+
+        .leave-table th,
+        .blacklist-table th {
+            padding: 13px;
+            text-align: left;
+            color: #8090a4;
+            font-size: 8px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+
+        .leave-table td,
+        .blacklist-table td {
+            padding: 14px 13px;
+            color: #dce2e9;
+            font-size: 9px;
+            border-bottom: 1px solid rgba(255,255,255,.04);
+        }
+
+        .leave-type,
+        .leave-status,
+        .blacklist-status {
+            display: inline-flex;
+            justify-content: center;
+            padding: 5px 8px;
+            border-radius: 5px;
+            font-size: 7px;
+            font-weight: 900;
+        }
+
+        .leave-type {
+            color: #70a8ff;
+            background: rgba(59,130,246,.08);
+            border: 1px solid rgba(59,130,246,.2);
+        }
+
+        .leave-type.vacation {
+            color: #ffc84c;
+            background: rgba(255,196,0,.07);
+        }
+
+        .leave-status.pending {
+            color: #ffc84c;
+            background: rgba(255,196,0,.08);
+        }
+
+        .leave-status.approved {
+            color: #67d58b;
+            background: rgba(69,199,113,.08);
+        }
+
+        .leave-status.rejected {
+            color: #ff6c6c;
+            background: rgba(255,86,86,.08);
+        }
+
+        .leave-status.cancelled {
+            color: #84909c;
+            background: rgba(130,143,158,.08);
+        }
+
+        .leave-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .leave-action-btn,
+        .blacklist-action-btn {
+            padding: 7px 9px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 5px;
+            background: rgba(255,255,255,.025);
+            color: #9aa6b5;
+            font-size: 7px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .leave-action-btn.approve:hover {
+            color: #67d58b;
+        }
+
+        .leave-action-btn.reject:hover,
+        .leave-action-btn.cancel:hover {
+            color: #ff6c6c;
+        }
+
+        .leave-admin-panel {
+            margin-top: 20px;
+        }
+
+        .leave-admin-summary {
+            display: grid;
+            grid-template-columns: repeat(4,1fr);
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+
+        .leave-admin-stat {
+            padding: 13px;
+            border: 1px solid rgba(255,255,255,.05);
+            border-radius: 7px;
+        }
+
+        .leave-admin-stat span {
+            display: block;
+            margin-bottom: 5px;
+            color: #65717e;
+            font-size: 7px;
+        }
+
+        .leave-admin-stat strong {
+            color: #fff;
+            font-size: 17px;
+        }
+
+        .leave-modal-balance {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .leave-modal-balance > div {
+            padding: 13px;
+            text-align: center;
+            border: 1px solid rgba(59,130,246,.15);
+            border-radius: 7px;
+            background: rgba(59,130,246,.04);
+        }
+
+        .leave-modal-balance span {
+            display: block;
+            color: #708097;
+            font-size: 7px;
+        }
+
+        .leave-modal-balance strong {
+            color: #fff;
+            font-size: 18px;
+        }
+
+        .leave-date-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
 
         /* =====================================================
            BLACKLIST
@@ -364,7 +466,7 @@
 
         .blacklist-stats {
             display: grid;
-            grid-template-columns: repeat(3,minmax(0,1fr));
+            grid-template-columns: repeat(3,1fr);
             gap: 12px;
             margin-bottom: 18px;
         }
@@ -373,15 +475,12 @@
             padding: 16px;
             border: 1px solid rgba(255,255,255,.06);
             border-radius: 8px;
-            background: rgba(255,255,255,.02);
         }
 
         .blacklist-stat-card span {
             display: block;
             color: #6d7885;
             font-size: 8px;
-            font-weight: 900;
-            letter-spacing: 1px;
             margin-bottom: 8px;
         }
 
@@ -396,229 +495,35 @@
 
         .blacklist-toolbar {
             display: flex;
+            gap: 15px;
             justify-content: space-between;
-            align-items: center;
-            gap: 16px;
             margin-bottom: 18px;
         }
 
         .blacklist-search {
             width: 100%;
-            max-width: 520px;
-            box-sizing: border-box;
-            padding: 12px 14px;
+            max-width: 500px;
+            padding: 12px;
+            background: rgba(255,255,255,.025);
             border: 1px solid rgba(255,255,255,.08);
             border-radius: 7px;
-            background: rgba(255,255,255,.025);
-            color: #eef1f5;
-            outline: none;
-            font: inherit;
-        }
-
-        .blacklist-search:focus {
-            border-color: rgba(255,67,67,.45);
-        }
-
-        .blacklist-add-btn {
-            border: 1px solid rgba(255,67,67,.45);
-            background: rgba(255,67,67,.06);
-            color: #ff5656;
-        }
-
-        .blacklist-add-btn:hover {
-            background: #d83b3b;
             color: #fff;
-        }
-
-        .blacklist-table-wrap {
-            width: 100%;
-            overflow-x: auto;
-            border: 1px solid rgba(255,255,255,.05);
-            border-radius: 9px;
-        }
-
-        .blacklist-table {
-            width: 100%;
-            min-width: 980px;
-            border-collapse: collapse;
-        }
-
-        .blacklist-table th {
-            padding: 13px 14px;
-            text-align: left;
-            color: #8090a4;
-            font-size: 8px;
-            font-weight: 900;
-            letter-spacing: .7px;
-            border-bottom: 1px solid rgba(255,255,255,.06);
-        }
-
-        .blacklist-table td {
-            padding: 14px;
-            color: #dfe4ea;
-            font-size: 9px;
-            border-bottom: 1px solid rgba(255,255,255,.04);
-            vertical-align: middle;
-        }
-
-        .blacklist-table tbody tr:hover {
-            background: rgba(255,255,255,.018);
-        }
-
-        .blacklist-id {
-            font-family: monospace;
-            color: #c8d2df;
-            white-space: nowrap;
-        }
-
-        .blacklist-name {
-            color: #fff;
-            font-weight: 800;
-        }
-
-        .blacklist-reason {
-            max-width: 340px;
-            line-height: 1.55;
-            color: #cdd4dc;
-        }
-
-        .blacklist-expiry.permanent {
-            color: #ff5656;
-            font-weight: 900;
-        }
-
-        .blacklist-expiry.temporary {
-            color: #f4bb57;
-            font-weight: 800;
-        }
-
-        .blacklist-status {
-            display: inline-flex;
-            min-width: 68px;
-            align-items: center;
-            justify-content: center;
-            padding: 5px 8px;
-            border-radius: 5px;
-            font-size: 7px;
-            font-weight: 900;
-            letter-spacing: .6px;
         }
 
         .blacklist-status.active {
-            border: 1px solid rgba(255,58,58,.32);
-            background: rgba(255,58,58,.14);
-            color: #ff5353;
+            color: #ff5656;
+            background: rgba(255,58,58,.12);
         }
 
         .blacklist-status.inactive {
-            border: 1px solid rgba(130,143,158,.16);
-            background: rgba(130,143,158,.08);
             color: #7c8794;
-        }
-
-        .blacklist-actions {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-
-        .blacklist-action-btn {
-            padding: 7px 9px;
-            border: 1px solid rgba(255,255,255,.08);
-            border-radius: 5px;
-            background: rgba(255,255,255,.025);
-            color: #9aa6b5;
-            font: inherit;
-            font-size: 7px;
-            font-weight: 900;
-            cursor: pointer;
-        }
-
-        .blacklist-action-btn:hover {
-            color: #fff;
-        }
-
-        .blacklist-action-btn.danger:hover {
-            color: #ff6262;
-            border-color: rgba(255,68,68,.35);
-        }
-
-        .blacklist-action-btn.success:hover {
-            color: #6fd692;
-            border-color: rgba(111,214,146,.3);
+            background: rgba(130,143,158,.08);
         }
 
         .blacklist-empty {
-            padding: 35px;
+            padding: 30px;
             text-align: center;
             color: #687481;
-            font-size: 9px;
-        }
-
-        .blacklist-check-row {
-            display: flex;
-            gap: 8px;
-        }
-
-        .blacklist-check-row input {
-            flex: 1;
-        }
-
-        .blacklist-user-preview {
-            display: none;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-            padding: 10px;
-            border: 1px solid rgba(255,255,255,.06);
-            border-radius: 7px;
-            background: rgba(255,255,255,.02);
-        }
-
-        .blacklist-user-preview.show {
-            display: flex;
-        }
-
-        .blacklist-user-preview img {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-        }
-
-        .blacklist-user-preview strong {
-            color: #fff;
-            display: block;
-            font-size: 10px;
-        }
-
-        .blacklist-user-preview span {
-            color: #6e7986;
-            font-size: 8px;
-        }
-
-        .blacklist-form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 13px;
-        }
-
-        .blacklist-submit {
-            width: 100%;
-            margin-top: 10px;
-            background: linear-gradient(135deg,#d93636,#9c2020);
-        }
-
-        .blacklist-confirm-text {
-            color: #aab3be;
-            line-height: 1.7;
-            font-size: 10px;
-        }
-
-        .blacklist-confirm-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 20px;
         }
 
         @media(max-width:900px) {
@@ -628,22 +533,21 @@
         }
 
         @media(max-width:760px) {
+            .leave-balance-grid,
+            .leave-admin-summary,
+            .leave-modal-balance,
+            .leave-date-row,
+            .blacklist-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .leave-toolbar,
             .blacklist-toolbar {
                 flex-direction: column;
                 align-items: stretch;
             }
-
-            .blacklist-search {
-                max-width: none;
-            }
-
-            .blacklist-stats,
-            .blacklist-form-row {
-                grid-template-columns: 1fr;
-            }
         }
     </style>
-
 </head>
 
 <body class="dashboard-body">
@@ -651,12 +555,16 @@
 <header class="dashboard-topbar">
 
     <div class="brand">
-        <div class="brand-logo">D</div>
+
+        <div class="brand-logo">
+            D
+        </div>
 
         <div class="brand-text">
             <strong>DIICOT</strong>
             <span>CENTRU DE COMANDĂ</span>
         </div>
+
     </div>
 
     <div id="dashboard-user">
@@ -670,80 +578,52 @@
 
     <aside class="dashboard-sidebar">
 
-        <a href="/" class="sidebar-link">
+        <a
+            href="/"
+            class="sidebar-link"
+        >
             PAGINA PRINCIPALĂ
         </a>
 
-        <button
-            type="button"
-            class="sidebar-link active"
-            data-section="overview"
-        >
+        <button class="sidebar-link active" data-section="overview">
             PREZENTARE GENERALĂ
         </button>
 
-        <button
-            type="button"
-            class="sidebar-link"
-            data-section="new-report"
-        >
+        <button class="sidebar-link" data-section="new-report">
             RAPORT NOU
         </button>
 
-        <button
-            type="button"
-            class="sidebar-link"
-            data-section="my-reports"
-        >
+        <button class="sidebar-link" data-section="my-reports">
             RAPOARTELE MELE
         </button>
 
-        <button
-            type="button"
-            class="sidebar-link"
-            data-section="personnel"
-        >
+        <button class="sidebar-link" data-section="personnel">
             PERSONAL DIICOT
         </button>
 
-        <button
-            type="button"
-            class="sidebar-link admin-only"
-            data-section="leadership"
-        >
+        <button class="sidebar-link" data-section="leave">
+            CONCEDII / ÎNVOIRI
+        </button>
+
+        <button class="sidebar-link admin-only" data-section="leadership">
             CONDUCERE
         </button>
 
-        <button
-            type="button"
-            class="sidebar-link admin-only"
-            data-section="blacklist"
-        >
+        <button class="sidebar-link admin-only" data-section="blacklist">
             BLACKLIST
         </button>
 
-        <button
-            type="button"
-            class="sidebar-link admin-only"
-            data-section="admin"
-        >
+        <button class="sidebar-link admin-only" data-section="admin">
             ADMINISTRARE
         </button>
 
         <div class="sidebar-bottom">
 
-            <button
-                type="button"
-                class="sidebar-link profile-sidebar-link"
-                data-section="profile"
-            >
+            <button class="sidebar-link" data-section="profile">
                 PROFILUL MEU
             </button>
 
-            <a
-                href="/logout"
-                class="sidebar-link logout-sidebar"
-            >
+            <a href="/logout" class="sidebar-link logout-sidebar">
                 DECONECTARE
             </a>
 
@@ -756,10 +636,7 @@
 
         <!-- OVERVIEW -->
 
-        <section
-            id="overview"
-            class="dashboard-section active"
-        >
+        <section id="overview" class="dashboard-section active">
 
             <div class="dashboard-welcome">
 
@@ -807,10 +684,7 @@
                     ACTIVITATE RECENTĂ
                 </div>
 
-                <div
-                    id="recent-activity"
-                    class="empty-state"
-                >
+                <div id="recent-activity" class="empty-state">
                     Momentan nu există activitate.
                 </div>
 
@@ -821,10 +695,7 @@
 
         <!-- RAPORT NOU -->
 
-        <section
-            id="new-report"
-            class="dashboard-section"
-        >
+        <section id="new-report" class="dashboard-section">
 
             <div class="section-title">
                 <span>RAPOARTE</span>
@@ -833,11 +704,7 @@
 
             <div class="dashboard-panel">
 
-                <form
-                    id="report-form"
-                    class="report-form"
-                    enctype="multipart/form-data"
-                >
+                <form id="report-form" enctype="multipart/form-data">
 
                     <div class="form-group">
 
@@ -845,10 +712,7 @@
 
                         <select id="report-type" required>
 
-                            <option value="">
-                                Selectează tipul
-                            </option>
-
+                            <option value="">Selectează tipul</option>
                             <option value="RAZIE">RAZIE</option>
                             <option value="ANTRENAMENT">ANTRENAMENT</option>
                             <option value="JAFURI">JAFURI</option>
@@ -863,13 +727,12 @@
 
                     <div class="form-group">
 
-                        <label>TITLU RAPORT</label>
+                        <label>TITLU</label>
 
                         <input
                             id="report-title"
                             maxlength="120"
                             required
-                            placeholder="Ex: Razie Sandy Shores"
                         >
 
                     </div>
@@ -880,48 +743,37 @@
 
                         <textarea
                             id="report-description"
-                            rows="8"
                             maxlength="5000"
+                            rows="8"
                             required
-                            placeholder="Descrie activitatea desfășurată..."
                         ></textarea>
 
                     </div>
 
                     <div class="form-group">
 
-                        <label>POZE DOVADĂ</label>
+                        <label>POZE</label>
 
                         <input
-                            type="file"
                             id="report-images"
+                            type="file"
                             accept="image/jpeg,image/png,image/webp"
                             multiple
                         >
 
-                        <small class="upload-help">
-                            Maximum 5 poze. Maximum 8 MB per imagine.
-                        </small>
-
-                        <div
-                            id="image-preview"
-                            class="image-preview-grid"
-                        ></div>
+                        <div id="image-preview" class="image-preview-grid"></div>
 
                     </div>
 
                     <button
-                        type="submit"
                         id="submit-report"
-                        class="primary-btn dashboard-submit"
+                        class="primary-btn"
+                        type="submit"
                     >
                         POSTEAZĂ RAPORTUL
                     </button>
 
-                    <div
-                        id="report-message"
-                        class="report-message"
-                    ></div>
+                    <div id="report-message" class="report-message"></div>
 
                 </form>
 
@@ -930,38 +782,23 @@
         </section>
 
 
-        <!-- RAPOARTE -->
+        <!-- RAPOARTE MELE -->
 
-        <section
-            id="my-reports"
-            class="dashboard-section"
-        >
+        <section id="my-reports" class="dashboard-section">
 
             <div class="section-title">
                 <span>ACTIVITATE</span>
                 <h2>Rapoartele mele</h2>
             </div>
 
-            <div
-                id="my-reports-container"
-                class="reports-list"
-            >
-                <div class="dashboard-panel">
-                    <div class="empty-state">
-                        Se încarcă rapoartele...
-                    </div>
-                </div>
-            </div>
+            <div id="my-reports-container" class="reports-list"></div>
 
         </section>
 
 
         <!-- PERSONAL -->
 
-        <section
-            id="personnel"
-            class="dashboard-section"
-        >
+        <section id="personnel" class="dashboard-section">
 
             <div class="section-title">
                 <span>STRUCTURĂ</span>
@@ -973,15 +810,167 @@
                 <strong id="personnel-count">0</strong>
             </div>
 
-            <div
-                id="personnel-container"
-                class="personnel-container"
-            >
-                <div class="dashboard-panel">
-                    <div class="empty-state">
-                        Apasă pe Personal DIICOT pentru încărcare.
-                    </div>
+            <div id="personnel-container" class="personnel-container"></div>
+
+        </section>
+
+
+        <!-- CONCEDII -->
+
+        <section id="leave" class="dashboard-section">
+
+            <div class="section-title">
+                <span>ACTIVITATE PERSONAL</span>
+                <h2>Concedii / Învoiri ședință</h2>
+            </div>
+
+
+            <div class="leave-balance-grid">
+
+                <div class="leave-balance-card">
+
+                    <span>ZILE CONCEDIU RĂMASE</span>
+
+                    <strong>
+                        <b id="leave-vacation-remaining">14</b>
+                        <small>/ 14</small>
+                    </strong>
+
                 </div>
+
+                <div class="leave-balance-card">
+
+                    <span>ÎNVOIRI ȘEDINȚĂ RĂMASE</span>
+
+                    <strong>
+                        <b id="leave-excuses-remaining">2</b>
+                        <small>/ 2</small>
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-panel">
+
+                <div class="leave-toolbar">
+
+                    <div>
+                        <h3>Cererile mele</h3>
+                        <p>
+                            Concedii și învoiri trimise către conducere.
+                        </p>
+                    </div>
+
+                    <button
+                        id="leave-open-request"
+                        class="primary-btn"
+                        type="button"
+                    >
+                        + CERERE CONCEDIU / ÎNVOIRE
+                    </button>
+
+                </div>
+
+
+                <div class="leave-table-wrap">
+
+                    <table class="leave-table">
+
+                        <thead>
+                        <tr>
+                            <th>TIP</th>
+                            <th>INTERVAL</th>
+                            <th>MOTIV</th>
+                            <th>STATUS</th>
+                            <th>EVALUATOR</th>
+                            <th>ACȚIUNI</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="leave-my-table-body">
+
+                        <tr>
+                            <td colspan="6">
+                                <div class="blacklist-empty">
+                                    Se încarcă...
+                                </div>
+                            </td>
+                        </tr>
+
+                        </tbody>
+
+                    </table>
+
+                </div>
+
+            </div>
+
+
+            <!-- DOAR COORDONATOR+ -->
+
+            <div class="dashboard-panel leave-admin-panel admin-only">
+
+                <div class="leave-toolbar">
+
+                    <div>
+                        <h3>Evaluare cereri</h3>
+                        <p>
+                            Cererile tuturor membrilor DIICOT.
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="leave-admin-summary">
+
+                    <div class="leave-admin-stat">
+                        <span>TOTAL</span>
+                        <strong id="leave-admin-total">0</strong>
+                    </div>
+
+                    <div class="leave-admin-stat">
+                        <span>ÎN AȘTEPTARE</span>
+                        <strong id="leave-admin-pending">0</strong>
+                    </div>
+
+                    <div class="leave-admin-stat">
+                        <span>APROBATE</span>
+                        <strong id="leave-admin-approved">0</strong>
+                    </div>
+
+                    <div class="leave-admin-stat">
+                        <span>RESPINSE</span>
+                        <strong id="leave-admin-rejected">0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="leave-table-wrap">
+
+                    <table class="leave-table">
+
+                        <thead>
+                        <tr>
+                            <th>MEMBRU</th>
+                            <th>TIP</th>
+                            <th>INTERVAL</th>
+                            <th>MOTIV</th>
+                            <th>STATUS</th>
+                            <th>EVALUATOR</th>
+                            <th>ACȚIUNI</th>
+                        </tr>
+                        </thead>
+
+                        <tbody id="leave-admin-table-body"></tbody>
+
+                    </table>
+
+                </div>
+
             </div>
 
         </section>
@@ -989,10 +978,7 @@
 
         <!-- CONDUCERE -->
 
-        <section
-            id="leadership"
-            class="dashboard-section"
-        >
+        <section id="leadership" class="dashboard-section">
 
             <div class="section-title">
                 <span>CONDUCERE DIICOT</span>
@@ -1001,7 +987,7 @@
 
             <div class="leadership-grid">
 
-                <div class="dashboard-panel leadership-panel">
+                <div class="dashboard-panel">
 
                     <div class="leadership-heading">
                         <span>TRANSMITERE COMUNICAT</span>
@@ -1021,7 +1007,6 @@
                                 id="announcement-title"
                                 maxlength="120"
                                 required
-                                placeholder="Ex: Ședință săptămânală DIICOT"
                             >
 
                         </div>
@@ -1035,29 +1020,31 @@
                                 class="announcement-textarea"
                                 maxlength="4000"
                                 required
-                                placeholder="Scrie aici anunțul..."
                             ></textarea>
 
                             <div class="announcement-meta">
+
                                 <span>Embed oficial DIICOT</span>
+
                                 <span id="announcement-counter">
                                     0 / 4000
                                 </span>
+
                             </div>
 
                         </div>
 
                         <button
-                            type="submit"
                             id="announcement-submit"
-                            class="primary-btn announcement-submit"
+                            class="primary-btn"
+                            type="submit"
                         >
                             TRIMITE ANUNȚUL
                         </button>
 
                         <div
                             id="announcement-result"
-                            class="announcement-message"
+                            class="form-message"
                         ></div>
 
                     </form>
@@ -1079,10 +1066,10 @@
                             <img
                                 id="announcement-preview-avatar"
                                 src="https://cdn.discordapp.com/embed/avatars/0.png"
-                                alt="Avatar"
                             >
 
                             <div>
+
                                 <strong id="announcement-preview-author">
                                     Conducere DIICOT
                                 </strong>
@@ -1090,25 +1077,18 @@
                                 <span id="announcement-preview-rank">
                                     GRAD DIICOT
                                 </span>
+
                             </div>
 
                         </div>
-
-                        <span class="discord-preview-badge">
-                            COMUNICAT OFICIAL
-                        </span>
 
                         <h4 id="announcement-preview-title">
                             📢 Titlul anunțului
                         </h4>
 
                         <p id="announcement-preview-message">
-                            Mesajul anunțului va apărea aici.
+                            Mesajul va apărea aici.
                         </p>
-
-                        <div class="discord-preview-footer">
-                            DIICOT • Rush România • Comunicat oficial
-                        </div>
 
                     </div>
 
@@ -1121,10 +1101,7 @@
 
         <!-- BLACKLIST -->
 
-        <section
-            id="blacklist"
-            class="dashboard-section"
-        >
+        <section id="blacklist" class="dashboard-section">
 
             <div class="section-title">
                 <span>CONDUCERE DIICOT</span>
@@ -1134,7 +1111,7 @@
             <div class="blacklist-stats">
 
                 <div class="blacklist-stat-card">
-                    <span>TOTAL ÎNREGISTRĂRI</span>
+                    <span>TOTAL</span>
                     <strong id="blacklist-total">0</strong>
                 </div>
 
@@ -1144,7 +1121,7 @@
                 </div>
 
                 <div class="blacklist-stat-card">
-                    <span>INACTIVI / EXPIRAȚI</span>
+                    <span>INACTIVI</span>
                     <strong id="blacklist-inactive">0</strong>
                 </div>
 
@@ -1155,16 +1132,15 @@
                 <div class="blacklist-toolbar">
 
                     <input
-                        type="text"
                         id="blacklist-search"
                         class="blacklist-search"
-                        placeholder="Caută după Discord ID, nume, motiv sau autor..."
+                        placeholder="Caută..."
                     >
 
                     <button
-                        type="button"
                         id="blacklist-open-add"
-                        class="primary-btn blacklist-add-btn"
+                        class="primary-btn"
+                        type="button"
                     >
                         + ADAUGĂ ÎN BLACKLIST
                     </button>
@@ -1187,17 +1163,7 @@
                         </tr>
                         </thead>
 
-                        <tbody id="blacklist-table-body">
-
-                        <tr>
-                            <td colspan="7">
-                                <div class="blacklist-empty">
-                                    Se încarcă...
-                                </div>
-                            </td>
-                        </tr>
-
-                        </tbody>
+                        <tbody id="blacklist-table-body"></tbody>
 
                     </table>
 
@@ -1210,39 +1176,26 @@
 
         <!-- ADMIN -->
 
-        <section
-            id="admin"
-            class="dashboard-section"
-        >
+        <section id="admin" class="dashboard-section">
 
             <div class="section-title">
                 <span>CONDUCERE DIICOT</span>
                 <h2>Administrare</h2>
             </div>
 
-            <div class="admin-stats">
-
-                <div class="stat-card">
-                    <span>TOTAL RAPOARTE</span>
-                    <strong id="admin-total">0</strong>
-                </div>
-
+            <div class="stat-card">
+                <span>TOTAL RAPOARTE</span>
+                <strong id="admin-total">0</strong>
             </div>
 
-            <div
-                id="admin-reports-container"
-                class="reports-list"
-            ></div>
+            <div id="admin-reports-container" class="reports-list"></div>
 
         </section>
 
 
         <!-- PROFIL -->
 
-        <section
-            id="profile"
-            class="dashboard-section"
-        >
+        <section id="profile" class="dashboard-section">
 
             <div class="section-title">
                 <span>CONT DIICOT</span>
@@ -1261,7 +1214,6 @@
                             id="profile-avatar"
                             class="profile-avatar"
                             src="https://cdn.discordapp.com/embed/avatars/0.png"
-                            alt="Avatar"
                         >
 
                         <div class="profile-identity">
@@ -1310,87 +1262,52 @@
                 </div>
 
 
-                <div class="profile-grid">
+                <div class="dashboard-panel">
 
-                    <div class="dashboard-panel profile-panel">
+                    <form id="profile-form">
 
-                        <div class="profile-panel-heading">
-                            <div>
-                                <span>IDENTITATE</span>
-                                <h3>Editează profilul</h3>
-                            </div>
+                        <div class="form-group">
+
+                            <label>NUME PE SERVER</label>
+
+                            <input
+                                id="profile-nickname"
+                                maxlength="32"
+                                required
+                            >
+
                         </div>
 
-                        <form id="profile-form">
+                        <div class="profile-duties-header">
 
-                            <div class="form-group">
-
-                                <label>NUME PE SERVER</label>
-
-                                <input
-                                    id="profile-nickname"
-                                    maxlength="32"
-                                    required
-                                >
-
-                            </div>
-
-                            <div class="profile-duties-section">
-
-                                <div class="profile-duties-header">
-
-                                    <div>
-                                        <label>ATRIBUȚII</label>
-                                        <small>Maximum 8 atribuții</small>
-                                    </div>
-
-                                    <button
-                                        type="button"
-                                        id="add-duty"
-                                        class="profile-small-btn"
-                                    >
-                                        + ADAUGĂ
-                                    </button>
-
-                                </div>
-
-                                <div id="duties-editor"></div>
-
+                            <div>
+                                <label>ATRIBUȚII</label>
+                                <small>Maximum 8</small>
                             </div>
 
                             <button
-                                type="submit"
-                                id="save-profile"
-                                class="primary-btn profile-save-button"
+                                id="add-duty"
+                                type="button"
+                                class="profile-small-btn"
                             >
-                                SALVEAZĂ MODIFICĂRILE
+                                + ADAUGĂ
                             </button>
 
-                            <div
-                                id="profile-message"
-                                class="profile-message"
-                            ></div>
-
-                        </form>
-
-                    </div>
-
-
-                    <div class="dashboard-panel profile-panel">
-
-                        <div class="profile-panel-heading">
-                            <div>
-                                <span>ACTIVITATE</span>
-                                <h3>Activitate recentă</h3>
-                            </div>
                         </div>
 
-                        <div
-                            id="profile-activity"
-                            class="profile-activity-list"
-                        ></div>
+                        <div id="duties-editor"></div>
 
-                    </div>
+                        <button
+                            id="save-profile"
+                            class="primary-btn"
+                            type="submit"
+                        >
+                            SALVEAZĂ
+                        </button>
+
+                        <div id="profile-message"></div>
+
+                    </form>
 
                 </div>
 
@@ -1403,36 +1320,251 @@
 </div>
 
 
-<!-- MODAL BLACKLIST -->
+<!-- MODAL CONCEDIU -->
 
-<div
-    id="blacklist-entry-modal"
-    class="blacklist-modal"
->
+<div id="leave-request-modal" class="custom-modal">
 
     <div
-        id="blacklist-entry-overlay"
-        class="blacklist-modal-overlay"
+        id="leave-request-overlay"
+        class="custom-modal-overlay"
     ></div>
 
-    <div class="blacklist-modal-box">
+    <div class="custom-modal-box blue">
 
-        <div class="blacklist-modal-top">
+        <div class="custom-modal-top">
 
             <div>
-                <span class="blacklist-modal-kicker">
-                    CONDUCERE DIICOT
+                <span class="custom-modal-kicker blue">
+                    CERERE PERSONALĂ
                 </span>
 
-                <h3 id="blacklist-modal-title">
-                    Adaugă în blacklist
+                <h3>
+                    Cerere concediu / învoire
                 </h3>
             </div>
 
             <button
+                id="leave-request-close"
+                class="custom-modal-close"
                 type="button"
-                id="blacklist-entry-close"
-                class="blacklist-modal-close"
+            >
+                ×
+            </button>
+
+        </div>
+
+
+        <div class="leave-modal-balance">
+
+            <div>
+
+                <span>
+                    ZILE CONCEDIU RĂMASE
+                </span>
+
+                <strong id="leave-modal-vacation">
+                    14 / 14
+                </strong>
+
+            </div>
+
+            <div>
+
+                <span>
+                    ÎNVOIRI ȘEDINȚĂ RĂMASE
+                </span>
+
+                <strong id="leave-modal-excuses">
+                    2 / 2
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <form id="leave-request-form">
+
+            <div class="form-group">
+
+                <label>TIP</label>
+
+                <select id="leave-request-type">
+
+                    <option value="VACATION">
+                        Concediu
+                    </option>
+
+                    <option value="MEETING_EXCUSE">
+                        Învoire ședință
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="leave-date-row">
+
+                <div class="form-group">
+
+                    <label>DATA ÎNCEPUT</label>
+
+                    <input
+                        type="date"
+                        id="leave-start-date"
+                        required
+                    >
+
+                </div>
+
+                <div class="form-group">
+
+                    <label>DATA SFÂRȘIT</label>
+
+                    <input
+                        type="date"
+                        id="leave-end-date"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label>MOTIV</label>
+
+                <textarea
+                    id="leave-reason"
+                    maxlength="1000"
+                    rows="5"
+                    required
+                ></textarea>
+
+            </div>
+
+            <button
+                id="leave-submit"
+                class="primary-btn"
+                type="submit"
+                style="width:100%"
+            >
+                TRIMITE CEREREA
+            </button>
+
+            <div
+                id="leave-form-message"
+                class="form-message"
+            ></div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL DECIZIE -->
+
+<div id="leave-decision-modal" class="custom-modal">
+
+    <div
+        id="leave-decision-overlay"
+        class="custom-modal-overlay"
+    ></div>
+
+    <div class="custom-modal-box blue">
+
+        <div class="custom-modal-top">
+
+            <div>
+
+                <span class="custom-modal-kicker blue">
+                    EVALUARE CERERE
+                </span>
+
+                <h3 id="leave-decision-title">
+                    Evaluează cererea
+                </h3>
+
+            </div>
+
+            <button
+                id="leave-decision-close"
+                class="custom-modal-close"
+                type="button"
+            >
+                ×
+            </button>
+
+        </div>
+
+        <input
+            id="leave-decision-id"
+            type="hidden"
+        >
+
+        <input
+            id="leave-decision-value"
+            type="hidden"
+        >
+
+        <div class="form-group">
+
+            <label>OBSERVAȚIE</label>
+
+            <textarea
+                id="leave-decision-note"
+                maxlength="500"
+                rows="4"
+            ></textarea>
+
+        </div>
+
+        <button
+            id="leave-decision-submit"
+            class="primary-btn"
+            type="button"
+            style="width:100%"
+        >
+            CONFIRMĂ
+        </button>
+
+        <div
+            id="leave-decision-message"
+            class="form-message"
+        ></div>
+
+    </div>
+
+</div>
+
+
+<!-- MODAL BLACKLIST -->
+
+<div id="blacklist-modal" class="custom-modal">
+
+    <div id="blacklist-overlay" class="custom-modal-overlay"></div>
+
+    <div class="custom-modal-box red">
+
+        <div class="custom-modal-top">
+
+            <div>
+                <span class="custom-modal-kicker red">
+                    CONDUCERE DIICOT
+                </span>
+
+                <h3>Adaugă în blacklist</h3>
+            </div>
+
+            <button
+                id="blacklist-close"
+                class="custom-modal-close"
+                type="button"
             >
                 ×
             </button>
@@ -1441,51 +1573,15 @@
 
         <form id="blacklist-form">
 
-            <input
-                type="hidden"
-                id="blacklist-edit-id"
-            >
-
             <div class="form-group">
 
                 <label>DISCORD ID</label>
 
-                <div class="blacklist-check-row">
-
-                    <input
-                        id="blacklist-discord-id"
-                        maxlength="25"
-                        placeholder="123456789012345678"
-                        required
-                    >
-
-                    <button
-                        type="button"
-                        id="blacklist-check-user"
-                        class="primary-btn"
-                    >
-                        VERIFICĂ
-                    </button>
-
-                </div>
-
-                <div
-                    id="blacklist-user-preview"
-                    class="blacklist-user-preview"
+                <input
+                    id="blacklist-discord-id"
+                    maxlength="25"
+                    required
                 >
-
-                    <img
-                        id="blacklist-user-avatar"
-                        src="https://cdn.discordapp.com/embed/avatars/0.png"
-                        alt="Avatar"
-                    >
-
-                    <div>
-                        <strong id="blacklist-user-name">-</strong>
-                        <span id="blacklist-user-username">-</span>
-                    </div>
-
-                </div>
 
             </div>
 
@@ -1496,7 +1592,6 @@
                 <input
                     id="blacklist-name"
                     maxlength="80"
-                    placeholder="Numele persoanei"
                 >
 
             </div>
@@ -1507,62 +1602,57 @@
 
                 <textarea
                     id="blacklist-reason"
-                    rows="5"
                     maxlength="1000"
                     required
-                    placeholder="Motivul introducerii în blacklist..."
                 ></textarea>
 
             </div>
 
-            <div class="blacklist-form-row">
+            <div class="form-group">
 
-                <div class="form-group">
+                <label>DURATĂ</label>
 
-                    <label>DURATĂ</label>
+                <select id="blacklist-duration">
 
-                    <select id="blacklist-duration">
+                    <option value="PERMANENT">
+                        Permanent
+                    </option>
 
-                        <option value="PERMANENT">
-                            Permanent
-                        </option>
+                    <option value="TEMPORARY">
+                        Temporar
+                    </option>
 
-                        <option value="TEMPORARY">
-                            Temporar
-                        </option>
+                </select>
 
-                    </select>
+            </div>
 
-                </div>
+            <div
+                id="blacklist-expiry-group"
+                class="form-group"
+                style="display:none"
+            >
 
-                <div
-                    class="form-group"
-                    id="blacklist-expiry-group"
-                    style="display:none"
+                <label>EXPIRĂ</label>
+
+                <input
+                    id="blacklist-expiry"
+                    type="datetime-local"
                 >
-
-                    <label>EXPIRĂ LA</label>
-
-                    <input
-                        type="datetime-local"
-                        id="blacklist-expiry"
-                    >
-
-                </div>
 
             </div>
 
             <button
-                type="submit"
                 id="blacklist-submit"
-                class="primary-btn blacklist-submit"
+                class="primary-btn"
+                type="submit"
+                style="width:100%"
             >
                 ADAUGĂ ÎN BLACKLIST
             </button>
 
             <div
-                id="blacklist-form-message"
-                class="blacklist-form-message"
+                id="blacklist-message"
+                class="form-message"
             ></div>
 
         </form>
@@ -1572,97 +1662,18 @@
 </div>
 
 
-<!-- CONFIRMARE BLACKLIST -->
+<!-- MODAL GRAD -->
 
-<div
-    id="blacklist-confirm-modal"
-    class="blacklist-modal"
->
+<div id="rank-modal" class="custom-modal">
 
-    <div
-        id="blacklist-confirm-overlay"
-        class="blacklist-modal-overlay"
-    ></div>
+    <div id="rank-overlay" class="custom-modal-overlay"></div>
 
-    <div class="blacklist-modal-box">
+    <div class="custom-modal-box">
 
-        <div class="blacklist-modal-top">
+        <div class="custom-modal-top">
 
             <div>
-                <span class="blacklist-modal-kicker">
-                    CONFIRMARE
-                </span>
-
-                <h3 id="blacklist-confirm-title">
-                    Confirmare acțiune
-                </h3>
-            </div>
-
-            <button
-                id="blacklist-confirm-close"
-                class="blacklist-modal-close"
-                type="button"
-            >
-                ×
-            </button>
-
-        </div>
-
-        <p
-            id="blacklist-confirm-text"
-            class="blacklist-confirm-text"
-        >
-            Ești sigur?
-        </p>
-
-        <div class="blacklist-confirm-actions">
-
-            <button
-                type="button"
-                id="blacklist-confirm-cancel"
-                class="blacklist-action-btn"
-            >
-                ANULEAZĂ
-            </button>
-
-            <button
-                type="button"
-                id="blacklist-confirm-yes"
-                class="primary-btn blacklist-add-btn"
-            >
-                CONFIRMĂ
-            </button>
-
-        </div>
-
-        <div
-            id="blacklist-confirm-message"
-            class="blacklist-form-message"
-        ></div>
-
-    </div>
-
-</div>
-
-
-<!-- MODAL GRADE -->
-
-<div
-    id="rank-manager-modal"
-    class="rank-manager-modal"
->
-
-    <div
-        id="rank-manager-overlay"
-        class="rank-manager-overlay"
-    ></div>
-
-    <div class="rank-manager-box">
-
-        <div class="rank-manager-top">
-
-            <div>
-                <span class="rank-manager-kicker">
+                <span class="custom-modal-kicker">
                     ADMINISTRARE PERSONAL
                 </span>
 
@@ -1670,8 +1681,8 @@
             </div>
 
             <button
-                id="rank-manager-close"
-                class="rank-manager-close"
+                id="rank-close"
+                class="custom-modal-close"
                 type="button"
             >
                 ×
@@ -1679,41 +1690,35 @@
 
         </div>
 
-        <div class="rank-manager-member">
-            <span>MEMBRU SELECTAT</span>
-            <strong id="rank-manager-name">-</strong>
-        </div>
+        <strong id="rank-user-name">
+            -
+        </strong>
 
         <input
+            id="rank-user-id"
             type="hidden"
-            id="rank-manager-user-id"
         >
 
         <div class="form-group">
 
             <label>GRAD NOU</label>
 
-            <select id="rank-manager-select">
-                <option value="">Se încarcă...</option>
-            </select>
+            <select id="rank-select"></select>
 
-        </div>
-
-        <div class="rank-manager-warning">
-            Schimbarea gradului se aplică direct pe Discord.
         </div>
 
         <button
-            id="rank-manager-save"
+            id="rank-save"
+            class="primary-btn"
             type="button"
-            class="primary-btn rank-manager-save"
+            style="width:100%"
         >
             SALVEAZĂ GRADUL
         </button>
 
         <div
-            id="rank-manager-message"
-            class="rank-manager-message"
+            id="rank-message"
+            class="form-message"
         ></div>
 
     </div>
@@ -1722,17 +1727,25 @@
 
 
 <script>
-
 let currentUser = null;
 let profileDuties = [];
-let adminDiscordRoles = [];
-let blacklistEntries = [];
-let blacklistConfirmAction = null;
+let discordRoles = [];
 
+let blacklistData = [];
 
-/* =====================================================
-   UTILS
-====================================================== */
+let myLeaveRequests = [];
+let adminLeaveRequests = [];
+
+let leaveLimits = {
+    vacationDays: 14,
+    meetingExcuses: 2
+};
+
+let leaveUsage = {
+    vacationRemaining: 14,
+    meetingExcusesRemaining: 2
+};
+
 
 function escapeHTML(value) {
 
@@ -1746,12 +1759,11 @@ function escapeHTML(value) {
 }
 
 
-function getAvatarURL(user) {
+function avatarURL(user) {
 
     if (
-        user &&
-        user.id &&
-        user.avatar
+        user?.id &&
+        user?.avatar
     ) {
 
         return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`;
@@ -1761,26 +1773,69 @@ function getAvatarURL(user) {
 }
 
 
+function openModal(id) {
+
+    document
+        .getElementById(id)
+        ?.classList
+        .add("open");
+
+    document.body.classList.add(
+        "modal-open"
+    );
+}
+
+
+function closeModal(id) {
+
+    document
+        .getElementById(id)
+        ?.classList
+        .remove("open");
+
+    if (
+        !document.querySelector(
+            ".custom-modal.open"
+        )
+    ) {
+
+        document.body.classList.remove(
+            "modal-open"
+        );
+    }
+}
+
+
 /* =====================================================
    USER
 ====================================================== */
 
-function renderTopbarUser() {
+async function loadUser() {
 
-    if (!currentUser) return;
+    const response =
+        await fetch(
+            "/api/me",
+            {
+                credentials: "include",
+                cache: "no-store"
+            }
+        );
 
-    const displayName =
+    if (!response.ok) {
+
+        location.href = "/";
+        return;
+    }
+
+    const data =
+        await response.json();
+
+    currentUser =
+        data.user;
+
+    const name =
         currentUser.displayName ||
-        currentUser.globalName ||
-        currentUser.username ||
-        "Membru DIICOT";
-
-    const rank =
-        currentUser.rank ||
-        "MEMBRU DIICOT";
-
-    const avatar =
-        getAvatarURL(currentUser);
+        currentUser.username;
 
     document.getElementById(
         "dashboard-user"
@@ -1789,14 +1844,20 @@ function renderTopbarUser() {
         <div class="user-menu">
 
             <img
-                src="${avatar}"
                 class="user-avatar"
-                alt="Avatar"
+                src="${avatarURL(currentUser)}"
             >
 
             <div class="user-info">
-                <strong>${escapeHTML(displayName)}</strong>
-                <span>${escapeHTML(rank)}</span>
+
+                <strong>
+                    ${escapeHTML(name)}
+                </strong>
+
+                <span>
+                    ${escapeHTML(currentUser.rank)}
+                </span>
+
             </div>
 
         </div>
@@ -1805,91 +1866,49 @@ function renderTopbarUser() {
     document.getElementById(
         "welcome-name"
     ).textContent =
-        displayName;
+        name;
 
     document.getElementById(
         "welcome-rank"
     ).textContent =
-        rank;
+        currentUser.rank;
 
     document.getElementById(
         "announcement-preview-author"
     ).textContent =
-        displayName;
+        name;
 
     document.getElementById(
         "announcement-preview-rank"
     ).textContent =
-        rank;
+        currentUser.rank;
 
     document.getElementById(
         "announcement-preview-avatar"
     ).src =
-        avatar;
-}
+        avatarURL(currentUser);
 
 
-async function loadDashboardUser() {
+    if (
+        Number(
+            currentUser.rankLevel || 0
+        ) < 10
+    ) {
 
-    try {
+        document
+            .querySelectorAll(
+                ".admin-only"
+            )
+            .forEach(
+                element => {
 
-        const response =
-            await fetch(
-                "/api/me",
-                {
-                    credentials: "include",
-                    cache: "no-store"
+                    element.style.display =
+                        "none";
                 }
             );
-
-        if (!response.ok) {
-
-            location.replace("/");
-            return;
-        }
-
-        const data =
-            await response.json();
-
-        if (
-            !data.loggedIn ||
-            !data.user
-        ) {
-
-            location.replace("/");
-            return;
-        }
-
-        currentUser =
-            data.user;
-
-        renderTopbarUser();
-
-        if (
-            Number(
-                currentUser.rankLevel || 0
-            ) < 10
-        ) {
-
-            document
-                .querySelectorAll(
-                    ".admin-only"
-                )
-                .forEach(
-                    item =>
-                        item.style.display =
-                            "none"
-                );
-        }
-
-        await loadMyReports();
-
     }
 
-    catch {
-
-        location.replace("/");
-    }
+    await loadMyReports();
 }
 
 
@@ -1897,20 +1916,17 @@ async function loadDashboardUser() {
    NAVIGAȚIE
 ====================================================== */
 
-function openSection(name) {
+function openSection(id) {
 
     if (
         [
-            "admin",
             "leadership",
-            "blacklist"
-        ].includes(name) &&
-        (
-            !currentUser ||
-            Number(
-                currentUser.rankLevel || 0
-            ) < 10
-        )
+            "blacklist",
+            "admin"
+        ].includes(id) &&
+        Number(
+            currentUser?.rankLevel || 0
+        ) < 10
     ) {
 
         return;
@@ -1921,10 +1937,12 @@ function openSection(name) {
             ".dashboard-section"
         )
         .forEach(
-            section =>
+            section => {
+
                 section.classList.remove(
                     "active"
-                )
+                );
+            }
         );
 
     document
@@ -1932,20 +1950,22 @@ function openSection(name) {
             ".sidebar-link[data-section]"
         )
         .forEach(
-            button =>
+            button => {
+
                 button.classList.remove(
                     "active"
-                )
+                );
+            }
         );
 
     document
-        .getElementById(name)
+        .getElementById(id)
         ?.classList
         .add("active");
 
     document
         .querySelector(
-            `[data-section="${name}"]`
+            `[data-section="${id}"]`
         )
         ?.classList
         .add("active");
@@ -1959,238 +1979,56 @@ document
     .forEach(
         button => {
 
-            button.addEventListener(
-                "click",
-                function () {
+            button.onclick =
+                async function () {
 
-                    const target =
+                    const section =
                         this.dataset.section;
 
-                    openSection(target);
+                    openSection(section);
 
-                    if (target === "my-reports") {
-                        loadMyReports();
+                    if (
+                        section === "my-reports"
+                    ) {
+
+                        await loadMyReports();
                     }
 
-                    if (target === "personnel") {
-                        loadPersonnel();
+                    if (
+                        section === "personnel"
+                    ) {
+
+                        await loadPersonnel();
                     }
 
-                    if (target === "blacklist") {
-                        loadBlacklist();
+                    if (
+                        section === "leave"
+                    ) {
+
+                        await loadLeave();
                     }
 
-                    if (target === "admin") {
-                        loadAdminReports();
+                    if (
+                        section === "blacklist"
+                    ) {
+
+                        await loadBlacklist();
                     }
 
-                    if (target === "profile") {
-                        loadProfile();
+                    if (
+                        section === "admin"
+                    ) {
+
+                        await loadAdminReports();
                     }
-                }
-            );
-        }
-    );
 
+                    if (
+                        section === "profile"
+                    ) {
 
-/* =====================================================
-   POZE
-====================================================== */
-
-document
-    .getElementById(
-        "report-images"
-    )
-    .addEventListener(
-        "change",
-        function () {
-
-            const preview =
-                document.getElementById(
-                    "image-preview"
-                );
-
-            preview.innerHTML = "";
-
-            const files =
-                [...this.files];
-
-            if (files.length > 5) {
-
-                alert(
-                    "Maximum 5 poze."
-                );
-
-                this.value = "";
-                return;
-            }
-
-            for (const file of files) {
-
-                if (
-                    file.size >
-                    8 * 1024 * 1024
-                ) {
-
-                    alert(
-                        "O imagine depășește 8 MB."
-                    );
-
-                    this.value = "";
-                    preview.innerHTML = "";
-                    return;
-                }
-
-                const reader =
-                    new FileReader();
-
-                reader.onload =
-                    event => {
-
-                        const img =
-                            document.createElement(
-                                "img"
-                            );
-
-                        img.src =
-                            event.target.result;
-
-                        img.className =
-                            "report-preview-image";
-
-                        preview.appendChild(
-                            img
-                        );
-                    };
-
-                reader.readAsDataURL(
-                    file
-                );
-            }
-        }
-    );
-
-
-/* =====================================================
-   RAPORT NOU
-====================================================== */
-
-document
-    .getElementById(
-        "report-form"
-    )
-    .addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-            const button =
-                document.getElementById(
-                    "submit-report"
-                );
-
-            const message =
-                document.getElementById(
-                    "report-message"
-                );
-
-            const form =
-                new FormData();
-
-            form.append(
-                "type",
-                document.getElementById(
-                    "report-type"
-                ).value
-            );
-
-            form.append(
-                "title",
-                document.getElementById(
-                    "report-title"
-                ).value.trim()
-            );
-
-            form.append(
-                "description",
-                document.getElementById(
-                    "report-description"
-                ).value.trim()
-            );
-
-            for (
-                const file
-                of document.getElementById(
-                    "report-images"
-                ).files
-            ) {
-
-                form.append(
-                    "images",
-                    file
-                );
-            }
-
-            try {
-
-                button.disabled =
-                    true;
-
-                button.textContent =
-                    "SE POSTEAZĂ...";
-
-                const response =
-                    await fetch(
-                        "/api/reports",
-                        {
-                            method: "POST",
-                            credentials: "include",
-                            body: form
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error
-                    );
-                }
-
-                message.textContent =
-                    "✓ Raport postat cu succes.";
-
-                this.reset();
-
-                document.getElementById(
-                    "image-preview"
-                ).innerHTML = "";
-
-                await loadMyReports();
-
-                openSection(
-                    "my-reports"
-                );
-
-            }
-
-            catch (error) {
-
-                message.textContent =
-                    error.message;
-            }
-
-            finally {
-
-                button.disabled =
-                    false;
-
-                button.textContent =
-                    "POSTEAZĂ RAPORTUL";
-            }
+                        await loadProfile();
+                    }
+                };
         }
     );
 
@@ -2199,96 +2037,201 @@ document
    RAPOARTE
 ====================================================== */
 
-async function loadMyReports() {
+document.getElementById(
+    "report-form"
+).onsubmit =
+    async function (event) {
 
-    try {
+        event.preventDefault();
 
-        const response =
-            await fetch(
-                "/api/reports/my",
-                {
-                    credentials: "include",
-                    cache: "no-store"
-                }
-            );
+        const form =
+            new FormData();
 
-        if (!response.ok) return;
-
-        const data =
-            await response.json();
-
-        const reports =
-            data.reports || [];
-
-        renderReports(reports);
-
-        document.getElementById(
-            "stat-total"
-        ).textContent =
-            reports.length;
-
-        document.getElementById(
-            "stat-images"
-        ).textContent =
-            reports.filter(
-                report =>
-                    report.images?.length
-            ).length;
-
-        document.getElementById(
-            "stat-types"
-        ).textContent =
-            new Set(
-                reports.map(
-                    report =>
-                        report.type
-                )
-            ).size;
-
-        document.getElementById(
-            "stat-last"
-        ).textContent =
-            reports.length
-                ? reports[0].createdAtFormatted
-                : "-";
-
-        renderRecentActivity(
-            reports
+        form.append(
+            "type",
+            document.getElementById(
+                "report-type"
+            ).value
         );
 
+        form.append(
+            "title",
+            document.getElementById(
+                "report-title"
+            ).value.trim()
+        );
+
+        form.append(
+            "description",
+            document.getElementById(
+                "report-description"
+            ).value.trim()
+        );
+
+        for (
+            const file
+            of document.getElementById(
+                "report-images"
+            ).files
+        ) {
+
+            form.append(
+                "images",
+                file
+            );
+        }
+
+        const button =
+            document.getElementById(
+                "submit-report"
+            );
+
+        const message =
+            document.getElementById(
+                "report-message"
+            );
+
+        try {
+
+            button.disabled = true;
+
+            button.textContent =
+                "SE POSTEAZĂ...";
+
+            const response =
+                await fetch(
+                    "/api/reports",
+                    {
+                        method: "POST",
+                        credentials: "include",
+                        body: form
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error
+                );
+            }
+
+            message.textContent =
+                "✓ Raport postat.";
+
+            this.reset();
+
+            await loadMyReports();
+
+            openSection(
+                "my-reports"
+            );
+
+        }
+
+        catch (error) {
+
+            message.textContent =
+                error.message;
+        }
+
+        finally {
+
+            button.disabled = false;
+
+            button.textContent =
+                "POSTEAZĂ RAPORTUL";
+        }
+    };
+
+
+async function loadMyReports() {
+
+    const response =
+        await fetch(
+            "/api/reports/my",
+            {
+                credentials: "include",
+                cache: "no-store"
+            }
+        );
+
+    if (!response.ok) {
+        return;
     }
 
-    catch (error) {
+    const data =
+        await response.json();
 
-        console.error(error);
-    }
+    const reports =
+        data.reports || [];
+
+    document.getElementById(
+        "stat-total"
+    ).textContent =
+        reports.length;
+
+    document.getElementById(
+        "stat-images"
+    ).textContent =
+        reports.filter(
+            report =>
+                report.images?.length
+        ).length;
+
+    document.getElementById(
+        "stat-types"
+    ).textContent =
+        new Set(
+            reports.map(
+                report =>
+                    report.type
+            )
+        ).size;
+
+    document.getElementById(
+        "stat-last"
+    ).textContent =
+        reports.length
+            ? reports[0].createdAtFormatted
+            : "-";
+
+    document.getElementById(
+        "recent-activity"
+    ).innerHTML =
+        reports.length
+            ? `
+                <strong>${escapeHTML(reports[0].type)}</strong>
+                <br>
+                ${escapeHTML(reports[0].title)}
+                <br>
+                <small>${escapeHTML(reports[0].createdAtFormatted)}</small>
+            `
+            : "Momentan nu există activitate.";
+
+    renderReports(
+        "my-reports-container",
+        reports,
+        false
+    );
 }
 
 
-function createReportHTML(
+function reportHTML(
     report,
-    showAuthor = false
+    admin
 ) {
-
-    const images =
-        Array.isArray(
-            report.images
-        )
-            ? report.images
-            : [];
 
     return `
 
         <article class="report-card">
 
             ${
-                showAuthor
+                admin
                     ? `
                         <div class="admin-report-author">
-
-                            <span>
-                                RAPORT POSTAT DE
-                            </span>
 
                             <strong>
                                 ${escapeHTML(report.authorName)}
@@ -2319,22 +2262,18 @@ function createReportHTML(
 
                 </div>
 
-                <span class="report-published">
-                    POSTAT
-                </span>
-
             </div>
 
-            <p class="report-description">
+            <p>
                 ${escapeHTML(report.description)}
             </p>
 
             ${
-                images.length
+                report.images?.length
                     ? `
                         <div class="report-images">
 
-                            ${images
+                            ${report.images
                                 .map(
                                     image => `
                                         <a
@@ -2343,7 +2282,6 @@ function createReportHTML(
                                         >
                                             <img
                                                 src="${escapeHTML(image.url)}"
-                                                alt="Dovadă"
                                             >
                                         </a>
                                     `
@@ -2372,144 +2310,63 @@ function createReportHTML(
 }
 
 
-function renderReports(reports) {
+function renderReports(
+    id,
+    reports,
+    admin
+) {
 
-    const container =
-        document.getElementById(
-            "my-reports-container"
-        );
-
-    if (!reports.length) {
-
-        container.innerHTML = `
-
-            <div class="dashboard-panel">
-                <div class="empty-state">
-                    Nu ai încă rapoarte.
+    document.getElementById(
+        id
+    ).innerHTML =
+        reports.length
+            ? reports
+                .map(
+                    report =>
+                        reportHTML(
+                            report,
+                            admin
+                        )
+                )
+                .join("")
+            : `
+                <div class="dashboard-panel">
+                    <div class="empty-state">
+                        Nu există rapoarte.
+                    </div>
                 </div>
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML =
-        reports
-            .map(
-                report =>
-                    createReportHTML(
-                        report
-                    )
-            )
-            .join("");
+            `;
 }
 
-
-function renderRecentActivity(reports) {
-
-    const container =
-        document.getElementById(
-            "recent-activity"
-        );
-
-    if (!reports.length) {
-
-        container.textContent =
-            "Momentan nu există activitate.";
-
-        return;
-    }
-
-    const report =
-        reports[0];
-
-    container.innerHTML = `
-
-        <strong>
-            ${escapeHTML(report.type)}
-        </strong>
-
-        <br>
-
-        ${escapeHTML(report.title)}
-
-        <br>
-
-        <small>
-            ${escapeHTML(report.createdAtFormatted)}
-        </small>
-    `;
-}
-
-
-/* =====================================================
-   ADMIN
-====================================================== */
 
 async function loadAdminReports() {
 
-    const container =
-        document.getElementById(
-            "admin-reports-container"
+    const response =
+        await fetch(
+            "/api/admin/reports",
+            {
+                credentials: "include",
+                cache: "no-store"
+            }
         );
 
-    try {
+    const data =
+        await response.json();
 
-        const response =
-            await fetch(
-                "/api/admin/reports",
-                {
-                    credentials: "include",
-                    cache: "no-store"
-                }
-            );
-
-        const data =
-            await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error
-            );
-        }
-
-        const reports =
-            data.reports || [];
-
-        document.getElementById(
-            "admin-total"
-        ).textContent =
-            reports.length;
-
-        container.innerHTML =
-            reports.length
-                ? reports
-                    .map(
-                        report =>
-                            createReportHTML(
-                                report,
-                                true
-                            )
-                    )
-                    .join("")
-                : `
-                    <div class="dashboard-panel">
-                        <div class="empty-state">
-                            Nu există rapoarte.
-                        </div>
-                    </div>
-                `;
-
+    if (!response.ok) {
+        return;
     }
 
-    catch (error) {
+    document.getElementById(
+        "admin-total"
+    ).textContent =
+        data.reports.length;
 
-        container.innerHTML =
-            escapeHTML(
-                error.message
-            );
-    }
+    renderReports(
+        "admin-reports-container",
+        data.reports,
+        true
+    );
 }
 
 
@@ -2524,217 +2381,44 @@ async function loadPersonnel() {
             "personnel-container"
         );
 
-    container.innerHTML = `
+    container.innerHTML =
+        "Se încarcă...";
 
-        <div class="dashboard-panel">
-            <div class="empty-state">
-                Se încarcă personalul...
-            </div>
-        </div>
-    `;
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/personnel",
-                {
-                    credentials: "include",
-                    cache: "no-store"
-                }
-            );
-
-        const data =
-            await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error
-            );
-        }
-
-        const personnel =
-            data.personnel || [];
-
-        document.getElementById(
-            "personnel-count"
-        ).textContent =
-            personnel.length;
-
-        if (
-            Number(
-                currentUser?.rankLevel || 0
-            ) >= 10
-        ) {
-
-            await loadDiscordRoles();
-        }
-
-        const groups = {};
-
-        personnel.forEach(
-            member => {
-
-                groups[member.rank] ||= [];
-
-                groups[member.rank].push(
-                    member
-                );
+    const response =
+        await fetch(
+            "/api/personnel",
+            {
+                credentials: "include",
+                cache: "no-store"
             }
         );
 
-        const rankOrder = [
-            "PROCUROR ȘEF",
-            "PROCUROR ȘEF ADJUNCT",
-            "PROCUROR",
-            "COORDONATOR",
-            "COMISAR ȘEF",
-            "COMISAR",
-            "SUB COMISAR",
-            "INSPECTOR PRINCIPAL",
-            "INSPECTOR",
-            "SUB INSPECTOR",
-            "AGENT PRINCIPAL",
-            "AGENT OPERATIV",
-            "AGENT STAGIAR"
-        ];
+    const data =
+        await response.json();
 
-        let html = "";
+    if (!response.ok) {
 
-        for (
-            const rank
-            of rankOrder
-        ) {
+        container.textContent =
+            data.error;
 
-            const members =
-                groups[rank];
-
-            if (!members?.length) {
-                continue;
-            }
-
-            html += `
-
-                <div class="personnel-rank-section">
-
-                    <div class="personnel-rank-header">
-                        <span>${escapeHTML(rank)}</span>
-                        <strong>${members.length}</strong>
-                    </div>
-
-                    <div class="personnel-grid">
-            `;
-
-            for (
-                const member
-                of members
-            ) {
-
-                const canManage =
-                    Number(
-                        currentUser.rankLevel || 0
-                    ) >= 10 &&
-                    String(
-                        currentUser.id
-                    ) !==
-                    String(
-                        member.id
-                    );
-
-                html += `
-
-                    <div class="personnel-card">
-
-                        <img
-                            class="personnel-avatar"
-                            src="${escapeHTML(member.avatar)}"
-                            alt="Avatar"
-                        >
-
-                        <div class="personnel-info">
-
-                            <strong>
-                                ${escapeHTML(member.displayName)}
-                            </strong>
-
-                            <span>
-                                ${escapeHTML(member.rank)}
-                            </span>
-
-                            <small>
-                                @${escapeHTML(member.username)}
-                            </small>
-
-                            ${
-                                canManage
-                                    ? `
-                                        <button
-                                            type="button"
-                                            class="manage-rank-btn"
-                                            data-user-id="${escapeHTML(member.id)}"
-                                            data-user-name="${escapeHTML(member.displayName)}"
-                                            data-role-id="${escapeHTML(member.rankRoleId)}"
-                                        >
-                                            GESTIONEAZĂ GRADUL
-                                        </button>
-                                    `
-                                    : ""
-                            }
-
-                        </div>
-
-                    </div>
-                `;
-            }
-
-            html += `
-                    </div>
-                </div>
-            `;
-        }
-
-        container.innerHTML =
-            html;
-
-        container
-            .querySelectorAll(
-                ".manage-rank-btn"
-            )
-            .forEach(
-                button => {
-
-                    button.addEventListener(
-                        "click",
-                        function () {
-
-                            openRankManager(
-                                this.dataset.userId,
-                                this.dataset.userName,
-                                this.dataset.roleId
-                            );
-                        }
-                    );
-                }
-            );
-
+        return;
     }
 
-    catch (error) {
+    const personnel =
+        data.personnel || [];
 
-        container.innerHTML =
-            escapeHTML(
-                error.message
-            );
-    }
-}
+    document.getElementById(
+        "personnel-count"
+    ).textContent =
+        personnel.length;
 
+    if (
+        Number(
+            currentUser.rankLevel || 0
+        ) >= 10
+    ) {
 
-async function loadDiscordRoles() {
-
-    try {
-
-        const response =
+        const roleResponse =
             await fetch(
                 "/api/admin/roles",
                 {
@@ -2743,46 +2427,175 @@ async function loadDiscordRoles() {
                 }
             );
 
-        const data =
-            await response.json();
+        const roleData =
+            await roleResponse.json();
 
-        adminDiscordRoles =
-            response.ok &&
-            Array.isArray(
-                data.roles
-            )
-                ? data.roles
-                : [];
-
+        discordRoles =
+            roleData.roles || [];
     }
 
-    catch {
+    const groups = {};
 
-        adminDiscordRoles = [];
+    personnel.forEach(
+        member => {
+
+            groups[member.rank] ||= [];
+
+            groups[member.rank]
+                .push(member);
+        }
+    );
+
+    const order = [
+        "PROCUROR ȘEF",
+        "PROCUROR ȘEF ADJUNCT",
+        "PROCUROR",
+        "COORDONATOR",
+        "COMISAR ȘEF",
+        "COMISAR",
+        "SUB COMISAR",
+        "INSPECTOR PRINCIPAL",
+        "INSPECTOR",
+        "SUB INSPECTOR",
+        "AGENT PRINCIPAL",
+        "AGENT OPERATIV",
+        "AGENT STAGIAR"
+    ];
+
+    let html = "";
+
+    for (
+        const rank
+        of order
+    ) {
+
+        if (
+            !groups[rank]?.length
+        ) {
+
+            continue;
+        }
+
+        html += `
+
+            <div class="personnel-rank-section">
+
+                <div class="personnel-rank-header">
+                    <span>${escapeHTML(rank)}</span>
+                    <strong>${groups[rank].length}</strong>
+                </div>
+
+                <div class="personnel-grid">
+        `;
+
+        for (
+            const member
+            of groups[rank]
+        ) {
+
+            const canManage =
+                Number(
+                    currentUser.rankLevel || 0
+                ) >= 10 &&
+                String(
+                    currentUser.id
+                ) !==
+                String(
+                    member.id
+                );
+
+            html += `
+
+                <div class="personnel-card">
+
+                    <img
+                        class="personnel-avatar"
+                        src="${escapeHTML(member.avatar)}"
+                    >
+
+                    <div class="personnel-info">
+
+                        <strong>
+                            ${escapeHTML(member.displayName)}
+                        </strong>
+
+                        <span>
+                            ${escapeHTML(member.rank)}
+                        </span>
+
+                        <small>
+                            @${escapeHTML(member.username)}
+                        </small>
+
+                        ${
+                            canManage
+                                ? `
+                                    <button
+                                        class="manage-rank-btn"
+                                        data-rank-user="${escapeHTML(member.id)}"
+                                        data-rank-name="${escapeHTML(member.displayName)}"
+                                        data-rank-current="${escapeHTML(member.rankRoleId)}"
+                                    >
+                                        GESTIONEAZĂ GRADUL
+                                    </button>
+                                `
+                                : ""
+                        }
+
+                    </div>
+
+                </div>
+            `;
+        }
+
+        html += `
+                </div>
+            </div>
+        `;
     }
+
+    container.innerHTML =
+        html;
+
+    container
+        .querySelectorAll(
+            "[data-rank-user]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () =>
+                        openRankModal(
+                            button.dataset.rankUser,
+                            button.dataset.rankName,
+                            button.dataset.rankCurrent
+                        );
+            }
+        );
 }
 
 
-function openRankManager(
-    userId,
+function openRankModal(
+    id,
     name,
     currentRole
 ) {
 
     document.getElementById(
-        "rank-manager-user-id"
+        "rank-user-id"
     ).value =
-        userId;
+        id;
 
     document.getElementById(
-        "rank-manager-name"
+        "rank-user-name"
     ).textContent =
         name;
 
     document.getElementById(
-        "rank-manager-select"
+        "rank-select"
     ).innerHTML =
-        adminDiscordRoles
+        discordRoles
             .map(
                 role => `
 
@@ -2801,54 +2614,693 @@ function openRankManager(
             )
             .join("");
 
-    document.getElementById(
-        "rank-manager-modal"
-    ).classList.add(
-        "open"
-    );
-
-    document.body.classList.add(
-        "rank-modal-open"
+    openModal(
+        "rank-modal"
     );
 }
 
 
-function closeRankManager() {
+document.getElementById(
+    "rank-save"
+).onclick =
+    async function () {
 
-    document.getElementById(
-        "rank-manager-modal"
-    ).classList.remove(
-        "open"
-    );
+        const id =
+            document.getElementById(
+                "rank-user-id"
+            ).value;
 
-    document.body.classList.remove(
-        "rank-modal-open"
-    );
+        const roleId =
+            document.getElementById(
+                "rank-select"
+            ).value;
+
+        const message =
+            document.getElementById(
+                "rank-message"
+            );
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/admin/members/${encodeURIComponent(id)}/role`,
+                    {
+                        method: "PATCH",
+                        credentials: "include",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                roleId
+                            })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error
+                );
+            }
+
+            message.className =
+                "form-message success";
+
+            message.textContent =
+                "✓ " + data.message;
+
+            await loadPersonnel();
+
+        }
+
+        catch (error) {
+
+            message.className =
+                "form-message error";
+
+            message.textContent =
+                error.message;
+        }
+    };
+
+
+/* =====================================================
+   CONCEDII
+====================================================== */
+
+function leaveStatusClass(status) {
+
+    if (
+        status === "APPROVED"
+    ) return "approved";
+
+    if (
+        status === "REJECTED"
+    ) return "rejected";
+
+    if (
+        status === "CANCELLED"
+    ) return "cancelled";
+
+    return "pending";
 }
 
 
-async function saveMemberRank() {
+async function loadLeave() {
 
-    const userId =
-        document.getElementById(
-            "rank-manager-user-id"
-        ).value;
+    await loadMyLeave();
 
-    const roleId =
-        document.getElementById(
-            "rank-manager-select"
-        ).value;
+    if (
+        Number(
+            currentUser.rankLevel || 0
+        ) >= 10
+    ) {
 
-    const message =
-        document.getElementById(
-            "rank-manager-message"
+        await loadAdminLeave();
+    }
+}
+
+
+async function loadMyLeave() {
+
+    const response =
+        await fetch(
+            "/api/leave/me",
+            {
+                credentials: "include",
+                cache: "no-store"
+            }
         );
 
-    try {
+    const data =
+        await response.json();
+
+    if (!response.ok) {
+        return;
+    }
+
+    myLeaveRequests =
+        data.requests || [];
+
+    leaveLimits =
+        data.limits;
+
+    leaveUsage =
+        data.usage;
+
+    document.getElementById(
+        "leave-vacation-remaining"
+    ).textContent =
+        leaveUsage.vacationRemaining;
+
+    document.getElementById(
+        "leave-excuses-remaining"
+    ).textContent =
+        leaveUsage.meetingExcusesRemaining;
+
+    document.getElementById(
+        "leave-modal-vacation"
+    ).textContent =
+        `${leaveUsage.vacationRemaining} / ${leaveLimits.vacationDays}`;
+
+    document.getElementById(
+        "leave-modal-excuses"
+    ).textContent =
+        `${leaveUsage.meetingExcusesRemaining} / ${leaveLimits.meetingExcuses}`;
+
+    renderMyLeave();
+}
+
+
+function renderMyLeave() {
+
+    const body =
+        document.getElementById(
+            "leave-my-table-body"
+        );
+
+    if (
+        !myLeaveRequests.length
+    ) {
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td colspan="6">
+
+                    <div class="blacklist-empty">
+                        Nu ai trimis nicio cerere.
+                    </div>
+
+                </td>
+
+            </tr>
+        `;
+
+        return;
+    }
+
+    body.innerHTML =
+        myLeaveRequests
+            .map(
+                request => `
+
+                    <tr>
+
+                        <td>
+
+                            <span
+                                class="leave-type ${
+                                    request.type === "VACATION"
+                                        ? "vacation"
+                                        : ""
+                                }"
+                            >
+                                ${escapeHTML(request.typeLabel)}
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(request.startDateFormatted)}
+
+                            <br>
+
+                            <small>
+                                ${escapeHTML(request.endDateFormatted)}
+                                ${
+                                    request.type === "VACATION"
+                                        ? ` • ${request.days} zile`
+                                        : ""
+                                }
+                            </small>
+
+                        </td>
+
+                        <td>
+                            ${escapeHTML(request.reason)}
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="leave-status ${leaveStatusClass(request.status)}"
+                            >
+                                ${escapeHTML(request.statusLabel)}
+                            </span>
+
+                        </td>
+
+                        <td>
+                            ${escapeHTML(request.evaluatorName || "-")}
+                        </td>
+
+                        <td>
+
+                            ${
+                                request.status === "PENDING"
+                                    ? `
+                                        <button
+                                            class="leave-action-btn cancel"
+                                            data-leave-cancel="${escapeHTML(request.id)}"
+                                        >
+                                            ANULEAZĂ
+                                        </button>
+                                    `
+                                    : "-"
+                            }
+
+                        </td>
+
+                    </tr>
+                `
+            )
+            .join("");
+
+    body
+        .querySelectorAll(
+            "[data-leave-cancel]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    async () => {
+
+                        if (
+                            !confirm(
+                                "Sigur anulezi cererea?"
+                            )
+                        ) {
+
+                            return;
+                        }
+
+                        const response =
+                            await fetch(
+                                `/api/leave/${encodeURIComponent(button.dataset.leaveCancel)}/cancel`,
+                                {
+                                    method: "PATCH",
+                                    credentials: "include"
+                                }
+                            );
+
+                        const data =
+                            await response.json();
+
+                        if (!response.ok) {
+
+                            alert(
+                                data.error
+                            );
+
+                            return;
+                        }
+
+                        await loadLeave();
+                    };
+            }
+        );
+}
+
+
+async function loadAdminLeave() {
+
+    const response =
+        await fetch(
+            "/api/admin/leave",
+            {
+                credentials: "include",
+                cache: "no-store"
+            }
+        );
+
+    const data =
+        await response.json();
+
+    if (!response.ok) {
+        return;
+    }
+
+    adminLeaveRequests =
+        data.requests || [];
+
+    document.getElementById(
+        "leave-admin-total"
+    ).textContent =
+        data.total;
+
+    document.getElementById(
+        "leave-admin-pending"
+    ).textContent =
+        data.pending;
+
+    document.getElementById(
+        "leave-admin-approved"
+    ).textContent =
+        data.approved;
+
+    document.getElementById(
+        "leave-admin-rejected"
+    ).textContent =
+        data.rejected;
+
+    renderAdminLeave();
+}
+
+
+function renderAdminLeave() {
+
+    const body =
+        document.getElementById(
+            "leave-admin-table-body"
+        );
+
+    if (
+        !adminLeaveRequests.length
+    ) {
+
+        body.innerHTML = `
+
+            <tr>
+
+                <td colspan="7">
+
+                    <div class="blacklist-empty">
+                        Nu există cereri.
+                    </div>
+
+                </td>
+
+            </tr>
+        `;
+
+        return;
+    }
+
+    body.innerHTML =
+        adminLeaveRequests
+            .map(
+                request => `
+
+                    <tr>
+
+                        <td>
+
+                            <strong>
+                                ${escapeHTML(request.authorName)}
+                            </strong>
+
+                            <br>
+
+                            <small>
+                                @${escapeHTML(request.authorUsername)}
+                                •
+                                ${escapeHTML(request.authorRank)}
+                            </small>
+
+                        </td>
+
+                        <td>
+                            ${escapeHTML(request.typeLabel)}
+                        </td>
+
+                        <td>
+
+                            ${escapeHTML(request.startDateFormatted)}
+
+                            <br>
+
+                            <small>
+                                ${escapeHTML(request.endDateFormatted)}
+                            </small>
+
+                        </td>
+
+                        <td>
+                            ${escapeHTML(request.reason)}
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="leave-status ${leaveStatusClass(request.status)}"
+                            >
+                                ${escapeHTML(request.statusLabel)}
+                            </span>
+
+                        </td>
+
+                        <td>
+                            ${escapeHTML(request.evaluatorName || "-")}
+                        </td>
+
+                        <td>
+
+                            ${
+                                request.status === "PENDING"
+                                    ? `
+                                        <div class="leave-actions">
+
+                                            <button
+                                                class="leave-action-btn approve"
+                                                data-leave-approve="${escapeHTML(request.id)}"
+                                            >
+                                                APROBĂ
+                                            </button>
+
+                                            <button
+                                                class="leave-action-btn reject"
+                                                data-leave-reject="${escapeHTML(request.id)}"
+                                            >
+                                                RESPINGE
+                                            </button>
+
+                                        </div>
+                                    `
+                                    : "-"
+                            }
+
+                        </td>
+
+                    </tr>
+                `
+            )
+            .join("");
+
+    body
+        .querySelectorAll(
+            "[data-leave-approve]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () =>
+                        openLeaveDecision(
+                            button.dataset.leaveApprove,
+                            "APPROVE"
+                        );
+            }
+        );
+
+    body
+        .querySelectorAll(
+            "[data-leave-reject]"
+        )
+        .forEach(
+            button => {
+
+                button.onclick =
+                    () =>
+                        openLeaveDecision(
+                            button.dataset.leaveReject,
+                            "REJECT"
+                        );
+            }
+        );
+}
+
+
+document.getElementById(
+    "leave-open-request"
+).onclick =
+    () =>
+        openModal(
+            "leave-request-modal"
+        );
+
+
+document.getElementById(
+    "leave-request-form"
+).onsubmit =
+    async function (event) {
+
+        event.preventDefault();
+
+        const button =
+            document.getElementById(
+                "leave-submit"
+            );
+
+        const message =
+            document.getElementById(
+                "leave-form-message"
+            );
+
+        try {
+
+            button.disabled = true;
+
+            const response =
+                await fetch(
+                    "/api/leave",
+                    {
+                        method: "POST",
+                        credentials: "include",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+
+                                type:
+                                    document.getElementById(
+                                        "leave-request-type"
+                                    ).value,
+
+                                startDate:
+                                    document.getElementById(
+                                        "leave-start-date"
+                                    ).value,
+
+                                endDate:
+                                    document.getElementById(
+                                        "leave-end-date"
+                                    ).value,
+
+                                reason:
+                                    document.getElementById(
+                                        "leave-reason"
+                                    ).value.trim()
+                            })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error
+                );
+            }
+
+            message.className =
+                "form-message success";
+
+            message.textContent =
+                "✓ Cererea a fost trimisă.";
+
+            this.reset();
+
+            await loadLeave();
+
+            setTimeout(
+                () =>
+                    closeModal(
+                        "leave-request-modal"
+                    ),
+                500
+            );
+
+        }
+
+        catch (error) {
+
+            message.className =
+                "form-message error";
+
+            message.textContent =
+                error.message;
+        }
+
+        finally {
+
+            button.disabled =
+                false;
+        }
+    };
+
+
+function openLeaveDecision(
+    id,
+    decision
+) {
+
+    document.getElementById(
+        "leave-decision-id"
+    ).value =
+        id;
+
+    document.getElementById(
+        "leave-decision-value"
+    ).value =
+        decision;
+
+    document.getElementById(
+        "leave-decision-note"
+    ).value =
+        "";
+
+    document.getElementById(
+        "leave-decision-title"
+    ).textContent =
+        decision === "APPROVE"
+            ? "Aprobă cererea"
+            : "Respinge cererea";
+
+    document.getElementById(
+        "leave-decision-submit"
+    ).textContent =
+        decision === "APPROVE"
+            ? "APROBĂ CEREREA"
+            : "RESPINGE CEREREA";
+
+    openModal(
+        "leave-decision-modal"
+    );
+}
+
+
+document.getElementById(
+    "leave-decision-submit"
+).onclick =
+    async function () {
 
         const response =
             await fetch(
-                `/api/admin/members/${encodeURIComponent(userId)}/role`,
+
+                `/api/admin/leave/${encodeURIComponent(
+                    document.getElementById(
+                        "leave-decision-id"
+                    ).value
+                )}/decision`,
+
                 {
                     method: "PATCH",
                     credentials: "include",
@@ -2860,7 +3312,16 @@ async function saveMemberRank() {
 
                     body:
                         JSON.stringify({
-                            roleId
+
+                            decision:
+                                document.getElementById(
+                                    "leave-decision-value"
+                                ).value,
+
+                            note:
+                                document.getElementById(
+                                    "leave-decision-note"
+                                ).value.trim()
                         })
                 }
             );
@@ -2868,41 +3329,38 @@ async function saveMemberRank() {
         const data =
             await response.json();
 
+        const message =
+            document.getElementById(
+                "leave-decision-message"
+            );
+
         if (!response.ok) {
 
-            throw new Error(
-                data.error
-            );
+            message.className =
+                "form-message error";
+
+            message.textContent =
+                data.error;
+
+            return;
         }
 
         message.className =
-            "rank-manager-message success";
+            "form-message success";
 
         message.textContent =
             "✓ " + data.message;
 
+        await loadLeave();
+
         setTimeout(
-            async () => {
-
-                closeRankManager();
-
-                await loadPersonnel();
-
-            },
-            700
+            () =>
+                closeModal(
+                    "leave-decision-modal"
+                ),
+            500
         );
-
-    }
-
-    catch (error) {
-
-        message.className =
-            "rank-manager-message error";
-
-        message.textContent =
-            error.message;
-    }
-}
+    };
 
 
 /* =====================================================
@@ -2914,7 +3372,7 @@ const announcementTitle =
         "announcement-title"
     );
 
-const announcementMessage =
+const announcementText =
     document.getElementById(
         "announcement-message-input"
     );
@@ -2932,119 +3390,83 @@ function updateAnnouncementPreview() {
     document.getElementById(
         "announcement-preview-message"
     ).textContent =
-        announcementMessage.value ||
-        "Mesajul anunțului va apărea aici.";
+        announcementText.value ||
+        "Mesajul va apărea aici.";
 
     document.getElementById(
         "announcement-counter"
     ).textContent =
-        `${announcementMessage.value.length} / 4000`;
+        `${announcementText.value.length} / 4000`;
 }
 
 
-announcementTitle.addEventListener(
-    "input",
-    updateAnnouncementPreview
-);
+announcementTitle.oninput =
+    updateAnnouncementPreview;
 
-announcementMessage.addEventListener(
-    "input",
-    updateAnnouncementPreview
-);
+announcementText.oninput =
+    updateAnnouncementPreview;
 
 
-document
-    .getElementById(
-        "announcement-form"
-    )
-    .addEventListener(
-        "submit",
-        async function (event) {
+document.getElementById(
+    "announcement-form"
+).onsubmit =
+    async function (event) {
 
-            event.preventDefault();
+        event.preventDefault();
 
-            const result =
-                document.getElementById(
-                    "announcement-result"
-                );
+        const response =
+            await fetch(
+                "/api/leadership/announcement",
+                {
+                    method: "POST",
+                    credentials: "include",
 
-            const button =
-                document.getElementById(
-                    "announcement-submit"
-                );
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-            try {
+                    body:
+                        JSON.stringify({
 
-                button.disabled =
-                    true;
+                            title:
+                                announcementTitle.value.trim(),
 
-                button.textContent =
-                    "SE TRIMITE...";
-
-                const response =
-                    await fetch(
-                        "/api/leadership/announcement",
-                        {
-                            method: "POST",
-                            credentials: "include",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify({
-                                    title:
-                                        announcementTitle.value.trim(),
-
-                                    message:
-                                        announcementMessage.value.trim()
-                                })
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error
-                    );
+                            message:
+                                announcementText.value.trim()
+                        })
                 }
+            );
 
-                result.className =
-                    "announcement-message success";
+        const data =
+            await response.json();
 
-                result.textContent =
-                    "✓ Anunț trimis pe Discord.";
+        const result =
+            document.getElementById(
+                "announcement-result"
+            );
 
-                this.reset();
+        if (!response.ok) {
 
-                updateAnnouncementPreview();
+            result.className =
+                "form-message error";
 
-            }
+            result.textContent =
+                data.error;
 
-            catch (error) {
-
-                result.className =
-                    "announcement-message error";
-
-                result.textContent =
-                    error.message;
-            }
-
-            finally {
-
-                button.disabled =
-                    false;
-
-                button.textContent =
-                    "TRIMITE ANUNȚUL";
-            }
+            return;
         }
-    );
+
+        result.className =
+            "form-message success";
+
+        result.textContent =
+            "✓ Anunț trimis.";
+
+        this.reset();
+
+        updateAnnouncementPreview();
+    };
 
 
 /* =====================================================
@@ -3053,113 +3475,69 @@ document
 
 async function loadBlacklist() {
 
-    const body =
-        document.getElementById(
-            "blacklist-table-body"
+    const response =
+        await fetch(
+            "/api/admin/blacklist",
+            {
+                credentials: "include",
+                cache: "no-store"
+            }
         );
 
-    body.innerHTML = `
+    const data =
+        await response.json();
 
-        <tr>
-            <td colspan="7">
-                <div class="blacklist-empty">
-                    Se încarcă blacklist-ul...
-                </div>
-            </td>
-        </tr>
-    `;
-
-    try {
-
-        const response =
-            await fetch(
-                "/api/admin/blacklist",
-                {
-                    credentials: "include",
-                    cache: "no-store"
-                }
-            );
-
-        const data =
-            await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error
-            );
-        }
-
-        blacklistEntries =
-            data.blacklist || [];
-
-        document.getElementById(
-            "blacklist-total"
-        ).textContent =
-            data.total ?? 0;
-
-        document.getElementById(
-            "blacklist-active"
-        ).textContent =
-            data.active ?? 0;
-
-        document.getElementById(
-            "blacklist-inactive"
-        ).textContent =
-            data.inactive ?? 0;
-
-        renderBlacklist();
-
+    if (!response.ok) {
+        return;
     }
 
-    catch (error) {
+    blacklistData =
+        data.blacklist || [];
 
-        body.innerHTML = `
+    document.getElementById(
+        "blacklist-total"
+    ).textContent =
+        data.total;
 
-            <tr>
-                <td colspan="7">
-                    <div class="blacklist-empty">
-                        ${escapeHTML(error.message)}
-                    </div>
-                </td>
-            </tr>
-        `;
-    }
+    document.getElementById(
+        "blacklist-active"
+    ).textContent =
+        data.active;
+
+    document.getElementById(
+        "blacklist-inactive"
+    ).textContent =
+        data.inactive;
+
+    renderBlacklist();
 }
 
 
 function renderBlacklist() {
 
-    const body =
-        document.getElementById(
-            "blacklist-table-body"
-        );
-
-    const query =
+    const search =
         document.getElementById(
             "blacklist-search"
         ).value
-        .trim()
         .toLowerCase();
 
     const entries =
-        blacklistEntries.filter(
-            entry => {
-
-                if (!query) return true;
-
-                return [
+        blacklistData.filter(
+            entry =>
+                [
                     entry.discordId,
                     entry.name,
                     entry.reason,
-                    entry.addedByName,
-                    entry.addedByUsername
+                    entry.addedByName
                 ]
-                    .filter(Boolean)
                     .join(" ")
                     .toLowerCase()
-                    .includes(query);
-            }
+                    .includes(search)
+        );
+
+    const body =
+        document.getElementById(
+            "blacklist-table-body"
         );
 
     if (!entries.length) {
@@ -3181,226 +3559,150 @@ function renderBlacklist() {
     body.innerHTML =
         entries
             .map(
-                entry => {
+                entry => `
 
-                    const active =
-                        entry.status ===
-                        "ACTIVE";
+                    <tr>
 
-                    const permanent =
-                        entry.durationType ===
-                        "PERMANENT";
+                        <td>
+                            ${escapeHTML(entry.discordId)}
+                        </td>
 
-                    return `
+                        <td>
+                            ${escapeHTML(entry.name)}
+                        </td>
 
-                        <tr>
+                        <td>
+                            ${escapeHTML(entry.reason)}
+                        </td>
 
-                            <td>
-                                <span class="blacklist-id">
-                                    ${escapeHTML(entry.discordId)}
-                                </span>
-                            </td>
+                        <td>
+                            ${escapeHTML(entry.addedByName)}
+                        </td>
 
-                            <td>
-                                <span class="blacklist-name">
-                                    ${escapeHTML(entry.name)}
-                                </span>
-                            </td>
+                        <td>
+                            ${escapeHTML(entry.expiresAtFormatted)}
+                        </td>
 
-                            <td>
-                                <div class="blacklist-reason">
-                                    ${escapeHTML(entry.reason)}
-                                </div>
-                            </td>
+                        <td>
 
-                            <td>
-                                ${escapeHTML(
-                                    entry.addedByName ||
-                                    entry.addedByUsername ||
-                                    "-"
-                                )}
-                            </td>
+                            <span
+                                class="blacklist-status ${
+                                    entry.status === "ACTIVE"
+                                        ? "active"
+                                        : "inactive"
+                                }"
+                            >
+                                ${
+                                    entry.status === "ACTIVE"
+                                        ? "INTERZIS"
+                                        : "INACTIV"
+                                }
+                            </span>
 
-                            <td>
-                                <span
-                                    class="blacklist-expiry ${
-                                        permanent
-                                            ? "permanent"
-                                            : "temporary"
-                                    }"
-                                >
-                                    ${
-                                        permanent
-                                            ? "Permanent"
-                                            : escapeHTML(
-                                                entry.expiresAtFormatted ||
-                                                "-"
-                                            )
-                                    }
-                                </span>
-                            </td>
+                        </td>
 
-                            <td>
+                        <td>
 
-                                <span
-                                    class="blacklist-status ${
-                                        active
-                                            ? "active"
-                                            : "inactive"
-                                    }"
-                                >
-                                    ${
-                                        active
-                                            ? "INTERZIS"
-                                            : "INACTIV"
-                                    }
-                                </span>
+                            ${
+                                entry.status === "ACTIVE"
+                                    ? `
+                                        <button
+                                            class="blacklist-action-btn"
+                                            data-blacklist-deactivate="${escapeHTML(entry.id)}"
+                                        >
+                                            DEZACTIVEAZĂ
+                                        </button>
+                                    `
+                                    : `
+                                        <button
+                                            class="blacklist-action-btn"
+                                            data-blacklist-reactivate="${escapeHTML(entry.id)}"
+                                        >
+                                            REACTIVEAZĂ
+                                        </button>
+                                    `
+                            }
 
-                            </td>
+                            <button
+                                class="blacklist-action-btn"
+                                data-blacklist-delete="${escapeHTML(entry.id)}"
+                            >
+                                ȘTERGE
+                            </button>
 
-                            <td>
+                        </td>
 
-                                <div class="blacklist-actions">
-
-                                    <button
-                                        class="blacklist-action-btn"
-                                        data-edit-blacklist="${escapeHTML(entry.id)}"
-                                    >
-                                        EDITEAZĂ
-                                    </button>
-
-                                    ${
-                                        active
-                                            ? `
-                                                <button
-                                                    class="blacklist-action-btn danger"
-                                                    data-deactivate-blacklist="${escapeHTML(entry.id)}"
-                                                >
-                                                    DEZACTIVEAZĂ
-                                                </button>
-                                            `
-                                            : `
-                                                <button
-                                                    class="blacklist-action-btn success"
-                                                    data-reactivate-blacklist="${escapeHTML(entry.id)}"
-                                                >
-                                                    REACTIVEAZĂ
-                                                </button>
-                                            `
-                                    }
-
-                                    <button
-                                        class="blacklist-action-btn danger"
-                                        data-delete-blacklist="${escapeHTML(entry.id)}"
-                                    >
-                                        ȘTERGE
-                                    </button>
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-                    `;
-                }
+                    </tr>
+                `
             )
             .join("");
 
-    bindBlacklistButtons();
+    bindBlacklist();
 }
 
 
-function bindBlacklistButtons() {
+function bindBlacklist() {
 
     document
         .querySelectorAll(
-            "[data-edit-blacklist]"
+            "[data-blacklist-deactivate]"
         )
         .forEach(
             button => {
 
                 button.onclick =
                     () =>
-                        openBlacklistEdit(
-                            button.dataset.editBlacklist
+                        blacklistAction(
+                            button.dataset.blacklistDeactivate,
+                            "deactivate"
                         );
             }
         );
 
-
     document
         .querySelectorAll(
-            "[data-deactivate-blacklist]"
+            "[data-blacklist-reactivate]"
         )
         .forEach(
             button => {
 
                 button.onclick =
-                    () => {
-
-                        openBlacklistConfirm(
-                            "Dezactivează blacklist",
-                            "Persoana va fi scoasă din blacklist, dar intrarea va rămâne în istoric.",
-                            async () => {
-
-                                await blacklistAction(
-                                    `/api/admin/blacklist/${encodeURIComponent(button.dataset.deactivateBlacklist)}/deactivate`,
-                                    "PATCH"
-                                );
-                            }
+                    () =>
+                        blacklistAction(
+                            button.dataset.blacklistReactivate,
+                            "reactivate"
                         );
-                    };
             }
         );
 
-
     document
         .querySelectorAll(
-            "[data-reactivate-blacklist]"
+            "[data-blacklist-delete]"
         )
         .forEach(
             button => {
 
                 button.onclick =
-                    () => {
+                    async () => {
 
-                        openBlacklistConfirm(
-                            "Reactivează blacklist",
-                            "Persoana va fi introdusă din nou în blacklist.",
-                            async () => {
+                        if (
+                            !confirm(
+                                "Ștergi definitiv această intrare?"
+                            )
+                        ) {
 
-                                await blacklistAction(
-                                    `/api/admin/blacklist/${encodeURIComponent(button.dataset.reactivateBlacklist)}/reactivate`,
-                                    "PATCH"
-                                );
+                            return;
+                        }
+
+                        await fetch(
+                            `/api/admin/blacklist/${encodeURIComponent(button.dataset.blacklistDelete)}`,
+                            {
+                                method: "DELETE",
+                                credentials: "include"
                             }
                         );
-                    };
-            }
-        );
 
-
-    document
-        .querySelectorAll(
-            "[data-delete-blacklist]"
-        )
-        .forEach(
-            button => {
-
-                button.onclick =
-                    () => {
-
-                        openBlacklistConfirm(
-                            "Ștergere definitivă",
-                            "Intrarea va fi ștearsă definitiv.",
-                            async () => {
-
-                                await blacklistAction(
-                                    `/api/admin/blacklist/${encodeURIComponent(button.dataset.deleteBlacklist)}`,
-                                    "DELETE"
-                                );
-                            }
-                        );
+                        await loadBlacklist();
                     };
             }
         );
@@ -3408,15 +3710,15 @@ function bindBlacklistButtons() {
 
 
 async function blacklistAction(
-    url,
-    method
+    id,
+    action
 ) {
 
     const response =
         await fetch(
-            url,
+            `/api/admin/blacklist/${encodeURIComponent(id)}/${action}`,
             {
-                method,
+                method: "PATCH",
                 credentials: "include"
             }
         );
@@ -3426,593 +3728,29 @@ async function blacklistAction(
 
     if (!response.ok) {
 
-        throw new Error(
+        alert(
             data.error
         );
+
+        return;
     }
 
     await loadBlacklist();
 }
 
 
-function resetBlacklistForm() {
-
-    document.getElementById(
-        "blacklist-form"
-    ).reset();
-
-    document.getElementById(
-        "blacklist-edit-id"
-    ).value = "";
-
-    document.getElementById(
-        "blacklist-discord-id"
-    ).disabled = false;
-
-    document.getElementById(
-        "blacklist-check-user"
-    ).style.display = "";
-
-    document.getElementById(
-        "blacklist-expiry-group"
-    ).style.display =
-        "none";
-
-    document.getElementById(
-        "blacklist-user-preview"
-    ).classList.remove(
-        "show"
-    );
-
-    document.getElementById(
-        "blacklist-modal-title"
-    ).textContent =
-        "Adaugă în blacklist";
-
-    document.getElementById(
-        "blacklist-submit"
-    ).textContent =
-        "ADAUGĂ ÎN BLACKLIST";
-
-    document.getElementById(
-        "blacklist-form-message"
-    ).textContent = "";
-}
-
-
-function openBlacklistAdd() {
-
-    resetBlacklistForm();
-
-    document.getElementById(
-        "blacklist-entry-modal"
-    ).classList.add(
-        "open"
-    );
-
-    document.body.classList.add(
-        "blacklist-modal-open"
-    );
-}
-
-
-function closeBlacklistModal() {
-
-    document.getElementById(
-        "blacklist-entry-modal"
-    ).classList.remove(
-        "open"
-    );
-
-    document.body.classList.remove(
-        "blacklist-modal-open"
-    );
-}
-
-
-function dateForInput(value) {
-
-    if (!value) return "";
-
-    const date =
-        new Date(value);
-
-    const pad =
-        number =>
-            String(number)
-                .padStart(2,"0");
-
-    return (
-        date.getFullYear() +
-        "-" +
-        pad(date.getMonth()+1) +
-        "-" +
-        pad(date.getDate()) +
-        "T" +
-        pad(date.getHours()) +
-        ":" +
-        pad(date.getMinutes())
-    );
-}
-
-
-function openBlacklistEdit(id) {
-
-    const entry =
-        blacklistEntries.find(
-            item =>
-                item.id === id
-        );
-
-    if (!entry) return;
-
-    resetBlacklistForm();
-
-    document.getElementById(
-        "blacklist-edit-id"
-    ).value =
-        entry.id;
-
-    document.getElementById(
-        "blacklist-discord-id"
-    ).value =
-        entry.discordId;
-
-    document.getElementById(
-        "blacklist-discord-id"
-    ).disabled =
-        true;
-
-    document.getElementById(
-        "blacklist-check-user"
-    ).style.display =
-        "none";
-
-    document.getElementById(
-        "blacklist-name"
-    ).value =
-        entry.name;
-
-    document.getElementById(
-        "blacklist-reason"
-    ).value =
-        entry.reason;
-
-    document.getElementById(
-        "blacklist-duration"
-    ).value =
-        entry.durationType;
-
-    if (
-        entry.durationType ===
-        "TEMPORARY"
-    ) {
-
-        document.getElementById(
-            "blacklist-expiry-group"
-        ).style.display = "";
-
-        document.getElementById(
-            "blacklist-expiry"
-        ).value =
-            dateForInput(
-                entry.expiresAt
-            );
-    }
-
-    document.getElementById(
-        "blacklist-modal-title"
-    ).textContent =
-        "Editează blacklist";
-
-    document.getElementById(
-        "blacklist-submit"
-    ).textContent =
-        "SALVEAZĂ MODIFICĂRILE";
-
-    document.getElementById(
-        "blacklist-entry-modal"
-    ).classList.add(
-        "open"
-    );
-
-    document.body.classList.add(
-        "blacklist-modal-open"
-    );
-}
-
-
-async function checkDiscordUser() {
-
-    const discordId =
-        document.getElementById(
-            "blacklist-discord-id"
-        ).value.trim();
-
-    const message =
-        document.getElementById(
-            "blacklist-form-message"
-        );
-
-    try {
-
-        const response =
-            await fetch(
-                `/api/admin/blacklist/check/${encodeURIComponent(discordId)}`,
-                {
-                    credentials: "include",
-                    cache: "no-store"
-                }
-            );
-
-        const data =
-            await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error
-            );
-        }
-
-        if (
-            data.foundOnDiscord &&
-            data.discordUser
-        ) {
-
-            document.getElementById(
-                "blacklist-user-avatar"
-            ).src =
-                data.discordUser.avatar;
-
-            document.getElementById(
-                "blacklist-user-name"
-            ).textContent =
-                data.discordUser.displayName ||
-                data.discordUser.username;
-
-            document.getElementById(
-                "blacklist-user-username"
-            ).textContent =
-                "@" +
-                data.discordUser.username;
-
-            document.getElementById(
-                "blacklist-user-preview"
-            ).classList.add(
-                "show"
-            );
-
-            if (
-                !document.getElementById(
-                    "blacklist-name"
-                ).value
-            ) {
-
-                document.getElementById(
-                    "blacklist-name"
-                ).value =
-                    data.discordUser.displayName ||
-                    data.discordUser.username;
-            }
-
-            message.className =
-                "blacklist-form-message success";
-
-            message.textContent =
-                "✓ Utilizator găsit pe Discord.";
-
-        }
-
-        else {
-
-            message.textContent =
-                "Utilizatorul nu este pe server. Îl poți adăuga manual.";
-        }
-
-        if (data.blacklisted) {
-
-            message.className =
-                "blacklist-form-message error";
-
-            message.textContent =
-                "Acest Discord ID este deja în blacklist.";
-        }
-
-    }
-
-    catch (error) {
-
-        message.className =
-            "blacklist-form-message error";
-
-        message.textContent =
-            error.message;
-    }
-}
-
-
-document
-    .getElementById(
-        "blacklist-form"
-    )
-    .addEventListener(
-        "submit",
-        async function (event) {
-
-            event.preventDefault();
-
-            const editId =
-                document.getElementById(
-                    "blacklist-edit-id"
-                ).value;
-
-            const durationType =
-                document.getElementById(
-                    "blacklist-duration"
-                ).value;
-
-            const payload = {
-
-                name:
-                    document.getElementById(
-                        "blacklist-name"
-                    ).value.trim(),
-
-                reason:
-                    document.getElementById(
-                        "blacklist-reason"
-                    ).value.trim(),
-
-                durationType,
-
-                expiresAt:
-                    durationType ===
-                    "TEMPORARY"
-                        ? document.getElementById(
-                            "blacklist-expiry"
-                        ).value
-                        : ""
-            };
-
-            if (!editId) {
-
-                payload.discordId =
-                    document.getElementById(
-                        "blacklist-discord-id"
-                    ).value.trim();
-            }
-
-            const button =
-                document.getElementById(
-                    "blacklist-submit"
-                );
-
-            const message =
-                document.getElementById(
-                    "blacklist-form-message"
-                );
-
-            try {
-
-                button.disabled =
-                    true;
-
-                const response =
-                    await fetch(
-                        editId
-                            ? `/api/admin/blacklist/${encodeURIComponent(editId)}`
-                            : "/api/admin/blacklist",
-
-                        {
-                            method:
-                                editId
-                                    ? "PATCH"
-                                    : "POST",
-
-                            credentials:
-                                "include",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify(
-                                    payload
-                                )
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error
-                    );
-                }
-
-                message.className =
-                    "blacklist-form-message success";
-
-                message.textContent =
-                    "✓ " + data.message;
-
-                await loadBlacklist();
-
-                setTimeout(
-                    closeBlacklistModal,
-                    600
-                );
-
-            }
-
-            catch (error) {
-
-                message.className =
-                    "blacklist-form-message error";
-
-                message.textContent =
-                    error.message;
-            }
-
-            finally {
-
-                button.disabled =
-                    false;
-            }
-        }
-    );
-
-
-function openBlacklistConfirm(
-    title,
-    text,
-    callback
-) {
-
-    blacklistConfirmAction =
-        callback;
-
-    document.getElementById(
-        "blacklist-confirm-title"
-    ).textContent =
-        title;
-
-    document.getElementById(
-        "blacklist-confirm-text"
-    ).textContent =
-        text;
-
-    document.getElementById(
-        "blacklist-confirm-modal"
-    ).classList.add(
-        "open"
-    );
-
-    document.body.classList.add(
-        "blacklist-modal-open"
-    );
-}
-
-
-function closeBlacklistConfirm() {
-
-    document.getElementById(
-        "blacklist-confirm-modal"
-    ).classList.remove(
-        "open"
-    );
-
-    blacklistConfirmAction =
-        null;
-
-    document.body.classList.remove(
-        "blacklist-modal-open"
-    );
-}
-
-
-document.getElementById(
-    "blacklist-confirm-yes"
-).onclick =
-    async function () {
-
-        if (
-            typeof blacklistConfirmAction !==
-            "function"
-        ) return;
-
-        const message =
-            document.getElementById(
-                "blacklist-confirm-message"
-            );
-
-        try {
-
-            await blacklistConfirmAction();
-
-            message.className =
-                "blacklist-form-message success";
-
-            message.textContent =
-                "✓ Acțiune efectuată.";
-
-            setTimeout(
-                closeBlacklistConfirm,
-                400
-            );
-
-        }
-
-        catch (error) {
-
-            message.className =
-                "blacklist-form-message error";
-
-            message.textContent =
-                error.message;
-        }
-    };
-
-
 document.getElementById(
     "blacklist-open-add"
 ).onclick =
-    openBlacklistAdd;
-
-
-document.getElementById(
-    "blacklist-entry-close"
-).onclick =
-    closeBlacklistModal;
-
-
-document.getElementById(
-    "blacklist-entry-overlay"
-).onclick =
-    closeBlacklistModal;
-
-
-document.getElementById(
-    "blacklist-check-user"
-).onclick =
-    checkDiscordUser;
-
-
-document.getElementById(
-    "blacklist-confirm-close"
-).onclick =
-    closeBlacklistConfirm;
-
-
-document.getElementById(
-    "blacklist-confirm-cancel"
-).onclick =
-    closeBlacklistConfirm;
-
-
-document.getElementById(
-    "blacklist-confirm-overlay"
-).onclick =
-    closeBlacklistConfirm;
-
-
-document.getElementById(
-    "blacklist-search"
-).addEventListener(
-    "input",
-    renderBlacklist
-);
+    () =>
+        openModal(
+            "blacklist-modal"
+        );
 
 
 document.getElementById(
     "blacklist-duration"
-).addEventListener(
-    "change",
+).onchange =
     function () {
 
         const temporary =
@@ -4030,8 +3768,107 @@ document.getElementById(
             "blacklist-expiry"
         ).required =
             temporary;
-    }
-);
+    };
+
+
+document.getElementById(
+    "blacklist-form"
+).onsubmit =
+    async function (event) {
+
+        event.preventDefault();
+
+        const durationType =
+            document.getElementById(
+                "blacklist-duration"
+            ).value;
+
+        const response =
+            await fetch(
+                "/api/admin/blacklist",
+                {
+                    method: "POST",
+                    credentials: "include",
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
+
+                    body:
+                        JSON.stringify({
+
+                            discordId:
+                                document.getElementById(
+                                    "blacklist-discord-id"
+                                ).value.trim(),
+
+                            name:
+                                document.getElementById(
+                                    "blacklist-name"
+                                ).value.trim(),
+
+                            reason:
+                                document.getElementById(
+                                    "blacklist-reason"
+                                ).value.trim(),
+
+                            durationType,
+
+                            expiresAt:
+                                durationType ===
+                                "TEMPORARY"
+                                    ? document.getElementById(
+                                        "blacklist-expiry"
+                                    ).value
+                                    : ""
+                        })
+                }
+            );
+
+        const data =
+            await response.json();
+
+        const message =
+            document.getElementById(
+                "blacklist-message"
+            );
+
+        if (!response.ok) {
+
+            message.className =
+                "form-message error";
+
+            message.textContent =
+                data.error;
+
+            return;
+        }
+
+        message.className =
+            "form-message success";
+
+        message.textContent =
+            "✓ " + data.message;
+
+        this.reset();
+
+        await loadBlacklist();
+
+        setTimeout(
+            () =>
+                closeModal(
+                    "blacklist-modal"
+                ),
+            500
+        );
+    };
+
+
+document.getElementById(
+    "blacklist-search"
+).oninput =
+    renderBlacklist;
 
 
 /* =====================================================
@@ -4040,113 +3877,76 @@ document.getElementById(
 
 async function loadProfile() {
 
-    try {
-
-        const response =
-            await fetch(
-                "/api/profile",
-                {
-                    credentials: "include",
-                    cache: "no-store"
-                }
-            );
-
-        const data =
-            await response.json();
-
-        if (!response.ok) {
-
-            throw new Error(
-                data.error
-            );
-        }
-
-        const profile =
-            data.profile;
-
-        document.getElementById(
-            "profile-name"
-        ).textContent =
-            profile.displayName;
-
-        document.getElementById(
-            "profile-username"
-        ).textContent =
-            "@" + profile.username;
-
-        document.getElementById(
-            "profile-rank"
-        ).textContent =
-            profile.rank;
-
-        document.getElementById(
-            "profile-nickname"
-        ).value =
-            profile.displayName;
-
-        document.getElementById(
-            "profile-avatar"
-        ).src =
-            getAvatarURL({
-                id:
-                    profile.id,
-
-                avatar:
-                    profile.avatar
-            });
-
-        document.getElementById(
-            "profile-total-reports"
-        ).textContent =
-            profile.statistics.totalReports;
-
-        document.getElementById(
-            "profile-image-reports"
-        ).textContent =
-            profile.statistics.reportsWithImages;
-
-        document.getElementById(
-            "profile-last-activity"
-        ).textContent =
-            profile.statistics.lastActivity;
-
-        profileDuties =
-            Array.isArray(
-                profile.duties
-            )
-                ? [...profile.duties]
-                : [];
-
-        renderDutyEditor();
-
-        renderProfileActivity(
-            profile.recentActivity || []
+    const response =
+        await fetch(
+            "/api/profile",
+            {
+                credentials: "include",
+                cache: "no-store"
+            }
         );
 
-        currentUser.displayName =
-            profile.displayName;
+    const data =
+        await response.json();
 
-        currentUser.rank =
-            profile.rank;
-
-        currentUser.rankLevel =
-            profile.rankLevel;
-
-        renderTopbarUser();
-
+    if (!response.ok) {
+        return;
     }
 
-    catch (error) {
+    const profile =
+        data.profile;
 
-        document.getElementById(
-            "profile-message"
-        ).textContent =
-            error.message;
-    }
+    document.getElementById(
+        "profile-name"
+    ).textContent =
+        profile.displayName;
+
+    document.getElementById(
+        "profile-username"
+    ).textContent =
+        "@" +
+        profile.username;
+
+    document.getElementById(
+        "profile-rank"
+    ).textContent =
+        profile.rank;
+
+    document.getElementById(
+        "profile-nickname"
+    ).value =
+        profile.displayName;
+
+    document.getElementById(
+        "profile-avatar"
+    ).src =
+        avatarURL(
+            profile
+        );
+
+    document.getElementById(
+        "profile-total-reports"
+    ).textContent =
+        profile.statistics.totalReports;
+
+    document.getElementById(
+        "profile-image-reports"
+    ).textContent =
+        profile.statistics.reportsWithImages;
+
+    document.getElementById(
+        "profile-last-activity"
+    ).textContent =
+        profile.statistics.lastActivity;
+
+    profileDuties =
+        profile.duties || [];
+
+    renderDuties();
 }
 
 
-function renderDutyEditor() {
+function renderDuties() {
 
     const container =
         document.getElementById(
@@ -4155,12 +3955,8 @@ function renderDutyEditor() {
 
     if (!profileDuties.length) {
 
-        container.innerHTML = `
-
-            <div class="profile-no-duties">
-                Nu ai atribuții adăugate.
-            </div>
-        `;
+        container.innerHTML =
+            "Nu ai atribuții.";
 
         return;
     }
@@ -4173,7 +3969,6 @@ function renderDutyEditor() {
                     <div class="profile-duty-editor-row">
 
                         <input
-                            class="profile-duty-input"
                             data-duty="${index}"
                             maxlength="80"
                             value="${escapeHTML(duty)}"
@@ -4181,7 +3976,6 @@ function renderDutyEditor() {
 
                         <button
                             type="button"
-                            class="profile-duty-remove"
                             data-remove-duty="${index}"
                         >
                             ×
@@ -4229,7 +4023,7 @@ function renderDutyEditor() {
                             1
                         );
 
-                        renderDutyEditor();
+                        renderDuties();
                     };
             }
         );
@@ -4243,175 +4037,134 @@ document.getElementById(
 
         if (
             profileDuties.length >= 8
-        ) return;
+        ) {
+
+            return;
+        }
 
         profileDuties.push("");
 
-        renderDutyEditor();
+        renderDuties();
     };
 
 
-document
-    .getElementById(
-        "profile-form"
-    )
-    .addEventListener(
-        "submit",
-        async function (event) {
+document.getElementById(
+    "profile-form"
+).onsubmit =
+    async function (event) {
 
-            event.preventDefault();
+        event.preventDefault();
 
-            const button =
-                document.getElementById(
-                    "save-profile"
-                );
+        const response =
+            await fetch(
+                "/api/profile",
+                {
+                    method: "PATCH",
+                    credentials: "include",
 
-            const message =
-                document.getElementById(
-                    "profile-message"
-                );
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    },
 
-            try {
+                    body:
+                        JSON.stringify({
 
-                button.disabled =
-                    true;
+                            nickname:
+                                document.getElementById(
+                                    "profile-nickname"
+                                ).value.trim(),
 
-                const response =
-                    await fetch(
-                        "/api/profile",
-                        {
-                            method: "PATCH",
-                            credentials: "include",
-
-                            headers: {
-                                "Content-Type":
-                                    "application/json"
-                            },
-
-                            body:
-                                JSON.stringify({
-
-                                    nickname:
-                                        document.getElementById(
-                                            "profile-nickname"
-                                        ).value.trim(),
-
-                                    duties:
-                                        profileDuties
-                                            .map(
-                                                duty =>
-                                                    duty.trim()
-                                            )
-                                            .filter(Boolean)
-                                })
-                        }
-                    );
-
-                const data =
-                    await response.json();
-
-                if (!response.ok) {
-
-                    throw new Error(
-                        data.error
-                    );
+                            duties:
+                                profileDuties
+                                    .map(
+                                        duty =>
+                                            duty.trim()
+                                    )
+                                    .filter(Boolean)
+                        })
                 }
+            );
 
-                message.textContent =
-                    data.discordSynced
-                        ? "✓ Profil salvat și sincronizat cu Discord."
-                        : "✓ Profil salvat pe site.";
+        const data =
+            await response.json();
 
-                await loadProfile();
-
-            }
-
-            catch (error) {
-
-                message.textContent =
-                    error.message;
-            }
-
-            finally {
-
-                button.disabled =
-                    false;
-            }
-        }
-    );
-
-
-function renderProfileActivity(activity) {
-
-    const container =
         document.getElementById(
-            "profile-activity"
-        );
-
-    if (!activity.length) {
-
-        container.innerHTML = `
-
-            <div class="empty-state">
-                Nu există activitate.
-            </div>
-        `;
-
-        return;
-    }
-
-    container.innerHTML =
-        activity
-            .map(
-                item => `
-
-                    <div class="profile-activity-item">
-
-                        <div class="profile-activity-icon">
-                            ◆
-                        </div>
-
-                        <div class="profile-activity-info">
-
-                            <span>
-                                ${escapeHTML(item.type)}
-                            </span>
-
-                            <strong>
-                                ${escapeHTML(item.title)}
-                            </strong>
-
-                            <small>
-                                ${escapeHTML(item.createdAtFormatted)}
-                            </small>
-
-                        </div>
-
-                    </div>
-                `
-            )
-            .join("");
-}
+            "profile-message"
+        ).textContent =
+            response.ok
+                ? "✓ Profil salvat."
+                : data.error;
+    };
 
 
 /* =====================================================
-   EVENIMENTE
+   CLOSE MODALS
 ====================================================== */
 
 document.getElementById(
-    "rank-manager-close"
+    "leave-request-close"
 ).onclick =
-    closeRankManager;
+    () =>
+        closeModal(
+            "leave-request-modal"
+        );
 
 document.getElementById(
-    "rank-manager-overlay"
+    "leave-request-overlay"
 ).onclick =
-    closeRankManager;
+    () =>
+        closeModal(
+            "leave-request-modal"
+        );
 
 document.getElementById(
-    "rank-manager-save"
+    "leave-decision-close"
 ).onclick =
-    saveMemberRank;
+    () =>
+        closeModal(
+            "leave-decision-modal"
+        );
+
+document.getElementById(
+    "leave-decision-overlay"
+).onclick =
+    () =>
+        closeModal(
+            "leave-decision-modal"
+        );
+
+document.getElementById(
+    "blacklist-close"
+).onclick =
+    () =>
+        closeModal(
+            "blacklist-modal"
+        );
+
+document.getElementById(
+    "blacklist-overlay"
+).onclick =
+    () =>
+        closeModal(
+            "blacklist-modal"
+        );
+
+document.getElementById(
+    "rank-close"
+).onclick =
+    () =>
+        closeModal(
+            "rank-modal"
+        );
+
+document.getElementById(
+    "rank-overlay"
+).onclick =
+    () =>
+        closeModal(
+            "rank-modal"
+        );
 
 
 document.addEventListener(
@@ -4423,9 +4176,22 @@ document.addEventListener(
             "Escape"
         ) {
 
-            closeRankManager();
-            closeBlacklistModal();
-            closeBlacklistConfirm();
+            document
+                .querySelectorAll(
+                    ".custom-modal.open"
+                )
+                .forEach(
+                    modal => {
+
+                        modal.classList.remove(
+                            "open"
+                        );
+                    }
+                );
+
+            document.body.classList.remove(
+                "modal-open"
+            );
         }
     }
 );
@@ -4437,7 +4203,7 @@ document.addEventListener(
 
 updateAnnouncementPreview();
 
-loadDashboardUser();
+loadUser();
 
 </script>
 
