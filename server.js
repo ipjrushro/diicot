@@ -18,7 +18,7 @@ const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
-const ANNOUNCEMENT_CHANNEL_ID = "1518631380127580461";
+const ANNOUNCEMENT_CHANNEL_ID = "1528758228450672803";
 
 const VACATION_DAYS_LIMIT = 14;
 const MEETING_EXCUSES_LIMIT = 2;
@@ -30,17 +30,17 @@ const MEETING_EXCUSES_LIMIT = 2;
 
 const DIICOT_ROLES = [
     {
-        id: "1441514560900169785",
+        id: "1528758226420633746",
         name: "PROCUROR ȘEF",
         level: 13
     },
     {
-        id: "1441514560900169784",
+        id: "1528758226420633745",
         name: "PROCUROR ȘEF ADJUNCT",
         level: 12
     },
     {
-        id: "1441514560900169783",
+        id: "1528758226420633744",
         name: "PROCUROR",
         level: 11
     },
@@ -50,47 +50,47 @@ const DIICOT_ROLES = [
         level: 10
     },
     {
-        id: "1441514560900169781",
+        id: "1528758226416435217",
         name: "COMISAR ȘEF",
         level: 9
     },
     {
-        id: "1441514560900169779",
+        id: "1528758226416435216",
         name: "COMISAR",
         level: 8
     },
     {
-        id: "1441514560900169778",
+        id: "1528758226416435215",
         name: "SUB COMISAR",
         level: 7
     },
     {
-        id: "1441514560891650098",
+        id: "1528758226416435214",
         name: "INSPECTOR PRINCIPAL",
         level: 6
     },
     {
-        id: "1441514560891650097",
+        id: "1528758226416435213",
         name: "INSPECTOR",
         level: 5
     },
     {
-        id: "1441514560891650095",
+        id: "1528758226416435211",
         name: "SUB INSPECTOR",
         level: 4
     },
     {
-        id: "1441514560875135229",
+        id: "1528758226416435210",
         name: "AGENT PRINCIPAL",
         level: 3
     },
     {
-        id: "1441514560875135228",
+        id: "1528758226407919645",
         name: "AGENT OPERATIV",
         level: 2
     },
     {
-        id: "1441514560875135227",
+        id: "1528758226407919644",
         name: "AGENT STAGIAR",
         level: 1
     }
