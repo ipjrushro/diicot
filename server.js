@@ -4,12 +4,11 @@ const cookieSession = require("cookie-session");
 const path = require("path");
 const crypto = require("crypto");
 const multer = require("multer");
-const fs = require("fs");
+const { createClient } = require("@supabase/supabase-js");
 
 require("dotenv").config();
 
 const app = express();
-
 const PORT = process.env.PORT || 3000;
 
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
@@ -18,10 +17,31 @@ const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+const SUPABASE_BUCKET = "report-images";
+
 const ANNOUNCEMENT_CHANNEL_ID = "1528758228450672803";
 
 const VACATION_DAYS_LIMIT = 14;
 const MEETING_EXCUSES_LIMIT = 2;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
+    console.warn(
+        "[SUPABASE] Lipsesc SUPABASE_URL sau SUPABASE_SERVICE_KEY."
+    );
+}
+
+const supabase = createClient(
+    SUPABASE_URL || "https://example.supabase.co",
+    SUPABASE_SERVICE_KEY || "missing-key",
+    {
+        auth: {
+            persistSession: false,
+            autoRefreshToken: false
+        }
+    }
+);
 
 
 // ======================================================
@@ -96,13 +116,10 @@ const DIICOT_ROLES = [
     }
 ];
 
-
 function getHighestDIICOTRole(roles = []) {
-
     return (
         DIICOT_ROLES.find(
-            rank =>
-                roles.includes(rank.id)
+            rank => roles.includes(rank.id)
         ) || null
     );
 }
@@ -156,7 +173,9 @@ app.use(
 
 
 // ======================================================
-// UPLOADS
+// FIȘIERE STATICE
+// Logo-ul DIICOT poate rămâne în /uploads
+// Pozele rapoartelor merg în Supabase Storage.
 // ======================================================
 
 const uploadsDirectory =
@@ -165,98 +184,32 @@ const uploadsDirectory =
         "uploads"
     );
 
-
-if (
-    !fs.existsSync(
+app.use(
+    "/uploads",
+    express.static(
         uploadsDirectory
     )
-) {
-
-    fs.mkdirSync(
-        uploadsDirectory,
-        {
-            recursive: true
-        }
-    );
-}
+);
 
 
-const storage =
-    multer.diskStorage({
-
-        destination(
-            req,
-            file,
-            callback
-        ) {
-
-            callback(
-                null,
-                uploadsDirectory
-            );
-        },
-
-
-        filename(
-            req,
-            file,
-            callback
-        ) {
-
-            let extension =
-                ".jpg";
-
-
-            if (
-                file.mimetype ===
-                "image/png"
-            ) {
-
-                extension =
-                    ".png";
-            }
-
-
-            if (
-                file.mimetype ===
-                "image/webp"
-            ) {
-
-                extension =
-                    ".webp";
-            }
-
-
-            const filename =
-                `${Date.now()}-${crypto
-                    .randomBytes(8)
-                    .toString("hex")}${extension}`;
-
-
-            callback(
-                null,
-                filename
-            );
-        }
-    });
-
+// ======================================================
+// MULTER - MEMORIE
+// Nu mai salvăm pozele rapoartelor pe discul Render.
+// ======================================================
 
 const upload =
     multer({
-
-        storage,
+        storage:
+            multer.memoryStorage(),
 
         limits: {
-
             fileSize:
                 8 *
                 1024 *
                 1024,
 
-            files:
-                5
+            files: 5
         },
-
 
         fileFilter(
             req,
@@ -270,7 +223,6 @@ const upload =
                 "image/webp"
             ];
 
-
             if (
                 allowed.includes(
                     file.mimetype
@@ -283,7 +235,6 @@ const upload =
                 );
             }
 
-
             callback(
                 new Error(
                     "Sunt acceptate doar imagini JPG, PNG și WEBP."
@@ -293,31 +244,8 @@ const upload =
     });
 
 
-app.use(
-    "/uploads",
-    express.static(
-        uploadsDirectory
-    )
-);
-
-
 // ======================================================
-// DATE TEMPORARE
-// SUPABASE ÎL FACEM LA FINAL
-// ======================================================
-
-const reports = [];
-
-const userProfiles =
-    new Map();
-
-const blacklist = [];
-
-const leaveRequests = [];
-
-
-// ======================================================
-// HELPERS
+// HELPERS GENERALE
 // ======================================================
 
 function formatRomanianDate(date) {
@@ -348,13 +276,10 @@ function formatRomanianDate(date) {
 }
 
 
-function formatDateOnlyRO(
-    value
-) {
+function formatDateOnlyRO(value) {
 
     const date =
         new Date(value);
-
 
     if (
         Number.isNaN(
@@ -364,7 +289,6 @@ function formatDateOnlyRO(
 
         return "-";
     }
-
 
     return date
         .toLocaleDateString(
@@ -386,15 +310,12 @@ function formatDateOnlyRO(
 }
 
 
-function parseDateOnly(
-    value
-) {
+function parseDateOnly(value) {
 
     value =
         String(
             value || ""
         );
-
 
     if (
         !/^\d{4}-\d{2}-\d{2}$/
@@ -403,7 +324,6 @@ function parseDateOnly(
 
         return null;
     }
-
 
     const [
         year,
@@ -414,14 +334,12 @@ function parseDateOnly(
             .split("-")
             .map(Number);
 
-
     const date =
         new Date(
             year,
             month - 1,
             day
         );
-
 
     if (
         date.getFullYear() !==
@@ -434,7 +352,6 @@ function parseDateOnly(
 
         return null;
     }
-
 
     return date;
 }
@@ -449,7 +366,6 @@ function inclusiveDays(
         end.getTime() -
         start.getTime();
 
-
     return (
         Math.floor(
             difference /
@@ -459,23 +375,347 @@ function inclusiveDays(
 }
 
 
+function getExtensionFromMime(
+    mimetype
+) {
+
+    if (
+        mimetype ===
+        "image/png"
+    ) {
+
+        return "png";
+    }
+
+    if (
+        mimetype ===
+        "image/webp"
+    ) {
+
+        return "webp";
+    }
+
+    return "jpg";
+}
+
+
+// ======================================================
+// SUPABASE HELPERS
+// ======================================================
+
+function ensureSupabase(
+    res
+) {
+
+    if (
+        !SUPABASE_URL ||
+        !SUPABASE_SERVICE_KEY
+    ) {
+
+        res
+            .status(503)
+            .json({
+                error:
+                    "Supabase nu este configurat pe server."
+            });
+
+        return false;
+    }
+
+    return true;
+}
+
+
+function mapReport(row) {
+
+    if (!row) {
+        return null;
+    }
+
+    return {
+        id:
+            row.id,
+
+        authorId:
+            row.author_id,
+
+        authorName:
+            row.author_name,
+
+        authorUsername:
+            row.author_username,
+
+        authorRank:
+            row.author_rank,
+
+        authorRankLevel:
+            row.author_rank_level,
+
+        type:
+            row.type,
+
+        title:
+            row.title,
+
+        description:
+            row.description,
+
+        images:
+            Array.isArray(
+                row.images
+            )
+                ? row.images
+                : [],
+
+        createdAt:
+            row.created_at,
+
+        createdAtFormatted:
+            formatRomanianDate(
+                row.created_at
+            )
+    };
+}
+
+
+function mapBlacklist(row) {
+
+    if (!row) {
+        return null;
+    }
+
+    return {
+        id:
+            row.id,
+
+        discordId:
+            row.discord_id,
+
+        name:
+            row.name,
+
+        username:
+            row.username,
+
+        avatar:
+            row.avatar,
+
+        reason:
+            row.reason,
+
+        durationType:
+            row.duration_type,
+
+        expiresAt:
+            row.expires_at,
+
+        expiresAtFormatted:
+            row.duration_type ===
+            "PERMANENT"
+
+                ? "Permanent"
+
+                : row.expires_at
+
+                    ? formatRomanianDate(
+                        row.expires_at
+                    )
+
+                    : "-",
+
+        status:
+            row.status,
+
+        createdAt:
+            row.created_at,
+
+        createdAtFormatted:
+            formatRomanianDate(
+                row.created_at
+            ),
+
+        addedById:
+            row.added_by_id,
+
+        addedByName:
+            row.added_by_name,
+
+        addedByUsername:
+            row.added_by_username,
+
+        addedByRank:
+            row.added_by_rank,
+
+        deactivatedAt:
+            row.deactivated_at,
+
+        deactivatedAtFormatted:
+            row.deactivated_at
+
+                ? formatRomanianDate(
+                    row.deactivated_at
+                )
+
+                : null,
+
+        deactivatedById:
+            row.deactivated_by_id,
+
+        deactivatedByName:
+            row.deactivated_by_name,
+
+        deactivatedReason:
+            row.deactivated_reason,
+
+        updatedAt:
+            row.updated_at,
+
+        updatedById:
+            row.updated_by_id,
+
+        updatedByName:
+            row.updated_by_name
+    };
+}
+
+
+function mapLeaveRequest(row) {
+
+    if (!row) {
+        return null;
+    }
+
+    const request = {
+        id:
+            row.id,
+
+        authorId:
+            row.author_id,
+
+        authorName:
+            row.author_name,
+
+        authorUsername:
+            row.author_username,
+
+        authorRank:
+            row.author_rank,
+
+        type:
+            row.type,
+
+        startDate:
+            row.start_date,
+
+        endDate:
+            row.end_date,
+
+        startDateFormatted:
+            formatDateOnlyRO(
+                `${row.start_date}T12:00:00`
+            ),
+
+        endDateFormatted:
+            formatDateOnlyRO(
+                `${row.end_date}T12:00:00`
+            ),
+
+        days:
+            Number(
+                row.days || 1
+            ),
+
+        reason:
+            row.reason,
+
+        status:
+            row.status,
+
+        evaluatorId:
+            row.evaluator_id,
+
+        evaluatorName:
+            row.evaluator_name,
+
+        evaluatorRank:
+            row.evaluator_rank,
+
+        decisionNote:
+            row.decision_note,
+
+        decidedAt:
+            row.decided_at,
+
+        decidedAtFormatted:
+            row.decided_at
+
+                ? formatRomanianDate(
+                    row.decided_at
+                )
+
+                : null,
+
+        cancelledAt:
+            row.cancelled_at,
+
+        cancelledAtFormatted:
+            row.cancelled_at
+
+                ? formatRomanianDate(
+                    row.cancelled_at
+                )
+
+                : null,
+
+        createdAt:
+            row.created_at,
+
+        createdAtFormatted:
+            formatRomanianDate(
+                row.created_at
+            )
+    };
+
+    return normalizeLeaveRequest(
+        request
+    );
+}
+
+
 // ======================================================
 // CONCEDII HELPERS
 // ======================================================
 
-function getLeaveUsage(
+async function getLeaveUsage(
     userId
 ) {
 
-    const approved =
-        leaveRequests.filter(
-            request =>
-                request.authorId ===
-                    String(userId) &&
-                request.status ===
-                    "APPROVED"
-        );
+    const {
+        data,
+        error
+    } =
+        await supabase
+            .from(
+                "leave_requests"
+            )
+            .select(
+                "type, days"
+            )
+            .eq(
+                "author_id",
+                String(userId)
+            )
+            .eq(
+                "status",
+                "APPROVED"
+            );
 
+    if (error) {
+        throw error;
+    }
+
+    const approved =
+        data || [];
 
     const vacationUsed =
         approved
@@ -498,7 +738,6 @@ function getLeaveUsage(
                 0
             );
 
-
     const meetingExcusesUsed =
         approved.filter(
             request =>
@@ -506,9 +745,7 @@ function getLeaveUsage(
                 "MEETING_EXCUSE"
         ).length;
 
-
     return {
-
         vacationUsed,
 
         vacationRemaining:
@@ -539,7 +776,6 @@ function normalizeLeaveRequest(
     let statusLabel =
         "ANULAT";
 
-
     if (
         request.status ===
         "PENDING"
@@ -548,7 +784,6 @@ function normalizeLeaveRequest(
         statusLabel =
             "ÎN AȘTEPTARE";
     }
-
 
     if (
         request.status ===
@@ -559,7 +794,6 @@ function normalizeLeaveRequest(
             "APROBAT";
     }
 
-
     if (
         request.status ===
         "REJECTED"
@@ -569,9 +803,7 @@ function normalizeLeaveRequest(
             "RESPINS";
     }
 
-
     return {
-
         ...request,
 
         typeLabel:
@@ -591,70 +823,56 @@ function normalizeLeaveRequest(
 // BLACKLIST HELPERS
 // ======================================================
 
-function updateBlacklistStatuses() {
+async function updateBlacklistStatuses() {
 
     const now =
-        new Date();
+        new Date()
+            .toISOString();
 
+    const {
+        error
+    } =
+        await supabase
+            .from(
+                "blacklist"
+            )
+            .update({
+                status:
+                    "INACTIVE",
 
-    for (
-        const entry
-        of blacklist
-    ) {
+                deactivated_reason:
+                    "EXPIRED",
 
-        if (
-            entry.status !==
-            "ACTIVE"
-        ) {
+                deactivated_at:
+                    now,
 
-            continue;
-        }
-
-
-        if (
-            entry.durationType !==
-            "TEMPORARY"
-        ) {
-
-            continue;
-        }
-
-
-        if (
-            !entry.expiresAt
-        ) {
-
-            continue;
-        }
-
-
-        const expiry =
-            new Date(
-                entry.expiresAt
+                updated_at:
+                    now
+            })
+            .eq(
+                "status",
+                "ACTIVE"
+            )
+            .eq(
+                "duration_type",
+                "TEMPORARY"
+            )
+            .not(
+                "expires_at",
+                "is",
+                null
+            )
+            .lte(
+                "expires_at",
+                now
             );
 
+    if (error) {
 
-        if (
-            !Number.isNaN(
-                expiry.getTime()
-            ) &&
-            expiry <= now
-        ) {
-
-            entry.status =
-                "INACTIVE";
-
-            entry.deactivatedReason =
-                "EXPIRED";
-
-            entry.deactivatedAt =
-                now.toISOString();
-
-            entry.deactivatedAtFormatted =
-                formatRomanianDate(
-                    now
-                );
-        }
+        console.error(
+            "Blacklist expiry update:",
+            error.message
+        );
     }
 }
 
@@ -666,7 +884,6 @@ async function getDiscordUserBasic(
     if (!BOT_TOKEN) {
         return null;
     }
-
 
     try {
 
@@ -684,13 +901,10 @@ async function getDiscordUserBasic(
                 }
             );
 
-
         const member =
             response.data;
 
-
         return {
-
             id:
                 discordId,
 
@@ -728,14 +942,13 @@ async function getDiscordUserBasic(
             );
         }
 
-
         return null;
     }
 }
 
 
 // ======================================================
-// AUTH
+// AUTH MIDDLEWARE
 // ======================================================
 
 function requireAuth(
@@ -755,7 +968,6 @@ function requireAuth(
                     "Trebuie să fii autentificat."
             });
     }
-
 
     next();
 }
@@ -779,7 +991,6 @@ function requireAdmin(
             });
     }
 
-
     if (
         Number(
             req.session.user.rankLevel ||
@@ -794,7 +1005,6 @@ function requireAdmin(
                     "Nu ai acces la această secțiune."
             });
     }
-
 
     next();
 }
@@ -838,7 +1048,6 @@ app.get(
                 "/"
             );
         }
-
 
         res.sendFile(
             path.join(
@@ -894,16 +1103,13 @@ app.get(
                 );
         }
 
-
         const state =
             crypto
                 .randomBytes(24)
                 .toString("hex");
 
-
         req.session.oauthState =
             state;
-
 
         const params =
             new URLSearchParams({
@@ -922,7 +1128,6 @@ app.get(
 
                 state
             });
-
 
         res.redirect(
             "https://discord.com/oauth2/authorize?" +
@@ -950,14 +1155,12 @@ app.get(
         } =
             req.query;
 
-
         if (!code) {
 
             return res.redirect(
                 "/?error=no_code"
             );
         }
-
 
         if (
             !state ||
@@ -971,9 +1174,7 @@ app.get(
             );
         }
 
-
         delete req.session.oauthState;
-
 
         try {
 
@@ -995,7 +1196,6 @@ app.get(
                         REDIRECT_URI
                 });
 
-
             const tokenResponse =
                 await axios.post(
 
@@ -1012,12 +1212,10 @@ app.get(
                     }
                 );
 
-
             const accessToken =
                 tokenResponse
                     .data
                     .access_token;
-
 
             const userResponse =
                 await axios.get(
@@ -1033,10 +1231,8 @@ app.get(
                     }
                 );
 
-
             const discordUser =
                 userResponse.data;
-
 
             const memberResponse =
                 await axios.get(
@@ -1052,10 +1248,8 @@ app.get(
                     }
                 );
 
-
             const member =
                 memberResponse.data;
-
 
             const roles =
                 Array.isArray(
@@ -1067,18 +1261,41 @@ app.get(
 
                     : [];
 
-
             const rank =
                 getHighestDIICOTRole(
                     roles
                 );
 
+            let savedProfile =
+                null;
 
-            const savedProfile =
-                userProfiles.get(
-                    discordUser.id
-                );
+            if (
+                SUPABASE_URL &&
+                SUPABASE_SERVICE_KEY
+            ) {
 
+                const {
+                    data,
+                    error
+                } =
+                    await supabase
+                        .from(
+                            "user_profiles"
+                        )
+                        .select(
+                            "*"
+                        )
+                        .eq(
+                            "user_id",
+                            discordUser.id
+                        )
+                        .maybeSingle();
+
+                if (!error) {
+                    savedProfile =
+                        data;
+                }
+            }
 
             req.session.user = {
 
@@ -1093,7 +1310,7 @@ app.get(
                     discordUser.username,
 
                 displayName:
-                    savedProfile?.displayName ||
+                    savedProfile?.display_name ||
                     member.nick ||
                     discordUser.global_name ||
                     discordUser.username,
@@ -1122,7 +1339,6 @@ app.get(
                     GUILD_ID
             };
 
-
             res.redirect(
                 "/"
             );
@@ -1136,7 +1352,6 @@ app.get(
                 error.response?.data ||
                 error.message
             );
-
 
             res.redirect(
                 "/?error=discord"
@@ -1170,9 +1385,7 @@ app.get(
                 });
         }
 
-
         res.json({
-
             loggedIn:
                 true,
 
@@ -1181,7 +1394,6 @@ app.get(
         });
     }
 );
-
 
 // ======================================================
 // PROFIL
@@ -1197,233 +1409,306 @@ app.get(
         res
     ) => {
 
-        const userId =
-            req.session.user.id;
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
 
+        try {
 
-        let username =
-            req.session.user.username;
+            const userId =
+                String(
+                    req.session.user.id
+                );
 
-        let avatar =
-            req.session.user.avatar;
+            let username =
+                req.session.user.username;
 
-        let displayName =
-            req.session.user.displayName;
+            let avatar =
+                req.session.user.avatar;
 
+            let displayName =
+                req.session.user.displayName;
 
-        if (BOT_TOKEN) {
+            let discordMember =
+                null;
 
-            try {
+            if (BOT_TOKEN) {
 
-                const response =
-                    await axios.get(
+                try {
 
-                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
+                    const response =
+                        await axios.get(
 
-                        {
-                            headers: {
+                            `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
 
-                                Authorization:
-                                    `Bot ${BOT_TOKEN}`
+                            {
+                                headers: {
+
+                                    Authorization:
+                                        `Bot ${BOT_TOKEN}`
+                                }
                             }
+                        );
+
+                    discordMember =
+                        response.data;
+
+                    username =
+                        discordMember.user?.username ||
+                        username;
+
+                    avatar =
+                        discordMember.user?.avatar ||
+                        avatar;
+
+                    const roles =
+                        Array.isArray(
+                            discordMember.roles
+                        )
+
+                            ? discordMember.roles
+                                .map(String)
+
+                            : [];
+
+                    const rank =
+                        getHighestDIICOTRole(
+                            roles
+                        );
+
+                    req.session.user.roles =
+                        roles;
+
+                    req.session.user.rank =
+                        rank
+                            ? rank.name
+                            : "MEMBRU DIICOT";
+
+                    req.session.user.rankLevel =
+                        rank
+                            ? rank.level
+                            : 0;
+
+                    req.session.user.rankRoleId =
+                        rank
+                            ? rank.id
+                            : null;
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Profile Discord Error:",
+                        error.response?.data ||
+                        error.message
+                    );
+                }
+            }
+
+
+            const {
+                data:
+                    profileRow,
+
+                error:
+                    profileError
+            } =
+                await supabase
+                    .from(
+                        "user_profiles"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "user_id",
+                        userId
+                    )
+                    .maybeSingle();
+
+
+            if (profileError) {
+
+                throw profileError;
+            }
+
+
+            if (
+                profileRow?.display_name
+            ) {
+
+                displayName =
+                    profileRow
+                        .display_name;
+
+            }
+
+            else if (
+                discordMember
+            ) {
+
+                displayName =
+                    discordMember.nick ||
+                    discordMember.user?.global_name ||
+                    username;
+            }
+
+
+            req.session.user.displayName =
+                displayName;
+
+            req.session.user.username =
+                username;
+
+            req.session.user.avatar =
+                avatar;
+
+
+            const {
+                data:
+                    reportRows,
+
+                error:
+                    reportsError
+            } =
+                await supabase
+                    .from(
+                        "reports"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "author_id",
+                        userId
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending:
+                                false
                         }
                     );
 
 
-                const member =
-                    response.data;
+            if (reportsError) {
 
-
-                username =
-                    member.user?.username ||
-                    username;
-
-
-                avatar =
-                    member.user?.avatar ||
-                    avatar;
-
-
-                const roles =
-                    Array.isArray(
-                        member.roles
-                    )
-
-                        ? member.roles
-                            .map(String)
-
-                        : [];
-
-
-                const rank =
-                    getHighestDIICOTRole(
-                        roles
-                    );
-
-
-                req.session.user.roles =
-                    roles;
-
-                req.session.user.rank =
-                    rank
-                        ? rank.name
-                        : "MEMBRU DIICOT";
-
-                req.session.user.rankLevel =
-                    rank
-                        ? rank.level
-                        : 0;
-
-                req.session.user.rankRoleId =
-                    rank
-                        ? rank.id
-                        : null;
-
-
-                const saved =
-                    userProfiles.get(
-                        userId
-                    );
-
-
-                if (
-                    !saved?.displayName
-                ) {
-
-                    displayName =
-                        member.nick ||
-                        member.user?.global_name ||
-                        username;
-                }
-
+                throw reportsError;
             }
 
-            catch (error) {
 
-                console.error(
-                    "Profile Discord Error:",
-                    error.response?.data ||
-                    error.message
-                );
-            }
-        }
-
-
-        const saved =
-            userProfiles.get(
-                userId
-            ) || {
-
-                displayName:
-                    null,
-
-                duties:
+            const myReports =
+                (
+                    reportRows ||
                     []
-            };
+                )
+                    .map(
+                        mapReport
+                    );
 
 
-        if (
-            saved.displayName
-        ) {
+            const reportsWithImages =
+                myReports.filter(
+                    report =>
+                        Array.isArray(
+                            report.images
+                        ) &&
+                        report.images.length >
+                        0
+                ).length;
 
-            displayName =
-                saved.displayName;
+
+            res.json({
+
+                success:
+                    true,
+
+                profile: {
+
+                    id:
+                        userId,
+
+                    username,
+
+                    displayName,
+
+                    avatar,
+
+                    rank:
+                        req.session.user.rank,
+
+                    rankLevel:
+                        req.session.user.rankLevel,
+
+                    duties:
+                        Array.isArray(
+                            profileRow?.duties
+                        )
+
+                            ? profileRow.duties
+                            : [],
+
+                    statistics: {
+
+                        totalReports:
+                            myReports.length,
+
+                        reportsWithImages,
+
+                        lastActivity:
+                            myReports.length
+
+                                ? myReports[0]
+                                    .createdAtFormatted
+
+                                : "-"
+                    },
+
+                    recentActivity:
+                        myReports
+                            .slice(
+                                0,
+                                5
+                            )
+                            .map(
+                                report => ({
+
+                                    id:
+                                        report.id,
+
+                                    type:
+                                        report.type,
+
+                                    title:
+                                        report.title,
+
+                                    createdAtFormatted:
+                                        report
+                                            .createdAtFormatted
+                                })
+                            )
+                }
+            });
+
         }
 
+        catch (error) {
 
-        req.session.user.displayName =
-            displayName;
-
-        req.session.user.username =
-            username;
-
-        req.session.user.avatar =
-            avatar;
-
-
-        const myReports =
-            reports.filter(
-                report =>
-                    report.authorId ===
-                    userId
+            console.error(
+                "Profile Supabase Error:",
+                error
             );
 
-
-        const reportsWithImages =
-            myReports.filter(
-                report =>
-                    report.images?.length >
-                    0
-            ).length;
-
-
-        res.json({
-
-            success:
-                true,
-
-            profile: {
-
-                id:
-                    userId,
-
-                username,
-
-                displayName,
-
-                avatar,
-
-                rank:
-                    req.session.user.rank,
-
-                rankLevel:
-                    req.session.user.rankLevel,
-
-                duties:
-                    saved.duties ||
-                    [],
-
-                statistics: {
-
-                    totalReports:
-                        myReports.length,
-
-                    reportsWithImages,
-
-                    lastActivity:
-                        myReports.length
-
-                            ? myReports[0]
-                                .createdAtFormatted
-
-                            : "-"
-                },
-
-                recentActivity:
-                    myReports
-                        .slice(
-                            0,
-                            5
-                        )
-                        .map(
-                            report => ({
-
-                                id:
-                                    report.id,
-
-                                type:
-                                    report.type,
-
-                                title:
-                                    report.title,
-
-                                createdAtFormatted:
-                                    report
-                                        .createdAtFormatted
-                            })
-                        )
-            }
-        });
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Profilul nu a putut fi încărcat."
+                });
+        }
     }
 );
 
@@ -1438,161 +1723,308 @@ app.patch(
         res
     ) => {
 
-        const userId =
-            req.session.user.id;
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const userId =
+                String(
+                    req.session.user.id
+                );
 
 
-        const nickname =
-            String(
-                req.body.nickname ||
-                ""
-            ).trim();
+            const nickname =
+                String(
+                    req.body.nickname ||
+                    ""
+                ).trim();
 
 
-        const duties =
-            Array.isArray(
-                req.body.duties
-            )
+            const duties =
+                Array.isArray(
+                    req.body.duties
+                )
 
-                ? req.body.duties
-                    .map(
-                        value =>
-                            String(
-                                value ||
-                                ""
-                            ).trim()
+                    ? req.body.duties
+                        .map(
+                            value =>
+                                String(
+                                    value ||
+                                    ""
+                                ).trim()
+                        )
+                        .filter(Boolean)
+
+                    : [];
+
+
+            if (
+                nickname.length < 2 ||
+                nickname.length > 32
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Numele trebuie să aibă între 2 și 32 de caractere."
+                    });
+            }
+
+
+            if (
+                duties.length > 8
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Poți avea maximum 8 atribuții."
+                    });
+            }
+
+
+            if (
+                duties.some(
+                    duty =>
+                        duty.length < 2 ||
+                        duty.length > 80
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Fiecare atribuție trebuie să aibă între 2 și 80 de caractere."
+                    });
+            }
+
+
+            const {
+                error:
+                    profileError
+            } =
+                await supabase
+                    .from(
+                        "user_profiles"
                     )
-                    .filter(Boolean)
+                    .upsert(
+                        {
+                            user_id:
+                                userId,
 
-                : [];
+                            display_name:
+                                nickname,
 
+                            duties,
 
-        if (
-            nickname.length < 2 ||
-            nickname.length > 32
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Numele trebuie să aibă între 2 și 32 de caractere."
-                });
-        }
-
-
-        if (
-            duties.length > 8
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Poți avea maximum 8 atribuții."
-                });
-        }
-
-
-        if (
-            duties.some(
-                duty =>
-                    duty.length < 2 ||
-                    duty.length > 80
-            )
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Fiecare atribuție trebuie să aibă între 2 și 80 de caractere."
-                });
-        }
-
-
-        userProfiles.set(
-            userId,
-            {
-                displayName:
-                    nickname,
-
-                duties
-            }
-        );
-
-
-        req.session.user.displayName =
-            nickname;
-
-
-        let discordSynced =
-            false;
-
-
-        if (BOT_TOKEN) {
-
-            try {
-
-                await axios.patch(
-
-                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
-
-                    {
-                        nick:
-                            nickname
-                    },
-
-                    {
-                        headers: {
-
-                            Authorization:
-                                `Bot ${BOT_TOKEN}`,
-
-                            "Content-Type":
-                                "application/json"
+                            updated_at:
+                                new Date()
+                                    .toISOString()
+                        },
+                        {
+                            onConflict:
+                                "user_id"
                         }
-                    }
-                );
+                    );
 
 
-                discordSynced =
-                    true;
+            if (profileError) {
 
+                throw profileError;
             }
 
-            catch (error) {
 
-                console.error(
-                    "Nickname Discord Error:",
-                    error.response?.data ||
-                    error.message
-                );
+            req.session.user.displayName =
+                nickname;
+
+
+            let discordSynced =
+                false;
+
+
+            if (BOT_TOKEN) {
+
+                try {
+
+                    await axios.patch(
+
+                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
+
+                        {
+                            nick:
+                                nickname
+                        },
+
+                        {
+                            headers: {
+
+                                Authorization:
+                                    `Bot ${BOT_TOKEN}`,
+
+                                "Content-Type":
+                                    "application/json"
+                            }
+                        }
+                    );
+
+
+                    discordSynced =
+                        true;
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        "Nickname Discord Error:",
+                        error.response?.data ||
+                        error.message
+                    );
+                }
             }
+
+
+            res.json({
+
+                success:
+                    true,
+
+                discordSynced,
+
+                profile: {
+
+                    displayName:
+                        nickname,
+
+                    duties
+                }
+            });
+
         }
 
+        catch (error) {
 
-        res.json({
+            console.error(
+                "Profile Save Supabase Error:",
+                error
+            );
 
-            success:
-                true,
-
-            discordSynced,
-
-            profile: {
-
-                displayName:
-                    nickname,
-
-                duties
-            }
-        });
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Profilul nu a putut fi salvat."
+                });
+        }
     }
 );
 
 
 // ======================================================
-// RAPOARTE
+// RAPOARTE - UPLOAD SUPABASE STORAGE
+// ======================================================
+
+async function uploadReportImages(
+    files,
+    userId
+) {
+
+    const uploadedImages =
+        [];
+
+    for (
+        const file
+        of files
+    ) {
+
+        const extension =
+            getExtensionFromMime(
+                file.mimetype
+            );
+
+
+        const filename =
+            `${Date.now()}-${crypto
+                .randomBytes(8)
+                .toString("hex")}.${extension}`;
+
+
+        const storagePath =
+            `${userId}/${filename}`;
+
+
+        const {
+            error:
+                uploadError
+        } =
+            await supabase
+                .storage
+                .from(
+                    SUPABASE_BUCKET
+                )
+                .upload(
+                    storagePath,
+                    file.buffer,
+                    {
+                        contentType:
+                            file.mimetype,
+
+                        cacheControl:
+                            "3600",
+
+                        upsert:
+                            false
+                    }
+                );
+
+
+        if (uploadError) {
+
+            throw uploadError;
+        }
+
+
+        const {
+            data:
+                publicURLData
+        } =
+            supabase
+                .storage
+                .from(
+                    SUPABASE_BUCKET
+                )
+                .getPublicUrl(
+                    storagePath
+                );
+
+
+        uploadedImages.push({
+
+            filename,
+
+            path:
+                storagePath,
+
+            url:
+                publicURLData
+                    .publicUrl
+        });
+    }
+
+
+    return uploadedImages;
+}
+
+
+// ======================================================
+// RAPOARTE - POSTARE
 // ======================================================
 
 app.post(
@@ -1605,10 +2037,17 @@ app.post(
         5
     ),
 
-    (
+    async (
         req,
         res
     ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
 
         const type =
             String(
@@ -1685,132 +2124,345 @@ app.post(
         }
 
 
-        const now =
-            new Date();
+        let uploadedImages =
+            [];
 
 
-        const report = {
+        try {
 
-            id:
-                crypto.randomUUID(),
-
-            authorId:
-                req.session.user.id,
-
-            authorName:
-                req.session.user.displayName ||
-                req.session.user.username,
-
-            authorUsername:
-                req.session.user.username,
-
-            authorRank:
-                req.session.user.rank,
-
-            authorRankLevel:
-                req.session.user.rankLevel,
-
-            type,
-
-            title,
-
-            description,
-
-            images:
-                (
+            uploadedImages =
+                await uploadReportImages(
                     req.files ||
-                    []
-                ).map(
-                    file => ({
-
-                        filename:
-                            file.filename,
-
-                        url:
-                            `/uploads/${file.filename}`
-                    })
-                ),
-
-            createdAt:
-                now.toISOString(),
-
-            createdAtFormatted:
-                formatRomanianDate(
-                    now
-                )
-        };
+                    [],
+                    req.session.user.id
+                );
 
 
-        reports.unshift(
-            report
-        );
+            const reportId =
+                crypto.randomUUID();
 
 
-        res
-            .status(201)
-            .json({
+            const now =
+                new Date();
 
-                success:
-                    true,
 
-                message:
-                    "Raportul a fost postat.",
+            const row = {
 
-                report
-            });
+                id:
+                    reportId,
+
+                author_id:
+                    String(
+                        req.session.user.id
+                    ),
+
+                author_name:
+                    req.session.user.displayName ||
+                    req.session.user.username,
+
+                author_username:
+                    req.session.user.username,
+
+                author_rank:
+                    req.session.user.rank,
+
+                author_rank_level:
+                    Number(
+                        req.session.user.rankLevel ||
+                        0
+                    ),
+
+                type,
+
+                title,
+
+                description,
+
+                images:
+                    uploadedImages,
+
+                created_at:
+                    now.toISOString()
+            };
+
+
+            const {
+                data:
+                    inserted,
+
+                error:
+                    insertError
+            } =
+                await supabase
+                    .from(
+                        "reports"
+                    )
+                    .insert(
+                        row
+                    )
+                    .select()
+                    .single();
+
+
+            if (insertError) {
+
+                throw insertError;
+            }
+
+
+            const report =
+                mapReport(
+                    inserted
+                );
+
+
+            res
+                .status(201)
+                .json({
+
+                    success:
+                        true,
+
+                    message:
+                        "Raportul a fost postat.",
+
+                    report
+                });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Report Supabase Error:",
+                error
+            );
+
+
+            // Dacă baza eșuează după upload,
+            // încercăm să curățăm imaginile urcate.
+
+            if (
+                uploadedImages.length
+            ) {
+
+                const paths =
+                    uploadedImages
+                        .map(
+                            image =>
+                                image.path
+                        )
+                        .filter(Boolean);
+
+
+                if (
+                    paths.length
+                ) {
+
+                    await supabase
+                        .storage
+                        .from(
+                            SUPABASE_BUCKET
+                        )
+                        .remove(
+                            paths
+                        );
+                }
+            }
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Raportul nu a putut fi salvat în Supabase."
+                });
+        }
     }
 );
 
+
+// ======================================================
+// RAPOARTELE MELE
+// ======================================================
 
 app.get(
     "/api/reports/my",
 
     requireAuth,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        res.json({
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
 
-            reports:
-                reports.filter(
-                    report =>
-                        report.authorId ===
-                        req.session.user.id
-                )
-        });
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "reports"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "author_id",
+                        String(
+                            req.session.user.id
+                        )
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending:
+                                false
+                        }
+                    );
+
+
+            if (error) {
+
+                throw error;
+            }
+
+
+            res.json({
+
+                reports:
+                    (
+                        data ||
+                        []
+                    )
+                        .map(
+                            mapReport
+                        )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "My Reports Supabase Error:",
+                error
+            );
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Rapoartele nu au putut fi încărcate."
+                });
+        }
     }
 );
 
+
+// ======================================================
+// TOATE RAPOARTELE - ADMIN
+// ======================================================
 
 app.get(
     "/api/admin/reports",
 
     requireAdmin,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        res.json({
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
 
-            success:
-                true,
 
-            total:
-                reports.length,
+        try {
 
-            reports
-        });
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "reports"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending:
+                                false
+                        }
+                    );
+
+
+            if (error) {
+
+                throw error;
+            }
+
+
+            const reports =
+                (
+                    data ||
+                    []
+                )
+                    .map(
+                        mapReport
+                    );
+
+
+            res.json({
+
+                success:
+                    true,
+
+                total:
+                    reports.length,
+
+                reports
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Admin Reports Supabase Error:",
+                error
+            );
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Rapoartele nu au putut fi încărcate."
+                });
+        }
     }
 );
 
 
 // ======================================================
-// CONDUCERE - ANUNȚURI
+// CONDUCERE - ANUNȚURI DISCORD
 // ======================================================
 
 app.post(
@@ -2049,62 +2701,105 @@ app.get(
 
     requireAuth,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        const userId =
-            String(
-                req.session.user.id
-            );
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
 
 
-        const requests =
-            leaveRequests
-                .filter(
-                    request =>
-                        request.authorId ===
-                        userId
-                )
-                .sort(
-                    (
-                        a,
-                        b
-                    ) =>
-                        new Date(
-                            b.createdAt
-                        ) -
-                        new Date(
-                            a.createdAt
-                        )
-                )
-                .map(
-                    normalizeLeaveRequest
+        try {
+
+            const userId =
+                String(
+                    req.session.user.id
                 );
 
 
-        res.json({
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "leave_requests"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "author_id",
+                        userId
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending:
+                                false
+                        }
+                    );
 
-            success:
-                true,
 
-            limits: {
+            if (error) {
 
-                vacationDays:
-                    VACATION_DAYS_LIMIT,
+                throw error;
+            }
 
-                meetingExcuses:
-                    MEETING_EXCUSES_LIMIT
-            },
 
-            usage:
-                getLeaveUsage(
+            const usage =
+                await getLeaveUsage(
                     userId
-                ),
+                );
 
-            requests
-        });
+
+            res.json({
+
+                success:
+                    true,
+
+                limits: {
+
+                    vacationDays:
+                        VACATION_DAYS_LIMIT,
+
+                    meetingExcuses:
+                        MEETING_EXCUSES_LIMIT
+                },
+
+                usage,
+
+                requests:
+                    (
+                        data ||
+                        []
+                    )
+                        .map(
+                            mapLeaveRequest
+                        )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Leave Me Supabase Error:",
+                error
+            );
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Cererile nu au putut fi încărcate."
+                });
+        }
     }
 );
 
@@ -2118,294 +2813,356 @@ app.post(
 
     requireAuth,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        const type =
-            String(
-                req.body.type ||
-                ""
-            )
-                .trim()
-                .toUpperCase();
-
-
-        const startDateRaw =
-            String(
-                req.body.startDate ||
-                ""
-            ).trim();
-
-
-        const endDateRaw =
-            String(
-                req.body.endDate ||
-                ""
-            ).trim();
-
-
-        const reason =
-            String(
-                req.body.reason ||
-                ""
-            ).trim();
-
-
         if (
-            ![
-                "VACATION",
-                "MEETING_EXCUSE"
-            ].includes(
-                type
-            )
+            !ensureSupabase(res)
         ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Tipul cererii nu este valid."
-                });
+            return;
         }
 
 
-        if (
-            reason.length < 3 ||
-            reason.length > 1000
-        ) {
+        try {
 
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Motivul trebuie să aibă între 3 și 1000 de caractere."
-                });
-        }
-
-
-        const start =
-            parseDateOnly(
-                startDateRaw
-            );
-
-
-        const end =
-            parseDateOnly(
-                endDateRaw
-            );
-
-
-        if (
-            !start ||
-            !end
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Selectează o dată de început și o dată de sfârșit valide."
-                });
-        }
-
-
-        if (
-            end < start
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Data de sfârșit nu poate fi înaintea datei de început."
-                });
-        }
-
-
-        const days =
-            inclusiveDays(
-                start,
-                end
-            );
-
-
-        const userId =
-            String(
-                req.session.user.id
-            );
-
-
-        const usage =
-            getLeaveUsage(
-                userId
-            );
-
-
-        if (
-            type ===
-                "VACATION" &&
-            days >
-                usage
-                    .vacationRemaining
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        `Mai ai doar ${usage.vacationRemaining} zile de concediu disponibile.`
-                });
-        }
-
-
-        if (
-            type ===
-                "MEETING_EXCUSE" &&
-            usage
-                .meetingExcusesRemaining <=
-                0
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Nu mai ai învoiri de ședință disponibile."
-                });
-        }
-
-
-        const duplicatePending =
-            leaveRequests.find(
-                request =>
-                    request.authorId ===
-                        userId &&
-                    request.status ===
-                        "PENDING" &&
-                    request.type ===
-                        type &&
-                    request.startDate ===
-                        startDateRaw &&
-                    request.endDate ===
-                        endDateRaw
-            );
-
-
-        if (
-            duplicatePending
-        ) {
-
-            return res
-                .status(409)
-                .json({
-                    error:
-                        "Ai deja o cerere în așteptare pentru același interval."
-                });
-        }
-
-
-        const now =
-            new Date();
-
-
-        const request = {
-
-            id:
-                crypto.randomUUID(),
-
-            authorId:
-                userId,
-
-            authorName:
-                req.session.user.displayName ||
-                req.session.user.username,
-
-            authorUsername:
-                req.session.user.username,
-
-            authorRank:
-                req.session.user.rank,
-
-            type,
-
-            startDate:
-                startDateRaw,
-
-            endDate:
-                endDateRaw,
-
-            startDateFormatted:
-                formatDateOnlyRO(
-                    start
-                ),
-
-            endDateFormatted:
-                formatDateOnlyRO(
-                    end
-                ),
-
-            days,
-
-            reason,
-
-            status:
-                "PENDING",
-
-            evaluatorId:
-                null,
-
-            evaluatorName:
-                null,
-
-            evaluatorRank:
-                null,
-
-            decisionNote:
-                null,
-
-            decidedAt:
-                null,
-
-            decidedAtFormatted:
-                null,
-
-            createdAt:
-                now.toISOString(),
-
-            createdAtFormatted:
-                formatRomanianDate(
-                    now
+            const type =
+                String(
+                    req.body.type ||
+                    ""
                 )
-        };
+                    .trim()
+                    .toUpperCase();
 
 
-        leaveRequests.unshift(
-            request
-        );
+            const startDateRaw =
+                String(
+                    req.body.startDate ||
+                    ""
+                ).trim();
 
 
-        res
-            .status(201)
-            .json({
+            const endDateRaw =
+                String(
+                    req.body.endDate ||
+                    ""
+                ).trim();
 
-                success:
-                    true,
 
-                message:
-                    "Cererea a fost trimisă spre evaluare.",
+            const reason =
+                String(
+                    req.body.reason ||
+                    ""
+                ).trim();
 
-                request:
-                    normalizeLeaveRequest(
-                        request
-                    ),
 
-                usage:
-                    getLeaveUsage(
+            if (
+                ![
+                    "VACATION",
+                    "MEETING_EXCUSE"
+                ].includes(
+                    type
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Tipul cererii nu este valid."
+                    });
+            }
+
+
+            if (
+                reason.length < 3 ||
+                reason.length > 1000
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Motivul trebuie să aibă între 3 și 1000 de caractere."
+                    });
+            }
+
+
+            const start =
+                parseDateOnly(
+                    startDateRaw
+                );
+
+
+            const end =
+                parseDateOnly(
+                    endDateRaw
+                );
+
+
+            if (
+                !start ||
+                !end
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Selectează o dată de început și o dată de sfârșit valide."
+                    });
+            }
+
+
+            if (
+                end < start
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Data de sfârșit nu poate fi înaintea datei de început."
+                    });
+            }
+
+
+            const days =
+                inclusiveDays(
+                    start,
+                    end
+                );
+
+
+            const userId =
+                String(
+                    req.session.user.id
+                );
+
+
+            const usage =
+                await getLeaveUsage(
+                    userId
+                );
+
+
+            if (
+                type ===
+                    "VACATION" &&
+                days >
+                    usage
+                        .vacationRemaining
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            `Mai ai doar ${usage.vacationRemaining} zile de concediu disponibile.`
+                    });
+            }
+
+
+            if (
+                type ===
+                    "MEETING_EXCUSE" &&
+                usage
+                    .meetingExcusesRemaining <=
+                    0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Nu mai ai învoiri de ședință disponibile."
+                    });
+            }
+
+
+            const {
+                data:
+                    duplicate,
+
+                error:
+                    duplicateError
+            } =
+                await supabase
+                    .from(
+                        "leave_requests"
+                    )
+                    .select(
+                        "id"
+                    )
+                    .eq(
+                        "author_id",
                         userId
                     )
-            });
+                    .eq(
+                        "status",
+                        "PENDING"
+                    )
+                    .eq(
+                        "type",
+                        type
+                    )
+                    .eq(
+                        "start_date",
+                        startDateRaw
+                    )
+                    .eq(
+                        "end_date",
+                        endDateRaw
+                    )
+                    .limit(1);
+
+
+            if (
+                duplicateError
+            ) {
+
+                throw duplicateError;
+            }
+
+
+            if (
+                duplicate?.length
+            ) {
+
+                return res
+                    .status(409)
+                    .json({
+                        error:
+                            "Ai deja o cerere în așteptare pentru același interval."
+                    });
+            }
+
+
+            const now =
+                new Date();
+
+
+            const row = {
+
+                id:
+                    crypto.randomUUID(),
+
+                author_id:
+                    userId,
+
+                author_name:
+                    req.session.user.displayName ||
+                    req.session.user.username,
+
+                author_username:
+                    req.session.user.username,
+
+                author_rank:
+                    req.session.user.rank,
+
+                type,
+
+                start_date:
+                    startDateRaw,
+
+                end_date:
+                    endDateRaw,
+
+                days,
+
+                reason,
+
+                status:
+                    "PENDING",
+
+                evaluator_id:
+                    null,
+
+                evaluator_name:
+                    null,
+
+                evaluator_rank:
+                    null,
+
+                decision_note:
+                    null,
+
+                decided_at:
+                    null,
+
+                cancelled_at:
+                    null,
+
+                created_at:
+                    now.toISOString()
+            };
+
+
+            const {
+                data:
+                    inserted,
+
+                error:
+                    insertError
+            } =
+                await supabase
+                    .from(
+                        "leave_requests"
+                    )
+                    .insert(
+                        row
+                    )
+                    .select()
+                    .single();
+
+
+            if (
+                insertError
+            ) {
+
+                throw insertError;
+            }
+
+
+            res
+                .status(201)
+                .json({
+
+                    success:
+                        true,
+
+                    message:
+                        "Cererea a fost trimisă spre evaluare.",
+
+                    request:
+                        mapLeaveRequest(
+                            inserted
+                        ),
+
+                    usage:
+                        await getLeaveUsage(
+                            userId
+                        )
+                });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Leave Create Supabase Error:",
+                error
+            );
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Cererea nu a putut fi salvată."
+                });
+        }
     }
 );
 
@@ -2419,93 +3176,180 @@ app.patch(
 
     requireAuth,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        const request =
-            leaveRequests.find(
-                item =>
-                    item.id ===
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+
+        try {
+
+            const requestId =
+                String(
                     req.params.id
-            );
+                );
 
 
-        if (!request) {
-
-            return res
-                .status(404)
-                .json({
-                    error:
-                        "Cererea nu a fost găsită."
-                });
-        }
+            const userId =
+                String(
+                    req.session.user.id
+                );
 
 
-        if (
-            request.authorId !==
-            String(
-                req.session.user.id
-            )
-        ) {
+            const {
+                data:
+                    row,
 
-            return res
-                .status(403)
-                .json({
-                    error:
-                        "Nu poți anula cererea altui membru."
-                });
-        }
-
-
-        if (
-            request.status !==
-            "PENDING"
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Poți anula doar cererile aflate în așteptare."
-                });
-        }
+                error:
+                    loadError
+            } =
+                await supabase
+                    .from(
+                        "leave_requests"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "id",
+                        requestId
+                    )
+                    .maybeSingle();
 
 
-        request.status =
-            "CANCELLED";
+            if (
+                loadError
+            ) {
 
-        request.cancelledAt =
-            new Date()
-                .toISOString();
+                throw loadError;
+            }
 
-        request.cancelledAtFormatted =
-            formatRomanianDate(
+
+            if (!row) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Cererea nu a fost găsită."
+                    });
+            }
+
+
+            if (
+                String(
+                    row.author_id
+                ) !==
+                userId
+            ) {
+
+                return res
+                    .status(403)
+                    .json({
+                        error:
+                            "Nu poți anula cererea altui membru."
+                    });
+            }
+
+
+            if (
+                row.status !==
+                "PENDING"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Poți anula doar cererile aflate în așteptare."
+                    });
+            }
+
+
+            const now =
                 new Date()
+                    .toISOString();
+
+
+            const {
+                data:
+                    updated,
+
+                error:
+                    updateError
+            } =
+                await supabase
+                    .from(
+                        "leave_requests"
+                    )
+                    .update(
+                        {
+                            status:
+                                "CANCELLED",
+
+                            cancelled_at:
+                                now
+                        }
+                    )
+                    .eq(
+                        "id",
+                        requestId
+                    )
+                    .select()
+                    .single();
+
+
+            if (
+                updateError
+            ) {
+
+                throw updateError;
+            }
+
+
+            res.json({
+
+                success:
+                    true,
+
+                message:
+                    "Cererea a fost anulată.",
+
+                request:
+                    mapLeaveRequest(
+                        updated
+                    )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Leave Cancel Supabase Error:",
+                error
             );
 
 
-        res.json({
-
-            success:
-                true,
-
-            message:
-                "Cererea a fost anulată.",
-
-            request:
-                normalizeLeaveRequest(
-                    request
-                )
-        });
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Cererea nu a putut fi anulată."
+                });
+        }
     }
 );
 
 
 // ======================================================
 // CONCEDII / ÎNVOIRI - ADMIN LISTĂ
-// DOAR COORDONATOR+
 // ======================================================
 
 app.get(
@@ -2513,96 +3357,149 @@ app.get(
 
     requireAdmin,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        const requests =
-            [
-                ...leaveRequests
-            ]
-                .sort(
-                    (
-                        a,
-                        b
-                    ) => {
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
 
-                        if (
-                            a.status ===
-                                "PENDING" &&
-                            b.status !==
-                                "PENDING"
-                        ) {
 
-                            return -1;
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "leave_requests"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending:
+                                false
                         }
+                    );
 
 
-                        if (
-                            a.status !==
-                                "PENDING" &&
-                            b.status ===
-                                "PENDING"
-                        ) {
+            if (error) {
 
-                            return 1;
-                        }
+                throw error;
+            }
 
 
-                        return (
-                            new Date(
-                                b.createdAt
-                            ) -
-                            new Date(
-                                a.createdAt
-                            )
-                        );
-                    }
+            const requests =
+                (
+                    data ||
+                    []
                 )
-                .map(
-                    normalizeLeaveRequest
-                );
+                    .map(
+                        mapLeaveRequest
+                    )
+                    .sort(
+                        (
+                            a,
+                            b
+                        ) => {
+
+                            if (
+                                a.status ===
+                                    "PENDING" &&
+                                b.status !==
+                                    "PENDING"
+                            ) {
+
+                                return -1;
+                            }
 
 
-        res.json({
+                            if (
+                                a.status !==
+                                    "PENDING" &&
+                                b.status ===
+                                    "PENDING"
+                            ) {
 
-            success:
-                true,
+                                return 1;
+                            }
 
-            total:
-                requests.length,
 
-            pending:
-                requests.filter(
-                    request =>
-                        request.status ===
-                        "PENDING"
-                ).length,
+                            return (
+                                new Date(
+                                    b.createdAt
+                                ) -
+                                new Date(
+                                    a.createdAt
+                                )
+                            );
+                        }
+                    );
 
-            approved:
-                requests.filter(
-                    request =>
-                        request.status ===
-                        "APPROVED"
-                ).length,
 
-            rejected:
-                requests.filter(
-                    request =>
-                        request.status ===
-                        "REJECTED"
-                ).length,
+            res.json({
 
-            requests
-        });
+                success:
+                    true,
+
+                total:
+                    requests.length,
+
+                pending:
+                    requests.filter(
+                        request =>
+                            request.status ===
+                            "PENDING"
+                    ).length,
+
+                approved:
+                    requests.filter(
+                        request =>
+                            request.status ===
+                            "APPROVED"
+                    ).length,
+
+                rejected:
+                    requests.filter(
+                        request =>
+                            request.status ===
+                            "REJECTED"
+                    ).length,
+
+                requests
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Admin Leave Supabase Error:",
+                error
+            );
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Cererile nu au putut fi încărcate."
+                });
+        }
     }
 );
 
 
 // ======================================================
 // CONCEDII / ÎNVOIRI - APROBARE / RESPINGERE
-// DOAR COORDONATOR+
 // ======================================================
 
 app.patch(
@@ -2610,206 +3507,284 @@ app.patch(
 
     requireAdmin,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        const request =
-            leaveRequests.find(
-                item =>
-                    item.id ===
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+
+        try {
+
+            const requestId =
+                String(
                     req.params.id
-            );
-
-
-        if (!request) {
-
-            return res
-                .status(404)
-                .json({
-                    error:
-                        "Cererea nu a fost găsită."
-                });
-        }
-
-
-        if (
-            request.status !==
-            "PENDING"
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Această cerere a fost deja evaluată."
-                });
-        }
-
-
-        const decision =
-            String(
-                req.body.decision ||
-                ""
-            )
-                .trim()
-                .toUpperCase();
-
-
-        const note =
-            String(
-                req.body.note ||
-                ""
-            ).trim();
-
-
-        if (
-            ![
-                "APPROVE",
-                "REJECT"
-            ].includes(
-                decision
-            )
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Decizia nu este validă."
-                });
-        }
-
-
-        if (
-            note.length > 500
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Observația evaluatorului poate avea maximum 500 de caractere."
-                });
-        }
-
-
-        if (
-            decision ===
-            "APPROVE"
-        ) {
-
-            const usage =
-                getLeaveUsage(
-                    request.authorId
                 );
 
 
+            const decision =
+                String(
+                    req.body.decision ||
+                    ""
+                )
+                    .trim()
+                    .toUpperCase();
+
+
+            const note =
+                String(
+                    req.body.note ||
+                    ""
+                ).trim();
+
+
             if (
-                request.type ===
-                    "VACATION" &&
-                request.days >
+                ![
+                    "APPROVE",
+                    "REJECT"
+                ].includes(
+                    decision
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Decizia nu este validă."
+                    });
+            }
+
+
+            if (
+                note.length > 500
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Observația evaluatorului poate avea maximum 500 de caractere."
+                    });
+            }
+
+
+            const {
+                data:
+                    row,
+
+                error:
+                    loadError
+            } =
+                await supabase
+                    .from(
+                        "leave_requests"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "id",
+                        requestId
+                    )
+                    .maybeSingle();
+
+
+            if (
+                loadError
+            ) {
+
+                throw loadError;
+            }
+
+
+            if (!row) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Cererea nu a fost găsită."
+                    });
+            }
+
+
+            if (
+                row.status !==
+                "PENDING"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Această cerere a fost deja evaluată."
+                    });
+            }
+
+
+            if (
+                decision ===
+                "APPROVE"
+            ) {
+
+                const usage =
+                    await getLeaveUsage(
+                        row.author_id
+                    );
+
+
+                if (
+                    row.type ===
+                        "VACATION" &&
+                    Number(
+                        row.days
+                    ) >
+                        usage
+                            .vacationRemaining
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                `Membrul mai are doar ${usage.vacationRemaining} zile de concediu disponibile.`
+                        });
+                }
+
+
+                if (
+                    row.type ===
+                        "MEETING_EXCUSE" &&
                     usage
-                        .vacationRemaining
-            ) {
+                        .meetingExcusesRemaining <=
+                        0
+                ) {
 
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            `Membrul mai are doar ${usage.vacationRemaining} zile de concediu disponibile.`
-                    });
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                "Membrul nu mai are învoiri de ședință disponibile."
+                        });
+                }
             }
+
+
+            const now =
+                new Date()
+                    .toISOString();
+
+
+            const newStatus =
+                decision ===
+                "APPROVE"
+
+                    ? "APPROVED"
+
+                    : "REJECTED";
+
+
+            const {
+                data:
+                    updated,
+
+                error:
+                    updateError
+            } =
+                await supabase
+                    .from(
+                        "leave_requests"
+                    )
+                    .update(
+                        {
+                            status:
+                                newStatus,
+
+                            evaluator_id:
+                                String(
+                                    req.session.user.id
+                                ),
+
+                            evaluator_name:
+                                req.session.user.displayName ||
+                                req.session.user.username,
+
+                            evaluator_rank:
+                                req.session.user.rank,
+
+                            decision_note:
+                                note ||
+                                null,
+
+                            decided_at:
+                                now
+                        }
+                    )
+                    .eq(
+                        "id",
+                        requestId
+                    )
+                    .select()
+                    .single();
 
 
             if (
-                request.type ===
-                    "MEETING_EXCUSE" &&
-                usage
-                    .meetingExcusesRemaining <=
-                    0
+                updateError
             ) {
 
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Membrul nu mai are învoiri de ședință disponibile."
-                    });
+                throw updateError;
             }
+
+
+            res.json({
+
+                success:
+                    true,
+
+                message:
+                    newStatus ===
+                    "APPROVED"
+
+                        ? "Cererea a fost aprobată."
+
+                        : "Cererea a fost respinsă.",
+
+                request:
+                    mapLeaveRequest(
+                        updated
+                    ),
+
+                usage:
+                    await getLeaveUsage(
+                        updated.author_id
+                    )
+            });
+
         }
 
+        catch (error) {
 
-        const now =
-            new Date();
-
-
-        request.status =
-            decision ===
-            "APPROVE"
-
-                ? "APPROVED"
-
-                : "REJECTED";
-
-
-        request.evaluatorId =
-            String(
-                req.session.user.id
+            console.error(
+                "Leave Decision Supabase Error:",
+                error
             );
 
 
-        request.evaluatorName =
-            req.session.user.displayName ||
-            req.session.user.username;
-
-
-        request.evaluatorRank =
-            req.session.user.rank;
-
-
-        request.decisionNote =
-            note ||
-            null;
-
-
-        request.decidedAt =
-            now.toISOString();
-
-
-        request.decidedAtFormatted =
-            formatRomanianDate(
-                now
-            );
-
-
-        res.json({
-
-            success:
-                true,
-
-            message:
-                request.status ===
-                "APPROVED"
-
-                    ? "Cererea a fost aprobată."
-
-                    : "Cererea a fost respinsă.",
-
-            request:
-                normalizeLeaveRequest(
-                    request
-                ),
-
-            usage:
-                getLeaveUsage(
-                    request.authorId
-                )
-        });
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Cererea nu a putut fi evaluată."
+                });
+        }
     }
 );
-
 
 // ======================================================
 // BLACKLIST - LISTĂ
@@ -2820,56 +3795,101 @@ app.get(
 
     requireAdmin,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        updateBlacklistStatuses();
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            await updateBlacklistStatuses();
 
 
-        const sorted =
-            [
-                ...blacklist
-            ].sort(
-                (
-                    a,
-                    b
-                ) =>
-                    new Date(
-                        b.createdAt
-                    ) -
-                    new Date(
-                        a.createdAt
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
                     )
+                    .select(
+                        "*"
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending:
+                                false
+                        }
+                    );
+
+
+            if (error) {
+
+                throw error;
+            }
+
+
+            const entries =
+                (
+                    data ||
+                    []
+                )
+                    .map(
+                        mapBlacklist
+                    );
+
+
+            res.json({
+
+                success:
+                    true,
+
+                total:
+                    entries.length,
+
+                active:
+                    entries.filter(
+                        entry =>
+                            entry.status ===
+                            "ACTIVE"
+                    ).length,
+
+                inactive:
+                    entries.filter(
+                        entry =>
+                            entry.status ===
+                            "INACTIVE"
+                    ).length,
+
+                blacklist:
+                    entries
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Blacklist List Supabase Error:",
+                error
             );
 
 
-        res.json({
-
-            success:
-                true,
-
-            total:
-                sorted.length,
-
-            active:
-                sorted.filter(
-                    entry =>
-                        entry.status ===
-                        "ACTIVE"
-                ).length,
-
-            inactive:
-                sorted.filter(
-                    entry =>
-                        entry.status ===
-                        "INACTIVE"
-                ).length,
-
-            blacklist:
-                sorted
-        });
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Blacklist-ul nu a putut fi încărcat."
+                });
+        }
     }
 );
 
@@ -2888,316 +3908,392 @@ app.post(
         res
     ) => {
 
-        updateBlacklistStatuses();
-
-
-        const discordId =
-            String(
-                req.body.discordId ||
-                ""
-            ).trim();
-
-
-        let name =
-            String(
-                req.body.name ||
-                ""
-            ).trim();
-
-
-        const reason =
-            String(
-                req.body.reason ||
-                ""
-            ).trim();
-
-
-        const durationType =
-            String(
-                req.body.durationType ||
-                "PERMANENT"
-            )
-                .trim()
-                .toUpperCase();
-
-
-        const expiresAtRaw =
-            String(
-                req.body.expiresAt ||
-                ""
-            ).trim();
-
-
         if (
-            !/^\d{15,25}$/
-                .test(
-                    discordId
-                )
+            !ensureSupabase(res)
         ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Discord ID-ul nu este valid."
-                });
+            return;
         }
 
 
-        if (
-            ![
-                "PERMANENT",
+        try {
+
+            await updateBlacklistStatuses();
+
+
+            const discordId =
+                String(
+                    req.body.discordId ||
+                    ""
+                ).trim();
+
+
+            let name =
+                String(
+                    req.body.name ||
+                    ""
+                ).trim();
+
+
+            const reason =
+                String(
+                    req.body.reason ||
+                    ""
+                ).trim();
+
+
+            const durationType =
+                String(
+                    req.body.durationType ||
+                    "PERMANENT"
+                )
+                    .trim()
+                    .toUpperCase();
+
+
+            const expiresAtRaw =
+                String(
+                    req.body.expiresAt ||
+                    ""
+                ).trim();
+
+
+            if (
+                !/^\d{15,25}$/
+                    .test(
+                        discordId
+                    )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Discord ID-ul nu este valid."
+                    });
+            }
+
+
+            if (
+                ![
+                    "PERMANENT",
+                    "TEMPORARY"
+                ].includes(
+                    durationType
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Tipul duratei nu este valid."
+                    });
+            }
+
+
+            if (
+                reason.length < 3 ||
+                reason.length > 1000
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Motivul trebuie să aibă între 3 și 1000 de caractere."
+                    });
+            }
+
+
+            let expiresAt =
+                null;
+
+
+            if (
+                durationType ===
                 "TEMPORARY"
-            ].includes(
-                durationType
-            )
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Tipul duratei nu este valid."
-                });
-        }
-
-
-        if (
-            reason.length < 3 ||
-            reason.length > 1000
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Motivul trebuie să aibă între 3 și 1000 de caractere."
-                });
-        }
-
-
-        let expiresAt =
-            null;
-
-        let expiresAtFormatted =
-            "Permanent";
-
-
-        if (
-            durationType ===
-            "TEMPORARY"
-        ) {
-
-            if (
-                !expiresAtRaw
             ) {
 
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Selectează data expirării."
-                    });
+                if (
+                    !expiresAtRaw
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                "Selectează data expirării."
+                        });
+                }
+
+
+                const expiry =
+                    new Date(
+                        expiresAtRaw
+                    );
+
+
+                if (
+                    Number.isNaN(
+                        expiry.getTime()
+                    )
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                "Data expirării nu este validă."
+                        });
+                }
+
+
+                if (
+                    expiry <=
+                    new Date()
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                "Data expirării trebuie să fie în viitor."
+                        });
+                }
+
+
+                expiresAt =
+                    expiry.toISOString();
             }
 
 
-            const expiry =
-                new Date(
-                    expiresAtRaw
-                );
+            const {
+                data:
+                    existing,
 
-
-            if (
-                Number.isNaN(
-                    expiry.getTime()
-                )
-            ) {
-
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Data expirării nu este validă."
-                    });
-            }
-
-
-            if (
-                expiry <=
-                new Date()
-            ) {
-
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Data expirării trebuie să fie în viitor."
-                    });
-            }
-
-
-            expiresAt =
-                expiry.toISOString();
-
-            expiresAtFormatted =
-                formatRomanianDate(
-                    expiry
-                );
-        }
-
-
-        const existing =
-            blacklist.find(
-                entry =>
-                    entry.discordId ===
-                        discordId &&
-                    entry.status ===
+                error:
+                    existingError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .select(
+                        "id"
+                    )
+                    .eq(
+                        "discord_id",
+                        discordId
+                    )
+                    .eq(
+                        "status",
                         "ACTIVE"
+                    )
+                    .limit(1);
+
+
+            if (
+                existingError
+            ) {
+
+                throw existingError;
+            }
+
+
+            if (
+                existing?.length
+            ) {
+
+                return res
+                    .status(409)
+                    .json({
+                        error:
+                            "Acest Discord ID este deja în blacklist."
+                    });
+            }
+
+
+            const discordUser =
+                await getDiscordUserBasic(
+                    discordId
+                );
+
+
+            if (
+                !name &&
+                discordUser
+            ) {
+
+                name =
+                    discordUser.displayName ||
+                    discordUser.username ||
+                    "";
+            }
+
+
+            if (!name) {
+
+                name =
+                    "Necunoscut";
+            }
+
+
+            if (
+                name.length > 80
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Numele este prea lung."
+                    });
+            }
+
+
+            const now =
+                new Date()
+                    .toISOString();
+
+
+            const row = {
+
+                id:
+                    crypto.randomUUID(),
+
+                discord_id:
+                    discordId,
+
+                name,
+
+                username:
+                    discordUser?.username ||
+                    null,
+
+                avatar:
+                    discordUser?.avatar ||
+                    null,
+
+                reason,
+
+                duration_type:
+                    durationType,
+
+                expires_at:
+                    expiresAt,
+
+                status:
+                    "ACTIVE",
+
+                added_by_id:
+                    String(
+                        req.session.user.id
+                    ),
+
+                added_by_name:
+                    req.session.user.displayName ||
+                    req.session.user.username,
+
+                added_by_username:
+                    req.session.user.username,
+
+                added_by_rank:
+                    req.session.user.rank,
+
+                created_at:
+                    now,
+
+                deactivated_at:
+                    null,
+
+                deactivated_by_id:
+                    null,
+
+                deactivated_by_name:
+                    null,
+
+                deactivated_reason:
+                    null,
+
+                updated_at:
+                    null,
+
+                updated_by_id:
+                    null,
+
+                updated_by_name:
+                    null
+            };
+
+
+            const {
+                data:
+                    inserted,
+
+                error:
+                    insertError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .insert(
+                        row
+                    )
+                    .select()
+                    .single();
+
+
+            if (
+                insertError
+            ) {
+
+                throw insertError;
+            }
+
+
+            const entry =
+                mapBlacklist(
+                    inserted
+                );
+
+
+            res
+                .status(201)
+                .json({
+
+                    success:
+                        true,
+
+                    message:
+                        `${name} a fost adăugat în blacklist.`,
+
+                    entry
+                });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Blacklist Create Supabase Error:",
+                error
             );
 
 
-        if (existing) {
-
-            return res
-                .status(409)
+            res
+                .status(500)
                 .json({
                     error:
-                        "Acest Discord ID este deja în blacklist."
+                        "Persoana nu a putut fi adăugată în blacklist."
                 });
         }
-
-
-        const discordUser =
-            await getDiscordUserBasic(
-                discordId
-            );
-
-
-        if (
-            !name &&
-            discordUser
-        ) {
-
-            name =
-                discordUser.displayName ||
-                discordUser.username ||
-                "";
-        }
-
-
-        if (!name) {
-
-            name =
-                "Necunoscut";
-        }
-
-
-        if (
-            name.length > 80
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Numele este prea lung."
-                });
-        }
-
-
-        const now =
-            new Date();
-
-
-        const entry = {
-
-            id:
-                crypto.randomUUID(),
-
-            discordId,
-
-            name,
-
-            username:
-                discordUser?.username ||
-                null,
-
-            avatar:
-                discordUser?.avatar ||
-                null,
-
-            reason,
-
-            durationType,
-
-            expiresAt,
-
-            expiresAtFormatted,
-
-            status:
-                "ACTIVE",
-
-            createdAt:
-                now.toISOString(),
-
-            createdAtFormatted:
-                formatRomanianDate(
-                    now
-                ),
-
-            addedById:
-                req.session.user.id,
-
-            addedByName:
-                req.session.user.displayName ||
-                req.session.user.username,
-
-            addedByUsername:
-                req.session.user.username,
-
-            addedByRank:
-                req.session.user.rank,
-
-            deactivatedAt:
-                null,
-
-            deactivatedAtFormatted:
-                null,
-
-            deactivatedById:
-                null,
-
-            deactivatedByName:
-                null,
-
-            deactivatedReason:
-                null
-        };
-
-
-        blacklist.unshift(
-            entry
-        );
-
-
-        res
-            .status(201)
-            .json({
-
-                success:
-                    true,
-
-                message:
-                    `${name} a fost adăugat în blacklist.`,
-
-                entry
-            });
     }
 );
 
 
 // ======================================================
-// BLACKLIST - CHECK
+// BLACKLIST - CHECK DISCORD ID
 // ======================================================
 
 app.get(
@@ -3210,67 +4306,122 @@ app.get(
         res
     ) => {
 
-        updateBlacklistStatuses();
-
-
-        const discordId =
-            String(
-                req.params.discordId ||
-                ""
-            ).trim();
-
-
         if (
-            !/^\d{15,25}$/
-                .test(
-                    discordId
-                )
+            !ensureSupabase(res)
         ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Discord ID-ul nu este valid."
-                });
+            return;
         }
 
 
-        const discordUser =
-            await getDiscordUserBasic(
-                discordId
+        try {
+
+            await updateBlacklistStatuses();
+
+
+            const discordId =
+                String(
+                    req.params.discordId ||
+                    ""
+                ).trim();
+
+
+            if (
+                !/^\d{15,25}$/
+                    .test(
+                        discordId
+                    )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Discord ID-ul nu este valid."
+                    });
+            }
+
+
+            const discordUser =
+                await getDiscordUserBasic(
+                    discordId
+                );
+
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "discord_id",
+                        discordId
+                    )
+                    .eq(
+                        "status",
+                        "ACTIVE"
+                    )
+                    .limit(1);
+
+
+            if (error) {
+
+                throw error;
+            }
+
+
+            const activeEntry =
+                data?.length
+
+                    ? mapBlacklist(
+                        data[0]
+                    )
+
+                    : null;
+
+
+            res.json({
+
+                success:
+                    true,
+
+                foundOnDiscord:
+                    Boolean(
+                        discordUser
+                    ),
+
+                discordUser,
+
+                blacklisted:
+                    Boolean(
+                        activeEntry
+                    ),
+
+                activeEntry
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Blacklist Check Supabase Error:",
+                error
             );
 
 
-        const activeEntry =
-            blacklist.find(
-                entry =>
-                    entry.discordId ===
-                        discordId &&
-                    entry.status ===
-                        "ACTIVE"
-            ) || null;
-
-
-        res.json({
-
-            success:
-                true,
-
-            foundOnDiscord:
-                Boolean(
-                    discordUser
-                ),
-
-            discordUser,
-
-            blacklisted:
-                Boolean(
-                    activeEntry
-                ),
-
-            activeEntry
-        });
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Verificarea nu a putut fi efectuată."
+                });
+        }
     }
 );
 
@@ -3284,40 +4435,88 @@ app.get(
 
     requireAdmin,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        updateBlacklistStatuses();
-
-
-        const entry =
-            blacklist.find(
-                item =>
-                    item.id ===
-                    req.params.id
-            );
-
-
-        if (!entry) {
-
-            return res
-                .status(404)
-                .json({
-                    error:
-                        "Intrarea din blacklist nu a fost găsită."
-                });
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
         }
 
 
-        res.json({
+        try {
 
-            success:
-                true,
+            await updateBlacklistStatuses();
 
-            entry
-        });
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "id",
+                        String(
+                            req.params.id
+                        )
+                    )
+                    .maybeSingle();
+
+
+            if (error) {
+
+                throw error;
+            }
+
+
+            if (!data) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Intrarea din blacklist nu a fost găsită."
+                    });
+            }
+
+
+            res.json({
+
+                success:
+                    true,
+
+                entry:
+                    mapBlacklist(
+                        data
+                    )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Blacklist Detail Supabase Error:",
+                error
+            );
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Intrarea nu a putut fi încărcată."
+                });
+        }
     }
 );
 
@@ -3331,241 +4530,312 @@ app.patch(
 
     requireAdmin,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        updateBlacklistStatuses();
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
 
 
-        const entry =
-            blacklist.find(
-                item =>
-                    item.id ===
+        try {
+
+            await updateBlacklistStatuses();
+
+
+            const entryId =
+                String(
                     req.params.id
+                );
+
+
+            const {
+                data:
+                    current,
+
+                error:
+                    loadError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "id",
+                        entryId
+                    )
+                    .maybeSingle();
+
+
+            if (
+                loadError
+            ) {
+
+                throw loadError;
+            }
+
+
+            if (!current) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Intrarea din blacklist nu a fost găsită."
+                    });
+            }
+
+
+            const name =
+                req.body.name !==
+                undefined
+
+                    ? String(
+                        req.body.name
+                    ).trim()
+
+                    : current.name;
+
+
+            const reason =
+                req.body.reason !==
+                undefined
+
+                    ? String(
+                        req.body.reason
+                    ).trim()
+
+                    : current.reason;
+
+
+            const durationType =
+                req.body.durationType !==
+                undefined
+
+                    ? String(
+                        req.body.durationType
+                    )
+                        .trim()
+                        .toUpperCase()
+
+                    : current.duration_type;
+
+
+            if (
+                name.length < 1 ||
+                name.length > 80
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Numele trebuie să aibă maximum 80 de caractere."
+                    });
+            }
+
+
+            if (
+                reason.length < 3 ||
+                reason.length > 1000
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Motivul trebuie să aibă între 3 și 1000 de caractere."
+                    });
+            }
+
+
+            if (
+                ![
+                    "PERMANENT",
+                    "TEMPORARY"
+                ].includes(
+                    durationType
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Tipul duratei nu este valid."
+                    });
+            }
+
+
+            let expiresAt =
+                current.expires_at;
+
+
+            if (
+                durationType ===
+                "PERMANENT"
+            ) {
+
+                expiresAt =
+                    null;
+            }
+
+
+            if (
+                durationType ===
+                "TEMPORARY"
+            ) {
+
+                const raw =
+                    String(
+                        req.body.expiresAt ||
+                        current.expires_at ||
+                        ""
+                    ).trim();
+
+
+                if (!raw) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                "Selectează data expirării."
+                        });
+                }
+
+
+                const expiry =
+                    new Date(
+                        raw
+                    );
+
+
+                if (
+                    Number.isNaN(
+                        expiry.getTime()
+                    )
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                "Data expirării nu este validă."
+                        });
+                }
+
+
+                if (
+                    expiry <=
+                    new Date()
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                "Data expirării trebuie să fie în viitor."
+                        });
+                }
+
+
+                expiresAt =
+                    expiry.toISOString();
+            }
+
+
+            const {
+                data:
+                    updated,
+
+                error:
+                    updateError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .update(
+                        {
+                            name,
+
+                            reason,
+
+                            duration_type:
+                                durationType,
+
+                            expires_at:
+                                expiresAt,
+
+                            updated_at:
+                                new Date()
+                                    .toISOString(),
+
+                            updated_by_id:
+                                String(
+                                    req.session.user.id
+                                ),
+
+                            updated_by_name:
+                                req.session.user.displayName ||
+                                req.session.user.username
+                        }
+                    )
+                    .eq(
+                        "id",
+                        entryId
+                    )
+                    .select()
+                    .single();
+
+
+            if (
+                updateError
+            ) {
+
+                throw updateError;
+            }
+
+
+            res.json({
+
+                success:
+                    true,
+
+                message:
+                    "Intrarea din blacklist a fost actualizată.",
+
+                entry:
+                    mapBlacklist(
+                        updated
+                    )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Blacklist Update Supabase Error:",
+                error
             );
 
 
-        if (!entry) {
-
-            return res
-                .status(404)
+            res
+                .status(500)
                 .json({
                     error:
-                        "Intrarea din blacklist nu a fost găsită."
+                        "Intrarea nu a putut fi actualizată."
                 });
         }
-
-
-        const name =
-            req.body.name !==
-            undefined
-
-                ? String(
-                    req.body.name
-                ).trim()
-
-                : entry.name;
-
-
-        const reason =
-            req.body.reason !==
-            undefined
-
-                ? String(
-                    req.body.reason
-                ).trim()
-
-                : entry.reason;
-
-
-        const durationType =
-            req.body.durationType !==
-            undefined
-
-                ? String(
-                    req.body.durationType
-                )
-                    .trim()
-                    .toUpperCase()
-
-                : entry.durationType;
-
-
-        if (
-            name.length < 1 ||
-            name.length > 80
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Numele trebuie să aibă maximum 80 de caractere."
-                });
-        }
-
-
-        if (
-            reason.length < 3 ||
-            reason.length > 1000
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Motivul trebuie să aibă între 3 și 1000 de caractere."
-                });
-        }
-
-
-        if (
-            ![
-                "PERMANENT",
-                "TEMPORARY"
-            ].includes(
-                durationType
-            )
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Tipul duratei nu este valid."
-                });
-        }
-
-
-        let expiresAt =
-            entry.expiresAt;
-
-        let expiresAtFormatted =
-            entry.expiresAtFormatted;
-
-
-        if (
-            durationType ===
-            "PERMANENT"
-        ) {
-
-            expiresAt =
-                null;
-
-            expiresAtFormatted =
-                "Permanent";
-        }
-
-
-        if (
-            durationType ===
-            "TEMPORARY"
-        ) {
-
-            const raw =
-                String(
-                    req.body.expiresAt ||
-                    entry.expiresAt ||
-                    ""
-                ).trim();
-
-
-            if (!raw) {
-
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Selectează data expirării."
-                    });
-            }
-
-
-            const expiry =
-                new Date(
-                    raw
-                );
-
-
-            if (
-                Number.isNaN(
-                    expiry.getTime()
-                )
-            ) {
-
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Data expirării nu este validă."
-                    });
-            }
-
-
-            if (
-                expiry <=
-                new Date()
-            ) {
-
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Data expirării trebuie să fie în viitor."
-                    });
-            }
-
-
-            expiresAt =
-                expiry.toISOString();
-
-            expiresAtFormatted =
-                formatRomanianDate(
-                    expiry
-                );
-        }
-
-
-        Object.assign(
-            entry,
-            {
-
-                name,
-
-                reason,
-
-                durationType,
-
-                expiresAt,
-
-                expiresAtFormatted,
-
-                updatedAt:
-                    new Date()
-                        .toISOString(),
-
-                updatedById:
-                    req.session.user.id,
-
-                updatedByName:
-                    req.session.user.displayName ||
-                    req.session.user.username
-            }
-        );
-
-
-        res.json({
-
-            success:
-                true,
-
-            message:
-                "Intrarea din blacklist a fost actualizată.",
-
-            entry
-        });
     }
 );
 
@@ -3579,89 +4849,167 @@ app.patch(
 
     requireAdmin,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        updateBlacklistStatuses();
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
 
 
-        const entry =
-            blacklist.find(
-                item =>
-                    item.id ===
+        try {
+
+            const entryId =
+                String(
                     req.params.id
+                );
+
+
+            const {
+                data:
+                    current,
+
+                error:
+                    loadError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "id",
+                        entryId
+                    )
+                    .maybeSingle();
+
+
+            if (
+                loadError
+            ) {
+
+                throw loadError;
+            }
+
+
+            if (!current) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Intrarea din blacklist nu a fost găsită."
+                    });
+            }
+
+
+            if (
+                current.status ===
+                "INACTIVE"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Această intrare este deja inactivă."
+                    });
+            }
+
+
+            const now =
+                new Date()
+                    .toISOString();
+
+
+            const {
+                data:
+                    updated,
+
+                error:
+                    updateError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .update(
+                        {
+                            status:
+                                "INACTIVE",
+
+                            deactivated_at:
+                                now,
+
+                            deactivated_by_id:
+                                String(
+                                    req.session.user.id
+                                ),
+
+                            deactivated_by_name:
+                                req.session.user.displayName ||
+                                req.session.user.username,
+
+                            deactivated_reason:
+                                "MANUAL",
+
+                            updated_at:
+                                now
+                        }
+                    )
+                    .eq(
+                        "id",
+                        entryId
+                    )
+                    .select()
+                    .single();
+
+
+            if (
+                updateError
+            ) {
+
+                throw updateError;
+            }
+
+
+            res.json({
+
+                success:
+                    true,
+
+                message:
+                    "Persoana a fost scoasă din blacklist.",
+
+                entry:
+                    mapBlacklist(
+                        updated
+                    )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Blacklist Deactivate Supabase Error:",
+                error
             );
 
 
-        if (!entry) {
-
-            return res
-                .status(404)
+            res
+                .status(500)
                 .json({
                     error:
-                        "Intrarea din blacklist nu a fost găsită."
+                        "Intrarea nu a putut fi dezactivată."
                 });
         }
-
-
-        if (
-            entry.status ===
-            "INACTIVE"
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Această intrare este deja inactivă."
-                });
-        }
-
-
-        const now =
-            new Date();
-
-
-        Object.assign(
-            entry,
-            {
-
-                status:
-                    "INACTIVE",
-
-                deactivatedAt:
-                    now.toISOString(),
-
-                deactivatedAtFormatted:
-                    formatRomanianDate(
-                        now
-                    ),
-
-                deactivatedById:
-                    req.session.user.id,
-
-                deactivatedByName:
-                    req.session.user.displayName ||
-                    req.session.user.username,
-
-                deactivatedReason:
-                    "MANUAL"
-            }
-        );
-
-
-        res.json({
-
-            success:
-                true,
-
-            message:
-                "Persoana a fost scoasă din blacklist.",
-
-            entry
-        });
     }
 );
 
@@ -3675,137 +5023,245 @@ app.patch(
 
     requireAdmin,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        updateBlacklistStatuses();
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
 
 
-        const entry =
-            blacklist.find(
-                item =>
-                    item.id ===
+        try {
+
+            await updateBlacklistStatuses();
+
+
+            const entryId =
+                String(
                     req.params.id
-            );
+                );
 
 
-        if (!entry) {
+            const {
+                data:
+                    current,
 
-            return res
-                .status(404)
-                .json({
-                    error:
-                        "Intrarea din blacklist nu a fost găsită."
-                });
-        }
-
-
-        if (
-            entry.status ===
-            "ACTIVE"
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Această intrare este deja activă."
-                });
-        }
+                error:
+                    loadError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "id",
+                        entryId
+                    )
+                    .maybeSingle();
 
 
-        if (
-            entry.durationType ===
-                "TEMPORARY" &&
-            entry.expiresAt &&
-            new Date(
-                entry.expiresAt
-            ) <=
-                new Date()
-        ) {
+            if (
+                loadError
+            ) {
 
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Perioada acestei sancțiuni a expirat. Modifică mai întâi data expirării."
-                });
-        }
-
-
-        const duplicate =
-            blacklist.find(
-                item =>
-                    item.discordId ===
-                        entry.discordId &&
-                    item.status ===
-                        "ACTIVE" &&
-                    item.id !==
-                        entry.id
-            );
-
-
-        if (
-            duplicate
-        ) {
-
-            return res
-                .status(409)
-                .json({
-                    error:
-                        "Există deja o intrare activă pentru acest Discord ID."
-                });
-        }
-
-
-        Object.assign(
-            entry,
-            {
-
-                status:
-                    "ACTIVE",
-
-                deactivatedAt:
-                    null,
-
-                deactivatedAtFormatted:
-                    null,
-
-                deactivatedById:
-                    null,
-
-                deactivatedByName:
-                    null,
-
-                deactivatedReason:
-                    null,
-
-                reactivatedAt:
-                    new Date()
-                        .toISOString(),
-
-                reactivatedById:
-                    req.session.user.id,
-
-                reactivatedByName:
-                    req.session.user.displayName ||
-                    req.session.user.username
+                throw loadError;
             }
-        );
 
 
-        res.json({
+            if (!current) {
 
-            success:
-                true,
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Intrarea din blacklist nu a fost găsită."
+                    });
+            }
 
-            message:
-                "Intrarea a fost reactivată.",
 
-            entry
-        });
+            if (
+                current.status ===
+                "ACTIVE"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Această intrare este deja activă."
+                    });
+            }
+
+
+            if (
+                current.duration_type ===
+                    "TEMPORARY" &&
+                current.expires_at &&
+                new Date(
+                    current.expires_at
+                ) <=
+                    new Date()
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Perioada acestei sancțiuni a expirat. Modifică mai întâi data expirării."
+                    });
+            }
+
+
+            const {
+                data:
+                    duplicate,
+
+                error:
+                    duplicateError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .select(
+                        "id"
+                    )
+                    .eq(
+                        "discord_id",
+                        current.discord_id
+                    )
+                    .eq(
+                        "status",
+                        "ACTIVE"
+                    )
+                    .neq(
+                        "id",
+                        entryId
+                    )
+                    .limit(1);
+
+
+            if (
+                duplicateError
+            ) {
+
+                throw duplicateError;
+            }
+
+
+            if (
+                duplicate?.length
+            ) {
+
+                return res
+                    .status(409)
+                    .json({
+                        error:
+                            "Există deja o intrare activă pentru acest Discord ID."
+                    });
+            }
+
+
+            const now =
+                new Date()
+                    .toISOString();
+
+
+            const {
+                data:
+                    updated,
+
+                error:
+                    updateError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .update(
+                        {
+                            status:
+                                "ACTIVE",
+
+                            deactivated_at:
+                                null,
+
+                            deactivated_by_id:
+                                null,
+
+                            deactivated_by_name:
+                                null,
+
+                            deactivated_reason:
+                                null,
+
+                            updated_at:
+                                now,
+
+                            updated_by_id:
+                                String(
+                                    req.session.user.id
+                                ),
+
+                            updated_by_name:
+                                req.session.user.displayName ||
+                                req.session.user.username
+                        }
+                    )
+                    .eq(
+                        "id",
+                        entryId
+                    )
+                    .select()
+                    .single();
+
+
+            if (
+                updateError
+            ) {
+
+                throw updateError;
+            }
+
+
+            res.json({
+
+                success:
+                    true,
+
+                message:
+                    "Intrarea a fost reactivată.",
+
+                entry:
+                    mapBlacklist(
+                        updated
+                    )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Blacklist Reactivate Supabase Error:",
+                error
+            );
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Intrarea nu a putut fi reactivată."
+                });
+        }
     }
 );
 
@@ -3819,53 +5275,121 @@ app.delete(
 
     requireAdmin,
 
-    (
+    async (
         req,
         res
     ) => {
 
-        const index =
-            blacklist.findIndex(
-                item =>
-                    item.id ===
-                    req.params.id
-            );
-
-
         if (
-            index === -1
+            !ensureSupabase(res)
         ) {
-
-            return res
-                .status(404)
-                .json({
-                    error:
-                        "Intrarea din blacklist nu a fost găsită."
-                });
+            return;
         }
 
 
-        const removed =
-            blacklist.splice(
-                index,
-                1
-            )[0];
+        try {
+
+            const entryId =
+                String(
+                    req.params.id
+                );
 
 
-        res.json({
+            const {
+                data:
+                    current,
 
-            success:
-                true,
+                error:
+                    loadError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "id",
+                        entryId
+                    )
+                    .maybeSingle();
 
-            message:
-                `${removed.name} a fost șters definitiv din blacklist.`
-        });
+
+            if (
+                loadError
+            ) {
+
+                throw loadError;
+            }
+
+
+            if (!current) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Intrarea din blacklist nu a fost găsită."
+                    });
+            }
+
+
+            const {
+                error:
+                    deleteError
+            } =
+                await supabase
+                    .from(
+                        "blacklist"
+                    )
+                    .delete()
+                    .eq(
+                        "id",
+                        entryId
+                    );
+
+
+            if (
+                deleteError
+            ) {
+
+                throw deleteError;
+            }
+
+
+            res.json({
+
+                success:
+                    true,
+
+                message:
+                    `${current.name} a fost șters definitiv din blacklist.`
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Blacklist Delete Supabase Error:",
+                error
+            );
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Intrarea nu a putut fi ștearsă."
+                });
+        }
     }
 );
 
 
 // ======================================================
-// GRADE
+// GRADE DIICOT
 // ======================================================
 
 app.get(
@@ -4121,10 +5645,13 @@ app.get(
 
         try {
 
-            let members = [];
+            let members =
+                [];
+
 
             let after =
                 "0";
+
 
             let hasMore =
                 true;
@@ -4181,6 +5708,63 @@ app.get(
             }
 
 
+            let profileMap =
+                new Map();
+
+
+            if (
+                SUPABASE_URL &&
+                SUPABASE_SERVICE_KEY
+            ) {
+
+                const {
+                    data:
+                        profileRows,
+
+                    error:
+                        profilesError
+                } =
+                    await supabase
+                        .from(
+                            "user_profiles"
+                        )
+                        .select(
+                            "*"
+                        );
+
+
+                if (
+                    profilesError
+                ) {
+
+                    console.error(
+                        "Personnel Profile Supabase Error:",
+                        profilesError
+                    );
+
+                }
+
+                else {
+
+                    profileMap =
+                        new Map(
+                            (
+                                profileRows ||
+                                []
+                            )
+                                .map(
+                                    row => [
+                                        String(
+                                            row.user_id
+                                        ),
+                                        row
+                                    ]
+                                )
+                        );
+                }
+            }
+
+
             const personnel =
                 [];
 
@@ -4208,6 +5792,7 @@ app.get(
 
 
                 if (!rank) {
+
                     continue;
                 }
 
@@ -4217,8 +5802,10 @@ app.get(
 
 
                 const saved =
-                    userProfiles.get(
-                        user.id
+                    profileMap.get(
+                        String(
+                            user.id
+                        )
                     );
 
 
@@ -4231,7 +5818,7 @@ app.get(
                         user.username,
 
                     displayName:
-                        saved?.displayName ||
+                        saved?.display_name ||
                         member.nick ||
                         user.global_name ||
                         user.username,
@@ -4253,8 +5840,12 @@ app.get(
                         rank.id,
 
                     duties:
-                        saved?.duties ||
-                        []
+                        Array.isArray(
+                            saved?.duties
+                        )
+
+                            ? saved.duties
+                            : []
                 });
             }
 
@@ -4354,12 +5945,203 @@ app.get(
 app.get(
     "/health",
 
-    (
+    async (
         req,
         res
     ) => {
 
-        updateBlacklistStatuses();
+        let reportsCount =
+            null;
+
+        let profilesCount =
+            null;
+
+        let blacklistCount =
+            null;
+
+        let blacklistActive =
+            null;
+
+        let leaveCount =
+            null;
+
+        let leavePending =
+            null;
+
+        let supabaseOnline =
+            false;
+
+
+        if (
+            SUPABASE_URL &&
+            SUPABASE_SERVICE_KEY
+        ) {
+
+            try {
+
+                await updateBlacklistStatuses();
+
+
+                const [
+                    reportsResult,
+                    profilesResult,
+                    blacklistResult,
+                    blacklistActiveResult,
+                    leaveResult,
+                    leavePendingResult
+                ] =
+                    await Promise.all([
+
+                        supabase
+                            .from(
+                                "reports"
+                            )
+                            .select(
+                                "*",
+                                {
+                                    count:
+                                        "exact",
+
+                                    head:
+                                        true
+                                }
+                            ),
+
+                        supabase
+                            .from(
+                                "user_profiles"
+                            )
+                            .select(
+                                "*",
+                                {
+                                    count:
+                                        "exact",
+
+                                    head:
+                                        true
+                                }
+                            ),
+
+                        supabase
+                            .from(
+                                "blacklist"
+                            )
+                            .select(
+                                "*",
+                                {
+                                    count:
+                                        "exact",
+
+                                    head:
+                                        true
+                                }
+                            ),
+
+                        supabase
+                            .from(
+                                "blacklist"
+                            )
+                            .select(
+                                "*",
+                                {
+                                    count:
+                                        "exact",
+
+                                    head:
+                                        true
+                                }
+                            )
+                            .eq(
+                                "status",
+                                "ACTIVE"
+                            ),
+
+                        supabase
+                            .from(
+                                "leave_requests"
+                            )
+                            .select(
+                                "*",
+                                {
+                                    count:
+                                        "exact",
+
+                                    head:
+                                        true
+                                }
+                            ),
+
+                        supabase
+                            .from(
+                                "leave_requests"
+                            )
+                            .select(
+                                "*",
+                                {
+                                    count:
+                                        "exact",
+
+                                    head:
+                                        true
+                                }
+                            )
+                            .eq(
+                                "status",
+                                "PENDING"
+                            )
+                    ]);
+
+
+                const errors = [
+                    reportsResult.error,
+                    profilesResult.error,
+                    blacklistResult.error,
+                    blacklistActiveResult.error,
+                    leaveResult.error,
+                    leavePendingResult.error
+                ]
+                    .filter(Boolean);
+
+
+                if (
+                    errors.length
+                ) {
+
+                    throw errors[0];
+                }
+
+
+                reportsCount =
+                    reportsResult.count;
+
+                profilesCount =
+                    profilesResult.count;
+
+                blacklistCount =
+                    blacklistResult.count;
+
+                blacklistActive =
+                    blacklistActiveResult.count;
+
+                leaveCount =
+                    leaveResult.count;
+
+                leavePending =
+                    leavePendingResult.count;
+
+                supabaseOnline =
+                    true;
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Health Supabase Error:",
+                    error
+                );
+            }
+        }
 
 
         res.json({
@@ -4370,31 +6152,36 @@ app.get(
             service:
                 "DIICOT Hub",
 
+            database:
+                "Supabase",
+
+            supabaseConfigured:
+                Boolean(
+                    SUPABASE_URL &&
+                    SUPABASE_SERVICE_KEY
+                ),
+
+            supabaseOnline,
+
+            storageBucket:
+                SUPABASE_BUCKET,
+
             reports:
-                reports.length,
+                reportsCount,
 
             profiles:
-                userProfiles.size,
+                profilesCount,
 
             blacklistTotal:
-                blacklist.length,
+                blacklistCount,
 
-            blacklistActive:
-                blacklist.filter(
-                    entry =>
-                        entry.status ===
-                        "ACTIVE"
-                ).length,
+            blacklistActive,
 
             leaveRequestsTotal:
-                leaveRequests.length,
+                leaveCount,
 
             leaveRequestsPending:
-                leaveRequests.filter(
-                    request =>
-                        request.status ===
-                        "PENDING"
-                ).length,
+                leavePending,
 
             vacationDaysLimit:
                 VACATION_DAYS_LIMIT,
@@ -4420,6 +6207,9 @@ app.get(
                 true,
 
             leaveSystemEnabled:
+                true,
+
+            persistentStorage:
                 true
         });
     }
@@ -4427,7 +6217,7 @@ app.get(
 
 
 // ======================================================
-// ERRORS
+// ERROR HANDLER
 // ======================================================
 
 app.use(
@@ -4519,7 +6309,7 @@ app.listen(
     () => {
 
         console.log(
-            "=============================="
+            "===================================="
         );
 
         console.log(
@@ -4529,6 +6319,21 @@ app.listen(
         console.log(
             "PORT:",
             PORT
+        );
+
+        console.log(
+            "DATABASE:",
+            SUPABASE_URL &&
+            SUPABASE_SERVICE_KEY
+
+                ? "SUPABASE CONFIGURED"
+
+                : "SUPABASE NOT CONFIGURED"
+        );
+
+        console.log(
+            "STORAGE:",
+            SUPABASE_BUCKET
         );
 
         console.log(
@@ -4544,22 +6349,28 @@ app.listen(
         );
 
         console.log(
-            "BLACKLIST: ENABLED"
+            "BLACKLIST: SUPABASE"
         );
 
         console.log(
-            "CONCEDII / ÎNVOIRI: ENABLED"
+            "CONCEDII / ÎNVOIRI: SUPABASE"
+        );
+
+        console.log(
+            "RAPOARTE: SUPABASE"
         );
 
         console.log(
             "BOT:",
             BOT_TOKEN
+
                 ? "CONNECTED"
+
                 : "NOT CONFIGURED"
         );
 
         console.log(
-            "=============================="
+            "===================================="
         );
     }
 );
