@@ -4,15 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>DIICOT | Rush România</title>
+    <title>Centru de Comandă | DIICOT</title>
 
     <link rel="stylesheet" href="/style.css">
 </head>
 
-<body>
+<body class="dashboard-body">
 
-    <!-- NAVBAR -->
-    <header class="navbar">
+    <header class="dashboard-topbar">
 
         <div class="brand">
 
@@ -22,250 +21,326 @@
 
             <div class="brand-text">
                 <strong>DIICOT</strong>
-                <span>RUSH ROMÂNIA</span>
+                <span>CENTRU DE COMANDĂ</span>
             </div>
 
         </div>
 
-        <!-- LOGIN / USER -->
-        <div id="auth-area">
-
-            <a href="/auth/discord" class="login-btn">
-                AUTENTIFICARE DISCORD
-            </a>
-
+        <div id="dashboard-user">
+            Se încarcă...
         </div>
 
     </header>
 
 
-    <!-- HERO -->
-    <main class="hero">
+    <div class="dashboard-layout">
 
-        <div class="hero-overlay"></div>
-        <div class="hero-glow"></div>
+        <aside class="dashboard-sidebar">
 
-        <section class="hero-content">
+            <a href="/" class="sidebar-link">
+                PAGINA PRINCIPALĂ
+            </a>
 
-            <div class="badge">
-                DIRECȚIA DE INVESTIGARE A INFRACȚIUNILOR
-            </div>
+            <button class="sidebar-link active" data-section="overview">
+                PREZENTARE GENERALĂ
+            </button>
 
-            <h1>
-                HUB
-                <span>DIICOT</span>
-            </h1>
+            <button class="sidebar-link" data-section="new-report">
+                RAPORT NOU
+            </button>
 
-            <p class="hero-description">
-                Platformă internă pentru gestionarea activității,
-                rapoartelor și personalului DIICOT.
-            </p>
+            <button class="sidebar-link" data-section="my-reports">
+                RAPOARTELE MELE
+            </button>
 
-            <div class="hero-actions">
+            <button class="sidebar-link" data-section="personnel">
+                PERSONAL DIICOT
+            </button>
 
-                <a
-                    href="/auth/discord"
-                    class="primary-btn"
-                    id="main-login-btn"
-                >
-                    INTRĂ ÎN CONT
-                </a>
+            <button class="sidebar-link admin-only" data-section="admin">
+                ADMINISTRARE
+            </button>
 
-                <a
-                    href="#features"
-                    class="secondary-btn"
-                >
-                    AFLĂ MAI MULTE
-                </a>
+            <a href="/logout" class="sidebar-link logout-sidebar">
+                DECONECTARE
+            </a>
 
-            </div>
-
-        </section>
+        </aside>
 
 
-        <!-- DIAMOND -->
-        <div class="hero-decoration">
+        <main class="dashboard-content">
 
-            <div class="diamond">
+            <section id="overview" class="dashboard-section active">
 
-                <div class="diamond-inner">
+                <div class="dashboard-welcome">
 
-                    <div class="diamond-icon">
-                        ⚖
+                    <div>
+                        <span class="dashboard-kicker">
+                            BINE AI REVENIT
+                        </span>
+
+                        <h1 id="welcome-name">
+                            Membru DIICOT
+                        </h1>
+
+                        <p id="welcome-rank">
+                            Se verifică gradul...
+                        </p>
                     </div>
-
-                    <strong>
-                        DIICOT
-                    </strong>
-
-                    <span>
-                        RUSH ROMÂNIA
-                    </span>
 
                 </div>
 
-            </div>
 
-        </div>
+                <div class="stats-grid">
 
-    </main>
+                    <div class="stat-card">
+                        <span>RAPOARTE TOTALE</span>
+                        <strong>0</strong>
+                    </div>
 
+                    <div class="stat-card">
+                        <span>ACCEPTATE</span>
+                        <strong>0</strong>
+                    </div>
 
-    <!-- FEATURES -->
-    <section id="features" class="features">
+                    <div class="stat-card">
+                        <span>ÎN VERIFICARE</span>
+                        <strong>0</strong>
+                    </div>
 
-        <!-- RAPOARTE -->
-        <div class="feature-card">
+                    <div class="stat-card">
+                        <span>RESPINSE</span>
+                        <strong>0</strong>
+                    </div>
 
-            <div class="feature-number">
-                01
-            </div>
-
-            <div class="feature-icon">
-                ◈
-            </div>
-
-            <h2>
-                RAPOARTE
-            </h2>
-
-            <p>
-                Postează și urmărește rapoartele tale de activitate.
-            </p>
-
-            <div class="feature-line"></div>
-
-        </div>
+                </div>
 
 
-        <!-- PERSONAL -->
-        <div class="feature-card">
+                <div class="dashboard-panel">
 
-            <div class="feature-number">
-                02
-            </div>
+                    <div class="panel-heading">
+                        <span>ACTIVITATE RECENTĂ</span>
+                    </div>
 
-            <div class="feature-icon">
-                ◉
-            </div>
+                    <div class="empty-state">
+                        Momentan nu există activitate.
+                    </div>
 
-            <h2>
-                PERSONAL
-            </h2>
+                </div>
 
-            <p>
-                Vizualizează membrii și gradele din cadrul structurii.
-            </p>
-
-            <div class="feature-line"></div>
-
-        </div>
+            </section>
 
 
-        <!-- COMMAND CENTER -->
-        <div class="feature-card">
+            <section id="new-report" class="dashboard-section">
 
-            <div class="feature-number">
-                03
-            </div>
+                <div class="section-title">
+                    <span>RAPOARTE</span>
+                    <h2>Raport nou</h2>
+                </div>
 
-            <div class="feature-icon">
-                ⚙
-            </div>
+                <div class="dashboard-panel">
 
-            <h2>
-                CENTRU DE COMANDĂ
-            </h2>
+                    <form id="report-form" class="report-form">
 
-            <p>
-                Instrumente administrative destinate conducerii DIICOT.
-            </p>
+                        <div class="form-group">
 
-            <div class="feature-line"></div>
+                            <label>
+                                Tip raport
+                            </label>
 
-        </div>
+                            <select id="report-type" required>
+                                <option value="">
+                                    Selectează tipul
+                                </option>
 
-    </section>
+                                <option value="activitate">
+                                    Raport activitate
+                                </option>
+
+                                <option value="operatiune">
+                                    Raport operațiune
+                                </option>
+
+                                <option value="arestare">
+                                    Raport arestare
+                                </option>
+
+                                <option value="ancheta">
+                                    Raport anchetă
+                                </option>
+                            </select>
+
+                        </div>
 
 
-    <!-- FOOTER -->
-    <footer>
+                        <div class="form-group">
 
-        <div>
-            DIICOT • RUSH ROMÂNIA
-        </div>
+                            <label>
+                                Titlu raport
+                            </label>
 
-        <span>
-            SISTEM INTERN
-        </span>
+                            <input
+                                type="text"
+                                id="report-title"
+                                placeholder="Ex: Operațiune DIICOT"
+                                required
+                            >
 
-    </footer>
+                        </div>
 
 
-    <!-- SCRIPT LOGIN DISCORD -->
+                        <div class="form-group">
+
+                            <label>
+                                Descriere
+                            </label>
+
+                            <textarea
+                                id="report-description"
+                                rows="8"
+                                placeholder="Descrie activitatea..."
+                                required
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Link dovadă / imagine
+                            </label>
+
+                            <input
+                                type="url"
+                                id="report-proof"
+                                placeholder="https://..."
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="primary-btn dashboard-submit"
+                        >
+                            TRIMITE RAPORTUL
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+
+            <section id="my-reports" class="dashboard-section">
+
+                <div class="section-title">
+                    <span>ACTIVITATE</span>
+                    <h2>Rapoartele mele</h2>
+                </div>
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+                        Nu ai încă rapoarte postate.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section id="personnel" class="dashboard-section">
+
+                <div class="section-title">
+                    <span>STRUCTURĂ</span>
+                    <h2>Personal DIICOT</h2>
+                </div>
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+                        Lista personalului va fi conectată ulterior la Discord.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section id="admin" class="dashboard-section">
+
+                <div class="section-title">
+                    <span>CONDUCERE</span>
+                    <h2>Administrare</h2>
+                </div>
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+                        Zonă destinată conducerii DIICOT.
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
     <script>
 
         function escapeHTML(value) {
-
-            const div =
-                document.createElement("div");
-
-            div.textContent =
-                String(value ?? "");
-
+            const div = document.createElement("div");
+            div.textContent = String(value ?? "");
             return div.innerHTML;
         }
 
 
-        async function verificaAutentificarea() {
-
-            const authArea =
-                document.getElementById("auth-area");
-
-            const mainLoginBtn =
-                document.getElementById("main-login-btn");
-
+        async function loadDashboardUser() {
 
             try {
 
-                const response =
-                    await fetch("/api/me", {
-                        method: "GET",
-                        credentials: "include",
-                        cache: "no-store"
-                    });
+                const response = await fetch("/api/me", {
+                    credentials: "include",
+                    cache: "no-store"
+                });
 
 
                 if (!response.ok) {
 
-                    console.log(
-                        "Utilizator neautentificat."
-                    );
+                    window.location.href = "/";
 
                     return;
                 }
 
 
-                const data =
-                    await response.json();
+                const data = await response.json();
 
 
-                if (
-                    !data.loggedIn ||
-                    !data.user
-                ) {
+                if (!data.loggedIn || !data.user) {
+
+                    window.location.href = "/";
 
                     return;
                 }
 
 
-                const user =
-                    data.user;
+                const user = data.user;
 
+                const displayName =
+                    user.globalName ||
+                    user.username ||
+                    "Membru DIICOT";
 
-                // =========================
-                // AVATAR DISCORD
-                // =========================
+                const rank =
+                    user.rank ||
+                    "MEMBRU DIICOT";
+
 
                 let avatarURL;
 
@@ -282,37 +357,14 @@
                 }
 
 
-                // =========================
-                // NUME
-                // =========================
-
-                const displayName =
-                    user.globalName ||
-                    user.username ||
-                    "Utilizator";
-
-
-                // =========================
-                // GRAD
-                // =========================
-
-                const rank =
-                    user.rank ||
-                    "MEMBRU DIICOT";
-
-
-                // =========================
-                // NAVBAR
-                // =========================
-
-                authArea.innerHTML = `
+                document.getElementById("dashboard-user").innerHTML = `
 
                     <div class="user-menu">
 
                         <img
                             src="${avatarURL}"
                             class="user-avatar"
-                            alt="Avatar Discord"
+                            alt="Avatar"
                         >
 
                         <div class="user-info">
@@ -321,61 +373,97 @@
                                 ${escapeHTML(displayName)}
                             </strong>
 
-                            <span id="discord-rank">
+                            <span>
                                 ${escapeHTML(rank)}
                             </span>
 
                         </div>
-
-                        <a
-                            href="/logout"
-                            class="logout-btn"
-                        >
-                            DECONECTARE
-                        </a>
 
                     </div>
 
                 `;
 
 
-                // =========================
-                // BUTON HERO
-                // =========================
+                document.getElementById("welcome-name").textContent =
+                    displayName;
 
-                if (mainLoginBtn) {
+                document.getElementById("welcome-rank").textContent =
+                    rank;
 
-                    mainLoginBtn.textContent =
-                        "CENTRU DE COMANDĂ";
 
-                    mainLoginBtn.href =
-                        "#features";
+                // Conducere: de la COMISAR în sus
+                if ((user.rankLevel || 0) < 8) {
+
+                    document
+                        .querySelectorAll(".admin-only")
+                        .forEach(element => {
+                            element.style.display = "none";
+                        });
 
                 }
-
-
-                console.log(
-                    "Autentificat:",
-                    displayName,
-                    "| Grad:",
-                    rank
-                );
 
             }
 
             catch (error) {
 
-                console.error(
-                    "Eroare verificare autentificare:",
-                    error
-                );
+                console.error(error);
+
+                window.location.href = "/";
 
             }
 
         }
 
 
-        verificaAutentificarea();
+        document
+            .querySelectorAll(".sidebar-link[data-section]")
+            .forEach(button => {
+
+                button.addEventListener("click", () => {
+
+                    const target =
+                        button.dataset.section;
+
+
+                    document
+                        .querySelectorAll(".sidebar-link[data-section]")
+                        .forEach(item => {
+                            item.classList.remove("active");
+                        });
+
+
+                    document
+                        .querySelectorAll(".dashboard-section")
+                        .forEach(section => {
+                            section.classList.remove("active");
+                        });
+
+
+                    button.classList.add("active");
+
+                    document
+                        .getElementById(target)
+                        .classList.add("active");
+
+                });
+
+            });
+
+
+        document
+            .getElementById("report-form")
+            .addEventListener("submit", event => {
+
+                event.preventDefault();
+
+                alert(
+                    "Formularul este pregătit. Următorul pas este să salvăm rapoartele."
+                );
+
+            });
+
+
+        loadDashboardUser();
 
     </script>
 
