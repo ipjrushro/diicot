@@ -21,7 +21,6 @@ const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 // ======================================================
 // GRADE DIICOT
-// CEL MAI MARE -> CEL MAI MIC
 // ======================================================
 
 const DIICOT_ROLES = [
@@ -277,12 +276,11 @@ const upload =
             callback
         ) {
 
-            const allowed =
-                [
-                    "image/jpeg",
-                    "image/png",
-                    "image/webp"
-                ];
+            const allowed = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
 
 
             if (allowed.includes(file.mimetype)) {
@@ -308,7 +306,7 @@ const upload =
 
 // ======================================================
 // RAPOARTE
-// MOMENTAN ÎN MEMORIA SERVERULUI
+// TEMPORAR ÎN MEMORIA SERVERULUI
 // ======================================================
 
 const reports = [];
@@ -332,10 +330,55 @@ function requireAuth(
         return res
             .status(401)
             .json({
-
                 error:
                     "Trebuie să fii autentificat."
+            });
 
+    }
+
+
+    next();
+}
+
+
+// ======================================================
+// ADMIN = COORDONATOR+
+// ======================================================
+
+function requireAdmin(
+    req,
+    res,
+    next
+) {
+
+    if (
+        !req.session ||
+        !req.session.user
+    ) {
+
+        return res
+            .status(401)
+            .json({
+                error:
+                    "Trebuie să fii autentificat."
+            });
+
+    }
+
+
+    const rankLevel =
+        Number(
+            req.session.user.rankLevel || 0
+        );
+
+
+    if (rankLevel < 10) {
+
+        return res
+            .status(403)
+            .json({
+                error:
+                    "Nu ai acces la Administrare."
             });
 
     }
@@ -399,7 +442,7 @@ app.get("/style.css", (req, res) => {
 
 
 // ======================================================
-// UPLOADS STATIC
+// UPLOADS
 // ======================================================
 
 app.use(
@@ -682,14 +725,6 @@ app.get(
             };
 
 
-            console.log("");
-            console.log("============================");
-            console.log("LOGIN:", discordUser.username);
-            console.log("GRAD:", req.session.user.rank);
-            console.log("============================");
-            console.log("");
-
-
             return res.redirect("/");
 
         }
@@ -727,9 +762,7 @@ app.get("/api/me", (req, res) => {
         return res
             .status(401)
             .json({
-
                 loggedIn: false
-
             });
 
     }
@@ -748,7 +781,7 @@ app.get("/api/me", (req, res) => {
 
 
 // ======================================================
-// POSTARE RAPORT DIRECT
+// POSTARE RAPORT
 // ======================================================
 
 app.post(
@@ -766,36 +799,32 @@ app.post(
         const type =
             String(
                 req.body.type || ""
-            )
-            .trim();
+            ).trim();
 
 
         const title =
             String(
                 req.body.title || ""
-            )
-            .trim();
+            ).trim();
 
 
         const description =
             String(
                 req.body.description || ""
-            )
-            .trim();
+            ).trim();
 
 
-        const allowedTypes =
-            [
+        const allowedTypes = [
 
-                "RAZIE",
-                "ANTRENAMENT",
-                "JAFURI",
-                "PATRULA",
-                "PERCHEZITIE",
-                "VERIFICARE ZONA",
-                "FOCURI DE ARMA"
+            "RAZIE",
+            "ANTRENAMENT",
+            "JAFURI",
+            "PATRULA",
+            "PERCHEZITIE",
+            "VERIFICARE ZONA",
+            "FOCURI DE ARMA"
 
-            ];
+        ];
 
 
         if (!allowedTypes.includes(type)) {
@@ -803,10 +832,8 @@ app.post(
             return res
                 .status(400)
                 .json({
-
                     error:
                         "Tipul raportului nu este valid."
-
                 });
 
         }
@@ -820,10 +847,8 @@ app.post(
             return res
                 .status(400)
                 .json({
-
                     error:
                         "Titlul trebuie să aibă între 2 și 120 caractere."
-
                 });
 
         }
@@ -837,10 +862,8 @@ app.post(
             return res
                 .status(400)
                 .json({
-
                     error:
                         "Descrierea trebuie să aibă între 2 și 5000 caractere."
-
                 });
 
         }
@@ -935,16 +958,6 @@ app.post(
         );
 
 
-        console.log(
-            "RAPORT POSTAT:",
-            report.authorName,
-            "|",
-            report.type,
-            "|",
-            report.title
-        );
-
-
         return res
             .status(201)
             .json({
@@ -996,7 +1009,35 @@ app.get(
 
 
 // ======================================================
-// PERSONAL DIICOT DIN DISCORD
+// ADMIN - TOATE RAPOARTELE
+// COORDONATOR+
+// ======================================================
+
+app.get(
+    "/api/admin/reports",
+
+    requireAdmin,
+
+    (req, res) => {
+
+        return res.json({
+
+            success: true,
+
+            total:
+                reports.length,
+
+            reports:
+                reports
+
+        });
+
+    }
+);
+
+
+// ======================================================
+// PERSONAL DIICOT
 // ======================================================
 
 app.get(
@@ -1011,10 +1052,8 @@ app.get(
             return res
                 .status(500)
                 .json({
-
                     error:
                         "DISCORD_BOT_TOKEN nu este configurat."
-
                 });
 
         }
@@ -1090,8 +1129,7 @@ app.get(
             }
 
 
-            const personnel =
-                [];
+            const personnel = [];
 
 
             for (
@@ -1183,11 +1221,9 @@ app.get(
 
 
                     return (
-                        a.displayName ||
-                        ""
+                        a.displayName || ""
                     ).localeCompare(
-                        b.displayName ||
-                        "",
+                        b.displayName || "",
                         "ro"
                     );
 
@@ -1222,10 +1258,8 @@ app.get(
             return res
                 .status(500)
                 .json({
-
                     error:
                         "Nu am putut încărca personalul DIICOT."
-
                 });
 
         }
@@ -1246,6 +1280,7 @@ app.get("/logout", (req, res) => {
 
     res.clearCookie(
         "diicot_session",
+
         {
 
             httpOnly:
@@ -1296,7 +1331,7 @@ app.get("/health", (req, res) => {
 
 
 // ======================================================
-// UPLOAD ERRORS
+// ERRORS
 // ======================================================
 
 app.use(
@@ -1320,10 +1355,8 @@ app.use(
                 return res
                     .status(400)
                     .json({
-
                         error:
                             "O poză este prea mare. Maximum 8 MB."
-
                     });
 
             }
@@ -1337,10 +1370,8 @@ app.use(
                 return res
                     .status(400)
                     .json({
-
                         error:
                             "Poți încărca maximum 5 poze."
-
                     });
 
             }
@@ -1349,10 +1380,8 @@ app.use(
             return res
                 .status(400)
                 .json({
-
                     error:
                         error.message
-
                 });
 
         }
@@ -1369,11 +1398,9 @@ app.use(
             return res
                 .status(400)
                 .json({
-
                     error:
                         error.message ||
                         "A apărut o eroare."
-
                 });
 
         }
@@ -1414,9 +1441,7 @@ app.listen(
         console.log("============================");
         console.log("DIICOT HUB ONLINE");
         console.log("PORT:", PORT);
-        console.log("GRADE:", DIICOT_ROLES.length);
-        console.log("BOT CONFIGURAT:", Boolean(BOT_TOKEN));
-        console.log("RAPOARTE: POSTARE DIRECTĂ");
+        console.log("ADMIN: COORDONATOR+");
         console.log("============================");
         console.log("");
 
