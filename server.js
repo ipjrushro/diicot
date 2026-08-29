@@ -20,6 +20,9 @@ const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const ANNOUNCEMENT_CHANNEL_ID = "1518631380127580461";
 
+const VACATION_DAYS_LIMIT = 14;
+const MEETING_EXCUSES_LIMIT = 2;
+
 
 // ======================================================
 // GRADE DIICOT
@@ -96,14 +99,12 @@ const DIICOT_ROLES = [
 
 function getHighestDIICOTRole(roles = []) {
 
-    for (const rank of DIICOT_ROLES) {
-
-        if (roles.includes(rank.id)) {
-            return rank;
-        }
-    }
-
-    return null;
+    return (
+        DIICOT_ROLES.find(
+            rank =>
+                roles.includes(rank.id)
+        ) || null
+    );
 }
 
 
@@ -113,7 +114,9 @@ function getHighestDIICOTRole(roles = []) {
 
 app.set("trust proxy", 1);
 
-app.use(express.json());
+app.use(
+    express.json()
+);
 
 app.use(
     express.urlencoded({
@@ -135,14 +138,19 @@ app.use(
             "change-this-secret"
         ],
 
-        maxAge: 24 * 60 * 60 * 1000,
+        maxAge:
+            24 *
+            60 *
+            60 *
+            1000,
 
         httpOnly: true,
 
         sameSite: "lax",
 
         secure:
-            process.env.NODE_ENV === "production"
+            process.env.NODE_ENV ===
+            "production"
     })
 );
 
@@ -158,7 +166,11 @@ const uploadsDirectory =
     );
 
 
-if (!fs.existsSync(uploadsDirectory)) {
+if (
+    !fs.existsSync(
+        uploadsDirectory
+    )
+) {
 
     fs.mkdirSync(
         uploadsDirectory,
@@ -169,100 +181,116 @@ if (!fs.existsSync(uploadsDirectory)) {
 }
 
 
-const storage = multer.diskStorage({
+const storage =
+    multer.diskStorage({
 
-    destination(
-        req,
-        file,
-        callback
-    ) {
-
-        callback(
-            null,
-            uploadsDirectory
-        );
-    },
-
-
-    filename(
-        req,
-        file,
-        callback
-    ) {
-
-        let extension = ".jpg";
-
-
-        if (file.mimetype === "image/png") {
-            extension = ".png";
-        }
-
-
-        if (file.mimetype === "image/webp") {
-            extension = ".webp";
-        }
-
-
-        const name =
-            Date.now() +
-            "-" +
-            crypto
-                .randomBytes(8)
-                .toString("hex") +
-            extension;
-
-
-        callback(
-            null,
-            name
-        );
-    }
-});
-
-
-const upload = multer({
-
-    storage,
-
-    limits: {
-        fileSize: 8 * 1024 * 1024,
-        files: 5
-    },
-
-
-    fileFilter(
-        req,
-        file,
-        callback
-    ) {
-
-        const allowed = [
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        ];
-
-
-        if (
-            allowed.includes(
-                file.mimetype
-            )
+        destination(
+            req,
+            file,
+            callback
         ) {
 
-            return callback(
+            callback(
                 null,
-                true
+                uploadsDirectory
+            );
+        },
+
+
+        filename(
+            req,
+            file,
+            callback
+        ) {
+
+            let extension =
+                ".jpg";
+
+
+            if (
+                file.mimetype ===
+                "image/png"
+            ) {
+
+                extension =
+                    ".png";
+            }
+
+
+            if (
+                file.mimetype ===
+                "image/webp"
+            ) {
+
+                extension =
+                    ".webp";
+            }
+
+
+            const filename =
+                `${Date.now()}-${crypto
+                    .randomBytes(8)
+                    .toString("hex")}${extension}`;
+
+
+            callback(
+                null,
+                filename
             );
         }
+    });
 
 
-        callback(
-            new Error(
-                "Sunt acceptate doar imagini JPG, PNG și WEBP."
-            )
-        );
-    }
-});
+const upload =
+    multer({
+
+        storage,
+
+        limits: {
+
+            fileSize:
+                8 *
+                1024 *
+                1024,
+
+            files:
+                5
+        },
+
+
+        fileFilter(
+            req,
+            file,
+            callback
+        ) {
+
+            const allowed = [
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            ];
+
+
+            if (
+                allowed.includes(
+                    file.mimetype
+                )
+            ) {
+
+                return callback(
+                    null,
+                    true
+                );
+            }
+
+
+            callback(
+                new Error(
+                    "Sunt acceptate doar imagini JPG, PNG și WEBP."
+                )
+            );
+        }
+    });
 
 
 app.use(
@@ -280,13 +308,16 @@ app.use(
 
 const reports = [];
 
-const userProfiles = new Map();
+const userProfiles =
+    new Map();
 
 const blacklist = [];
 
+const leaveRequests = [];
+
 
 // ======================================================
-// BLACKLIST HELPERS
+// HELPERS
 // ======================================================
 
 function formatRomanianDate(date) {
@@ -317,58 +348,314 @@ function formatRomanianDate(date) {
 }
 
 
+function formatDateOnlyRO(
+    value
+) {
+
+    const date =
+        new Date(value);
+
+
+    if (
+        Number.isNaN(
+            date.getTime()
+        )
+    ) {
+
+        return "-";
+    }
+
+
+    return date
+        .toLocaleDateString(
+            "ro-RO",
+            {
+                timeZone:
+                    "Europe/Bucharest",
+
+                day:
+                    "2-digit",
+
+                month:
+                    "2-digit",
+
+                year:
+                    "numeric"
+            }
+        );
+}
+
+
+function parseDateOnly(
+    value
+) {
+
+    value =
+        String(
+            value || ""
+        );
+
+
+    if (
+        !/^\d{4}-\d{2}-\d{2}$/
+            .test(value)
+    ) {
+
+        return null;
+    }
+
+
+    const [
+        year,
+        month,
+        day
+    ] =
+        value
+            .split("-")
+            .map(Number);
+
+
+    const date =
+        new Date(
+            year,
+            month - 1,
+            day
+        );
+
+
+    if (
+        date.getFullYear() !==
+            year ||
+        date.getMonth() !==
+            month - 1 ||
+        date.getDate() !==
+            day
+    ) {
+
+        return null;
+    }
+
+
+    return date;
+}
+
+
+function inclusiveDays(
+    start,
+    end
+) {
+
+    const difference =
+        end.getTime() -
+        start.getTime();
+
+
+    return (
+        Math.floor(
+            difference /
+            86400000
+        ) + 1
+    );
+}
+
+
+// ======================================================
+// CONCEDII HELPERS
+// ======================================================
+
+function getLeaveUsage(
+    userId
+) {
+
+    const approved =
+        leaveRequests.filter(
+            request =>
+                request.authorId ===
+                    String(userId) &&
+                request.status ===
+                    "APPROVED"
+        );
+
+
+    const vacationUsed =
+        approved
+            .filter(
+                request =>
+                    request.type ===
+                    "VACATION"
+            )
+            .reduce(
+                (
+                    total,
+                    request
+                ) =>
+                    total +
+                    Number(
+                        request.days ||
+                        0
+                    ),
+
+                0
+            );
+
+
+    const meetingExcusesUsed =
+        approved.filter(
+            request =>
+                request.type ===
+                "MEETING_EXCUSE"
+        ).length;
+
+
+    return {
+
+        vacationUsed,
+
+        vacationRemaining:
+            Math.max(
+                0,
+
+                VACATION_DAYS_LIMIT -
+                vacationUsed
+            ),
+
+        meetingExcusesUsed,
+
+        meetingExcusesRemaining:
+            Math.max(
+                0,
+
+                MEETING_EXCUSES_LIMIT -
+                meetingExcusesUsed
+            )
+    };
+}
+
+
+function normalizeLeaveRequest(
+    request
+) {
+
+    let statusLabel =
+        "ANULAT";
+
+
+    if (
+        request.status ===
+        "PENDING"
+    ) {
+
+        statusLabel =
+            "ÎN AȘTEPTARE";
+    }
+
+
+    if (
+        request.status ===
+        "APPROVED"
+    ) {
+
+        statusLabel =
+            "APROBAT";
+    }
+
+
+    if (
+        request.status ===
+        "REJECTED"
+    ) {
+
+        statusLabel =
+            "RESPINS";
+    }
+
+
+    return {
+
+        ...request,
+
+        typeLabel:
+            request.type ===
+            "VACATION"
+
+                ? "CONCEDIU"
+
+                : "ÎNVOIRE ȘEDINȚĂ",
+
+        statusLabel
+    };
+}
+
+
+// ======================================================
+// BLACKLIST HELPERS
+// ======================================================
+
 function updateBlacklistStatuses() {
 
     const now =
         new Date();
 
 
-    blacklist.forEach(
-        entry => {
+    for (
+        const entry
+        of blacklist
+    ) {
 
-            if (
-                entry.status !== "ACTIVE"
-            ) {
-                return;
-            }
+        if (
+            entry.status !==
+            "ACTIVE"
+        ) {
 
-
-            if (
-                entry.durationType ===
-                "TEMPORARY" &&
-                entry.expiresAt
-            ) {
-
-                const expiryDate =
-                    new Date(
-                        entry.expiresAt
-                    );
-
-
-                if (
-                    !Number.isNaN(
-                        expiryDate.getTime()
-                    ) &&
-                    expiryDate <= now
-                ) {
-
-                    entry.status =
-                        "INACTIVE";
-
-                    entry.deactivatedReason =
-                        "EXPIRED";
-
-                    entry.deactivatedAt =
-                        now.toISOString();
-
-                    entry.deactivatedAtFormatted =
-                        formatRomanianDate(
-                            now
-                        );
-                }
-            }
+            continue;
         }
-    );
+
+
+        if (
+            entry.durationType !==
+            "TEMPORARY"
+        ) {
+
+            continue;
+        }
+
+
+        if (
+            !entry.expiresAt
+        ) {
+
+            continue;
+        }
+
+
+        const expiry =
+            new Date(
+                entry.expiresAt
+            );
+
+
+        if (
+            !Number.isNaN(
+                expiry.getTime()
+            ) &&
+            expiry <= now
+        ) {
+
+            entry.status =
+                "INACTIVE";
+
+            entry.deactivatedReason =
+                "EXPIRED";
+
+            entry.deactivatedAt =
+                now.toISOString();
+
+            entry.deactivatedAtFormatted =
+                formatRomanianDate(
+                    now
+                );
+        }
+    }
 }
 
 
@@ -390,6 +677,7 @@ async function getDiscordUserBasic(
 
                 {
                     headers: {
+
                         Authorization:
                             `Bot ${BOT_TOKEN}`
                     }
@@ -429,11 +717,12 @@ async function getDiscordUserBasic(
     catch (error) {
 
         if (
-            error.response?.status !== 404
+            error.response?.status !==
+            404
         ) {
 
             console.error(
-                "Blacklist Discord User Error:",
+                "Discord member error:",
                 error.response?.data ||
                 error.message
             );
@@ -456,8 +745,7 @@ function requireAuth(
 ) {
 
     if (
-        !req.session ||
-        !req.session.user
+        !req.session?.user
     ) {
 
         return res
@@ -480,8 +768,7 @@ function requireAdmin(
 ) {
 
     if (
-        !req.session ||
-        !req.session.user
+        !req.session?.user
     ) {
 
         return res
@@ -493,14 +780,12 @@ function requireAdmin(
     }
 
 
-    const level =
+    if (
         Number(
             req.session.user.rankLevel ||
             0
-        );
-
-
-    if (level < 10) {
+        ) < 10
+    ) {
 
         return res
             .status(403)
@@ -521,7 +806,11 @@ function requireAdmin(
 
 app.get(
     "/",
-    (req, res) => {
+
+    (
+        req,
+        res
+    ) => {
 
         res.sendFile(
             path.join(
@@ -535,14 +824,19 @@ app.get(
 
 app.get(
     "/dashboard",
-    (req, res) => {
+
+    (
+        req,
+        res
+    ) => {
 
         if (
-            !req.session ||
-            !req.session.user
+            !req.session?.user
         ) {
 
-            return res.redirect("/");
+            return res.redirect(
+                "/"
+            );
         }
 
 
@@ -558,7 +852,11 @@ app.get(
 
 app.get(
     "/style.css",
-    (req, res) => {
+
+    (
+        req,
+        res
+    ) => {
 
         res.sendFile(
             path.join(
@@ -576,7 +874,11 @@ app.get(
 
 app.get(
     "/auth/discord",
-    (req, res) => {
+
+    (
+        req,
+        res
+    ) => {
 
         if (
             !CLIENT_ID ||
@@ -618,8 +920,7 @@ app.get(
                 scope:
                     "identify guilds guilds.members.read",
 
-                state:
-                    state
+                state
             });
 
 
@@ -632,19 +933,22 @@ app.get(
 
 
 // ======================================================
-// CALLBACK
+// CALLBACK DISCORD
 // ======================================================
 
 app.get(
     "/auth/discord/callback",
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
 
-        const code =
-            req.query.code;
-
-        const state =
-            req.query.state;
+        const {
+            code,
+            state
+        } =
+            req.query;
 
 
         if (!code) {
@@ -658,7 +962,8 @@ app.get(
         if (
             !state ||
             !req.session.oauthState ||
-            state !== req.session.oauthState
+            state !==
+            req.session.oauthState
         ) {
 
             return res.redirect(
@@ -684,8 +989,7 @@ app.get(
                     grant_type:
                         "authorization_code",
 
-                    code:
-                        code,
+                    code,
 
                     redirect_uri:
                         REDIRECT_URI
@@ -701,6 +1005,7 @@ app.get(
 
                     {
                         headers: {
+
                             "Content-Type":
                                 "application/x-www-form-urlencoded"
                         }
@@ -709,7 +1014,9 @@ app.get(
 
 
             const accessToken =
-                tokenResponse.data.access_token;
+                tokenResponse
+                    .data
+                    .access_token;
 
 
             const userResponse =
@@ -719,6 +1026,7 @@ app.get(
 
                     {
                         headers: {
+
                             Authorization:
                                 `Bearer ${accessToken}`
                         }
@@ -737,6 +1045,7 @@ app.get(
 
                     {
                         headers: {
+
                             Authorization:
                                 `Bearer ${accessToken}`
                         }
@@ -749,8 +1058,13 @@ app.get(
 
 
             const roles =
-                Array.isArray(member.roles)
-                    ? member.roles.map(String)
+                Array.isArray(
+                    member.roles
+                )
+
+                    ? member.roles
+                        .map(String)
+
                     : [];
 
 
@@ -766,13 +1080,6 @@ app.get(
                 );
 
 
-            const displayName =
-                savedProfile?.displayName ||
-                member.nick ||
-                discordUser.global_name ||
-                discordUser.username;
-
-
             req.session.user = {
 
                 id:
@@ -785,7 +1092,11 @@ app.get(
                     discordUser.global_name ||
                     discordUser.username,
 
-                displayName,
+                displayName:
+                    savedProfile?.displayName ||
+                    member.nick ||
+                    discordUser.global_name ||
+                    discordUser.username,
 
                 avatar:
                     discordUser.avatar,
@@ -812,7 +1123,10 @@ app.get(
             };
 
 
-            return res.redirect("/");
+            res.redirect(
+                "/"
+            );
+
         }
 
         catch (error) {
@@ -824,7 +1138,7 @@ app.get(
             );
 
 
-            return res.redirect(
+            res.redirect(
                 "/?error=discord"
             );
         }
@@ -839,24 +1153,28 @@ app.get(
 app.get(
     "/api/me",
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         if (
-            !req.session ||
-            !req.session.user
+            !req.session?.user
         ) {
 
             return res
                 .status(401)
                 .json({
-                    loggedIn: false
+                    loggedIn:
+                        false
                 });
         }
 
 
         res.json({
 
-            loggedIn: true,
+            loggedIn:
+                true,
 
             user:
                 req.session.user
@@ -874,7 +1192,10 @@ app.get(
 
     requireAuth,
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
 
         const userId =
             req.session.user.id;
@@ -901,6 +1222,7 @@ app.get(
 
                         {
                             headers: {
+
                                 Authorization:
                                     `Bot ${BOT_TOKEN}`
                             }
@@ -923,8 +1245,13 @@ app.get(
 
 
                 const roles =
-                    Array.isArray(member.roles)
-                        ? member.roles.map(String)
+                    Array.isArray(
+                        member.roles
+                    )
+
+                        ? member.roles
+                            .map(String)
+
                         : [];
 
 
@@ -954,10 +1281,14 @@ app.get(
 
 
                 const saved =
-                    userProfiles.get(userId);
+                    userProfiles.get(
+                        userId
+                    );
 
 
-                if (!saved?.displayName) {
+                if (
+                    !saved?.displayName
+                ) {
 
                     displayName =
                         member.nick ||
@@ -979,13 +1310,21 @@ app.get(
 
 
         const saved =
-            userProfiles.get(userId) || {
-                displayName: null,
-                duties: []
+            userProfiles.get(
+                userId
+            ) || {
+
+                displayName:
+                    null,
+
+                duties:
+                    []
             };
 
 
-        if (saved.displayName) {
+        if (
+            saved.displayName
+        ) {
 
             displayName =
                 saved.displayName;
@@ -1005,20 +1344,23 @@ app.get(
         const myReports =
             reports.filter(
                 report =>
-                    report.authorId === userId
+                    report.authorId ===
+                    userId
             );
 
 
         const reportsWithImages =
             myReports.filter(
                 report =>
-                    report.images?.length > 0
+                    report.images?.length >
+                    0
             ).length;
 
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             profile: {
 
@@ -1038,7 +1380,8 @@ app.get(
                     req.session.user.rankLevel,
 
                 duties:
-                    saved.duties || [],
+                    saved.duties ||
+                    [],
 
                 statistics: {
 
@@ -1049,13 +1392,19 @@ app.get(
 
                     lastActivity:
                         myReports.length
-                            ? myReports[0].createdAtFormatted
+
+                            ? myReports[0]
+                                .createdAtFormatted
+
                             : "-"
                 },
 
                 recentActivity:
                     myReports
-                        .slice(0, 5)
+                        .slice(
+                            0,
+                            5
+                        )
                         .map(
                             report => ({
 
@@ -1069,7 +1418,8 @@ app.get(
                                     report.title,
 
                                 createdAtFormatted:
-                                    report.createdAtFormatted
+                                    report
+                                        .createdAtFormatted
                             })
                         )
             }
@@ -1078,16 +1428,15 @@ app.get(
 );
 
 
-// ======================================================
-// SALVARE PROFIL
-// ======================================================
-
 app.patch(
     "/api/profile",
 
     requireAuth,
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
 
         const userId =
             req.session.user.id;
@@ -1095,17 +1444,23 @@ app.patch(
 
         const nickname =
             String(
-                req.body.nickname || ""
+                req.body.nickname ||
+                ""
             ).trim();
 
 
         const duties =
-            Array.isArray(req.body.duties)
+            Array.isArray(
+                req.body.duties
+            )
 
                 ? req.body.duties
                     .map(
                         value =>
-                            String(value || "").trim()
+                            String(
+                                value ||
+                                ""
+                            ).trim()
                     )
                     .filter(Boolean)
 
@@ -1126,7 +1481,9 @@ app.patch(
         }
 
 
-        if (duties.length > 8) {
+        if (
+            duties.length > 8
+        ) {
 
             return res
                 .status(400)
@@ -1137,20 +1494,20 @@ app.patch(
         }
 
 
-        for (const duty of duties) {
+        if (
+            duties.some(
+                duty =>
+                    duty.length < 2 ||
+                    duty.length > 80
+            )
+        ) {
 
-            if (
-                duty.length < 2 ||
-                duty.length > 80
-            ) {
-
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Fiecare atribuție trebuie să aibă între 2 și 80 de caractere."
-                    });
-            }
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Fiecare atribuție trebuie să aibă între 2 și 80 de caractere."
+                });
         }
 
 
@@ -1169,7 +1526,8 @@ app.patch(
             nickname;
 
 
-        let discordSynced = false;
+        let discordSynced =
+            false;
 
 
         if (BOT_TOKEN) {
@@ -1187,6 +1545,7 @@ app.patch(
 
                     {
                         headers: {
+
                             Authorization:
                                 `Bot ${BOT_TOKEN}`,
 
@@ -1197,7 +1556,8 @@ app.patch(
                 );
 
 
-                discordSynced = true;
+                discordSynced =
+                    true;
 
             }
 
@@ -1214,7 +1574,8 @@ app.patch(
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             discordSynced,
 
@@ -1231,7 +1592,7 @@ app.patch(
 
 
 // ======================================================
-// POSTARE RAPORT
+// RAPOARTE
 // ======================================================
 
 app.post(
@@ -1244,23 +1605,29 @@ app.post(
         5
     ),
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         const type =
             String(
-                req.body.type || ""
+                req.body.type ||
+                ""
             ).trim();
 
 
         const title =
             String(
-                req.body.title || ""
+                req.body.title ||
+                ""
             ).trim();
 
 
         const description =
             String(
-                req.body.description || ""
+                req.body.description ||
+                ""
             ).trim();
 
 
@@ -1275,7 +1642,11 @@ app.post(
         ];
 
 
-        if (!allowedTypes.includes(type)) {
+        if (
+            !allowedTypes.includes(
+                type
+            )
+        ) {
 
             return res
                 .status(400)
@@ -1314,20 +1685,6 @@ app.post(
         }
 
 
-        const images =
-            (req.files || [])
-                .map(
-                    file => ({
-
-                        filename:
-                            file.filename,
-
-                        url:
-                            `/uploads/${file.filename}`
-                    })
-                );
-
-
         const now =
             new Date();
 
@@ -1359,7 +1716,20 @@ app.post(
 
             description,
 
-            images,
+            images:
+                (
+                    req.files ||
+                    []
+                ).map(
+                    file => ({
+
+                        filename:
+                            file.filename,
+
+                        url:
+                            `/uploads/${file.filename}`
+                    })
+                ),
 
             createdAt:
                 now.toISOString(),
@@ -1371,14 +1741,17 @@ app.post(
         };
 
 
-        reports.unshift(report);
+        reports.unshift(
+            report
+        );
 
 
         res
             .status(201)
             .json({
 
-                success: true,
+                success:
+                    true,
 
                 message:
                     "Raportul a fost postat.",
@@ -1389,16 +1762,15 @@ app.post(
 );
 
 
-// ======================================================
-// RAPOARTE MELE
-// ======================================================
-
 app.get(
     "/api/reports/my",
 
     requireAuth,
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         res.json({
 
@@ -1413,20 +1785,20 @@ app.get(
 );
 
 
-// ======================================================
-// ADMIN RAPOARTE
-// ======================================================
-
 app.get(
     "/api/admin/reports",
 
     requireAdmin,
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             total:
                 reports.length,
@@ -1438,7 +1810,7 @@ app.get(
 
 
 // ======================================================
-// CONDUCERE - TRIMITE ANUNȚ DISCORD
+// CONDUCERE - ANUNȚURI
 // ======================================================
 
 app.post(
@@ -1446,7 +1818,10 @@ app.post(
 
     requireAdmin,
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
 
         if (!BOT_TOKEN) {
 
@@ -1461,13 +1836,15 @@ app.post(
 
         const title =
             String(
-                req.body.title || ""
+                req.body.title ||
+                ""
             ).trim();
 
 
         const message =
             String(
-                req.body.message || ""
+                req.body.message ||
+                ""
             ).trim();
 
 
@@ -1534,14 +1911,16 @@ app.post(
                 name:
                     `${authorName} • ${authorRank}`,
 
-                ...(avatarURL
+                ...(
+                    avatarURL
 
-                    ? {
-                        icon_url:
-                            avatarURL
-                    }
+                        ? {
+                            icon_url:
+                                avatarURL
+                        }
 
-                    : {})
+                        : {}
+                )
             },
 
             fields: [
@@ -1558,12 +1937,14 @@ app.post(
             ],
 
             footer: {
+
                 text:
                     "DIICOT • Rush România • Comunicat oficial"
             },
 
             timestamp:
-                new Date().toISOString()
+                new Date()
+                    .toISOString()
         };
 
 
@@ -1599,7 +1980,8 @@ app.post(
 
             res.json({
 
-                success: true,
+                success:
+                    true,
 
                 message:
                     "Anunțul a fost trimis pe Discord.",
@@ -1620,7 +2002,8 @@ app.post(
 
 
             if (
-                error.response?.status === 403
+                error.response?.status ===
+                403
             ) {
 
                 return res
@@ -1633,7 +2016,8 @@ app.post(
 
 
             if (
-                error.response?.status === 404
+                error.response?.status ===
+                404
             ) {
 
                 return res
@@ -1657,8 +2041,778 @@ app.post(
 
 
 // ======================================================
-// BLACKLIST - LISTĂ
+// CONCEDII / ÎNVOIRI - DATELE MELE
+// ======================================================
+
+app.get(
+    "/api/leave/me",
+
+    requireAuth,
+
+    (
+        req,
+        res
+    ) => {
+
+        const userId =
+            String(
+                req.session.user.id
+            );
+
+
+        const requests =
+            leaveRequests
+                .filter(
+                    request =>
+                        request.authorId ===
+                        userId
+                )
+                .sort(
+                    (
+                        a,
+                        b
+                    ) =>
+                        new Date(
+                            b.createdAt
+                        ) -
+                        new Date(
+                            a.createdAt
+                        )
+                )
+                .map(
+                    normalizeLeaveRequest
+                );
+
+
+        res.json({
+
+            success:
+                true,
+
+            limits: {
+
+                vacationDays:
+                    VACATION_DAYS_LIMIT,
+
+                meetingExcuses:
+                    MEETING_EXCUSES_LIMIT
+            },
+
+            usage:
+                getLeaveUsage(
+                    userId
+                ),
+
+            requests
+        });
+    }
+);
+
+
+// ======================================================
+// CONCEDII / ÎNVOIRI - CERERE NOUĂ
+// ======================================================
+
+app.post(
+    "/api/leave",
+
+    requireAuth,
+
+    (
+        req,
+        res
+    ) => {
+
+        const type =
+            String(
+                req.body.type ||
+                ""
+            )
+                .trim()
+                .toUpperCase();
+
+
+        const startDateRaw =
+            String(
+                req.body.startDate ||
+                ""
+            ).trim();
+
+
+        const endDateRaw =
+            String(
+                req.body.endDate ||
+                ""
+            ).trim();
+
+
+        const reason =
+            String(
+                req.body.reason ||
+                ""
+            ).trim();
+
+
+        if (
+            ![
+                "VACATION",
+                "MEETING_EXCUSE"
+            ].includes(
+                type
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Tipul cererii nu este valid."
+                });
+        }
+
+
+        if (
+            reason.length < 3 ||
+            reason.length > 1000
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Motivul trebuie să aibă între 3 și 1000 de caractere."
+                });
+        }
+
+
+        const start =
+            parseDateOnly(
+                startDateRaw
+            );
+
+
+        const end =
+            parseDateOnly(
+                endDateRaw
+            );
+
+
+        if (
+            !start ||
+            !end
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Selectează o dată de început și o dată de sfârșit valide."
+                });
+        }
+
+
+        if (
+            end < start
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Data de sfârșit nu poate fi înaintea datei de început."
+                });
+        }
+
+
+        const days =
+            inclusiveDays(
+                start,
+                end
+            );
+
+
+        const userId =
+            String(
+                req.session.user.id
+            );
+
+
+        const usage =
+            getLeaveUsage(
+                userId
+            );
+
+
+        if (
+            type ===
+                "VACATION" &&
+            days >
+                usage
+                    .vacationRemaining
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        `Mai ai doar ${usage.vacationRemaining} zile de concediu disponibile.`
+                });
+        }
+
+
+        if (
+            type ===
+                "MEETING_EXCUSE" &&
+            usage
+                .meetingExcusesRemaining <=
+                0
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Nu mai ai învoiri de ședință disponibile."
+                });
+        }
+
+
+        const duplicatePending =
+            leaveRequests.find(
+                request =>
+                    request.authorId ===
+                        userId &&
+                    request.status ===
+                        "PENDING" &&
+                    request.type ===
+                        type &&
+                    request.startDate ===
+                        startDateRaw &&
+                    request.endDate ===
+                        endDateRaw
+            );
+
+
+        if (
+            duplicatePending
+        ) {
+
+            return res
+                .status(409)
+                .json({
+                    error:
+                        "Ai deja o cerere în așteptare pentru același interval."
+                });
+        }
+
+
+        const now =
+            new Date();
+
+
+        const request = {
+
+            id:
+                crypto.randomUUID(),
+
+            authorId:
+                userId,
+
+            authorName:
+                req.session.user.displayName ||
+                req.session.user.username,
+
+            authorUsername:
+                req.session.user.username,
+
+            authorRank:
+                req.session.user.rank,
+
+            type,
+
+            startDate:
+                startDateRaw,
+
+            endDate:
+                endDateRaw,
+
+            startDateFormatted:
+                formatDateOnlyRO(
+                    start
+                ),
+
+            endDateFormatted:
+                formatDateOnlyRO(
+                    end
+                ),
+
+            days,
+
+            reason,
+
+            status:
+                "PENDING",
+
+            evaluatorId:
+                null,
+
+            evaluatorName:
+                null,
+
+            evaluatorRank:
+                null,
+
+            decisionNote:
+                null,
+
+            decidedAt:
+                null,
+
+            decidedAtFormatted:
+                null,
+
+            createdAt:
+                now.toISOString(),
+
+            createdAtFormatted:
+                formatRomanianDate(
+                    now
+                )
+        };
+
+
+        leaveRequests.unshift(
+            request
+        );
+
+
+        res
+            .status(201)
+            .json({
+
+                success:
+                    true,
+
+                message:
+                    "Cererea a fost trimisă spre evaluare.",
+
+                request:
+                    normalizeLeaveRequest(
+                        request
+                    ),
+
+                usage:
+                    getLeaveUsage(
+                        userId
+                    )
+            });
+    }
+);
+
+
+// ======================================================
+// CONCEDII / ÎNVOIRI - ANULARE
+// ======================================================
+
+app.patch(
+    "/api/leave/:id/cancel",
+
+    requireAuth,
+
+    (
+        req,
+        res
+    ) => {
+
+        const request =
+            leaveRequests.find(
+                item =>
+                    item.id ===
+                    req.params.id
+            );
+
+
+        if (!request) {
+
+            return res
+                .status(404)
+                .json({
+                    error:
+                        "Cererea nu a fost găsită."
+                });
+        }
+
+
+        if (
+            request.authorId !==
+            String(
+                req.session.user.id
+            )
+        ) {
+
+            return res
+                .status(403)
+                .json({
+                    error:
+                        "Nu poți anula cererea altui membru."
+                });
+        }
+
+
+        if (
+            request.status !==
+            "PENDING"
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Poți anula doar cererile aflate în așteptare."
+                });
+        }
+
+
+        request.status =
+            "CANCELLED";
+
+        request.cancelledAt =
+            new Date()
+                .toISOString();
+
+        request.cancelledAtFormatted =
+            formatRomanianDate(
+                new Date()
+            );
+
+
+        res.json({
+
+            success:
+                true,
+
+            message:
+                "Cererea a fost anulată.",
+
+            request:
+                normalizeLeaveRequest(
+                    request
+                )
+        });
+    }
+);
+
+
+// ======================================================
+// CONCEDII / ÎNVOIRI - ADMIN LISTĂ
 // DOAR COORDONATOR+
+// ======================================================
+
+app.get(
+    "/api/admin/leave",
+
+    requireAdmin,
+
+    (
+        req,
+        res
+    ) => {
+
+        const requests =
+            [
+                ...leaveRequests
+            ]
+                .sort(
+                    (
+                        a,
+                        b
+                    ) => {
+
+                        if (
+                            a.status ===
+                                "PENDING" &&
+                            b.status !==
+                                "PENDING"
+                        ) {
+
+                            return -1;
+                        }
+
+
+                        if (
+                            a.status !==
+                                "PENDING" &&
+                            b.status ===
+                                "PENDING"
+                        ) {
+
+                            return 1;
+                        }
+
+
+                        return (
+                            new Date(
+                                b.createdAt
+                            ) -
+                            new Date(
+                                a.createdAt
+                            )
+                        );
+                    }
+                )
+                .map(
+                    normalizeLeaveRequest
+                );
+
+
+        res.json({
+
+            success:
+                true,
+
+            total:
+                requests.length,
+
+            pending:
+                requests.filter(
+                    request =>
+                        request.status ===
+                        "PENDING"
+                ).length,
+
+            approved:
+                requests.filter(
+                    request =>
+                        request.status ===
+                        "APPROVED"
+                ).length,
+
+            rejected:
+                requests.filter(
+                    request =>
+                        request.status ===
+                        "REJECTED"
+                ).length,
+
+            requests
+        });
+    }
+);
+
+
+// ======================================================
+// CONCEDII / ÎNVOIRI - APROBARE / RESPINGERE
+// DOAR COORDONATOR+
+// ======================================================
+
+app.patch(
+    "/api/admin/leave/:id/decision",
+
+    requireAdmin,
+
+    (
+        req,
+        res
+    ) => {
+
+        const request =
+            leaveRequests.find(
+                item =>
+                    item.id ===
+                    req.params.id
+            );
+
+
+        if (!request) {
+
+            return res
+                .status(404)
+                .json({
+                    error:
+                        "Cererea nu a fost găsită."
+                });
+        }
+
+
+        if (
+            request.status !==
+            "PENDING"
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Această cerere a fost deja evaluată."
+                });
+        }
+
+
+        const decision =
+            String(
+                req.body.decision ||
+                ""
+            )
+                .trim()
+                .toUpperCase();
+
+
+        const note =
+            String(
+                req.body.note ||
+                ""
+            ).trim();
+
+
+        if (
+            ![
+                "APPROVE",
+                "REJECT"
+            ].includes(
+                decision
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Decizia nu este validă."
+                });
+        }
+
+
+        if (
+            note.length > 500
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Observația evaluatorului poate avea maximum 500 de caractere."
+                });
+        }
+
+
+        if (
+            decision ===
+            "APPROVE"
+        ) {
+
+            const usage =
+                getLeaveUsage(
+                    request.authorId
+                );
+
+
+            if (
+                request.type ===
+                    "VACATION" &&
+                request.days >
+                    usage
+                        .vacationRemaining
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            `Membrul mai are doar ${usage.vacationRemaining} zile de concediu disponibile.`
+                    });
+            }
+
+
+            if (
+                request.type ===
+                    "MEETING_EXCUSE" &&
+                usage
+                    .meetingExcusesRemaining <=
+                    0
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Membrul nu mai are învoiri de ședință disponibile."
+                    });
+            }
+        }
+
+
+        const now =
+            new Date();
+
+
+        request.status =
+            decision ===
+            "APPROVE"
+
+                ? "APPROVED"
+
+                : "REJECTED";
+
+
+        request.evaluatorId =
+            String(
+                req.session.user.id
+            );
+
+
+        request.evaluatorName =
+            req.session.user.displayName ||
+            req.session.user.username;
+
+
+        request.evaluatorRank =
+            req.session.user.rank;
+
+
+        request.decisionNote =
+            note ||
+            null;
+
+
+        request.decidedAt =
+            now.toISOString();
+
+
+        request.decidedAtFormatted =
+            formatRomanianDate(
+                now
+            );
+
+
+        res.json({
+
+            success:
+                true,
+
+            message:
+                request.status ===
+                "APPROVED"
+
+                    ? "Cererea a fost aprobată."
+
+                    : "Cererea a fost respinsă.",
+
+            request:
+                normalizeLeaveRequest(
+                    request
+                ),
+
+            usage:
+                getLeaveUsage(
+                    request.authorId
+                )
+        });
+    }
+);
+
+
+// ======================================================
+// BLACKLIST - LISTĂ
 // ======================================================
 
 app.get(
@@ -1666,27 +2820,35 @@ app.get(
 
     requireAdmin,
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         updateBlacklistStatuses();
 
 
         const sorted =
-            [...blacklist]
-                .sort(
-                    (a, b) =>
-                        new Date(
-                            b.createdAt
-                        ) -
-                        new Date(
-                            a.createdAt
-                        )
-                );
+            [
+                ...blacklist
+            ].sort(
+                (
+                    a,
+                    b
+                ) =>
+                    new Date(
+                        b.createdAt
+                    ) -
+                    new Date(
+                        a.createdAt
+                    )
+            );
 
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             total:
                 sorted.length,
@@ -1721,7 +2883,10 @@ app.post(
 
     requireAdmin,
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
 
         updateBlacklistStatuses();
 
@@ -1764,9 +2929,10 @@ app.post(
 
 
         if (
-            !/^\d{15,25}$/.test(
-                discordId
-            )
+            !/^\d{15,25}$/
+                .test(
+                    discordId
+                )
         ) {
 
             return res
@@ -1810,7 +2976,8 @@ app.post(
         }
 
 
-        let expiresAt = null;
+        let expiresAt =
+            null;
 
         let expiresAtFormatted =
             "Permanent";
@@ -1821,7 +2988,9 @@ app.post(
             "TEMPORARY"
         ) {
 
-            if (!expiresAtRaw) {
+            if (
+                !expiresAtRaw
+            ) {
 
                 return res
                     .status(400)
@@ -1877,17 +3046,17 @@ app.post(
         }
 
 
-        const existingActive =
+        const existing =
             blacklist.find(
                 entry =>
                     entry.discordId ===
-                    discordId &&
+                        discordId &&
                     entry.status ===
-                    "ACTIVE"
+                        "ACTIVE"
             );
 
 
-        if (existingActive) {
+        if (existing) {
 
             return res
                 .status(409)
@@ -1917,11 +3086,15 @@ app.post(
 
 
         if (!name) {
-            name = "Necunoscut";
+
+            name =
+                "Necunoscut";
         }
 
 
-        if (name.length > 80) {
+        if (
+            name.length > 80
+        ) {
 
             return res
                 .status(400)
@@ -2011,13 +3184,93 @@ app.post(
             .status(201)
             .json({
 
-                success: true,
+                success:
+                    true,
 
                 message:
                     `${name} a fost adăugat în blacklist.`,
 
                 entry
             });
+    }
+);
+
+
+// ======================================================
+// BLACKLIST - CHECK
+// ======================================================
+
+app.get(
+    "/api/admin/blacklist/check/:discordId",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        updateBlacklistStatuses();
+
+
+        const discordId =
+            String(
+                req.params.discordId ||
+                ""
+            ).trim();
+
+
+        if (
+            !/^\d{15,25}$/
+                .test(
+                    discordId
+                )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Discord ID-ul nu este valid."
+                });
+        }
+
+
+        const discordUser =
+            await getDiscordUserBasic(
+                discordId
+            );
+
+
+        const activeEntry =
+            blacklist.find(
+                entry =>
+                    entry.discordId ===
+                        discordId &&
+                    entry.status ===
+                        "ACTIVE"
+            ) || null;
+
+
+        res.json({
+
+            success:
+                true,
+
+            foundOnDiscord:
+                Boolean(
+                    discordUser
+                ),
+
+            discordUser,
+
+            blacklisted:
+                Boolean(
+                    activeEntry
+                ),
+
+            activeEntry
+        });
     }
 );
 
@@ -2031,7 +3284,10 @@ app.get(
 
     requireAdmin,
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         updateBlacklistStatuses();
 
@@ -2057,7 +3313,8 @@ app.get(
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             entry
         });
@@ -2066,7 +3323,7 @@ app.get(
 
 
 // ======================================================
-// BLACKLIST - MODIFICĂ
+// BLACKLIST - EDITARE
 // ======================================================
 
 app.patch(
@@ -2074,7 +3331,10 @@ app.patch(
 
     requireAdmin,
 
-    async (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         updateBlacklistStatuses();
 
@@ -2099,7 +3359,8 @@ app.patch(
 
 
         const name =
-            req.body.name !== undefined
+            req.body.name !==
+            undefined
 
                 ? String(
                     req.body.name
@@ -2109,7 +3370,8 @@ app.patch(
 
 
         const reason =
-            req.body.reason !== undefined
+            req.body.reason !==
+            undefined
 
                 ? String(
                     req.body.reason
@@ -2119,7 +3381,8 @@ app.patch(
 
 
         const durationType =
-            req.body.durationType !== undefined
+            req.body.durationType !==
+            undefined
 
                 ? String(
                     req.body.durationType
@@ -2188,7 +3451,8 @@ app.patch(
             "PERMANENT"
         ) {
 
-            expiresAt = null;
+            expiresAt =
+                null;
 
             expiresAtFormatted =
                 "Permanent";
@@ -2200,7 +3464,7 @@ app.patch(
             "TEMPORARY"
         ) {
 
-            const expiresAtRaw =
+            const raw =
                 String(
                     req.body.expiresAt ||
                     entry.expiresAt ||
@@ -2208,7 +3472,7 @@ app.patch(
                 ).trim();
 
 
-            if (!expiresAtRaw) {
+            if (!raw) {
 
                 return res
                     .status(400)
@@ -2221,7 +3485,7 @@ app.patch(
 
             const expiry =
                 new Date(
-                    expiresAtRaw
+                    raw
                 );
 
 
@@ -2264,35 +3528,38 @@ app.patch(
         }
 
 
-        entry.name =
-            name;
+        Object.assign(
+            entry,
+            {
 
-        entry.reason =
-            reason;
+                name,
 
-        entry.durationType =
-            durationType;
+                reason,
 
-        entry.expiresAt =
-            expiresAt;
+                durationType,
 
-        entry.expiresAtFormatted =
-            expiresAtFormatted;
+                expiresAt,
 
-        entry.updatedAt =
-            new Date().toISOString();
+                expiresAtFormatted,
 
-        entry.updatedById =
-            req.session.user.id;
+                updatedAt:
+                    new Date()
+                        .toISOString(),
 
-        entry.updatedByName =
-            req.session.user.displayName ||
-            req.session.user.username;
+                updatedById:
+                    req.session.user.id,
+
+                updatedByName:
+                    req.session.user.displayName ||
+                    req.session.user.username
+            }
+        );
 
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             message:
                 "Intrarea din blacklist a fost actualizată.",
@@ -2312,7 +3579,10 @@ app.patch(
 
     requireAdmin,
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         updateBlacklistStatuses();
 
@@ -2354,31 +3624,38 @@ app.patch(
             new Date();
 
 
-        entry.status =
-            "INACTIVE";
+        Object.assign(
+            entry,
+            {
 
-        entry.deactivatedAt =
-            now.toISOString();
+                status:
+                    "INACTIVE",
 
-        entry.deactivatedAtFormatted =
-            formatRomanianDate(
-                now
-            );
+                deactivatedAt:
+                    now.toISOString(),
 
-        entry.deactivatedById =
-            req.session.user.id;
+                deactivatedAtFormatted:
+                    formatRomanianDate(
+                        now
+                    ),
 
-        entry.deactivatedByName =
-            req.session.user.displayName ||
-            req.session.user.username;
+                deactivatedById:
+                    req.session.user.id,
 
-        entry.deactivatedReason =
-            "MANUAL";
+                deactivatedByName:
+                    req.session.user.displayName ||
+                    req.session.user.username,
+
+                deactivatedReason:
+                    "MANUAL"
+            }
+        );
 
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             message:
                 "Persoana a fost scoasă din blacklist.",
@@ -2398,7 +3675,10 @@ app.patch(
 
     requireAdmin,
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         updateBlacklistStatuses();
 
@@ -2438,11 +3718,12 @@ app.patch(
 
         if (
             entry.durationType ===
-            "TEMPORARY" &&
+                "TEMPORARY" &&
             entry.expiresAt &&
             new Date(
                 entry.expiresAt
-            ) <= new Date()
+            ) <=
+                new Date()
         ) {
 
             return res
@@ -2458,15 +3739,17 @@ app.patch(
             blacklist.find(
                 item =>
                     item.discordId ===
-                    entry.discordId &&
+                        entry.discordId &&
                     item.status ===
-                    "ACTIVE" &&
+                        "ACTIVE" &&
                     item.id !==
-                    entry.id
+                        entry.id
             );
 
 
-        if (duplicate) {
+        if (
+            duplicate
+        ) {
 
             return res
                 .status(409)
@@ -2477,38 +3760,46 @@ app.patch(
         }
 
 
-        entry.status =
-            "ACTIVE";
+        Object.assign(
+            entry,
+            {
 
-        entry.deactivatedAt =
-            null;
+                status:
+                    "ACTIVE",
 
-        entry.deactivatedAtFormatted =
-            null;
+                deactivatedAt:
+                    null,
 
-        entry.deactivatedById =
-            null;
+                deactivatedAtFormatted:
+                    null,
 
-        entry.deactivatedByName =
-            null;
+                deactivatedById:
+                    null,
 
-        entry.deactivatedReason =
-            null;
+                deactivatedByName:
+                    null,
 
-        entry.reactivatedAt =
-            new Date().toISOString();
+                deactivatedReason:
+                    null,
 
-        entry.reactivatedById =
-            req.session.user.id;
+                reactivatedAt:
+                    new Date()
+                        .toISOString(),
 
-        entry.reactivatedByName =
-            req.session.user.displayName ||
-            req.session.user.username;
+                reactivatedById:
+                    req.session.user.id,
+
+                reactivatedByName:
+                    req.session.user.displayName ||
+                    req.session.user.username
+            }
+        );
 
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             message:
                 "Intrarea a fost reactivată.",
@@ -2520,7 +3811,7 @@ app.patch(
 
 
 // ======================================================
-// BLACKLIST - ȘTERGERE DEFINITIVĂ
+// BLACKLIST - ȘTERGE
 // ======================================================
 
 app.delete(
@@ -2528,7 +3819,10 @@ app.delete(
 
     requireAdmin,
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         const index =
             blacklist.findIndex(
@@ -2538,7 +3832,9 @@ app.delete(
             );
 
 
-        if (index === -1) {
+        if (
+            index === -1
+        ) {
 
             return res
                 .status(404)
@@ -2550,18 +3846,16 @@ app.delete(
 
 
         const removed =
-            blacklist[index];
-
-
-        blacklist.splice(
-            index,
-            1
-        );
+            blacklist.splice(
+                index,
+                1
+            )[0];
 
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             message:
                 `${removed.name} a fost șters definitiv din blacklist.`
@@ -2571,81 +3865,7 @@ app.delete(
 
 
 // ======================================================
-// BLACKLIST - VERIFICARE DISCORD ID
-// ======================================================
-
-app.get(
-    "/api/admin/blacklist/check/:discordId",
-
-    requireAdmin,
-
-    async (req, res) => {
-
-        updateBlacklistStatuses();
-
-
-        const discordId =
-            String(
-                req.params.discordId ||
-                ""
-            ).trim();
-
-
-        if (
-            !/^\d{15,25}$/.test(
-                discordId
-            )
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Discord ID-ul nu este valid."
-                });
-        }
-
-
-        const discordUser =
-            await getDiscordUserBasic(
-                discordId
-            );
-
-
-        const activeEntry =
-            blacklist.find(
-                entry =>
-                    entry.discordId ===
-                    discordId &&
-                    entry.status ===
-                    "ACTIVE"
-            ) || null;
-
-
-        res.json({
-
-            success: true,
-
-            foundOnDiscord:
-                Boolean(
-                    discordUser
-                ),
-
-            discordUser,
-
-            blacklisted:
-                Boolean(
-                    activeEntry
-                ),
-
-            activeEntry
-        });
-    }
-);
-
-
-// ======================================================
-// LISTA GRADE
+// GRADE
 // ======================================================
 
 app.get(
@@ -2653,24 +3873,31 @@ app.get(
 
     requireAdmin,
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         res.json({
 
-            success: true,
+            success:
+                true,
 
             roles:
                 DIICOT_ROLES.map(
-                    role => ({
+                    (
+                        {
+                            id,
+                            name,
+                            level
+                        }
+                    ) => ({
 
-                        id:
-                            role.id,
+                        id,
 
-                        name:
-                            role.name,
+                        name,
 
-                        level:
-                            role.level
+                        level
                     })
                 )
         });
@@ -2678,16 +3905,15 @@ app.get(
 );
 
 
-// ======================================================
-// SCHIMBARE GRAD
-// ======================================================
-
 app.patch(
     "/api/admin/members/:userId/role",
 
     requireAdmin,
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
 
         if (!BOT_TOKEN) {
 
@@ -2702,13 +3928,15 @@ app.patch(
 
         const targetUserId =
             String(
-                req.params.userId || ""
+                req.params.userId ||
+                ""
             ).trim();
 
 
         const roleId =
             String(
-                req.body.roleId || ""
+                req.body.roleId ||
+                ""
             ).trim();
 
 
@@ -2756,6 +3984,7 @@ app.patch(
 
                     {
                         headers: {
+
                             Authorization:
                                 `Bot ${BOT_TOKEN}`
                         }
@@ -2765,10 +3994,15 @@ app.patch(
 
             const currentRoles =
                 Array.isArray(
-                    memberResponse.data.roles
+                    memberResponse
+                        .data
+                        .roles
                 )
 
-                    ? memberResponse.data.roles.map(String)
+                    ? memberResponse
+                        .data
+                        .roles
+                        .map(String)
 
                     : [];
 
@@ -2817,7 +4051,8 @@ app.patch(
 
             res.json({
 
-                success: true,
+                success:
+                    true,
 
                 message:
                     `Gradul a fost schimbat în ${newRole.name}.`
@@ -2835,7 +4070,8 @@ app.patch(
 
 
             if (
-                error.response?.status === 403
+                error.response?.status ===
+                403
             ) {
 
                 return res
@@ -2867,7 +4103,10 @@ app.get(
 
     requireAuth,
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
 
         if (!BOT_TOKEN) {
 
@@ -2884,9 +4123,11 @@ app.get(
 
             let members = [];
 
-            let after = "0";
+            let after =
+                "0";
 
-            let hasMore = true;
+            let hasMore =
+                true;
 
 
             while (hasMore) {
@@ -2924,7 +4165,8 @@ app.get(
                     1000
                 ) {
 
-                    hasMore = false;
+                    hasMore =
+                        false;
 
                 }
 
@@ -2932,13 +4174,15 @@ app.get(
 
                     after =
                         response.data[
-                            response.data.length - 1
+                            response.data.length -
+                            1
                         ].user.id;
                 }
             }
 
 
-            const personnel = [];
+            const personnel =
+                [];
 
 
             for (
@@ -2951,7 +4195,8 @@ app.get(
                         member.roles
                     )
 
-                        ? member.roles.map(String)
+                        ? member.roles
+                            .map(String)
 
                         : [];
 
@@ -2977,14 +4222,6 @@ app.get(
                     );
 
 
-                const avatar =
-                    user.avatar
-
-                        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
-
-                        : "https://cdn.discordapp.com/embed/avatars/0.png";
-
-
                 personnel.push({
 
                     id:
@@ -2999,7 +4236,12 @@ app.get(
                         user.global_name ||
                         user.username,
 
-                    avatar,
+                    avatar:
+                        user.avatar
+
+                            ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
+
+                            : "https://cdn.discordapp.com/embed/avatars/0.png",
 
                     rank:
                         rank.name,
@@ -3018,7 +4260,10 @@ app.get(
 
 
             personnel.sort(
-                (a, b) => {
+                (
+                    a,
+                    b
+                ) => {
 
                     if (
                         b.rankLevel !==
@@ -3032,17 +4277,19 @@ app.get(
                     }
 
 
-                    return a.displayName.localeCompare(
-                        b.displayName,
-                        "ro"
-                    );
+                    return a.displayName
+                        .localeCompare(
+                            b.displayName,
+                            "ro"
+                        );
                 }
             );
 
 
             res.json({
 
-                success: true,
+                success:
+                    true,
 
                 total:
                     personnel.length,
@@ -3079,15 +4326,23 @@ app.get(
 app.get(
     "/logout",
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
-        req.session = null;
+        req.session =
+            null;
+
 
         res.clearCookie(
             "diicot_session"
         );
 
-        res.redirect("/");
+
+        res.redirect(
+            "/"
+        );
     }
 );
 
@@ -3099,7 +4354,10 @@ app.get(
 app.get(
     "/health",
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         updateBlacklistStatuses();
 
@@ -3128,6 +4386,22 @@ app.get(
                         "ACTIVE"
                 ).length,
 
+            leaveRequestsTotal:
+                leaveRequests.length,
+
+            leaveRequestsPending:
+                leaveRequests.filter(
+                    request =>
+                        request.status ===
+                        "PENDING"
+                ).length,
+
+            vacationDaysLimit:
+                VACATION_DAYS_LIMIT,
+
+            meetingExcusesLimit:
+                MEETING_EXCUSES_LIMIT,
+
             rolesConfigured:
                 DIICOT_ROLES.length,
 
@@ -3143,6 +4417,9 @@ app.get(
                 "COORDONATOR",
 
             blacklistEnabled:
+                true,
+
+            leaveSystemEnabled:
                 true
         });
     }
@@ -3212,8 +4489,15 @@ app.use(
 );
 
 
+// ======================================================
+// 404
+// ======================================================
+
 app.use(
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
 
         res
             .status(404)
@@ -3234,18 +4518,37 @@ app.listen(
 
     () => {
 
-        console.log("");
-        console.log("==============================");
-        console.log("DIICOT HUB ONLINE");
-        console.log("PORT:", PORT);
-        console.log("ADMIN: COORDONATOR+");
-        console.log("GRADE: ENABLED");
-        console.log("CONDUCERE: ENABLED");
-        console.log("BLACKLIST: ENABLED");
+        console.log(
+            "=============================="
+        );
 
         console.log(
-            "ANNOUNCEMENT CHANNEL:",
-            ANNOUNCEMENT_CHANNEL_ID
+            "DIICOT HUB ONLINE"
+        );
+
+        console.log(
+            "PORT:",
+            PORT
+        );
+
+        console.log(
+            "ADMIN: COORDONATOR+"
+        );
+
+        console.log(
+            "GRADE: ENABLED"
+        );
+
+        console.log(
+            "CONDUCERE: ENABLED"
+        );
+
+        console.log(
+            "BLACKLIST: ENABLED"
+        );
+
+        console.log(
+            "CONCEDII / ÎNVOIRI: ENABLED"
         );
 
         console.log(
@@ -3255,7 +4558,8 @@ app.listen(
                 : "NOT CONFIGURED"
         );
 
-        console.log("==============================");
-        console.log("");
+        console.log(
+            "=============================="
+        );
     }
 );
