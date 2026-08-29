@@ -259,10 +259,8 @@ const upload =
 // DATE TEMPORARE
 // ======================================================
 
-// Rapoartele vor merge ulterior în Supabase
 const reports = [];
 
-// Profilurile vor merge ulterior în Supabase
 const userProfiles = new Map();
 
 
@@ -331,48 +329,64 @@ function requireAdmin(
 
 
 // ======================================================
-// PAGINI
+// PAGINA PRINCIPALĂ
 // ======================================================
 
-app.get("/", (req, res) => {
-    return res.sendFile(
-        path.join(
-            __dirname,
-            "index.html"
-        )
-    );
-});
+app.get(
+    "/",
 
-
-app.get("/dashboard", (req, res) => {
-    if (
-        !req.session ||
-        !req.session.user
-    ) {
-        return res.redirect("/");
+    (req, res) => {
+        return res.sendFile(
+            path.join(
+                __dirname,
+                "index.html"
+            )
+        );
     }
+);
 
-    return res.sendFile(
-        path.join(
-            __dirname,
-            "dashboard.html"
-        )
-    );
-});
+
+// ======================================================
+// DASHBOARD
+// ======================================================
+
+app.get(
+    "/dashboard",
+
+    (req, res) => {
+        if (
+            !req.session ||
+            !req.session.user
+        ) {
+            return res.redirect("/");
+        }
+
+        return res.sendFile(
+            path.join(
+                __dirname,
+                "dashboard.html"
+            )
+        );
+    }
+);
 
 
 // ======================================================
 // CSS
 // ======================================================
 
-app.get("/style.css", (req, res) => {
-    return res.sendFile(
-        path.join(
-            __dirname,
-            "style.css"
-        )
-    );
-});
+app.get(
+    "/style.css",
+
+    (req, res) => {
+        return res.sendFile(
+            path.join(
+                __dirname,
+                "style.css"
+            )
+        );
+    }
+);
 
 
 // ======================================================
@@ -510,6 +524,7 @@ app.get(
             const accessToken =
                 tokenResponse.data.access_token;
 
+
             const userResponse =
                 await axios.get(
                     "https://discord.com/api/users/@me",
@@ -525,7 +540,9 @@ app.get(
             const discordUser =
                 userResponse.data;
 
+
             let member;
+
 
             try {
                 const memberResponse =
@@ -546,7 +563,7 @@ app.get(
 
             catch (memberError) {
                 console.error(
-                    "Member error:",
+                    "Discord Member Error:",
                     memberError.response?.data ||
                     memberError.message
                 );
@@ -556,20 +573,24 @@ app.get(
                 );
             }
 
+
             const roles =
                 Array.isArray(member.roles)
                     ? member.roles.map(String)
                     : [];
+
 
             const diicotRole =
                 getHighestDIICOTRole(
                     roles
                 );
 
+
             const displayName =
                 member.nick ||
                 discordUser.global_name ||
                 discordUser.username;
+
 
             req.session.user = {
                 id:
@@ -610,6 +631,7 @@ app.get(
                     GUILD_ID
             };
 
+
             return res.redirect("/");
         }
 
@@ -629,7 +651,7 @@ app.get(
 
 
 // ======================================================
-// API USER
+// API ME
 // ======================================================
 
 app.get(
@@ -649,7 +671,9 @@ app.get(
 
         return res.json({
             loggedIn: true,
-            user: req.session.user
+
+            user:
+                req.session.user
         });
     }
 );
@@ -668,13 +692,25 @@ app.get(
         const userId =
             req.session.user.id;
 
+
         let displayName =
             req.session.user.displayName ||
             req.session.user.globalName ||
             req.session.user.username;
 
-        // Luăm nickname-ul actual direct de pe Discord,
-        // dacă botul este disponibil.
+
+        let discordAvatar =
+            req.session.user.avatar;
+
+
+        let username =
+            req.session.user.username;
+
+
+        // ==================================================
+        // SINCRONIZARE CU DISCORD
+        // ==================================================
+
         if (BOT_TOKEN) {
             try {
                 const memberResponse =
@@ -689,8 +725,10 @@ app.get(
                         }
                     );
 
+
                 const member =
                     memberResponse.data;
+
 
                 displayName =
                     member.nick ||
@@ -698,29 +736,103 @@ app.get(
                     member.user?.username ||
                     displayName;
 
-                req.session.user.displayName =
-                    displayName;
+
+                username =
+                    member.user?.username ||
+                    username;
+
+
+                discordAvatar =
+                    member.user?.avatar ||
+                    discordAvatar;
+
+
+                const memberRoles =
+                    Array.isArray(member.roles)
+                        ? member.roles.map(String)
+                        : [];
+
+
+                const diicotRole =
+                    getHighestDIICOTRole(
+                        memberRoles
+                    );
+
+
+                req.session.user.roles =
+                    memberRoles;
+
+
+                req.session.user.rank =
+                    diicotRole
+                        ? diicotRole.name
+                        : "MEMBRU DIICOT";
+
+
+                req.session.user.rankLevel =
+                    diicotRole
+                        ? diicotRole.level
+                        : 0;
+
+
+                req.session.user.rankRoleId =
+                    diicotRole
+                        ? diicotRole.id
+                        : null;
+
+
+                req.session.user.username =
+                    username;
+
+
+                req.session.user.avatar =
+                    discordAvatar;
             }
 
             catch (error) {
                 console.error(
-                    "Profile Discord member:",
+                    "Profile Discord Member Error:",
                     error.response?.data ||
                     error.message
                 );
             }
         }
 
-        const profile =
+
+        // ==================================================
+        // PROFIL SALVAT PE SITE
+        // ==================================================
+
+        const savedProfile =
             userProfiles.get(userId) || {
+                displayName: null,
                 duties: []
             };
+
+
+        // Numele salvat pe site are prioritate
+        // peste nickname-ul Discord.
+
+        if (savedProfile.displayName) {
+            displayName =
+                savedProfile.displayName;
+        }
+
+
+        req.session.user.displayName =
+            displayName;
+
+
+        // ==================================================
+        // RAPOARTE
+        // ==================================================
 
         const myReports =
             reports.filter(
                 report =>
                     report.authorId === userId
             );
+
 
         const reportsWithImages =
             myReports.filter(
@@ -729,10 +841,12 @@ app.get(
                     report.images.length > 0
             ).length;
 
+
         const lastActivity =
             myReports.length
                 ? myReports[0].createdAtFormatted
                 : "-";
+
 
         const recentActivity =
             myReports
@@ -753,6 +867,7 @@ app.get(
                     })
                 );
 
+
         return res.json({
             success: true,
 
@@ -761,13 +876,13 @@ app.get(
                     userId,
 
                 username:
-                    req.session.user.username,
+                    username,
 
                 displayName:
                     displayName,
 
                 avatar:
-                    req.session.user.avatar,
+                    discordAvatar,
 
                 rank:
                     req.session.user.rank,
@@ -776,7 +891,7 @@ app.get(
                     req.session.user.rankLevel,
 
                 duties:
-                    profile.duties || [],
+                    savedProfile.duties || [],
 
                 statistics: {
                     totalReports:
@@ -799,6 +914,9 @@ app.get(
 
 // ======================================================
 // ACTUALIZARE PROFIL
+//
+// Profilul se salvează indiferent dacă Discord
+// permite sau nu modificarea nickname-ului.
 // ======================================================
 
 app.patch(
@@ -810,15 +928,22 @@ app.patch(
         const userId =
             req.session.user.id;
 
+
         const nickname =
             String(
                 req.body.nickname || ""
             ).trim();
 
+
         const dutiesInput =
             Array.isArray(req.body.duties)
                 ? req.body.duties
                 : [];
+
+
+        // ==================================================
+        // VALIDARE NUME
+        // ==================================================
 
         if (
             nickname.length < 2 ||
@@ -832,13 +957,21 @@ app.patch(
                 });
         }
 
+
+        // ==================================================
+        // VALIDARE ATRIBUȚII
+        // ==================================================
+
         const duties =
             dutiesInput
                 .map(
                     duty =>
-                        String(duty || "").trim()
+                        String(
+                            duty || ""
+                        ).trim()
                 )
                 .filter(Boolean);
+
 
         if (duties.length > 8) {
             return res
@@ -848,6 +981,7 @@ app.patch(
                         "Poți avea maximum 8 atribuții."
                 });
         }
+
 
         for (const duty of duties) {
             if (
@@ -863,78 +997,96 @@ app.patch(
             }
         }
 
-        if (!BOT_TOKEN) {
-            return res
-                .status(500)
-                .json({
-                    error:
-                        "Botul Discord nu este configurat."
-                });
-        }
 
-        try {
-            await axios.patch(
-                `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
-
-                {
-                    nick:
-                        nickname
-                },
-
-                {
-                    headers: {
-                        Authorization:
-                            `Bot ${BOT_TOKEN}`,
-
-                        "Content-Type":
-                            "application/json"
-                    }
-                }
-            );
-        }
-
-        catch (error) {
-            console.error(
-                "Discord nickname update:",
-                error.response?.data ||
-                error.message
-            );
-
-            if (
-                error.response?.status === 403
-            ) {
-                return res
-                    .status(403)
-                    .json({
-                        error:
-                            "Botul nu poate modifica acest nickname. Verifică permisiunea Manage Nicknames și poziția rolului botului."
-                    });
-            }
-
-            return res
-                .status(500)
-                .json({
-                    error:
-                        "Nickname-ul nu a putut fi schimbat pe Discord."
-                });
-        }
+        // ==================================================
+        // SALVĂM ÎNTÂI PE SITE
+        // ==================================================
 
         userProfiles.set(
             userId,
             {
+                displayName:
+                    nickname,
+
                 duties:
                     duties
             }
         );
 
+
         req.session.user.displayName =
             nickname;
 
+
+        // ==================================================
+        // ÎNCERCĂM SINCRONIZAREA CU DISCORD
+        // ==================================================
+
+        let discordSynced =
+            false;
+
+
+        let discordMessage =
+            "Profilul a fost salvat pe site.";
+
+
+        if (BOT_TOKEN) {
+            try {
+                await axios.patch(
+                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
+
+                    {
+                        nick:
+                            nickname
+                    },
+
+                    {
+                        headers: {
+                            Authorization:
+                                `Bot ${BOT_TOKEN}`,
+
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+                discordSynced =
+                    true;
+
+
+                discordMessage =
+                    "Profilul a fost salvat și numele a fost sincronizat cu Discord.";
+            }
+
+            catch (error) {
+                console.error(
+                    "Discord Nickname Update Error:",
+                    error.response?.data ||
+                    error.message
+                );
+
+
+                discordSynced =
+                    false;
+
+
+                discordMessage =
+                    "Profilul a fost salvat pe site, dar Discord nu a permis schimbarea nickname-ului.";
+            }
+        }
+
+
         return res.json({
-            success: true,
+            success:
+                true,
+
+            discordSynced:
+                discordSynced,
 
             message:
-                "Profilul a fost actualizat.",
+                discordMessage,
 
             profile: {
                 displayName:
@@ -968,15 +1120,18 @@ app.post(
                 req.body.type || ""
             ).trim();
 
+
         const title =
             String(
                 req.body.title || ""
             ).trim();
 
+
         const description =
             String(
                 req.body.description || ""
             ).trim();
+
 
         const allowedTypes = [
             "RAZIE",
@@ -988,6 +1143,7 @@ app.post(
             "FOCURI DE ARMA"
         ];
 
+
         if (!allowedTypes.includes(type)) {
             return res
                 .status(400)
@@ -996,6 +1152,7 @@ app.post(
                         "Tipul raportului nu este valid."
                 });
         }
+
 
         if (
             title.length < 2 ||
@@ -1009,6 +1166,7 @@ app.post(
                 });
         }
 
+
         if (
             description.length < 2 ||
             description.length > 5000
@@ -1020,6 +1178,7 @@ app.post(
                         "Descrierea trebuie să aibă între 2 și 5000 caractere."
                 });
         }
+
 
         const images =
             (req.files || [])
@@ -1033,8 +1192,10 @@ app.post(
                     })
                 );
 
+
         const now =
             new Date();
+
 
         const report = {
             id:
@@ -1097,14 +1258,17 @@ app.post(
                 )
         };
 
+
         reports.unshift(
             report
         );
 
+
         return res
             .status(201)
             .json({
-                success: true,
+                success:
+                    true,
 
                 message:
                     "Raportul a fost postat cu succes.",
@@ -1133,6 +1297,7 @@ app.get(
                     req.session.user.id
             );
 
+
         return res.json({
             reports:
                 userReports
@@ -1152,7 +1317,8 @@ app.get(
 
     (req, res) => {
         return res.json({
-            success: true,
+            success:
+                true,
 
             total:
                 reports.length,
@@ -1183,12 +1349,14 @@ app.get(
                 });
         }
 
+
         try {
             let allMembers = [];
 
             let after = "0";
 
             let hasMore = true;
+
 
             while (hasMore) {
                 const response =
@@ -1211,12 +1379,15 @@ app.get(
                         }
                     );
 
+
                 const members =
                     response.data;
+
 
                 allMembers.push(
                     ...members
                 );
+
 
                 if (
                     members.length < 1000
@@ -1233,7 +1404,9 @@ app.get(
                 }
             }
 
+
             const personnel = [];
+
 
             for (
                 const member
@@ -1246,25 +1419,45 @@ app.get(
                         ? member.roles.map(String)
                         : [];
 
+
                 const diicotRole =
                     getHighestDIICOTRole(
                         memberRoles
                     );
 
+
                 if (!diicotRole) {
                     continue;
                 }
 
+
                 const user =
                     member.user;
 
+
                 let avatarUrl =
                     "https://cdn.discordapp.com/embed/avatars/0.png";
+
 
                 if (user.avatar) {
                     avatarUrl =
                         `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`;
                 }
+
+
+                // Profilul salvat pe site are prioritate
+                // pentru numele afișat în Personal DIICOT.
+
+                const savedProfile =
+                    userProfiles.get(user.id);
+
+
+                const displayName =
+                    savedProfile?.displayName ||
+                    member.nick ||
+                    user.global_name ||
+                    user.username;
+
 
                 personnel.push({
                     id:
@@ -1274,9 +1467,7 @@ app.get(
                         user.username,
 
                     displayName:
-                        member.nick ||
-                        user.global_name ||
-                        user.username,
+                        displayName,
 
                     avatar:
                         avatarUrl,
@@ -1288,9 +1479,13 @@ app.get(
                         diicotRole.level,
 
                     rankRoleId:
-                        diicotRole.id
+                        diicotRole.id,
+
+                    duties:
+                        savedProfile?.duties || []
                 });
             }
+
 
             personnel.sort(
                 (a, b) => {
@@ -1304,6 +1499,7 @@ app.get(
                         );
                     }
 
+
                     return (
                         a.displayName || ""
                     ).localeCompare(
@@ -1312,6 +1508,7 @@ app.get(
                     );
                 }
             );
+
 
             return res.json({
                 success:
@@ -1331,6 +1528,7 @@ app.get(
                 error.response?.data ||
                 error.message
             );
+
 
             return res
                 .status(500)
@@ -1354,6 +1552,7 @@ app.get(
         req.session =
             null;
 
+
         res.clearCookie(
             "diicot_session",
 
@@ -1369,6 +1568,7 @@ app.get(
                     "production"
             }
         );
+
 
         return res.redirect("/");
     }
@@ -1400,14 +1600,17 @@ app.get(
                 DIICOT_ROLES.length,
 
             botConfigured:
-                Boolean(BOT_TOKEN)
+                Boolean(BOT_TOKEN),
+
+            adminMinimumRank:
+                "COORDONATOR"
         });
     }
 );
 
 
 // ======================================================
-// ERRORS
+// ERROR HANDLER
 // ======================================================
 
 app.use(
@@ -1433,6 +1636,7 @@ app.use(
                     });
             }
 
+
             if (
                 error.code ===
                 "LIMIT_FILE_COUNT"
@@ -1445,6 +1649,7 @@ app.use(
                     });
             }
 
+
             return res
                 .status(400)
                 .json({
@@ -1453,11 +1658,13 @@ app.use(
                 });
         }
 
+
         if (error) {
             console.error(
-                "Server error:",
+                "Server Error:",
                 error
             );
+
 
             return res
                 .status(400)
@@ -1467,6 +1674,7 @@ app.use(
                         "A apărut o eroare."
                 });
         }
+
 
         next();
     }
@@ -1503,6 +1711,12 @@ app.listen(
         console.log("PORT:", PORT);
         console.log("ADMIN: COORDONATOR+");
         console.log("PROFILE: ENABLED");
+        console.log(
+            "DISCORD BOT:",
+            BOT_TOKEN
+                ? "CONNECTED"
+                : "NOT CONFIGURED"
+        );
         console.log("============================");
         console.log("");
     }
