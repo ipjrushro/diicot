@@ -1,7 +1,7 @@
 {
   "name": "diicot-hub",
   "version": "1.0.0",
-  "description": "DIICOT Rush Romania Hub",
+  "description": "DIICOT Hub Rush Romania",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
@@ -10,6 +10,7 @@
     "axios": "^1.7.9",
     "cookie-session": "^2.1.0",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "multer": "^2.0.2"
   }
 }
