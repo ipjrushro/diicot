@@ -138,6 +138,7 @@ app.use(
         maxAge: 24 * 60 * 60 * 1000,
 
         httpOnly: true,
+
         sameSite: "lax",
 
         secure:
@@ -280,6 +281,168 @@ app.use(
 const reports = [];
 
 const userProfiles = new Map();
+
+const blacklist = [];
+
+
+// ======================================================
+// BLACKLIST HELPERS
+// ======================================================
+
+function formatRomanianDate(date) {
+
+    return new Date(date)
+        .toLocaleString(
+            "ro-RO",
+            {
+                timeZone:
+                    "Europe/Bucharest",
+
+                day:
+                    "2-digit",
+
+                month:
+                    "2-digit",
+
+                year:
+                    "numeric",
+
+                hour:
+                    "2-digit",
+
+                minute:
+                    "2-digit"
+            }
+        );
+}
+
+
+function updateBlacklistStatuses() {
+
+    const now =
+        new Date();
+
+
+    blacklist.forEach(
+        entry => {
+
+            if (
+                entry.status !== "ACTIVE"
+            ) {
+                return;
+            }
+
+
+            if (
+                entry.durationType ===
+                "TEMPORARY" &&
+                entry.expiresAt
+            ) {
+
+                const expiryDate =
+                    new Date(
+                        entry.expiresAt
+                    );
+
+
+                if (
+                    !Number.isNaN(
+                        expiryDate.getTime()
+                    ) &&
+                    expiryDate <= now
+                ) {
+
+                    entry.status =
+                        "INACTIVE";
+
+                    entry.deactivatedReason =
+                        "EXPIRED";
+
+                    entry.deactivatedAt =
+                        now.toISOString();
+
+                    entry.deactivatedAtFormatted =
+                        formatRomanianDate(
+                            now
+                        );
+                }
+            }
+        }
+    );
+}
+
+
+async function getDiscordUserBasic(
+    discordId
+) {
+
+    if (!BOT_TOKEN) {
+        return null;
+    }
+
+
+    try {
+
+        const response =
+            await axios.get(
+
+                `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${discordId}`,
+
+                {
+                    headers: {
+                        Authorization:
+                            `Bot ${BOT_TOKEN}`
+                    }
+                }
+            );
+
+
+        const member =
+            response.data;
+
+
+        return {
+
+            id:
+                discordId,
+
+            username:
+                member.user?.username ||
+                null,
+
+            displayName:
+                member.nick ||
+                member.user?.global_name ||
+                member.user?.username ||
+                null,
+
+            avatar:
+                member.user?.avatar
+
+                    ? `https://cdn.discordapp.com/avatars/${discordId}/${member.user.avatar}.png?size=128`
+
+                    : "https://cdn.discordapp.com/embed/avatars/0.png"
+        };
+
+    }
+
+    catch (error) {
+
+        if (
+            error.response?.status !== 404
+        ) {
+
+            console.error(
+                "Blacklist Discord User Error:",
+                error.response?.data ||
+                error.message
+            );
+        }
+
+
+        return null;
+    }
+}
 
 
 // ======================================================
@@ -823,6 +986,7 @@ app.get(
 
 
         if (saved.displayName) {
+
             displayName =
                 saved.displayName;
         }
@@ -894,6 +1058,7 @@ app.get(
                         .slice(0, 5)
                         .map(
                             report => ({
+
                                 id:
                                     report.id,
 
@@ -1054,6 +1219,7 @@ app.patch(
             discordSynced,
 
             profile: {
+
                 displayName:
                     nickname,
 
@@ -1152,6 +1318,7 @@ app.post(
             (req.files || [])
                 .map(
                     file => ({
+
                         filename:
                             file.filename,
 
@@ -1187,35 +1354,19 @@ app.post(
                 req.session.user.rankLevel,
 
             type,
+
             title,
+
             description,
+
             images,
 
             createdAt:
                 now.toISOString(),
 
             createdAtFormatted:
-                now.toLocaleString(
-                    "ro-RO",
-                    {
-                        timeZone:
-                            "Europe/Bucharest",
-
-                        day:
-                            "2-digit",
-
-                        month:
-                            "2-digit",
-
-                        year:
-                            "numeric",
-
-                        hour:
-                            "2-digit",
-
-                        minute:
-                            "2-digit"
-                    }
+                formatRomanianDate(
+                    now
                 )
         };
 
@@ -1226,6 +1377,7 @@ app.post(
         res
             .status(201)
             .json({
+
                 success: true,
 
                 message:
@@ -1273,8 +1425,12 @@ app.get(
     (req, res) => {
 
         res.json({
+
             success: true,
-            total: reports.length,
+
+            total:
+                reports.length,
+
             reports
         });
     }
@@ -1379,10 +1535,12 @@ app.post(
                     `${authorName} • ${authorRank}`,
 
                 ...(avatarURL
+
                     ? {
                         icon_url:
                             avatarURL
                     }
+
                     : {})
             },
 
@@ -1428,6 +1586,7 @@ app.post(
 
                     {
                         headers: {
+
                             Authorization:
                                 `Bot ${BOT_TOKEN}`,
 
@@ -1498,6 +1657,994 @@ app.post(
 
 
 // ======================================================
+// BLACKLIST - LISTĂ
+// DOAR COORDONATOR+
+// ======================================================
+
+app.get(
+    "/api/admin/blacklist",
+
+    requireAdmin,
+
+    (req, res) => {
+
+        updateBlacklistStatuses();
+
+
+        const sorted =
+            [...blacklist]
+                .sort(
+                    (a, b) =>
+                        new Date(
+                            b.createdAt
+                        ) -
+                        new Date(
+                            a.createdAt
+                        )
+                );
+
+
+        res.json({
+
+            success: true,
+
+            total:
+                sorted.length,
+
+            active:
+                sorted.filter(
+                    entry =>
+                        entry.status ===
+                        "ACTIVE"
+                ).length,
+
+            inactive:
+                sorted.filter(
+                    entry =>
+                        entry.status ===
+                        "INACTIVE"
+                ).length,
+
+            blacklist:
+                sorted
+        });
+    }
+);
+
+
+// ======================================================
+// BLACKLIST - ADAUGĂ
+// ======================================================
+
+app.post(
+    "/api/admin/blacklist",
+
+    requireAdmin,
+
+    async (req, res) => {
+
+        updateBlacklistStatuses();
+
+
+        const discordId =
+            String(
+                req.body.discordId ||
+                ""
+            ).trim();
+
+
+        let name =
+            String(
+                req.body.name ||
+                ""
+            ).trim();
+
+
+        const reason =
+            String(
+                req.body.reason ||
+                ""
+            ).trim();
+
+
+        const durationType =
+            String(
+                req.body.durationType ||
+                "PERMANENT"
+            )
+                .trim()
+                .toUpperCase();
+
+
+        const expiresAtRaw =
+            String(
+                req.body.expiresAt ||
+                ""
+            ).trim();
+
+
+        if (
+            !/^\d{15,25}$/.test(
+                discordId
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Discord ID-ul nu este valid."
+                });
+        }
+
+
+        if (
+            ![
+                "PERMANENT",
+                "TEMPORARY"
+            ].includes(
+                durationType
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Tipul duratei nu este valid."
+                });
+        }
+
+
+        if (
+            reason.length < 3 ||
+            reason.length > 1000
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Motivul trebuie să aibă între 3 și 1000 de caractere."
+                });
+        }
+
+
+        let expiresAt = null;
+
+        let expiresAtFormatted =
+            "Permanent";
+
+
+        if (
+            durationType ===
+            "TEMPORARY"
+        ) {
+
+            if (!expiresAtRaw) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Selectează data expirării."
+                    });
+            }
+
+
+            const expiry =
+                new Date(
+                    expiresAtRaw
+                );
+
+
+            if (
+                Number.isNaN(
+                    expiry.getTime()
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Data expirării nu este validă."
+                    });
+            }
+
+
+            if (
+                expiry <=
+                new Date()
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Data expirării trebuie să fie în viitor."
+                    });
+            }
+
+
+            expiresAt =
+                expiry.toISOString();
+
+            expiresAtFormatted =
+                formatRomanianDate(
+                    expiry
+                );
+        }
+
+
+        const existingActive =
+            blacklist.find(
+                entry =>
+                    entry.discordId ===
+                    discordId &&
+                    entry.status ===
+                    "ACTIVE"
+            );
+
+
+        if (existingActive) {
+
+            return res
+                .status(409)
+                .json({
+                    error:
+                        "Acest Discord ID este deja în blacklist."
+                });
+        }
+
+
+        const discordUser =
+            await getDiscordUserBasic(
+                discordId
+            );
+
+
+        if (
+            !name &&
+            discordUser
+        ) {
+
+            name =
+                discordUser.displayName ||
+                discordUser.username ||
+                "";
+        }
+
+
+        if (!name) {
+            name = "Necunoscut";
+        }
+
+
+        if (name.length > 80) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Numele este prea lung."
+                });
+        }
+
+
+        const now =
+            new Date();
+
+
+        const entry = {
+
+            id:
+                crypto.randomUUID(),
+
+            discordId,
+
+            name,
+
+            username:
+                discordUser?.username ||
+                null,
+
+            avatar:
+                discordUser?.avatar ||
+                null,
+
+            reason,
+
+            durationType,
+
+            expiresAt,
+
+            expiresAtFormatted,
+
+            status:
+                "ACTIVE",
+
+            createdAt:
+                now.toISOString(),
+
+            createdAtFormatted:
+                formatRomanianDate(
+                    now
+                ),
+
+            addedById:
+                req.session.user.id,
+
+            addedByName:
+                req.session.user.displayName ||
+                req.session.user.username,
+
+            addedByUsername:
+                req.session.user.username,
+
+            addedByRank:
+                req.session.user.rank,
+
+            deactivatedAt:
+                null,
+
+            deactivatedAtFormatted:
+                null,
+
+            deactivatedById:
+                null,
+
+            deactivatedByName:
+                null,
+
+            deactivatedReason:
+                null
+        };
+
+
+        blacklist.unshift(
+            entry
+        );
+
+
+        res
+            .status(201)
+            .json({
+
+                success: true,
+
+                message:
+                    `${name} a fost adăugat în blacklist.`,
+
+                entry
+            });
+    }
+);
+
+
+// ======================================================
+// BLACKLIST - DETALII
+// ======================================================
+
+app.get(
+    "/api/admin/blacklist/:id",
+
+    requireAdmin,
+
+    (req, res) => {
+
+        updateBlacklistStatuses();
+
+
+        const entry =
+            blacklist.find(
+                item =>
+                    item.id ===
+                    req.params.id
+            );
+
+
+        if (!entry) {
+
+            return res
+                .status(404)
+                .json({
+                    error:
+                        "Intrarea din blacklist nu a fost găsită."
+                });
+        }
+
+
+        res.json({
+
+            success: true,
+
+            entry
+        });
+    }
+);
+
+
+// ======================================================
+// BLACKLIST - MODIFICĂ
+// ======================================================
+
+app.patch(
+    "/api/admin/blacklist/:id",
+
+    requireAdmin,
+
+    async (req, res) => {
+
+        updateBlacklistStatuses();
+
+
+        const entry =
+            blacklist.find(
+                item =>
+                    item.id ===
+                    req.params.id
+            );
+
+
+        if (!entry) {
+
+            return res
+                .status(404)
+                .json({
+                    error:
+                        "Intrarea din blacklist nu a fost găsită."
+                });
+        }
+
+
+        const name =
+            req.body.name !== undefined
+
+                ? String(
+                    req.body.name
+                ).trim()
+
+                : entry.name;
+
+
+        const reason =
+            req.body.reason !== undefined
+
+                ? String(
+                    req.body.reason
+                ).trim()
+
+                : entry.reason;
+
+
+        const durationType =
+            req.body.durationType !== undefined
+
+                ? String(
+                    req.body.durationType
+                )
+                    .trim()
+                    .toUpperCase()
+
+                : entry.durationType;
+
+
+        if (
+            name.length < 1 ||
+            name.length > 80
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Numele trebuie să aibă maximum 80 de caractere."
+                });
+        }
+
+
+        if (
+            reason.length < 3 ||
+            reason.length > 1000
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Motivul trebuie să aibă între 3 și 1000 de caractere."
+                });
+        }
+
+
+        if (
+            ![
+                "PERMANENT",
+                "TEMPORARY"
+            ].includes(
+                durationType
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Tipul duratei nu este valid."
+                });
+        }
+
+
+        let expiresAt =
+            entry.expiresAt;
+
+        let expiresAtFormatted =
+            entry.expiresAtFormatted;
+
+
+        if (
+            durationType ===
+            "PERMANENT"
+        ) {
+
+            expiresAt = null;
+
+            expiresAtFormatted =
+                "Permanent";
+        }
+
+
+        if (
+            durationType ===
+            "TEMPORARY"
+        ) {
+
+            const expiresAtRaw =
+                String(
+                    req.body.expiresAt ||
+                    entry.expiresAt ||
+                    ""
+                ).trim();
+
+
+            if (!expiresAtRaw) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Selectează data expirării."
+                    });
+            }
+
+
+            const expiry =
+                new Date(
+                    expiresAtRaw
+                );
+
+
+            if (
+                Number.isNaN(
+                    expiry.getTime()
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Data expirării nu este validă."
+                    });
+            }
+
+
+            if (
+                expiry <=
+                new Date()
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Data expirării trebuie să fie în viitor."
+                    });
+            }
+
+
+            expiresAt =
+                expiry.toISOString();
+
+            expiresAtFormatted =
+                formatRomanianDate(
+                    expiry
+                );
+        }
+
+
+        entry.name =
+            name;
+
+        entry.reason =
+            reason;
+
+        entry.durationType =
+            durationType;
+
+        entry.expiresAt =
+            expiresAt;
+
+        entry.expiresAtFormatted =
+            expiresAtFormatted;
+
+        entry.updatedAt =
+            new Date().toISOString();
+
+        entry.updatedById =
+            req.session.user.id;
+
+        entry.updatedByName =
+            req.session.user.displayName ||
+            req.session.user.username;
+
+
+        res.json({
+
+            success: true,
+
+            message:
+                "Intrarea din blacklist a fost actualizată.",
+
+            entry
+        });
+    }
+);
+
+
+// ======================================================
+// BLACKLIST - DEZACTIVEAZĂ
+// ======================================================
+
+app.patch(
+    "/api/admin/blacklist/:id/deactivate",
+
+    requireAdmin,
+
+    (req, res) => {
+
+        updateBlacklistStatuses();
+
+
+        const entry =
+            blacklist.find(
+                item =>
+                    item.id ===
+                    req.params.id
+            );
+
+
+        if (!entry) {
+
+            return res
+                .status(404)
+                .json({
+                    error:
+                        "Intrarea din blacklist nu a fost găsită."
+                });
+        }
+
+
+        if (
+            entry.status ===
+            "INACTIVE"
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Această intrare este deja inactivă."
+                });
+        }
+
+
+        const now =
+            new Date();
+
+
+        entry.status =
+            "INACTIVE";
+
+        entry.deactivatedAt =
+            now.toISOString();
+
+        entry.deactivatedAtFormatted =
+            formatRomanianDate(
+                now
+            );
+
+        entry.deactivatedById =
+            req.session.user.id;
+
+        entry.deactivatedByName =
+            req.session.user.displayName ||
+            req.session.user.username;
+
+        entry.deactivatedReason =
+            "MANUAL";
+
+
+        res.json({
+
+            success: true,
+
+            message:
+                "Persoana a fost scoasă din blacklist.",
+
+            entry
+        });
+    }
+);
+
+
+// ======================================================
+// BLACKLIST - REACTIVEAZĂ
+// ======================================================
+
+app.patch(
+    "/api/admin/blacklist/:id/reactivate",
+
+    requireAdmin,
+
+    (req, res) => {
+
+        updateBlacklistStatuses();
+
+
+        const entry =
+            blacklist.find(
+                item =>
+                    item.id ===
+                    req.params.id
+            );
+
+
+        if (!entry) {
+
+            return res
+                .status(404)
+                .json({
+                    error:
+                        "Intrarea din blacklist nu a fost găsită."
+                });
+        }
+
+
+        if (
+            entry.status ===
+            "ACTIVE"
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Această intrare este deja activă."
+                });
+        }
+
+
+        if (
+            entry.durationType ===
+            "TEMPORARY" &&
+            entry.expiresAt &&
+            new Date(
+                entry.expiresAt
+            ) <= new Date()
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Perioada acestei sancțiuni a expirat. Modifică mai întâi data expirării."
+                });
+        }
+
+
+        const duplicate =
+            blacklist.find(
+                item =>
+                    item.discordId ===
+                    entry.discordId &&
+                    item.status ===
+                    "ACTIVE" &&
+                    item.id !==
+                    entry.id
+            );
+
+
+        if (duplicate) {
+
+            return res
+                .status(409)
+                .json({
+                    error:
+                        "Există deja o intrare activă pentru acest Discord ID."
+                });
+        }
+
+
+        entry.status =
+            "ACTIVE";
+
+        entry.deactivatedAt =
+            null;
+
+        entry.deactivatedAtFormatted =
+            null;
+
+        entry.deactivatedById =
+            null;
+
+        entry.deactivatedByName =
+            null;
+
+        entry.deactivatedReason =
+            null;
+
+        entry.reactivatedAt =
+            new Date().toISOString();
+
+        entry.reactivatedById =
+            req.session.user.id;
+
+        entry.reactivatedByName =
+            req.session.user.displayName ||
+            req.session.user.username;
+
+
+        res.json({
+
+            success: true,
+
+            message:
+                "Intrarea a fost reactivată.",
+
+            entry
+        });
+    }
+);
+
+
+// ======================================================
+// BLACKLIST - ȘTERGERE DEFINITIVĂ
+// ======================================================
+
+app.delete(
+    "/api/admin/blacklist/:id",
+
+    requireAdmin,
+
+    (req, res) => {
+
+        const index =
+            blacklist.findIndex(
+                item =>
+                    item.id ===
+                    req.params.id
+            );
+
+
+        if (index === -1) {
+
+            return res
+                .status(404)
+                .json({
+                    error:
+                        "Intrarea din blacklist nu a fost găsită."
+                });
+        }
+
+
+        const removed =
+            blacklist[index];
+
+
+        blacklist.splice(
+            index,
+            1
+        );
+
+
+        res.json({
+
+            success: true,
+
+            message:
+                `${removed.name} a fost șters definitiv din blacklist.`
+        });
+    }
+);
+
+
+// ======================================================
+// BLACKLIST - VERIFICARE DISCORD ID
+// ======================================================
+
+app.get(
+    "/api/admin/blacklist/check/:discordId",
+
+    requireAdmin,
+
+    async (req, res) => {
+
+        updateBlacklistStatuses();
+
+
+        const discordId =
+            String(
+                req.params.discordId ||
+                ""
+            ).trim();
+
+
+        if (
+            !/^\d{15,25}$/.test(
+                discordId
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Discord ID-ul nu este valid."
+                });
+        }
+
+
+        const discordUser =
+            await getDiscordUserBasic(
+                discordId
+            );
+
+
+        const activeEntry =
+            blacklist.find(
+                entry =>
+                    entry.discordId ===
+                    discordId &&
+                    entry.status ===
+                    "ACTIVE"
+            ) || null;
+
+
+        res.json({
+
+            success: true,
+
+            foundOnDiscord:
+                Boolean(
+                    discordUser
+                ),
+
+            discordUser,
+
+            blacklisted:
+                Boolean(
+                    activeEntry
+                ),
+
+            activeEntry
+        });
+    }
+);
+
+
+// ======================================================
 // LISTA GRADE
 // ======================================================
 
@@ -1515,6 +2662,7 @@ app.get(
             roles:
                 DIICOT_ROLES.map(
                     role => ({
+
                         id:
                             role.id,
 
@@ -1567,7 +2715,8 @@ app.patch(
         const newRole =
             DIICOT_ROLES.find(
                 role =>
-                    role.id === roleId
+                    role.id ===
+                    roleId
             );
 
 
@@ -1584,7 +2733,9 @@ app.patch(
 
         if (
             targetUserId ===
-            String(req.session.user.id)
+            String(
+                req.session.user.id
+            )
         ) {
 
             return res
@@ -1634,7 +2785,9 @@ app.patch(
             const otherRoles =
                 currentRoles.filter(
                     id =>
-                        !diicotIDs.has(id)
+                        !diicotIDs.has(
+                            id
+                        )
                 );
 
 
@@ -1651,6 +2804,7 @@ app.patch(
 
                 {
                     headers: {
+
                         Authorization:
                             `Bot ${BOT_TOKEN}`,
 
@@ -1744,11 +2898,15 @@ app.get(
 
                         {
                             params: {
-                                limit: 1000,
+
+                                limit:
+                                    1000,
+
                                 after
                             },
 
                             headers: {
+
                                 Authorization:
                                     `Bot ${BOT_TOKEN}`
                             }
@@ -1762,7 +2920,8 @@ app.get(
 
 
                 if (
-                    response.data.length < 1000
+                    response.data.length <
+                    1000
                 ) {
 
                     hasMore = false;
@@ -1782,10 +2941,15 @@ app.get(
             const personnel = [];
 
 
-            for (const member of members) {
+            for (
+                const member
+                of members
+            ) {
 
                 const roles =
-                    Array.isArray(member.roles)
+                    Array.isArray(
+                        member.roles
+                    )
 
                         ? member.roles.map(String)
 
@@ -1847,7 +3011,8 @@ app.get(
                         rank.id,
 
                     duties:
-                        saved?.duties || []
+                        saved?.duties ||
+                        []
                 });
             }
 
@@ -1936,6 +3101,9 @@ app.get(
 
     (req, res) => {
 
+        updateBlacklistStatuses();
+
+
         res.json({
 
             status:
@@ -1950,17 +3118,32 @@ app.get(
             profiles:
                 userProfiles.size,
 
+            blacklistTotal:
+                blacklist.length,
+
+            blacklistActive:
+                blacklist.filter(
+                    entry =>
+                        entry.status ===
+                        "ACTIVE"
+                ).length,
+
             rolesConfigured:
                 DIICOT_ROLES.length,
 
             botConfigured:
-                Boolean(BOT_TOKEN),
+                Boolean(
+                    BOT_TOKEN
+                ),
 
             announcementChannel:
                 ANNOUNCEMENT_CHANNEL_ID,
 
             adminMinimumRank:
-                "COORDONATOR"
+                "COORDONATOR",
+
+            blacklistEnabled:
+                true
         });
     }
 );
@@ -1979,11 +3162,13 @@ app.use(
     ) => {
 
         if (
-            error instanceof multer.MulterError
+            error instanceof
+            multer.MulterError
         ) {
 
             if (
-                error.code === "LIMIT_FILE_SIZE"
+                error.code ===
+                "LIMIT_FILE_SIZE"
             ) {
 
                 return res
@@ -1996,7 +3181,8 @@ app.use(
 
 
             if (
-                error.code === "LIMIT_FILE_COUNT"
+                error.code ===
+                "LIMIT_FILE_COUNT"
             ) {
 
                 return res
@@ -2055,16 +3241,20 @@ app.listen(
         console.log("ADMIN: COORDONATOR+");
         console.log("GRADE: ENABLED");
         console.log("CONDUCERE: ENABLED");
+        console.log("BLACKLIST: ENABLED");
+
         console.log(
             "ANNOUNCEMENT CHANNEL:",
             ANNOUNCEMENT_CHANNEL_ID
         );
+
         console.log(
             "BOT:",
             BOT_TOKEN
                 ? "CONNECTED"
                 : "NOT CONFIGURED"
         );
+
         console.log("==============================");
         console.log("");
     }
