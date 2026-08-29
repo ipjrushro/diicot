@@ -18,6 +18,8 @@ const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
+const ANNOUNCEMENT_CHANNEL_ID = "1518631380127580461";
+
 
 // ======================================================
 // GRADE DIICOT
@@ -92,16 +94,12 @@ const DIICOT_ROLES = [
 ];
 
 
-// ======================================================
-// DETECTARE GRAD
-// ======================================================
+function getHighestDIICOTRole(roles = []) {
 
-function getHighestDIICOTRole(userRoles = []) {
+    for (const rank of DIICOT_ROLES) {
 
-    for (const role of DIICOT_ROLES) {
-
-        if (userRoles.includes(role.id)) {
-            return role;
+        if (roles.includes(rank.id)) {
+            return rank;
         }
     }
 
@@ -137,16 +135,13 @@ app.use(
             "change-this-secret"
         ],
 
-        maxAge:
-            24 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000,
 
         httpOnly: true,
-
         sameSite: "lax",
 
         secure:
-            process.env.NODE_ENV ===
-            "production"
+            process.env.NODE_ENV === "production"
     })
 );
 
@@ -162,11 +157,7 @@ const uploadsDirectory =
     );
 
 
-if (
-    !fs.existsSync(
-        uploadsDirectory
-    )
-) {
+if (!fs.existsSync(uploadsDirectory)) {
 
     fs.mkdirSync(
         uploadsDirectory,
@@ -177,124 +168,118 @@ if (
 }
 
 
-const storage =
-    multer.diskStorage({
+const storage = multer.diskStorage({
 
-        destination(
-            req,
-            file,
-            callback
+    destination(
+        req,
+        file,
+        callback
+    ) {
+
+        callback(
+            null,
+            uploadsDirectory
+        );
+    },
+
+
+    filename(
+        req,
+        file,
+        callback
+    ) {
+
+        let extension = ".jpg";
+
+
+        if (file.mimetype === "image/png") {
+            extension = ".png";
+        }
+
+
+        if (file.mimetype === "image/webp") {
+            extension = ".webp";
+        }
+
+
+        const name =
+            Date.now() +
+            "-" +
+            crypto
+                .randomBytes(8)
+                .toString("hex") +
+            extension;
+
+
+        callback(
+            null,
+            name
+        );
+    }
+});
+
+
+const upload = multer({
+
+    storage,
+
+    limits: {
+        fileSize: 8 * 1024 * 1024,
+        files: 5
+    },
+
+
+    fileFilter(
+        req,
+        file,
+        callback
+    ) {
+
+        const allowed = [
+            "image/jpeg",
+            "image/png",
+            "image/webp"
+        ];
+
+
+        if (
+            allowed.includes(
+                file.mimetype
+            )
         ) {
 
-            callback(
+            return callback(
                 null,
-                uploadsDirectory
-            );
-        },
-
-
-        filename(
-            req,
-            file,
-            callback
-        ) {
-
-            let extension =
-                ".jpg";
-
-
-            if (
-                file.mimetype ===
-                "image/png"
-            ) {
-                extension =
-                    ".png";
-            }
-
-
-            if (
-                file.mimetype ===
-                "image/webp"
-            ) {
-                extension =
-                    ".webp";
-            }
-
-
-            callback(
-                null,
-
-                Date.now() +
-                "-" +
-                crypto
-                    .randomBytes(8)
-                    .toString("hex") +
-                extension
+                true
             );
         }
-    });
 
 
-const upload =
-    multer({
-
-        storage,
-
-        limits: {
-
-            fileSize:
-                8 *
-                1024 *
-                1024,
-
-            files:
-                5
-        },
+        callback(
+            new Error(
+                "Sunt acceptate doar imagini JPG, PNG și WEBP."
+            )
+        );
+    }
+});
 
 
-        fileFilter(
-            req,
-            file,
-            callback
-        ) {
-
-            const allowed = [
-                "image/jpeg",
-                "image/png",
-                "image/webp"
-            ];
-
-
-            if (
-                allowed.includes(
-                    file.mimetype
-                )
-            ) {
-
-                return callback(
-                    null,
-                    true
-                );
-            }
-
-
-            callback(
-                new Error(
-                    "Sunt acceptate doar imagini JPG, PNG și WEBP."
-                )
-            );
-        }
-    });
+app.use(
+    "/uploads",
+    express.static(
+        uploadsDirectory
+    )
+);
 
 
 // ======================================================
 // DATE TEMPORARE
+// SUPABASE ÎL FACEM LA FINAL
 // ======================================================
 
 const reports = [];
 
-const userProfiles =
-    new Map();
+const userProfiles = new Map();
 
 
 // ======================================================
@@ -325,10 +310,6 @@ function requireAuth(
 }
 
 
-// ======================================================
-// ADMIN = COORDONATOR+
-// ======================================================
-
 function requireAdmin(
     req,
     res,
@@ -349,22 +330,20 @@ function requireAdmin(
     }
 
 
-    const rankLevel =
+    const level =
         Number(
             req.session.user.rankLevel ||
             0
         );
 
 
-    if (
-        rankLevel < 10
-    ) {
+    if (level < 10) {
 
         return res
             .status(403)
             .json({
                 error:
-                    "Nu ai acces la Administrare."
+                    "Nu ai acces la această secțiune."
             });
     }
 
@@ -374,12 +353,11 @@ function requireAdmin(
 
 
 // ======================================================
-// PAGINA PRINCIPALĂ
+// PAGINI
 // ======================================================
 
 app.get(
     "/",
-
     (req, res) => {
 
         res.sendFile(
@@ -392,13 +370,8 @@ app.get(
 );
 
 
-// ======================================================
-// DASHBOARD
-// ======================================================
-
 app.get(
     "/dashboard",
-
     (req, res) => {
 
         if (
@@ -420,13 +393,8 @@ app.get(
 );
 
 
-// ======================================================
-// CSS
-// ======================================================
-
 app.get(
     "/style.css",
-
     (req, res) => {
 
         res.sendFile(
@@ -440,25 +408,11 @@ app.get(
 
 
 // ======================================================
-// UPLOADS STATIC
-// ======================================================
-
-app.use(
-    "/uploads",
-
-    express.static(
-        uploadsDirectory
-    )
-);
-
-
-// ======================================================
-// LOGIN DISCORD
+// DISCORD LOGIN
 // ======================================================
 
 app.get(
     "/auth/discord",
-
     (req, res) => {
 
         if (
@@ -471,7 +425,7 @@ app.get(
             return res
                 .status(500)
                 .send(
-                    "Configurarea Discord nu este completă."
+                    "Configurarea Discord este incompletă."
                 );
         }
 
@@ -515,20 +469,16 @@ app.get(
 
 
 // ======================================================
-// CALLBACK DISCORD
+// CALLBACK
 // ======================================================
 
 app.get(
     "/auth/discord/callback",
 
-    async (
-        req,
-        res
-    ) => {
+    async (req, res) => {
 
         const code =
             req.query.code;
-
 
         const state =
             req.query.state;
@@ -545,8 +495,7 @@ app.get(
         if (
             !state ||
             !req.session.oauthState ||
-            state !==
-            req.session.oauthState
+            state !== req.session.oauthState
         ) {
 
             return res.redirect(
@@ -560,7 +509,7 @@ app.get(
 
         try {
 
-            const tokenParams =
+            const params =
                 new URLSearchParams({
 
                     client_id:
@@ -585,11 +534,10 @@ app.get(
 
                     "https://discord.com/api/oauth2/token",
 
-                    tokenParams.toString(),
+                    params.toString(),
 
                     {
                         headers: {
-
                             "Content-Type":
                                 "application/x-www-form-urlencoded"
                         }
@@ -598,8 +546,7 @@ app.get(
 
 
             const accessToken =
-                tokenResponse.data
-                    .access_token;
+                tokenResponse.data.access_token;
 
 
             const userResponse =
@@ -609,7 +556,6 @@ app.get(
 
                     {
                         headers: {
-
                             Authorization:
                                 `Bearer ${accessToken}`
                         }
@@ -621,59 +567,31 @@ app.get(
                 userResponse.data;
 
 
-            let member;
+            const memberResponse =
+                await axios.get(
 
+                    `https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`,
 
-            try {
-
-                const memberResponse =
-                    await axios.get(
-
-                        `https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`,
-
-                        {
-                            headers: {
-
-                                Authorization:
-                                    `Bearer ${accessToken}`
-                            }
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${accessToken}`
                         }
-                    );
-
-
-                member =
-                    memberResponse.data;
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Discord Member Error:",
-                    error.response?.data ||
-                    error.message
+                    }
                 );
 
 
-                return res.redirect(
-                    "/?error=not_member"
-                );
-            }
+            const member =
+                memberResponse.data;
 
 
             const roles =
-                Array.isArray(
-                    member.roles
-                )
-
-                    ? member.roles.map(
-                        String
-                    )
-
+                Array.isArray(member.roles)
+                    ? member.roles.map(String)
                     : [];
 
 
-            const diicotRole =
+            const rank =
                 getHighestDIICOTRole(
                     roles
                 );
@@ -687,11 +605,8 @@ app.get(
 
             const displayName =
                 savedProfile?.displayName ||
-
                 member.nick ||
-
                 discordUser.global_name ||
-
                 discordUser.username;
 
 
@@ -707,28 +622,26 @@ app.get(
                     discordUser.global_name ||
                     discordUser.username,
 
-                displayName:
-                    displayName,
+                displayName,
 
                 avatar:
                     discordUser.avatar,
 
-                roles:
-                    roles,
+                roles,
 
                 rank:
-                    diicotRole
-                        ? diicotRole.name
+                    rank
+                        ? rank.name
                         : "MEMBRU DIICOT",
 
                 rankLevel:
-                    diicotRole
-                        ? diicotRole.level
+                    rank
+                        ? rank.level
                         : 0,
 
                 rankRoleId:
-                    diicotRole
-                        ? diicotRole.id
+                    rank
+                        ? rank.id
                         : null,
 
                 guildId:
@@ -736,7 +649,7 @@ app.get(
             };
 
 
-            res.redirect("/");
+            return res.redirect("/");
         }
 
         catch (error) {
@@ -748,7 +661,7 @@ app.get(
             );
 
 
-            res.redirect(
+            return res.redirect(
                 "/?error=discord"
             );
         }
@@ -763,10 +676,7 @@ app.get(
 app.get(
     "/api/me",
 
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         if (
             !req.session ||
@@ -776,16 +686,14 @@ app.get(
             return res
                 .status(401)
                 .json({
-                    loggedIn:
-                        false
+                    loggedIn: false
                 });
         }
 
 
         res.json({
 
-            loggedIn:
-                true,
+            loggedIn: true,
 
             user:
                 req.session.user
@@ -803,34 +711,23 @@ app.get(
 
     requireAuth,
 
-    async (
-        req,
-        res
-    ) => {
+    async (req, res) => {
 
         const userId =
             req.session.user.id;
 
 
-        let displayName =
-            req.session.user.displayName ||
-
-            req.session.user.globalName ||
-
-            req.session.user.username;
-
-
         let username =
             req.session.user.username;
 
-
-        let discordAvatar =
+        let avatar =
             req.session.user.avatar;
 
+        let displayName =
+            req.session.user.displayName;
 
-        if (
-            BOT_TOKEN
-        ) {
+
+        if (BOT_TOKEN) {
 
             try {
 
@@ -841,7 +738,6 @@ app.get(
 
                         {
                             headers: {
-
                                 Authorization:
                                     `Bot ${BOT_TOKEN}`
                             }
@@ -858,44 +754,35 @@ app.get(
                     username;
 
 
-                discordAvatar =
+                avatar =
                     member.user?.avatar ||
-                    discordAvatar;
+                    avatar;
 
 
-                const memberRoles =
-                    Array.isArray(
-                        member.roles
-                    )
-
-                        ? member.roles.map(
-                            String
-                        )
-
+                const roles =
+                    Array.isArray(member.roles)
+                        ? member.roles.map(String)
                         : [];
 
 
                 const rank =
                     getHighestDIICOTRole(
-                        memberRoles
+                        roles
                     );
 
 
                 req.session.user.roles =
-                    memberRoles;
-
+                    roles;
 
                 req.session.user.rank =
                     rank
                         ? rank.name
                         : "MEMBRU DIICOT";
 
-
                 req.session.user.rankLevel =
                     rank
                         ? rank.level
                         : 0;
-
 
                 req.session.user.rankRoleId =
                     rank
@@ -903,28 +790,16 @@ app.get(
                         : null;
 
 
-                req.session.user.username =
-                    username;
+                const saved =
+                    userProfiles.get(userId);
 
 
-                req.session.user.avatar =
-                    discordAvatar;
-
-
-                if (
-                    !userProfiles
-                        .get(userId)
-                        ?.displayName
-                ) {
+                if (!saved?.displayName) {
 
                     displayName =
                         member.nick ||
-
                         member.user?.global_name ||
-
-                        member.user?.username ||
-
-                        displayName;
+                        username;
                 }
 
             }
@@ -940,68 +815,57 @@ app.get(
         }
 
 
-        const savedProfile =
-            userProfiles.get(
-                userId
-            ) || {
-
-                displayName:
-                    null,
-
-                duties:
-                    []
+        const saved =
+            userProfiles.get(userId) || {
+                displayName: null,
+                duties: []
             };
 
 
-        if (
-            savedProfile.displayName
-        ) {
-
+        if (saved.displayName) {
             displayName =
-                savedProfile.displayName;
+                saved.displayName;
         }
 
 
         req.session.user.displayName =
             displayName;
 
+        req.session.user.username =
+            username;
+
+        req.session.user.avatar =
+            avatar;
+
 
         const myReports =
             reports.filter(
                 report =>
-                    report.authorId ===
-                    userId
+                    report.authorId === userId
             );
 
 
         const reportsWithImages =
             myReports.filter(
                 report =>
-                    Array.isArray(
-                        report.images
-                    ) &&
-                    report.images.length
+                    report.images?.length > 0
             ).length;
 
 
         res.json({
 
-            success:
-                true,
+            success: true,
 
             profile: {
 
                 id:
                     userId,
 
-                username:
-                    username,
+                username,
 
-                displayName:
-                    displayName,
+                displayName,
 
-                avatar:
-                    discordAvatar,
+                avatar,
 
                 rank:
                     req.session.user.rank,
@@ -1010,23 +874,18 @@ app.get(
                     req.session.user.rankLevel,
 
                 duties:
-                    savedProfile.duties ||
-                    [],
+                    saved.duties || [],
 
                 statistics: {
 
                     totalReports:
                         myReports.length,
 
-                    reportsWithImages:
-                        reportsWithImages,
+                    reportsWithImages,
 
                     lastActivity:
                         myReports.length
-
-                            ? myReports[0]
-                                .createdAtFormatted
-
+                            ? myReports[0].createdAtFormatted
                             : "-"
                 },
 
@@ -1035,7 +894,6 @@ app.get(
                         .slice(0, 5)
                         .map(
                             report => ({
-
                                 id:
                                     report.id,
 
@@ -1064,10 +922,7 @@ app.patch(
 
     requireAuth,
 
-    async (
-        req,
-        res
-    ) => {
+    async (req, res) => {
 
         const userId =
             req.session.user.id;
@@ -1075,23 +930,17 @@ app.patch(
 
         const nickname =
             String(
-                req.body.nickname ||
-                ""
+                req.body.nickname || ""
             ).trim();
 
 
         const duties =
-            Array.isArray(
-                req.body.duties
-            )
+            Array.isArray(req.body.duties)
 
                 ? req.body.duties
                     .map(
-                        duty =>
-                            String(
-                                duty ||
-                                ""
-                            ).trim()
+                        value =>
+                            String(value || "").trim()
                     )
                     .filter(Boolean)
 
@@ -1112,9 +961,7 @@ app.patch(
         }
 
 
-        if (
-            duties.length > 8
-        ) {
+        if (duties.length > 8) {
 
             return res
                 .status(400)
@@ -1125,10 +972,7 @@ app.patch(
         }
 
 
-        for (
-            const duty
-            of duties
-        ) {
+        for (const duty of duties) {
 
             if (
                 duty.length < 2 ||
@@ -1148,12 +992,10 @@ app.patch(
         userProfiles.set(
             userId,
             {
-
                 displayName:
                     nickname,
 
-                duties:
-                    duties
+                duties
             }
         );
 
@@ -1162,17 +1004,10 @@ app.patch(
             nickname;
 
 
-        let discordSynced =
-            false;
+        let discordSynced = false;
 
 
-        let message =
-            "Profilul a fost salvat pe site.";
-
-
-        if (
-            BOT_TOKEN
-        ) {
+        if (BOT_TOKEN) {
 
             try {
 
@@ -1187,7 +1022,6 @@ app.patch(
 
                     {
                         headers: {
-
                             Authorization:
                                 `Bot ${BOT_TOKEN}`,
 
@@ -1198,48 +1032,32 @@ app.patch(
                 );
 
 
-                discordSynced =
-                    true;
-
-
-                message =
-                    "Profilul a fost salvat și sincronizat cu Discord.";
+                discordSynced = true;
 
             }
 
             catch (error) {
 
                 console.error(
-                    "Discord Nickname Error:",
+                    "Nickname Discord Error:",
                     error.response?.data ||
                     error.message
                 );
-
-
-                message =
-                    "Profilul a fost salvat pe site, dar Discord nu a permis schimbarea nickname-ului.";
             }
         }
 
 
         res.json({
 
-            success:
-                true,
+            success: true,
 
-            discordSynced:
-                discordSynced,
-
-            message:
-                message,
+            discordSynced,
 
             profile: {
-
                 displayName:
                     nickname,
 
-                duties:
-                    duties
+                duties
             }
         });
     }
@@ -1247,7 +1065,7 @@ app.patch(
 
 
 // ======================================================
-// RAPORT NOU
+// POSTARE RAPORT
 // ======================================================
 
 app.post(
@@ -1260,29 +1078,23 @@ app.post(
         5
     ),
 
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         const type =
             String(
-                req.body.type ||
-                ""
+                req.body.type || ""
             ).trim();
 
 
         const title =
             String(
-                req.body.title ||
-                ""
+                req.body.title || ""
             ).trim();
 
 
         const description =
             String(
-                req.body.description ||
-                ""
+                req.body.description || ""
             ).trim();
 
 
@@ -1297,11 +1109,7 @@ app.post(
         ];
 
 
-        if (
-            !allowedTypes.includes(
-                type
-            )
-        ) {
+        if (!allowedTypes.includes(type)) {
 
             return res
                 .status(400)
@@ -1321,7 +1129,7 @@ app.post(
                 .status(400)
                 .json({
                     error:
-                        "Titlul trebuie să aibă între 2 și 120 caractere."
+                        "Titlul trebuie să aibă între 2 și 120 de caractere."
                 });
         }
 
@@ -1335,7 +1143,7 @@ app.post(
                 .status(400)
                 .json({
                     error:
-                        "Descrierea trebuie să aibă între 2 și 5000 caractere."
+                        "Descrierea trebuie să aibă între 2 și 5000 de caractere."
                 });
         }
 
@@ -1344,7 +1152,6 @@ app.post(
             (req.files || [])
                 .map(
                     file => ({
-
                         filename:
                             file.filename,
 
@@ -1368,9 +1175,6 @@ app.post(
 
             authorName:
                 req.session.user.displayName ||
-
-                req.session.user.globalName ||
-
                 req.session.user.username,
 
             authorUsername:
@@ -1382,17 +1186,10 @@ app.post(
             authorRankLevel:
                 req.session.user.rankLevel,
 
-            type:
-                type,
-
-            title:
-                title,
-
-            description:
-                description,
-
-            images:
-                images,
+            type,
+            title,
+            description,
+            images,
 
             createdAt:
                 now.toISOString(),
@@ -1401,7 +1198,6 @@ app.post(
                 now.toLocaleString(
                     "ro-RO",
                     {
-
                         timeZone:
                             "Europe/Bucharest",
 
@@ -1424,30 +1220,25 @@ app.post(
         };
 
 
-        reports.unshift(
-            report
-        );
+        reports.unshift(report);
 
 
         res
             .status(201)
             .json({
-
-                success:
-                    true,
+                success: true,
 
                 message:
-                    "Raportul a fost postat cu succes.",
+                    "Raportul a fost postat.",
 
-                report:
-                    report
+                report
             });
     }
 );
 
 
 // ======================================================
-// RAPOARTELE MELE
+// RAPOARTE MELE
 // ======================================================
 
 app.get(
@@ -1455,10 +1246,7 @@ app.get(
 
     requireAuth,
 
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         res.json({
 
@@ -1474,7 +1262,7 @@ app.get(
 
 
 // ======================================================
-// TOATE RAPOARTELE - ADMIN
+// ADMIN RAPOARTE
 // ======================================================
 
 app.get(
@@ -1482,34 +1270,235 @@ app.get(
 
     requireAdmin,
 
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         res.json({
-
-            success:
-                true,
-
-            total:
-                reports.length,
-
-            reports:
-                reports
+            success: true,
+            total: reports.length,
+            reports
         });
     }
 );
 
 
 // ======================================================
-// LISTA COMPLETĂ DE GRADE
-//
-// IMPORTANT:
-// Nu mai luăm lista pentru dropdown prin filtrarea
-// rolurilor Discord.
-//
-// Folosim direct toate cele 13 grade configurate.
+// CONDUCERE - TRIMITE ANUNȚ DISCORD
+// ======================================================
+
+app.post(
+    "/api/leadership/announcement",
+
+    requireAdmin,
+
+    async (req, res) => {
+
+        if (!BOT_TOKEN) {
+
+            return res
+                .status(500)
+                .json({
+                    error:
+                        "Botul Discord nu este configurat."
+                });
+        }
+
+
+        const title =
+            String(
+                req.body.title || ""
+            ).trim();
+
+
+        const message =
+            String(
+                req.body.message || ""
+            ).trim();
+
+
+        if (
+            title.length < 2 ||
+            title.length > 120
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Titlul trebuie să aibă între 2 și 120 de caractere."
+                });
+        }
+
+
+        if (
+            message.length < 2 ||
+            message.length > 4000
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Mesajul trebuie să aibă între 2 și 4000 de caractere."
+                });
+        }
+
+
+        const authorName =
+            req.session.user.displayName ||
+            req.session.user.username ||
+            "Conducere DIICOT";
+
+
+        const authorRank =
+            req.session.user.rank ||
+            "CONDUCERE DIICOT";
+
+
+        const avatarURL =
+            req.session.user.avatar
+
+                ? `https://cdn.discordapp.com/avatars/${req.session.user.id}/${req.session.user.avatar}.png?size=128`
+
+                : null;
+
+
+        const embed = {
+
+            title:
+                `📢 ${title}`,
+
+            description:
+                message,
+
+            color:
+                0xFFC400,
+
+            author: {
+
+                name:
+                    `${authorName} • ${authorRank}`,
+
+                ...(avatarURL
+                    ? {
+                        icon_url:
+                            avatarURL
+                    }
+                    : {})
+            },
+
+            fields: [
+                {
+                    name:
+                        "STRUCTURĂ",
+
+                    value:
+                        "Direcția de Investigare a Infracțiunilor de Criminalitate Organizată și Terorism",
+
+                    inline:
+                        false
+                }
+            ],
+
+            footer: {
+                text:
+                    "DIICOT • Rush România • Comunicat oficial"
+            },
+
+            timestamp:
+                new Date().toISOString()
+        };
+
+
+        try {
+
+            const response =
+                await axios.post(
+
+                    `https://discord.com/api/v10/channels/${ANNOUNCEMENT_CHANNEL_ID}/messages`,
+
+                    {
+                        embeds: [
+                            embed
+                        ],
+
+                        allowed_mentions: {
+                            parse: []
+                        }
+                    },
+
+                    {
+                        headers: {
+                            Authorization:
+                                `Bot ${BOT_TOKEN}`,
+
+                            "Content-Type":
+                                "application/json"
+                        }
+                    }
+                );
+
+
+            res.json({
+
+                success: true,
+
+                message:
+                    "Anunțul a fost trimis pe Discord.",
+
+                discordMessageId:
+                    response.data.id
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Discord Announcement Error:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            if (
+                error.response?.status === 403
+            ) {
+
+                return res
+                    .status(403)
+                    .json({
+                        error:
+                            "Botul nu are permisiunea să trimită mesaje sau embed-uri în canal."
+                    });
+            }
+
+
+            if (
+                error.response?.status === 404
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Canalul Discord nu a fost găsit."
+                    });
+            }
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Anunțul nu a putut fi trimis."
+                });
+        }
+    }
+);
+
+
+// ======================================================
+// LISTA GRADE
 // ======================================================
 
 app.get(
@@ -1517,39 +1506,25 @@ app.get(
 
     requireAdmin,
 
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         res.json({
 
-            success:
-                true,
+            success: true,
 
             roles:
-                DIICOT_ROLES
-                    .map(
-                        role => ({
+                DIICOT_ROLES.map(
+                    role => ({
+                        id:
+                            role.id,
 
-                            id:
-                                role.id,
+                        name:
+                            role.name,
 
-                            name:
-                                role.name,
-
-                            level:
-                                role.level
-                        })
-                    )
-                    .sort(
-                        (
-                            a,
-                            b
-                        ) =>
-                            b.level -
-                            a.level
-                    )
+                        level:
+                            role.level
+                    })
+                )
         });
     }
 );
@@ -1557,13 +1532,6 @@ app.get(
 
 // ======================================================
 // SCHIMBARE GRAD
-//
-// DOAR COORDONATOR+ POATE FOLOSI RUTA.
-//
-// COORDONATOR+ POATE SELECTA ORICARE DINTRE
-// CELE 13 GRADE.
-//
-// NU ÎȘI POATE MODIFICA PROPRIUL GRAD.
 // ======================================================
 
 app.patch(
@@ -1571,14 +1539,9 @@ app.patch(
 
     requireAdmin,
 
-    async (
-        req,
-        res
-    ) => {
+    async (req, res) => {
 
-        if (
-            !BOT_TOKEN
-        ) {
+        if (!BOT_TOKEN) {
 
             return res
                 .status(500)
@@ -1591,57 +1554,37 @@ app.patch(
 
         const targetUserId =
             String(
-                req.params.userId ||
-                ""
+                req.params.userId || ""
             ).trim();
 
 
-        const newRoleId =
+        const roleId =
             String(
-                req.body.roleId ||
-                ""
+                req.body.roleId || ""
             ).trim();
 
 
         const newRole =
             DIICOT_ROLES.find(
                 role =>
-                    role.id ===
-                    newRoleId
+                    role.id === roleId
             );
 
 
-        if (
-            !targetUserId
-        ) {
+        if (!newRole) {
 
             return res
                 .status(400)
                 .json({
                     error:
-                        "Membrul nu este valid."
-                });
-        }
-
-
-        if (
-            !newRole
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Gradul selectat nu este valid."
+                        "Gradul nu este valid."
                 });
         }
 
 
         if (
             targetUserId ===
-            String(
-                req.session.user.id
-            )
+            String(req.session.user.id)
         ) {
 
             return res
@@ -1662,7 +1605,6 @@ app.patch(
 
                     {
                         headers: {
-
                             Authorization:
                                 `Bot ${BOT_TOKEN}`
                         }
@@ -1670,23 +1612,17 @@ app.patch(
                 );
 
 
-            const member =
-                memberResponse.data;
-
-
             const currentRoles =
                 Array.isArray(
-                    member.roles
+                    memberResponse.data.roles
                 )
 
-                    ? member.roles.map(
-                        String
-                    )
+                    ? memberResponse.data.roles.map(String)
 
                     : [];
 
 
-            const diicotRoleIds =
+            const diicotIDs =
                 new Set(
                     DIICOT_ROLES.map(
                         role =>
@@ -1695,25 +1631,11 @@ app.patch(
                 );
 
 
-            // ==================================================
-            // SCOATEM DOAR GRADELE DIICOT
-            //
-            // Alte roluri Discord rămân intacte.
-            // ==================================================
-
-            const rolesWithoutDIICOT =
+            const otherRoles =
                 currentRoles.filter(
-                    roleId =>
-                        !diicotRoleIds.has(
-                            roleId
-                        )
+                    id =>
+                        !diicotIDs.has(id)
                 );
-
-
-            const updatedRoles = [
-                ...rolesWithoutDIICOT,
-                newRoleId
-            ];
 
 
             await axios.patch(
@@ -1721,13 +1643,14 @@ app.patch(
                 `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetUserId}`,
 
                 {
-                    roles:
-                        updatedRoles
+                    roles: [
+                        ...otherRoles,
+                        roleId
+                    ]
                 },
 
                 {
                     headers: {
-
                         Authorization:
                             `Bot ${BOT_TOKEN}`,
 
@@ -1740,26 +1663,10 @@ app.patch(
 
             res.json({
 
-                success:
-                    true,
+                success: true,
 
                 message:
-                    `Gradul a fost schimbat în ${newRole.name}.`,
-
-                member: {
-
-                    id:
-                        targetUserId,
-
-                    rank:
-                        newRole.name,
-
-                    rankLevel:
-                        newRole.level,
-
-                    rankRoleId:
-                        newRole.id
-                }
+                    `Gradul a fost schimbat în ${newRole.name}.`
             });
 
         }
@@ -1767,36 +1674,21 @@ app.patch(
         catch (error) {
 
             console.error(
-                "Discord Role Update Error:",
+                "Role Update Error:",
                 error.response?.data ||
                 error.message
             );
 
 
             if (
-                error.response?.status ===
-                403
+                error.response?.status === 403
             ) {
 
                 return res
                     .status(403)
                     .json({
                         error:
-                            "Discord nu permite botului să gestioneze acest rol. Verifică Manage Roles și poziția rolului botului."
-                    });
-            }
-
-
-            if (
-                error.response?.status ===
-                404
-            ) {
-
-                return res
-                    .status(404)
-                    .json({
-                        error:
-                            "Membrul nu a fost găsit."
+                            "Discord nu permite botului să gestioneze acest rol. Verifică poziția rolului botului."
                     });
             }
 
@@ -1821,38 +1713,29 @@ app.get(
 
     requireAuth,
 
-    async (
-        req,
-        res
-    ) => {
+    async (req, res) => {
 
-        if (
-            !BOT_TOKEN
-        ) {
+        if (!BOT_TOKEN) {
 
             return res
                 .status(500)
                 .json({
                     error:
-                        "DISCORD_BOT_TOKEN nu este configurat."
+                        "Botul Discord nu este configurat."
                 });
         }
 
 
         try {
 
-            let allMembers = [];
+            let members = [];
 
-            let after =
-                "0";
+            let after = "0";
 
-            let hasMore =
-                true;
+            let hasMore = true;
 
 
-            while (
-                hasMore
-            ) {
+            while (hasMore) {
 
                 const response =
                     await axios.get(
@@ -1860,18 +1743,12 @@ app.get(
                         `https://discord.com/api/v10/guilds/${GUILD_ID}/members`,
 
                         {
-
                             params: {
-
-                                limit:
-                                    1000,
-
-                                after:
-                                    after
+                                limit: 1000,
+                                after
                             },
 
                             headers: {
-
                                 Authorization:
                                     `Bot ${BOT_TOKEN}`
                             }
@@ -1879,67 +1756,49 @@ app.get(
                     );
 
 
-                const members =
-                    response.data;
-
-
-                allMembers.push(
-                    ...members
+                members.push(
+                    ...response.data
                 );
 
 
                 if (
-                    members.length <
-                    1000
+                    response.data.length < 1000
                 ) {
 
-                    hasMore =
-                        false;
+                    hasMore = false;
 
                 }
 
                 else {
 
                     after =
-                        members[
-                            members.length -
-                            1
+                        response.data[
+                            response.data.length - 1
                         ].user.id;
                 }
             }
 
 
-            const personnel =
-                [];
+            const personnel = [];
 
 
-            for (
-                const member
-                of allMembers
-            ) {
+            for (const member of members) {
 
-                const memberRoles =
-                    Array.isArray(
-                        member.roles
-                    )
+                const roles =
+                    Array.isArray(member.roles)
 
-                        ? member.roles.map(
-                            String
-                        )
+                        ? member.roles.map(String)
 
                         : [];
 
 
                 const rank =
                     getHighestDIICOTRole(
-                        memberRoles
+                        roles
                     );
 
 
-                if (
-                    !rank
-                ) {
-
+                if (!rank) {
                     continue;
                 }
 
@@ -1948,23 +1807,18 @@ app.get(
                     member.user;
 
 
-                const savedProfile =
+                const saved =
                     userProfiles.get(
                         user.id
                     );
 
 
-                let avatar =
-                    "https://cdn.discordapp.com/embed/avatars/0.png";
-
-
-                if (
+                const avatar =
                     user.avatar
-                ) {
 
-                    avatar =
-                        `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`;
-                }
+                        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
+
+                        : "https://cdn.discordapp.com/embed/avatars/0.png";
 
 
                 personnel.push({
@@ -1976,16 +1830,12 @@ app.get(
                         user.username,
 
                     displayName:
-                        savedProfile?.displayName ||
-
+                        saved?.displayName ||
                         member.nick ||
-
                         user.global_name ||
-
                         user.username,
 
-                    avatar:
-                        avatar,
+                    avatar,
 
                     rank:
                         rank.name,
@@ -1997,17 +1847,13 @@ app.get(
                         rank.id,
 
                     duties:
-                        savedProfile?.duties ||
-                        []
+                        saved?.duties || []
                 });
             }
 
 
             personnel.sort(
-                (
-                    a,
-                    b
-                ) => {
+                (a, b) => {
 
                     if (
                         b.rankLevel !==
@@ -2021,12 +1867,8 @@ app.get(
                     }
 
 
-                    return (
-                        a.displayName ||
-                        ""
-                    ).localeCompare(
-                        b.displayName ||
-                        "",
+                    return a.displayName.localeCompare(
+                        b.displayName,
                         "ro"
                     );
                 }
@@ -2035,14 +1877,12 @@ app.get(
 
             res.json({
 
-                success:
-                    true,
+                success: true,
 
                 total:
                     personnel.length,
 
-                personnel:
-                    personnel
+                personnel
             });
 
         }
@@ -2050,7 +1890,7 @@ app.get(
         catch (error) {
 
             console.error(
-                "Personnel Discord Error:",
+                "Personnel Error:",
                 error.response?.data ||
                 error.message
             );
@@ -2060,7 +1900,7 @@ app.get(
                 .status(500)
                 .json({
                     error:
-                        "Nu am putut încărca personalul DIICOT."
+                        "Personalul DIICOT nu a putut fi încărcat."
                 });
         }
     }
@@ -2074,19 +1914,13 @@ app.get(
 app.get(
     "/logout",
 
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
-        req.session =
-            null;
-
+        req.session = null;
 
         res.clearCookie(
             "diicot_session"
         );
-
 
         res.redirect("/");
     }
@@ -2100,10 +1934,7 @@ app.get(
 app.get(
     "/health",
 
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         res.json({
 
@@ -2123,25 +1954,20 @@ app.get(
                 DIICOT_ROLES.length,
 
             botConfigured:
-                Boolean(
-                    BOT_TOKEN
-                ),
+                Boolean(BOT_TOKEN),
+
+            announcementChannel:
+                ANNOUNCEMENT_CHANNEL_ID,
 
             adminMinimumRank:
-                "COORDONATOR",
-
-            roleManagement:
-                true,
-
-            assignAllDIICOTRanks:
-                true
+                "COORDONATOR"
         });
     }
 );
 
 
 // ======================================================
-// ERROR HANDLER
+// ERRORS
 // ======================================================
 
 app.use(
@@ -2153,34 +1979,31 @@ app.use(
     ) => {
 
         if (
-            error instanceof
-            multer.MulterError
+            error instanceof multer.MulterError
         ) {
 
             if (
-                error.code ===
-                "LIMIT_FILE_SIZE"
+                error.code === "LIMIT_FILE_SIZE"
             ) {
 
                 return res
                     .status(400)
                     .json({
                         error:
-                            "O poză este prea mare. Maximum 8 MB."
+                            "O imagine depășește 8 MB."
                     });
             }
 
 
             if (
-                error.code ===
-                "LIMIT_FILE_COUNT"
+                error.code === "LIMIT_FILE_COUNT"
             ) {
 
                 return res
                     .status(400)
                     .json({
                         error:
-                            "Poți încărca maximum 5 poze."
+                            "Poți încărca maximum 5 imagini."
                     });
             }
         }
@@ -2203,15 +2026,8 @@ app.use(
 );
 
 
-// ======================================================
-// 404
-// ======================================================
-
 app.use(
-    (
-        req,
-        res
-    ) => {
+    (req, res) => {
 
         res
             .status(404)
@@ -2233,42 +2049,23 @@ app.listen(
     () => {
 
         console.log("");
+        console.log("==============================");
+        console.log("DIICOT HUB ONLINE");
+        console.log("PORT:", PORT);
+        console.log("ADMIN: COORDONATOR+");
+        console.log("GRADE: ENABLED");
+        console.log("CONDUCERE: ENABLED");
         console.log(
-            "============================"
+            "ANNOUNCEMENT CHANNEL:",
+            ANNOUNCEMENT_CHANNEL_ID
         );
-
         console.log(
-            "DIICOT HUB ONLINE"
-        );
-
-        console.log(
-            "PORT:",
-            PORT
-        );
-
-        console.log(
-            "ADMIN: COORDONATOR+"
-        );
-
-        console.log(
-            "PROFILE: ENABLED"
-        );
-
-        console.log(
-            "ROLE MANAGEMENT: ALL 13 RANKS"
-        );
-
-        console.log(
-            "DISCORD BOT:",
+            "BOT:",
             BOT_TOKEN
                 ? "CONNECTED"
                 : "NOT CONFIGURED"
         );
-
-        console.log(
-            "============================"
-        );
-
+        console.log("==============================");
         console.log("");
     }
 );
