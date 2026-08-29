@@ -1,2071 +1,3574 @@
-const express = require("express");
-const axios = require("axios");
-const cookieSession = require("cookie-session");
-const path = require("path");
-const crypto = require("crypto");
-const multer = require("multer");
-const fs = require("fs");
+<!DOCTYPE html>
+<html lang="ro">
 
-require("dotenv").config();
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-const app = express();
+    <title>Centru de Comandă | DIICOT</title>
 
-const PORT = process.env.PORT || 3000;
+    <link rel="stylesheet" href="/style.css">
 
-const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
-const GUILD_ID = process.env.DISCORD_GUILD_ID;
-const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
+    <style>
+        /* =====================================================
+           GESTIONARE GRADE
+        ====================================================== */
 
-const ANNOUNCEMENT_CHANNEL_ID = "1518631380127580461";
-
-
-// ======================================================
-// GRADE DIICOT
-// ======================================================
-
-const DIICOT_ROLES = [
-    {
-        id: "1441514560900169785",
-        name: "PROCUROR ȘEF",
-        level: 13
-    },
-    {
-        id: "1441514560900169784",
-        name: "PROCUROR ȘEF ADJUNCT",
-        level: 12
-    },
-    {
-        id: "1441514560900169783",
-        name: "PROCUROR",
-        level: 11
-    },
-    {
-        id: "1441514560900169782",
-        name: "COORDONATOR",
-        level: 10
-    },
-    {
-        id: "1441514560900169781",
-        name: "COMISAR ȘEF",
-        level: 9
-    },
-    {
-        id: "1441514560900169779",
-        name: "COMISAR",
-        level: 8
-    },
-    {
-        id: "1441514560900169778",
-        name: "SUB COMISAR",
-        level: 7
-    },
-    {
-        id: "1441514560891650098",
-        name: "INSPECTOR PRINCIPAL",
-        level: 6
-    },
-    {
-        id: "1441514560891650097",
-        name: "INSPECTOR",
-        level: 5
-    },
-    {
-        id: "1441514560891650095",
-        name: "SUB INSPECTOR",
-        level: 4
-    },
-    {
-        id: "1441514560875135229",
-        name: "AGENT PRINCIPAL",
-        level: 3
-    },
-    {
-        id: "1441514560875135228",
-        name: "AGENT OPERATIV",
-        level: 2
-    },
-    {
-        id: "1441514560875135227",
-        name: "AGENT STAGIAR",
-        level: 1
-    }
-];
-
-
-function getHighestDIICOTRole(roles = []) {
-
-    for (const rank of DIICOT_ROLES) {
-
-        if (roles.includes(rank.id)) {
-            return rank;
-        }
-    }
-
-    return null;
-}
-
-
-// ======================================================
-// EXPRESS
-// ======================================================
-
-app.set("trust proxy", 1);
-
-app.use(express.json());
-
-app.use(
-    express.urlencoded({
-        extended: true
-    })
-);
-
-
-// ======================================================
-// SESSION
-// ======================================================
-
-app.use(
-    cookieSession({
-        name: "diicot_session",
-
-        keys: [
-            process.env.SESSION_SECRET ||
-            "change-this-secret"
-        ],
-
-        maxAge: 24 * 60 * 60 * 1000,
-
-        httpOnly: true,
-        sameSite: "lax",
-
-        secure:
-            process.env.NODE_ENV === "production"
-    })
-);
-
-
-// ======================================================
-// UPLOADS
-// ======================================================
-
-const uploadsDirectory =
-    path.join(
-        __dirname,
-        "uploads"
-    );
-
-
-if (!fs.existsSync(uploadsDirectory)) {
-
-    fs.mkdirSync(
-        uploadsDirectory,
-        {
-            recursive: true
-        }
-    );
-}
-
-
-const storage = multer.diskStorage({
-
-    destination(
-        req,
-        file,
-        callback
-    ) {
-
-        callback(
-            null,
-            uploadsDirectory
-        );
-    },
-
-
-    filename(
-        req,
-        file,
-        callback
-    ) {
-
-        let extension = ".jpg";
-
-
-        if (file.mimetype === "image/png") {
-            extension = ".png";
+        .manage-rank-btn {
+            margin-top: 10px;
+            padding: 8px 11px;
+            width: fit-content;
+            border: 1px solid rgba(255, 196, 0, 0.22);
+            border-radius: 6px;
+            background: rgba(255, 196, 0, 0.05);
+            color: #ffc400;
+            font-family: inherit;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: .7px;
+            cursor: pointer;
+            transition: .2s ease;
         }
 
-
-        if (file.mimetype === "image/webp") {
-            extension = ".webp";
+        .manage-rank-btn:hover {
+            background: #ffc400;
+            color: #080b10;
+            border-color: #ffc400;
+            transform: translateY(-1px);
         }
 
+        body.rank-modal-open {
+            overflow: hidden;
+        }
 
-        const name =
-            Date.now() +
-            "-" +
-            crypto
-                .randomBytes(8)
-                .toString("hex") +
-            extension;
+        .rank-manager-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
 
+        .rank-manager-modal.open {
+            display: flex;
+        }
 
-        callback(
-            null,
-            name
-        );
-    }
-});
+        .rank-manager-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, .82);
+            backdrop-filter: blur(8px);
+        }
 
+        .rank-manager-box {
+            position: relative;
+            z-index: 2;
+            width: min(470px, 100%);
+            box-sizing: border-box;
+            padding: 26px;
+            background: linear-gradient(145deg, #0d131b, #080c12);
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 12px;
+            box-shadow: 0 35px 100px rgba(0,0,0,.75);
+        }
 
-const upload = multer({
+        .rank-manager-box::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ffc400, transparent);
+            border-radius: 12px 12px 0 0;
+        }
 
-    storage,
+        .rank-manager-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
 
-    limits: {
-        fileSize: 8 * 1024 * 1024,
-        files: 5
-    },
+        .rank-manager-kicker {
+            display: block;
+            margin-bottom: 6px;
+            color: #ffc400;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.3px;
+        }
 
+        .rank-manager-top h3 {
+            margin: 0;
+            color: #fff;
+            font-size: 21px;
+        }
 
-    fileFilter(
-        req,
-        file,
-        callback
-    ) {
+        .rank-manager-close {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 7px;
+            background: rgba(255,255,255,.025);
+            color: #76808c;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
 
-        const allowed = [
-            "image/jpeg",
-            "image/png",
-            "image/webp"
-        ];
+        .rank-manager-close:hover {
+            color: #fff;
+            border-color: rgba(255,196,0,.3);
+        }
 
+        .rank-manager-member {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin: 22px 0;
+            padding: 14px 15px;
+            background: rgba(255,196,0,.035);
+            border: 1px solid rgba(255,196,0,.11);
+            border-radius: 7px;
+        }
 
-        if (
-            allowed.includes(
-                file.mimetype
-            )
-        ) {
+        .rank-manager-member span {
+            color: #626d79;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
 
-            return callback(
-                null,
-                true
+        .rank-manager-member strong {
+            color: #f5f6f8;
+            font-size: 12px;
+        }
+
+        .rank-manager-form {
+            margin-bottom: 14px;
+        }
+
+        .rank-manager-form select {
+            width: 100%;
+        }
+
+        .rank-manager-warning {
+            padding: 11px 13px;
+            margin-top: 12px;
+            border-left: 2px solid #ffc400;
+            background: rgba(255,196,0,.035);
+            color: #737d89;
+            font-size: 8px;
+            line-height: 1.6;
+        }
+
+        .rank-manager-save {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .rank-manager-message {
+            min-height: 18px;
+            margin-top: 13px;
+            font-size: 9px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .rank-manager-message.success {
+            color: #67ce85;
+        }
+
+        .rank-manager-message.error {
+            color: #ff6b6b;
+        }
+
+        /* =====================================================
+           CONDUCERE
+        ====================================================== */
+
+        .leadership-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(280px, .8fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .leadership-panel {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .leadership-panel::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(180deg, #ffc400, transparent);
+        }
+
+        .leadership-heading {
+            margin-bottom: 22px;
+        }
+
+        .leadership-heading span {
+            display: block;
+            margin-bottom: 6px;
+            color: #ffc400;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+        }
+
+        .leadership-heading h3 {
+            margin: 0 0 7px;
+            color: #f5f6f8;
+            font-size: 18px;
+        }
+
+        .leadership-heading p {
+            margin: 0;
+            color: #6d7784;
+            font-size: 9px;
+            line-height: 1.7;
+        }
+
+        .announcement-textarea {
+            min-height: 190px;
+            resize: vertical;
+        }
+
+        .announcement-meta {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 7px;
+            color: #59636f;
+            font-size: 8px;
+        }
+
+        .announcement-submit {
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .announcement-message {
+            min-height: 20px;
+            margin-top: 12px;
+            text-align: center;
+            font-size: 9px;
+            font-weight: 800;
+        }
+
+        .announcement-message.success {
+            color: #67ce85;
+        }
+
+        .announcement-message.error {
+            color: #ff6b6b;
+        }
+
+        .discord-preview {
+            border: 1px solid rgba(255,255,255,.07);
+            border-left: 4px solid #ffc400;
+            border-radius: 5px;
+            padding: 16px;
+            background: #111820;
+        }
+
+        .discord-preview-badge {
+            display: inline-flex;
+            margin-bottom: 10px;
+            padding: 4px 7px;
+            border-radius: 4px;
+            background: rgba(255,196,0,.08);
+            color: #ffc400;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: .8px;
+        }
+
+        .discord-preview h4 {
+            margin: 0 0 10px;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .discord-preview p {
+            margin: 0;
+            color: #c7ccd3;
+            font-size: 10px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .discord-preview-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 13px;
+        }
+
+        .discord-preview-author img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+
+        .discord-preview-author div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .discord-preview-author strong {
+            color: #e7e9ec;
+            font-size: 9px;
+        }
+
+        .discord-preview-author span {
+            color: #68727e;
+            font-size: 7px;
+            margin-top: 2px;
+        }
+
+        .discord-preview-footer {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,.06);
+            color: #67717d;
+            font-size: 8px;
+        }
+
+        @media (max-width: 900px) {
+            .leadership-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body class="dashboard-body">
+
+    <!-- =====================================================
+         TOPBAR
+    ====================================================== -->
+
+    <header class="dashboard-topbar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                D
+            </div>
+
+            <div class="brand-text">
+                <strong>DIICOT</strong>
+                <span>CENTRU DE COMANDĂ</span>
+            </div>
+
+        </div>
+
+        <div id="dashboard-user">
+            Se încarcă...
+        </div>
+
+    </header>
+
+    <!-- =====================================================
+         DASHBOARD
+    ====================================================== -->
+
+    <div class="dashboard-layout">
+
+        <!-- =================================================
+             SIDEBAR
+        ================================================== -->
+
+        <aside class="dashboard-sidebar">
+
+            <a
+                href="/"
+                class="sidebar-link"
+            >
+                PAGINA PRINCIPALĂ
+            </a>
+
+            <button
+                type="button"
+                class="sidebar-link active"
+                data-section="overview"
+            >
+                PREZENTARE GENERALĂ
+            </button>
+
+            <button
+                type="button"
+                class="sidebar-link"
+                data-section="new-report"
+            >
+                RAPORT NOU
+            </button>
+
+            <button
+                type="button"
+                class="sidebar-link"
+                data-section="my-reports"
+            >
+                RAPOARTELE MELE
+            </button>
+
+            <button
+                type="button"
+                class="sidebar-link"
+                data-section="personnel"
+            >
+                PERSONAL DIICOT
+            </button>
+
+            <button
+                type="button"
+                class="sidebar-link admin-only"
+                data-section="leadership"
+            >
+                CONDUCERE
+            </button>
+
+            <button
+                type="button"
+                class="sidebar-link admin-only"
+                data-section="admin"
+            >
+                ADMINISTRARE
+            </button>
+
+            <div class="sidebar-bottom">
+
+                <button
+                    type="button"
+                    class="sidebar-link profile-sidebar-link"
+                    data-section="profile"
+                >
+                    PROFILUL MEU
+                </button>
+
+                <a
+                    href="/logout"
+                    class="sidebar-link logout-sidebar"
+                >
+                    DECONECTARE
+                </a>
+
+            </div>
+
+        </aside>
+
+        <!-- =================================================
+             CONTENT
+        ================================================== -->
+
+        <main class="dashboard-content">
+
+            <!-- =================================================
+                 OVERVIEW
+            ================================================== -->
+
+            <section
+                id="overview"
+                class="dashboard-section active"
+            >
+
+                <div class="dashboard-welcome">
+
+                    <span class="dashboard-kicker">
+                        BINE AI REVENIT
+                    </span>
+
+                    <h1 id="welcome-name">
+                        Membru DIICOT
+                    </h1>
+
+                    <p id="welcome-rank">
+                        Se verifică gradul...
+                    </p>
+
+                </div>
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <span>RAPOARTE TOTALE</span>
+                        <strong id="stat-total">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>RAPOARTE CU POZE</span>
+                        <strong id="stat-images">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>TIPURI ACTIVITATE</span>
+                        <strong id="stat-types">0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>ULTIMA ACTIVITATE</span>
+                        <strong id="stat-last" class="stat-last">-</strong>
+                    </div>
+
+                </div>
+
+                <div class="dashboard-panel">
+
+                    <div class="panel-heading">
+                        ACTIVITATE RECENTĂ
+                    </div>
+
+                    <div
+                        id="recent-activity"
+                        class="empty-state"
+                    >
+                        Momentan nu există activitate.
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- =================================================
+                 RAPORT NOU
+            ================================================== -->
+
+            <section
+                id="new-report"
+                class="dashboard-section"
+            >
+
+                <div class="section-title">
+                    <span>RAPOARTE</span>
+                    <h2>Raport nou</h2>
+                </div>
+
+                <div class="dashboard-panel">
+
+                    <form
+                        id="report-form"
+                        class="report-form"
+                        enctype="multipart/form-data"
+                    >
+
+                        <div class="form-group">
+
+                            <label for="report-type">
+                                TIP RAPORT
+                            </label>
+
+                            <select
+                                id="report-type"
+                                required
+                            >
+
+                                <option value="">
+                                    Selectează tipul
+                                </option>
+
+                                <option value="RAZIE">
+                                    RAZIE
+                                </option>
+
+                                <option value="ANTRENAMENT">
+                                    ANTRENAMENT
+                                </option>
+
+                                <option value="JAFURI">
+                                    JAFURI
+                                </option>
+
+                                <option value="PATRULA">
+                                    PATRULĂ
+                                </option>
+
+                                <option value="PERCHEZITIE">
+                                    PERCHEZIȚIE
+                                </option>
+
+                                <option value="VERIFICARE ZONA">
+                                    VERIFICARE ZONĂ
+                                </option>
+
+                                <option value="FOCURI DE ARMA">
+                                    FOCURI DE ARMĂ
+                                </option>
+
+                            </select>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="report-title">
+                                TITLU RAPORT
+                            </label>
+
+                            <input
+                                type="text"
+                                id="report-title"
+                                maxlength="120"
+                                placeholder="Ex: Razie Sandy Shores"
+                                required
+                            >
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="report-description">
+                                DESCRIERE
+                            </label>
+
+                            <textarea
+                                id="report-description"
+                                rows="8"
+                                maxlength="5000"
+                                placeholder="Descrie activitatea desfășurată..."
+                                required
+                            ></textarea>
+
+                        </div>
+
+                        <div class="form-group">
+
+                            <label for="report-images">
+                                POZE DOVADĂ
+                            </label>
+
+                            <input
+                                type="file"
+                                id="report-images"
+                                accept="image/jpeg,image/png,image/webp"
+                                multiple
+                            >
+
+                            <small class="upload-help">
+                                Maximum 5 poze. JPG, PNG sau WEBP. Maximum 8 MB per imagine.
+                            </small>
+
+                            <div
+                                id="image-preview"
+                                class="image-preview-grid"
+                            ></div>
+
+                        </div>
+
+                        <button
+                            type="submit"
+                            id="submit-report"
+                            class="primary-btn dashboard-submit"
+                        >
+                            POSTEAZĂ RAPORTUL
+                        </button>
+
+                        <div
+                            id="report-message"
+                            class="report-message"
+                        ></div>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+            <!-- =================================================
+                 RAPOARTELE MELE
+            ================================================== -->
+
+            <section
+                id="my-reports"
+                class="dashboard-section"
+            >
+
+                <div class="section-title">
+                    <span>ACTIVITATE</span>
+                    <h2>Rapoartele mele</h2>
+                </div>
+
+                <div
+                    id="my-reports-container"
+                    class="reports-list"
+                >
+
+                    <div class="dashboard-panel">
+
+                        <div class="empty-state">
+                            Se încarcă rapoartele...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- =================================================
+                 PERSONAL DIICOT
+            ================================================== -->
+
+            <section
+                id="personnel"
+                class="dashboard-section"
+            >
+
+                <div class="section-title">
+                    <span>STRUCTURĂ</span>
+                    <h2>Personal DIICOT</h2>
+                </div>
+
+                <div class="personnel-summary">
+
+                    <span>MEMBRI DIICOT</span>
+
+                    <strong id="personnel-count">
+                        0
+                    </strong>
+
+                </div>
+
+                <div
+                    id="personnel-container"
+                    class="personnel-container"
+                >
+
+                    <div class="dashboard-panel">
+
+                        <div class="empty-state">
+                            Apasă pe Personal DIICOT pentru încărcare.
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- =================================================
+                 CONDUCERE
+            ================================================== -->
+
+            <section
+                id="leadership"
+                class="dashboard-section"
+            >
+
+                <div class="section-title">
+
+                    <span>
+                        CONDUCERE DIICOT
+                    </span>
+
+                    <h2>
+                        Anunțuri oficiale
+                    </h2>
+
+                </div>
+
+                <div class="leadership-grid">
+
+                    <!-- FORMULAR -->
+
+                    <div class="dashboard-panel leadership-panel">
+
+                        <div class="leadership-heading">
+
+                            <span>
+                                TRANSMITERE COMUNICAT
+                            </span>
+
+                            <h3>
+                                Trimite anunț pe Discord
+                            </h3>
+
+                            <p>
+                                Anunțul este trimis direct în canalul oficial DIICOT sub formă de embed.
+                            </p>
+
+                        </div>
+
+                        <form id="announcement-form">
+
+                            <div class="form-group">
+
+                                <label for="announcement-title">
+                                    TITLU ANUNȚ
+                                </label>
+
+                                <input
+                                    type="text"
+                                    id="announcement-title"
+                                    maxlength="120"
+                                    placeholder="Ex: Ședință săptămânală DIICOT"
+                                    required
+                                >
+
+                            </div>
+
+                            <div class="form-group">
+
+                                <label for="announcement-message-input">
+                                    MESAJ
+                                </label>
+
+                                <textarea
+                                    id="announcement-message-input"
+                                    class="announcement-textarea"
+                                    maxlength="4000"
+                                    placeholder="Scrie aici anunțul oficial..."
+                                    required
+                                ></textarea>
+
+                                <div class="announcement-meta">
+
+                                    <span>
+                                        Embed oficial DIICOT
+                                    </span>
+
+                                    <span id="announcement-counter">
+                                        0 / 4000
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <button
+                                type="submit"
+                                id="announcement-submit"
+                                class="primary-btn announcement-submit"
+                            >
+                                TRIMITE ANUNȚUL
+                            </button>
+
+                            <div
+                                id="announcement-result"
+                                class="announcement-message"
+                            ></div>
+
+                        </form>
+
+                    </div>
+
+                    <!-- PREVIEW -->
+
+                    <div class="dashboard-panel">
+
+                        <div class="leadership-heading">
+
+                            <span>
+                                PREVIZUALIZARE
+                            </span>
+
+                            <h3>
+                                Discord Embed
+                            </h3>
+
+                            <p>
+                                Așa va arăta aproximativ anunțul pe Discord.
+                            </p>
+
+                        </div>
+
+                        <div class="discord-preview">
+
+                            <div class="discord-preview-author">
+
+                                <img
+                                    id="announcement-preview-avatar"
+                                    src="https://cdn.discordapp.com/embed/avatars/0.png"
+                                    alt="Avatar"
+                                >
+
+                                <div>
+
+                                    <strong id="announcement-preview-author">
+                                        Conducere DIICOT
+                                    </strong>
+
+                                    <span id="announcement-preview-rank">
+                                        GRAD DIICOT
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+                            <span class="discord-preview-badge">
+                                COMUNICAT OFICIAL
+                            </span>
+
+                            <h4 id="announcement-preview-title">
+                                📢 Titlul anunțului
+                            </h4>
+
+                            <p id="announcement-preview-message">
+                                Mesajul anunțului va apărea aici.
+                            </p>
+
+                            <div class="discord-preview-footer">
+                                DIICOT • Rush România • Comunicat oficial
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- =================================================
+                 ADMINISTRARE
+            ================================================== -->
+
+            <section
+                id="admin"
+                class="dashboard-section"
+            >
+
+                <div class="section-title">
+
+                    <span>
+                        CONDUCERE DIICOT
+                    </span>
+
+                    <h2>
+                        Administrare
+                    </h2>
+
+                </div>
+
+                <div class="admin-stats">
+
+                    <div class="stat-card">
+
+                        <span>
+                            TOTAL RAPOARTE
+                        </span>
+
+                        <strong id="admin-total">
+                            0
+                        </strong>
+
+                    </div>
+
+                </div>
+
+                <div
+                    id="admin-reports-container"
+                    class="reports-list"
+                >
+
+                    <div class="dashboard-panel">
+
+                        <div class="empty-state">
+                            Se încarcă rapoartele...
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+            <!-- =================================================
+                 PROFIL
+            ================================================== -->
+
+            <section
+                id="profile"
+                class="dashboard-section"
+            >
+
+                <div class="section-title">
+
+                    <span>
+                        CONT DIICOT
+                    </span>
+
+                    <h2>
+                        Profilul meu
+                    </h2>
+
+                </div>
+
+                <div class="profile-layout">
+
+                    <!-- PROFIL PRINCIPAL -->
+
+                    <div class="profile-main-card">
+
+                        <div class="profile-cover"></div>
+
+                        <div class="profile-main-content">
+
+                            <img
+                                id="profile-avatar"
+                                class="profile-avatar"
+                                src="https://cdn.discordapp.com/embed/avatars/0.png"
+                                alt="Avatar Discord"
+                            >
+
+                            <div class="profile-identity">
+
+                                <span class="profile-status">
+                                    MEMBRU ACTIV
+                                </span>
+
+                                <h3 id="profile-name">
+                                    Se încarcă...
+                                </h3>
+
+                                <p id="profile-username">
+                                    @discord
+                                </p>
+
+                                <div class="profile-rank-badge">
+
+                                    <span>
+                                        GRAD ACTUAL
+                                    </span>
+
+                                    <strong id="profile-rank">
+                                        -
+                                    </strong>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- STATISTICI -->
+
+                    <div class="profile-statistics">
+
+                        <div class="profile-stat-card">
+
+                            <span>
+                                RAPOARTE
+                            </span>
+
+                            <strong id="profile-total-reports">
+                                0
+                            </strong>
+
+                        </div>
+
+                        <div class="profile-stat-card">
+
+                            <span>
+                                CU DOVEZI
+                            </span>
+
+                            <strong id="profile-image-reports">
+                                0
+                            </strong>
+
+                        </div>
+
+                        <div class="profile-stat-card profile-stat-card-wide">
+
+                            <span>
+                                ULTIMA ACTIVITATE
+                            </span>
+
+                            <strong id="profile-last-activity">
+                                -
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="profile-grid">
+
+                        <!-- EDITARE PROFIL -->
+
+                        <div class="dashboard-panel profile-panel">
+
+                            <div class="profile-panel-heading">
+
+                                <div>
+
+                                    <span>
+                                        IDENTITATE
+                                    </span>
+
+                                    <h3>
+                                        Editează profilul
+                                    </h3>
+
+                                </div>
+
+                            </div>
+
+                            <form id="profile-form">
+
+                                <div class="form-group">
+
+                                    <label for="profile-nickname">
+                                        NUME PE SERVER
+                                    </label>
+
+                                    <input
+                                        type="text"
+                                        id="profile-nickname"
+                                        maxlength="32"
+                                        placeholder="Numele tău pe Discord"
+                                        required
+                                    >
+
+                                    <small class="profile-help">
+                                        Profilul se salvează pe site. Dacă Discord permite, nickname-ul se sincronizează și pe server.
+                                    </small>
+
+                                </div>
+
+                                <div class="profile-duties-section">
+
+                                    <div class="profile-duties-header">
+
+                                        <div>
+
+                                            <label>
+                                                ATRIBUȚII
+                                            </label>
+
+                                            <small>
+                                                Maximum 8 atribuții
+                                            </small>
+
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            id="add-duty"
+                                            class="profile-small-btn"
+                                        >
+                                            + ADAUGĂ
+                                        </button>
+
+                                    </div>
+
+                                    <div id="duties-editor">
+
+                                        <div class="profile-no-duties">
+                                            Nu ai adăugat nicio atribuție.
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    id="save-profile"
+                                    class="primary-btn profile-save-button"
+                                >
+                                    SALVEAZĂ MODIFICĂRILE
+                                </button>
+
+                                <div
+                                    id="profile-message"
+                                    class="profile-message"
+                                ></div>
+
+                            </form>
+
+                        </div>
+
+                        <!-- ACTIVITATE PROFIL -->
+
+                        <div class="dashboard-panel profile-panel">
+
+                            <div class="profile-panel-heading">
+
+                                <div>
+
+                                    <span>
+                                        ACTIVITATE
+                                    </span>
+
+                                    <h3>
+                                        Activitate recentă
+                                    </h3>
+
+                                </div>
+
+                            </div>
+
+                            <div
+                                id="profile-activity"
+                                class="profile-activity-list"
+                            >
+
+                                <div class="empty-state">
+                                    Nu există activitate.
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <!-- =====================================================
+         MODAL GESTIONARE GRAD
+    ====================================================== -->
+
+    <div
+        id="rank-manager-modal"
+        class="rank-manager-modal"
+    >
+
+        <div
+            class="rank-manager-overlay"
+            id="rank-manager-overlay"
+        ></div>
+
+        <div class="rank-manager-box">
+
+            <div class="rank-manager-top">
+
+                <div>
+
+                    <span class="rank-manager-kicker">
+                        ADMINISTRARE PERSONAL
+                    </span>
+
+                    <h3>
+                        Gestionare grad
+                    </h3>
+
+                </div>
+
+                <button
+                    type="button"
+                    class="rank-manager-close"
+                    id="rank-manager-close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <div class="rank-manager-member">
+
+                <span>
+                    MEMBRU SELECTAT
+                </span>
+
+                <strong id="rank-manager-name">
+                    -
+                </strong>
+
+            </div>
+
+            <input
+                type="hidden"
+                id="rank-manager-user-id"
+            >
+
+            <div class="form-group rank-manager-form">
+
+                <label for="rank-manager-select">
+                    GRAD NOU
+                </label>
+
+                <select id="rank-manager-select">
+
+                    <option value="">
+                        Se încarcă gradele...
+                    </option>
+
+                </select>
+
+            </div>
+
+            <div class="rank-manager-warning">
+                Schimbarea gradului se aplică direct pe serverul Discord.
+            </div>
+
+            <button
+                type="button"
+                id="rank-manager-save"
+                class="primary-btn rank-manager-save"
+            >
+                SALVEAZĂ GRADUL
+            </button>
+
+            <div
+                id="rank-manager-message"
+                class="rank-manager-message"
+            ></div>
+
+        </div>
+
+    </div>
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        let currentUser = null;
+        let profileDuties = [];
+        let adminDiscordRoles = [];
+
+        /* =====================================================
+           ESCAPE HTML
+        ====================================================== */
+
+        function escapeHTML(value) {
+
+            const div =
+                document.createElement("div");
+
+            div.textContent =
+                String(value ?? "");
+
+            return div.innerHTML;
+        }
+
+        /* =====================================================
+           AVATAR
+        ====================================================== */
+
+        function getAvatarURL(user) {
+
+            if (
+                user &&
+                user.id &&
+                user.avatar
+            ) {
+
+                return (
+                    `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256`
+                );
+            }
+
+            return (
+                "https://cdn.discordapp.com/embed/avatars/0.png"
             );
         }
 
-
-        callback(
-            new Error(
-                "Sunt acceptate doar imagini JPG, PNG și WEBP."
-            )
-        );
-    }
-});
-
-
-app.use(
-    "/uploads",
-    express.static(
-        uploadsDirectory
-    )
-);
-
-
-// ======================================================
-// DATE TEMPORARE
-// SUPABASE ÎL FACEM LA FINAL
-// ======================================================
-
-const reports = [];
-
-const userProfiles = new Map();
-
-
-// ======================================================
-// AUTH
-// ======================================================
-
-function requireAuth(
-    req,
-    res,
-    next
-) {
-
-    if (
-        !req.session ||
-        !req.session.user
-    ) {
-
-        return res
-            .status(401)
-            .json({
-                error:
-                    "Trebuie să fii autentificat."
-            });
-    }
-
-
-    next();
-}
-
-
-function requireAdmin(
-    req,
-    res,
-    next
-) {
-
-    if (
-        !req.session ||
-        !req.session.user
-    ) {
-
-        return res
-            .status(401)
-            .json({
-                error:
-                    "Trebuie să fii autentificat."
-            });
-    }
-
-
-    const level =
-        Number(
-            req.session.user.rankLevel ||
-            0
-        );
-
-
-    if (level < 10) {
-
-        return res
-            .status(403)
-            .json({
-                error:
-                    "Nu ai acces la această secțiune."
-            });
-    }
-
-
-    next();
-}
-
-
-// ======================================================
-// PAGINI
-// ======================================================
-
-app.get(
-    "/",
-    (req, res) => {
-
-        res.sendFile(
-            path.join(
-                __dirname,
-                "index.html"
-            )
-        );
-    }
-);
-
-
-app.get(
-    "/dashboard",
-    (req, res) => {
-
-        if (
-            !req.session ||
-            !req.session.user
-        ) {
-
-            return res.redirect("/");
-        }
-
-
-        res.sendFile(
-            path.join(
-                __dirname,
-                "dashboard.html"
-            )
-        );
-    }
-);
-
-
-app.get(
-    "/style.css",
-    (req, res) => {
-
-        res.sendFile(
-            path.join(
-                __dirname,
-                "style.css"
-            )
-        );
-    }
-);
-
-
-// ======================================================
-// DISCORD LOGIN
-// ======================================================
-
-app.get(
-    "/auth/discord",
-    (req, res) => {
-
-        if (
-            !CLIENT_ID ||
-            !CLIENT_SECRET ||
-            !REDIRECT_URI ||
-            !GUILD_ID
-        ) {
-
-            return res
-                .status(500)
-                .send(
-                    "Configurarea Discord este incompletă."
-                );
-        }
-
-
-        const state =
-            crypto
-                .randomBytes(24)
-                .toString("hex");
-
-
-        req.session.oauthState =
-            state;
-
-
-        const params =
-            new URLSearchParams({
-
-                client_id:
-                    CLIENT_ID,
-
-                redirect_uri:
-                    REDIRECT_URI,
-
-                response_type:
-                    "code",
-
-                scope:
-                    "identify guilds guilds.members.read",
-
-                state:
-                    state
-            });
-
-
-        res.redirect(
-            "https://discord.com/oauth2/authorize?" +
-            params.toString()
-        );
-    }
-);
-
-
-// ======================================================
-// CALLBACK
-// ======================================================
-
-app.get(
-    "/auth/discord/callback",
-
-    async (req, res) => {
-
-        const code =
-            req.query.code;
-
-        const state =
-            req.query.state;
-
-
-        if (!code) {
-
-            return res.redirect(
-                "/?error=no_code"
-            );
-        }
-
-
-        if (
-            !state ||
-            !req.session.oauthState ||
-            state !== req.session.oauthState
-        ) {
-
-            return res.redirect(
-                "/?error=invalid_state"
-            );
-        }
-
-
-        delete req.session.oauthState;
-
-
-        try {
-
-            const params =
-                new URLSearchParams({
-
-                    client_id:
-                        CLIENT_ID,
-
-                    client_secret:
-                        CLIENT_SECRET,
-
-                    grant_type:
-                        "authorization_code",
-
-                    code:
-                        code,
-
-                    redirect_uri:
-                        REDIRECT_URI
-                });
-
-
-            const tokenResponse =
-                await axios.post(
-
-                    "https://discord.com/api/oauth2/token",
-
-                    params.toString(),
-
-                    {
-                        headers: {
-                            "Content-Type":
-                                "application/x-www-form-urlencoded"
-                        }
-                    }
-                );
-
-
-            const accessToken =
-                tokenResponse.data.access_token;
-
-
-            const userResponse =
-                await axios.get(
-
-                    "https://discord.com/api/users/@me",
-
-                    {
-                        headers: {
-                            Authorization:
-                                `Bearer ${accessToken}`
-                        }
-                    }
-                );
-
-
-            const discordUser =
-                userResponse.data;
-
-
-            const memberResponse =
-                await axios.get(
-
-                    `https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`,
-
-                    {
-                        headers: {
-                            Authorization:
-                                `Bearer ${accessToken}`
-                        }
-                    }
-                );
-
-
-            const member =
-                memberResponse.data;
-
-
-            const roles =
-                Array.isArray(member.roles)
-                    ? member.roles.map(String)
-                    : [];
-
-
-            const rank =
-                getHighestDIICOTRole(
-                    roles
-                );
-
-
-            const savedProfile =
-                userProfiles.get(
-                    discordUser.id
-                );
-
+        /* =====================================================
+           TOPBAR
+        ====================================================== */
+
+        function renderTopbarUser() {
+
+            if (!currentUser) {
+                return;
+            }
 
             const displayName =
-                savedProfile?.displayName ||
-                member.nick ||
-                discordUser.global_name ||
-                discordUser.username;
+                currentUser.displayName ||
+                currentUser.globalName ||
+                currentUser.username ||
+                "Membru DIICOT";
 
+            const rank =
+                currentUser.rank ||
+                "MEMBRU DIICOT";
 
-            req.session.user = {
+            const avatar =
+                getAvatarURL(currentUser);
 
-                id:
-                    discordUser.id,
+            document.getElementById(
+                "dashboard-user"
+            ).innerHTML = `
 
-                username:
-                    discordUser.username,
+                <div class="user-menu">
 
-                globalName:
-                    discordUser.global_name ||
-                    discordUser.username,
+                    <img
+                        src="${avatar}"
+                        class="user-avatar"
+                        alt="Avatar Discord"
+                    >
 
-                displayName,
+                    <div class="user-info">
 
-                avatar:
-                    discordUser.avatar,
+                        <strong>
+                            ${escapeHTML(displayName)}
+                        </strong>
 
-                roles,
+                        <span>
+                            ${escapeHTML(rank)}
+                        </span>
 
-                rank:
-                    rank
-                        ? rank.name
-                        : "MEMBRU DIICOT",
+                    </div>
 
-                rankLevel:
-                    rank
-                        ? rank.level
-                        : 0,
+                </div>
+            `;
 
-                rankRoleId:
-                    rank
-                        ? rank.id
-                        : null,
+            document.getElementById(
+                "welcome-name"
+            ).textContent =
+                displayName;
 
-                guildId:
-                    GUILD_ID
-            };
+            document.getElementById(
+                "welcome-rank"
+            ).textContent =
+                rank;
 
+            const previewAuthor =
+                document.getElementById(
+                    "announcement-preview-author"
+                );
 
-            return res.redirect("/");
+            const previewRank =
+                document.getElementById(
+                    "announcement-preview-rank"
+                );
+
+            const previewAvatar =
+                document.getElementById(
+                    "announcement-preview-avatar"
+                );
+
+            if (previewAuthor) {
+                previewAuthor.textContent =
+                    displayName;
+            }
+
+            if (previewRank) {
+                previewRank.textContent =
+                    rank;
+            }
+
+            if (previewAvatar) {
+                previewAvatar.src =
+                    avatar;
+            }
         }
 
-        catch (error) {
+        /* =====================================================
+           LOAD USER
+        ====================================================== */
 
-            console.error(
-                "Discord OAuth Error:",
-                error.response?.data ||
-                error.message
-            );
-
-
-            return res.redirect(
-                "/?error=discord"
-            );
-        }
-    }
-);
-
-
-// ======================================================
-// API ME
-// ======================================================
-
-app.get(
-    "/api/me",
-
-    (req, res) => {
-
-        if (
-            !req.session ||
-            !req.session.user
-        ) {
-
-            return res
-                .status(401)
-                .json({
-                    loggedIn: false
-                });
-        }
-
-
-        res.json({
-
-            loggedIn: true,
-
-            user:
-                req.session.user
-        });
-    }
-);
-
-
-// ======================================================
-// PROFIL
-// ======================================================
-
-app.get(
-    "/api/profile",
-
-    requireAuth,
-
-    async (req, res) => {
-
-        const userId =
-            req.session.user.id;
-
-
-        let username =
-            req.session.user.username;
-
-        let avatar =
-            req.session.user.avatar;
-
-        let displayName =
-            req.session.user.displayName;
-
-
-        if (BOT_TOKEN) {
+        async function loadDashboardUser() {
 
             try {
 
                 const response =
-                    await axios.get(
-
-                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
-
+                    await fetch(
+                        "/api/me",
                         {
-                            headers: {
-                                Authorization:
-                                    `Bot ${BOT_TOKEN}`
-                            }
+                            credentials: "include",
+                            cache: "no-store"
                         }
                     );
 
+                if (!response.ok) {
 
-                const member =
-                    response.data;
+                    window.location.replace("/");
+                    return;
+                }
 
+                const data =
+                    await response.json();
 
-                username =
-                    member.user?.username ||
-                    username;
+                if (
+                    !data.loggedIn ||
+                    !data.user
+                ) {
 
+                    window.location.replace("/");
+                    return;
+                }
 
-                avatar =
-                    member.user?.avatar ||
-                    avatar;
+                currentUser =
+                    data.user;
 
+                renderTopbarUser();
 
-                const roles =
-                    Array.isArray(member.roles)
-                        ? member.roles.map(String)
-                        : [];
-
-
-                const rank =
-                    getHighestDIICOTRole(
-                        roles
+                const rankLevel =
+                    Number(
+                        currentUser.rankLevel || 0
                     );
 
+                if (rankLevel < 10) {
 
-                req.session.user.roles =
-                    roles;
+                    document
+                        .querySelectorAll(
+                            ".admin-only"
+                        )
+                        .forEach(
+                            element => {
 
-                req.session.user.rank =
-                    rank
-                        ? rank.name
-                        : "MEMBRU DIICOT";
-
-                req.session.user.rankLevel =
-                    rank
-                        ? rank.level
-                        : 0;
-
-                req.session.user.rankRoleId =
-                    rank
-                        ? rank.id
-                        : null;
-
-
-                const saved =
-                    userProfiles.get(userId);
-
-
-                if (!saved?.displayName) {
-
-                    displayName =
-                        member.nick ||
-                        member.user?.global_name ||
-                        username;
+                                element.style.display =
+                                    "none";
+                            }
+                        );
                 }
+
+                await loadMyReports();
 
             }
 
             catch (error) {
 
                 console.error(
-                    "Profile Discord Error:",
-                    error.response?.data ||
-                    error.message
+                    "Dashboard user error:",
+                    error
+                );
+
+                window.location.replace("/");
+            }
+        }
+
+        /* =====================================================
+           SECȚIUNI
+        ====================================================== */
+
+        function openSection(name) {
+
+            if (
+                (
+                    name === "admin" ||
+                    name === "leadership"
+                ) &&
+                (
+                    !currentUser ||
+                    Number(
+                        currentUser.rankLevel || 0
+                    ) < 10
+                )
+            ) {
+
+                return;
+            }
+
+            document
+                .querySelectorAll(
+                    ".dashboard-section"
+                )
+                .forEach(
+                    section => {
+
+                        section.classList.remove(
+                            "active"
+                        );
+                    }
+                );
+
+            document
+                .querySelectorAll(
+                    ".sidebar-link[data-section]"
+                )
+                .forEach(
+                    button => {
+
+                        button.classList.remove(
+                            "active"
+                        );
+                    }
+                );
+
+            const section =
+                document.getElementById(
+                    name
+                );
+
+            const button =
+                document.querySelector(
+                    `[data-section="${name}"]`
+                );
+
+            if (section) {
+
+                section.classList.add(
+                    "active"
+                );
+            }
+
+            if (button) {
+
+                button.classList.add(
+                    "active"
                 );
             }
         }
 
+        document
+            .querySelectorAll(
+                ".sidebar-link[data-section]"
+            )
+            .forEach(
+                button => {
 
-        const saved =
-            userProfiles.get(userId) || {
-                displayName: null,
-                duties: []
-            };
+                    button.addEventListener(
+                        "click",
+                        function () {
 
+                            const target =
+                                this.dataset.section;
 
-        if (saved.displayName) {
-            displayName =
-                saved.displayName;
-        }
+                            openSection(target);
 
+                            if (
+                                target ===
+                                "my-reports"
+                            ) {
 
-        req.session.user.displayName =
-            displayName;
+                                loadMyReports();
+                            }
 
-        req.session.user.username =
-            username;
+                            if (
+                                target ===
+                                "personnel"
+                            ) {
 
-        req.session.user.avatar =
-            avatar;
+                                loadPersonnel();
+                            }
 
+                            if (
+                                target ===
+                                "admin"
+                            ) {
 
-        const myReports =
-            reports.filter(
-                report =>
-                    report.authorId === userId
+                                loadAdminReports();
+                            }
+
+                            if (
+                                target ===
+                                "profile"
+                            ) {
+
+                                loadProfile();
+                            }
+                        }
+                    );
+                }
             );
 
+        /* =====================================================
+           PREVIEW POZE
+        ====================================================== */
 
-        const reportsWithImages =
-            myReports.filter(
-                report =>
-                    report.images?.length > 0
-            ).length;
+        const imageInput =
+            document.getElementById(
+                "report-images"
+            );
 
+        imageInput.addEventListener(
+            "change",
+            function () {
 
-        res.json({
+                const preview =
+                    document.getElementById(
+                        "image-preview"
+                    );
 
-            success: true,
+                preview.innerHTML = "";
 
-            profile: {
+                const files =
+                    Array.from(
+                        this.files
+                    );
 
-                id:
-                    userId,
+                if (files.length > 5) {
 
-                username,
+                    alert(
+                        "Poți selecta maximum 5 poze."
+                    );
 
-                displayName,
+                    this.value = "";
 
-                avatar,
+                    return;
+                }
 
-                rank:
-                    req.session.user.rank,
+                for (const file of files) {
 
-                rankLevel:
-                    req.session.user.rankLevel,
+                    if (
+                        file.size >
+                        8 * 1024 * 1024
+                    ) {
 
-                duties:
-                    saved.duties || [],
+                        alert(
+                            "O poză depășește limita de 8 MB."
+                        );
 
-                statistics: {
+                        this.value = "";
+                        preview.innerHTML = "";
 
-                    totalReports:
-                        myReports.length,
+                        return;
+                    }
 
-                    reportsWithImages,
+                    const reader =
+                        new FileReader();
 
-                    lastActivity:
-                        myReports.length
-                            ? myReports[0].createdAtFormatted
-                            : "-"
-                },
+                    reader.onload =
+                        function (event) {
 
-                recentActivity:
-                    myReports
-                        .slice(0, 5)
-                        .map(
-                            report => ({
-                                id:
-                                    report.id,
+                            const image =
+                                document.createElement(
+                                    "img"
+                                );
 
-                                type:
-                                    report.type,
+                            image.src =
+                                event.target.result;
 
-                                title:
-                                    report.title,
+                            image.className =
+                                "report-preview-image";
 
-                                createdAtFormatted:
-                                    report.createdAtFormatted
-                            })
-                        )
-            }
-        });
-    }
-);
+                            preview.appendChild(
+                                image
+                            );
+                        };
 
-
-// ======================================================
-// SALVARE PROFIL
-// ======================================================
-
-app.patch(
-    "/api/profile",
-
-    requireAuth,
-
-    async (req, res) => {
-
-        const userId =
-            req.session.user.id;
-
-
-        const nickname =
-            String(
-                req.body.nickname || ""
-            ).trim();
-
-
-        const duties =
-            Array.isArray(req.body.duties)
-
-                ? req.body.duties
-                    .map(
-                        value =>
-                            String(value || "").trim()
-                    )
-                    .filter(Boolean)
-
-                : [];
-
-
-        if (
-            nickname.length < 2 ||
-            nickname.length > 32
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Numele trebuie să aibă între 2 și 32 de caractere."
-                });
-        }
-
-
-        if (duties.length > 8) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Poți avea maximum 8 atribuții."
-                });
-        }
-
-
-        for (const duty of duties) {
-
-            if (
-                duty.length < 2 ||
-                duty.length > 80
-            ) {
-
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Fiecare atribuție trebuie să aibă între 2 și 80 de caractere."
-                    });
-            }
-        }
-
-
-        userProfiles.set(
-            userId,
-            {
-                displayName:
-                    nickname,
-
-                duties
+                    reader.readAsDataURL(
+                        file
+                    );
+                }
             }
         );
 
-
-        req.session.user.displayName =
-            nickname;
-
-
-        let discordSynced = false;
-
-
-        if (BOT_TOKEN) {
-
-            try {
-
-                await axios.patch(
-
-                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
-
-                    {
-                        nick:
-                            nickname
-                    },
-
-                    {
-                        headers: {
-                            Authorization:
-                                `Bot ${BOT_TOKEN}`,
-
-                            "Content-Type":
-                                "application/json"
-                        }
-                    }
-                );
-
-
-                discordSynced = true;
-
-            }
-
-            catch (error) {
-
-                console.error(
-                    "Nickname Discord Error:",
-                    error.response?.data ||
-                    error.message
-                );
-            }
-        }
-
-
-        res.json({
-
-            success: true,
-
-            discordSynced,
-
-            profile: {
-                displayName:
-                    nickname,
-
-                duties
-            }
-        });
-    }
-);
-
-
-// ======================================================
-// POSTARE RAPORT
-// ======================================================
-
-app.post(
-    "/api/reports",
-
-    requireAuth,
-
-    upload.array(
-        "images",
-        5
-    ),
-
-    (req, res) => {
-
-        const type =
-            String(
-                req.body.type || ""
-            ).trim();
-
-
-        const title =
-            String(
-                req.body.title || ""
-            ).trim();
-
-
-        const description =
-            String(
-                req.body.description || ""
-            ).trim();
-
-
-        const allowedTypes = [
-            "RAZIE",
-            "ANTRENAMENT",
-            "JAFURI",
-            "PATRULA",
-            "PERCHEZITIE",
-            "VERIFICARE ZONA",
-            "FOCURI DE ARMA"
-        ];
-
-
-        if (!allowedTypes.includes(type)) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Tipul raportului nu este valid."
-                });
-        }
-
-
-        if (
-            title.length < 2 ||
-            title.length > 120
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Titlul trebuie să aibă între 2 și 120 de caractere."
-                });
-        }
-
-
-        if (
-            description.length < 2 ||
-            description.length > 5000
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Descrierea trebuie să aibă între 2 și 5000 de caractere."
-                });
-        }
-
-
-        const images =
-            (req.files || [])
-                .map(
-                    file => ({
-                        filename:
-                            file.filename,
-
-                        url:
-                            `/uploads/${file.filename}`
-                    })
-                );
-
-
-        const now =
-            new Date();
-
-
-        const report = {
-
-            id:
-                crypto.randomUUID(),
-
-            authorId:
-                req.session.user.id,
-
-            authorName:
-                req.session.user.displayName ||
-                req.session.user.username,
-
-            authorUsername:
-                req.session.user.username,
-
-            authorRank:
-                req.session.user.rank,
-
-            authorRankLevel:
-                req.session.user.rankLevel,
-
-            type,
-            title,
-            description,
-            images,
-
-            createdAt:
-                now.toISOString(),
-
-            createdAtFormatted:
-                now.toLocaleString(
-                    "ro-RO",
-                    {
-                        timeZone:
-                            "Europe/Bucharest",
-
-                        day:
-                            "2-digit",
-
-                        month:
-                            "2-digit",
-
-                        year:
-                            "numeric",
-
-                        hour:
-                            "2-digit",
-
-                        minute:
-                            "2-digit"
-                    }
-                )
-        };
-
-
-        reports.unshift(report);
-
-
-        res
-            .status(201)
-            .json({
-                success: true,
-
-                message:
-                    "Raportul a fost postat.",
-
-                report
-            });
-    }
-);
-
-
-// ======================================================
-// RAPOARTE MELE
-// ======================================================
-
-app.get(
-    "/api/reports/my",
-
-    requireAuth,
-
-    (req, res) => {
-
-        res.json({
-
-            reports:
-                reports.filter(
-                    report =>
-                        report.authorId ===
-                        req.session.user.id
-                )
-        });
-    }
-);
-
-
-// ======================================================
-// ADMIN RAPOARTE
-// ======================================================
-
-app.get(
-    "/api/admin/reports",
-
-    requireAdmin,
-
-    (req, res) => {
-
-        res.json({
-            success: true,
-            total: reports.length,
-            reports
-        });
-    }
-);
-
-
-// ======================================================
-// CONDUCERE - TRIMITE ANUNȚ DISCORD
-// ======================================================
-
-app.post(
-    "/api/leadership/announcement",
-
-    requireAdmin,
-
-    async (req, res) => {
-
-        if (!BOT_TOKEN) {
-
-            return res
-                .status(500)
-                .json({
-                    error:
-                        "Botul Discord nu este configurat."
-                });
-        }
-
-
-        const title =
-            String(
-                req.body.title || ""
-            ).trim();
-
-
-        const message =
-            String(
-                req.body.message || ""
-            ).trim();
-
-
-        if (
-            title.length < 2 ||
-            title.length > 120
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Titlul trebuie să aibă între 2 și 120 de caractere."
-                });
-        }
-
-
-        if (
-            message.length < 2 ||
-            message.length > 4000
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Mesajul trebuie să aibă între 2 și 4000 de caractere."
-                });
-        }
-
-
-        const authorName =
-            req.session.user.displayName ||
-            req.session.user.username ||
-            "Conducere DIICOT";
-
-
-        const authorRank =
-            req.session.user.rank ||
-            "CONDUCERE DIICOT";
-
-
-        const avatarURL =
-            req.session.user.avatar
-
-                ? `https://cdn.discordapp.com/avatars/${req.session.user.id}/${req.session.user.avatar}.png?size=128`
-
-                : null;
-
-
-        const embed = {
-
-            title:
-                `📢 ${title}`,
-
-            description:
-                message,
-
-            color:
-                0xFFC400,
-
-            author: {
-
-                name:
-                    `${authorName} • ${authorRank}`,
-
-                ...(avatarURL
-                    ? {
-                        icon_url:
-                            avatarURL
-                    }
-                    : {})
-            },
-
-            fields: [
-                {
-                    name:
-                        "STRUCTURĂ",
-
-                    value:
-                        "Direcția de Investigare a Infracțiunilor de Criminalitate Organizată și Terorism",
-
-                    inline:
-                        false
-                }
-            ],
-
-            footer: {
-                text:
-                    "DIICOT • Rush România • Comunicat oficial"
-            },
-
-            timestamp:
-                new Date().toISOString()
-        };
-
-
-        try {
-
-            const response =
-                await axios.post(
-
-                    `https://discord.com/api/v10/channels/${ANNOUNCEMENT_CHANNEL_ID}/messages`,
-
-                    {
-                        embeds: [
-                            embed
-                        ],
-
-                        allowed_mentions: {
-                            parse: []
-                        }
-                    },
-
-                    {
-                        headers: {
-                            Authorization:
-                                `Bot ${BOT_TOKEN}`,
-
-                            "Content-Type":
-                                "application/json"
-                        }
-                    }
-                );
-
-
-            res.json({
-
-                success: true,
-
-                message:
-                    "Anunțul a fost trimis pe Discord.",
-
-                discordMessageId:
-                    response.data.id
-            });
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Discord Announcement Error:",
-                error.response?.data ||
-                error.message
+        /* =====================================================
+           POSTARE RAPORT
+        ====================================================== */
+
+        const reportForm =
+            document.getElementById(
+                "report-form"
             );
 
-
-            if (
-                error.response?.status === 403
-            ) {
-
-                return res
-                    .status(403)
-                    .json({
-                        error:
-                            "Botul nu are permisiunea să trimită mesaje sau embed-uri în canal."
-                    });
-            }
-
-
-            if (
-                error.response?.status === 404
-            ) {
-
-                return res
-                    .status(404)
-                    .json({
-                        error:
-                            "Canalul Discord nu a fost găsit."
-                    });
-            }
-
-
-            res
-                .status(500)
-                .json({
-                    error:
-                        "Anunțul nu a putut fi trimis."
-                });
-        }
-    }
-);
-
-
-// ======================================================
-// LISTA GRADE
-// ======================================================
-
-app.get(
-    "/api/admin/roles",
-
-    requireAdmin,
-
-    (req, res) => {
-
-        res.json({
-
-            success: true,
-
-            roles:
-                DIICOT_ROLES.map(
-                    role => ({
-                        id:
-                            role.id,
-
-                        name:
-                            role.name,
-
-                        level:
-                            role.level
-                    })
-                )
-        });
-    }
-);
-
-
-// ======================================================
-// SCHIMBARE GRAD
-// ======================================================
-
-app.patch(
-    "/api/admin/members/:userId/role",
-
-    requireAdmin,
-
-    async (req, res) => {
-
-        if (!BOT_TOKEN) {
-
-            return res
-                .status(500)
-                .json({
-                    error:
-                        "Botul Discord nu este configurat."
-                });
-        }
-
-
-        const targetUserId =
-            String(
-                req.params.userId || ""
-            ).trim();
-
-
-        const roleId =
-            String(
-                req.body.roleId || ""
-            ).trim();
-
-
-        const newRole =
-            DIICOT_ROLES.find(
-                role =>
-                    role.id === roleId
-            );
-
-
-        if (!newRole) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Gradul nu este valid."
-                });
-        }
-
-
-        if (
-            targetUserId ===
-            String(req.session.user.id)
-        ) {
-
-            return res
-                .status(403)
-                .json({
-                    error:
-                        "Nu îți poți modifica propriul grad."
-                });
-        }
-
-
-        try {
-
-            const memberResponse =
-                await axios.get(
-
-                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetUserId}`,
-
-                    {
-                        headers: {
-                            Authorization:
-                                `Bot ${BOT_TOKEN}`
-                        }
-                    }
-                );
-
-
-            const currentRoles =
-                Array.isArray(
-                    memberResponse.data.roles
-                )
-
-                    ? memberResponse.data.roles.map(String)
-
-                    : [];
-
-
-            const diicotIDs =
-                new Set(
-                    DIICOT_ROLES.map(
-                        role =>
-                            role.id
-                    )
-                );
-
-
-            const otherRoles =
-                currentRoles.filter(
-                    id =>
-                        !diicotIDs.has(id)
-                );
-
-
-            await axios.patch(
-
-                `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetUserId}`,
-
-                {
-                    roles: [
-                        ...otherRoles,
-                        roleId
-                    ]
-                },
-
-                {
-                    headers: {
-                        Authorization:
-                            `Bot ${BOT_TOKEN}`,
-
-                        "Content-Type":
-                            "application/json"
-                    }
-                }
-            );
-
-
-            res.json({
-
-                success: true,
-
-                message:
-                    `Gradul a fost schimbat în ${newRole.name}.`
-            });
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Role Update Error:",
-                error.response?.data ||
-                error.message
-            );
-
-
-            if (
-                error.response?.status === 403
-            ) {
-
-                return res
-                    .status(403)
-                    .json({
-                        error:
-                            "Discord nu permite botului să gestioneze acest rol. Verifică poziția rolului botului."
-                    });
-            }
-
-
-            res
-                .status(500)
-                .json({
-                    error:
-                        "Gradul nu a putut fi modificat."
-                });
-        }
-    }
-);
-
-
-// ======================================================
-// PERSONAL DIICOT
-// ======================================================
-
-app.get(
-    "/api/personnel",
-
-    requireAuth,
-
-    async (req, res) => {
-
-        if (!BOT_TOKEN) {
-
-            return res
-                .status(500)
-                .json({
-                    error:
-                        "Botul Discord nu este configurat."
-                });
-        }
-
-
-        try {
-
-            let members = [];
-
-            let after = "0";
-
-            let hasMore = true;
-
-
-            while (hasMore) {
-
-                const response =
-                    await axios.get(
-
-                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members`,
-
-                        {
-                            params: {
-                                limit: 1000,
-                                after
-                            },
-
-                            headers: {
-                                Authorization:
-                                    `Bot ${BOT_TOKEN}`
-                            }
-                        }
+        reportForm.addEventListener(
+            "submit",
+            async function (event) {
+
+                event.preventDefault();
+
+                const type =
+                    document.getElementById(
+                        "report-type"
+                    ).value;
+
+                const title =
+                    document.getElementById(
+                        "report-title"
+                    ).value.trim();
+
+                const description =
+                    document.getElementById(
+                        "report-description"
+                    ).value.trim();
+
+                const images =
+                    document.getElementById(
+                        "report-images"
+                    ).files;
+
+                const button =
+                    document.getElementById(
+                        "submit-report"
                     );
 
+                const message =
+                    document.getElementById(
+                        "report-message"
+                    );
 
-                members.push(
-                    ...response.data
+                const formData =
+                    new FormData();
+
+                formData.append(
+                    "type",
+                    type
                 );
 
+                formData.append(
+                    "title",
+                    title
+                );
 
-                if (
-                    response.data.length < 1000
+                formData.append(
+                    "description",
+                    description
+                );
+
+                for (
+                    let i = 0;
+                    i < images.length;
+                    i++
                 ) {
 
-                    hasMore = false;
-
-                }
-
-                else {
-
-                    after =
-                        response.data[
-                            response.data.length - 1
-                        ].user.id;
-                }
-            }
-
-
-            const personnel = [];
-
-
-            for (const member of members) {
-
-                const roles =
-                    Array.isArray(member.roles)
-
-                        ? member.roles.map(String)
-
-                        : [];
-
-
-                const rank =
-                    getHighestDIICOTRole(
-                        roles
+                    formData.append(
+                        "images",
+                        images[i]
                     );
-
-
-                if (!rank) {
-                    continue;
                 }
 
+                try {
 
-                const user =
-                    member.user;
+                    button.disabled = true;
 
+                    button.textContent =
+                        "SE POSTEAZĂ...";
 
-                const saved =
-                    userProfiles.get(
-                        user.id
-                    );
+                    message.textContent = "";
 
+                    const response =
+                        await fetch(
+                            "/api/reports",
+                            {
+                                method: "POST",
+                                credentials: "include",
+                                body: formData
+                            }
+                        );
 
-                const avatar =
-                    user.avatar
+                    const data =
+                        await response.json();
 
-                        ? `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
+                    if (!response.ok) {
 
-                        : "https://cdn.discordapp.com/embed/avatars/0.png";
-
-
-                personnel.push({
-
-                    id:
-                        user.id,
-
-                    username:
-                        user.username,
-
-                    displayName:
-                        saved?.displayName ||
-                        member.nick ||
-                        user.global_name ||
-                        user.username,
-
-                    avatar,
-
-                    rank:
-                        rank.name,
-
-                    rankLevel:
-                        rank.level,
-
-                    rankRoleId:
-                        rank.id,
-
-                    duties:
-                        saved?.duties || []
-                });
-            }
-
-
-            personnel.sort(
-                (a, b) => {
-
-                    if (
-                        b.rankLevel !==
-                        a.rankLevel
-                    ) {
-
-                        return (
-                            b.rankLevel -
-                            a.rankLevel
+                        throw new Error(
+                            data.error ||
+                            "Raportul nu a putut fi postat."
                         );
                     }
 
+                    message.textContent =
+                        "✓ Raportul a fost postat cu succes.";
 
-                    return a.displayName.localeCompare(
-                        b.displayName,
-                        "ro"
+                    reportForm.reset();
+
+                    document.getElementById(
+                        "image-preview"
+                    ).innerHTML = "";
+
+                    await loadMyReports();
+
+                    setTimeout(
+                        function () {
+
+                            openSection(
+                                "my-reports"
+                            );
+                        },
+                        350
                     );
+
                 }
-            );
 
+                catch (error) {
 
-            res.json({
+                    message.textContent =
+                        error.message;
+                }
 
-                success: true,
+                finally {
 
-                total:
-                    personnel.length,
+                    button.disabled = false;
 
-                personnel
-            });
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Personnel Error:",
-                error.response?.data ||
-                error.message
-            );
-
-
-            res
-                .status(500)
-                .json({
-                    error:
-                        "Personalul DIICOT nu a putut fi încărcat."
-                });
-        }
-    }
-);
-
-
-// ======================================================
-// LOGOUT
-// ======================================================
-
-app.get(
-    "/logout",
-
-    (req, res) => {
-
-        req.session = null;
-
-        res.clearCookie(
-            "diicot_session"
+                    button.textContent =
+                        "POSTEAZĂ RAPORTUL";
+                }
+            }
         );
 
-        res.redirect("/");
-    }
-);
+        /* =====================================================
+           RAPOARTELE MELE
+        ====================================================== */
 
+        async function loadMyReports() {
 
-// ======================================================
-// HEALTH
-// ======================================================
+            try {
 
-app.get(
-    "/health",
+                const response =
+                    await fetch(
+                        "/api/reports/my",
+                        {
+                            credentials: "include",
+                            cache: "no-store"
+                        }
+                    );
 
-    (req, res) => {
+                if (!response.ok) {
+                    return;
+                }
 
-        res.json({
+                const data =
+                    await response.json();
 
-            status:
-                "online",
+                const reports =
+                    data.reports || [];
 
-            service:
-                "DIICOT Hub",
+                renderReports(
+                    reports
+                );
 
-            reports:
-                reports.length,
+                updateStatistics(
+                    reports
+                );
 
-            profiles:
-                userProfiles.size,
+                renderRecentActivity(
+                    reports
+                );
 
-            rolesConfigured:
-                DIICOT_ROLES.length,
+            }
 
-            botConfigured:
-                Boolean(BOT_TOKEN),
+            catch (error) {
 
-            announcementChannel:
-                ANNOUNCEMENT_CHANNEL_ID,
+                console.error(
+                    "Reports error:",
+                    error
+                );
+            }
+        }
 
-            adminMinimumRank:
-                "COORDONATOR"
-        });
-    }
-);
+        /* =====================================================
+           STATISTICI
+        ====================================================== */
 
+        function updateStatistics(reports) {
 
-// ======================================================
-// ERRORS
-// ======================================================
+            const total =
+                reports.length;
 
-app.use(
-    (
-        error,
-        req,
-        res,
-        next
-    ) => {
+            const withImages =
+                reports.filter(
+                    report =>
+                        Array.isArray(
+                            report.images
+                        ) &&
+                        report.images.length > 0
+                ).length;
 
-        if (
-            error instanceof multer.MulterError
+            const uniqueTypes =
+                new Set(
+                    reports.map(
+                        report =>
+                            report.type
+                    )
+                ).size;
+
+            document.getElementById(
+                "stat-total"
+            ).textContent =
+                total;
+
+            document.getElementById(
+                "stat-images"
+            ).textContent =
+                withImages;
+
+            document.getElementById(
+                "stat-types"
+            ).textContent =
+                uniqueTypes;
+
+            document.getElementById(
+                "stat-last"
+            ).textContent =
+                reports.length
+                    ? reports[0].createdAtFormatted
+                    : "-";
+        }
+
+        /* =====================================================
+           RAPOARTE HTML
+        ====================================================== */
+
+        function renderReports(reports) {
+
+            const container =
+                document.getElementById(
+                    "my-reports-container"
+                );
+
+            if (!reports.length) {
+
+                container.innerHTML = `
+
+                    <div class="dashboard-panel">
+
+                        <div class="empty-state">
+                            Nu ai încă rapoarte postate.
+                        </div>
+
+                    </div>
+                `;
+
+                return;
+            }
+
+            container.innerHTML =
+                reports
+                    .map(
+                        report =>
+                            createReportHTML(
+                                report,
+                                false
+                            )
+                    )
+                    .join("");
+        }
+
+        function createReportHTML(
+            report,
+            showAuthor
+        ) {
+
+            const images =
+                Array.isArray(
+                    report.images
+                )
+                    ? report.images
+                    : [];
+
+            const imagesHTML =
+                images.length
+
+                    ? `
+
+                        <div class="report-images">
+
+                            ${images
+                                .map(
+                                    image => `
+
+                                        <a
+                                            href="${escapeHTML(image.url)}"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            <img
+                                                src="${escapeHTML(image.url)}"
+                                                alt="Poză raport"
+                                            >
+                                        </a>
+
+                                    `
+                                )
+                                .join("")}
+
+                        </div>
+                    `
+
+                    : "";
+
+            const authorHTML =
+                showAuthor
+
+                    ? `
+
+                        <div class="admin-report-author">
+
+                            <span>
+                                RAPORT POSTAT DE
+                            </span>
+
+                            <strong>
+                                ${escapeHTML(
+                                    report.authorName ||
+                                    report.authorUsername ||
+                                    "Necunoscut"
+                                )}
+                            </strong>
+
+                            <small>
+                                @${escapeHTML(
+                                    report.authorUsername ||
+                                    "necunoscut"
+                                )}
+                                •
+                                ${escapeHTML(
+                                    report.authorRank ||
+                                    "MEMBRU DIICOT"
+                                )}
+                            </small>
+
+                        </div>
+                    `
+
+                    : "";
+
+            return `
+
+                <article class="report-card">
+
+                    ${authorHTML}
+
+                    <div class="report-card-header">
+
+                        <div>
+
+                            <span class="report-type">
+                                ${escapeHTML(report.type)}
+                            </span>
+
+                            <h3>
+                                ${escapeHTML(report.title)}
+                            </h3>
+
+                        </div>
+
+                        <span class="report-published">
+                            POSTAT
+                        </span>
+
+                    </div>
+
+                    <p class="report-description">
+                        ${escapeHTML(report.description)}
+                    </p>
+
+                    ${imagesHTML}
+
+                    <div class="report-meta">
+
+                        <span>
+                            ${escapeHTML(
+                                report.authorRank ||
+                                "MEMBRU DIICOT"
+                            )}
+                        </span>
+
+                        <span>
+                            ${escapeHTML(
+                                report.createdAtFormatted ||
+                                "-"
+                            )}
+                        </span>
+
+                    </div>
+
+                </article>
+            `;
+        }
+
+        /* =====================================================
+           ACTIVITATE RECENTĂ
+        ====================================================== */
+
+        function renderRecentActivity(reports) {
+
+            const container =
+                document.getElementById(
+                    "recent-activity"
+                );
+
+            if (!reports.length) {
+
+                container.className =
+                    "empty-state";
+
+                container.textContent =
+                    "Momentan nu există activitate.";
+
+                return;
+            }
+
+            const report =
+                reports[0];
+
+            container.className =
+                "recent-report";
+
+            container.innerHTML = `
+
+                <strong>
+                    ${escapeHTML(report.type)}
+                </strong>
+
+                <span>
+                    ${escapeHTML(report.title)}
+                </span>
+
+                <small>
+                    ${escapeHTML(
+                        report.createdAtFormatted
+                    )}
+                </small>
+            `;
+        }
+
+        /* =====================================================
+           ADMINISTRARE
+        ====================================================== */
+
+        async function loadAdminReports() {
+
+            const container =
+                document.getElementById(
+                    "admin-reports-container"
+                );
+
+            const counter =
+                document.getElementById(
+                    "admin-total"
+                );
+
+            container.innerHTML = `
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+                        Se încarcă toate rapoartele...
+                    </div>
+
+                </div>
+            `;
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/admin/reports",
+                        {
+                            credentials: "include",
+                            cache: "no-store"
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Rapoartele nu au putut fi încărcate."
+                    );
+                }
+
+                const reports =
+                    data.reports || [];
+
+                counter.textContent =
+                    reports.length;
+
+                if (!reports.length) {
+
+                    container.innerHTML = `
+
+                        <div class="dashboard-panel">
+
+                            <div class="empty-state">
+                                Nu există rapoarte postate.
+                            </div>
+
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                container.innerHTML =
+                    reports
+                        .map(
+                            report =>
+                                createReportHTML(
+                                    report,
+                                    true
+                                )
+                        )
+                        .join("");
+
+            }
+
+            catch (error) {
+
+                counter.textContent = "0";
+
+                container.innerHTML = `
+
+                    <div class="dashboard-panel">
+
+                        <div class="empty-state">
+                            ${escapeHTML(error.message)}
+                        </div>
+
+                    </div>
+                `;
+            }
+        }
+
+        /* =====================================================
+           PERSONAL DIICOT
+        ====================================================== */
+
+        async function loadPersonnel() {
+
+            const container =
+                document.getElementById(
+                    "personnel-container"
+                );
+
+            const counter =
+                document.getElementById(
+                    "personnel-count"
+                );
+
+            container.innerHTML = `
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+                        Se încarcă personalul DIICOT...
+                    </div>
+
+                </div>
+            `;
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/personnel",
+                        {
+                            credentials: "include",
+                            cache: "no-store"
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Personalul nu a putut fi încărcat."
+                    );
+                }
+
+                const personnel =
+                    data.personnel || [];
+
+                if (
+                    currentUser &&
+                    Number(
+                        currentUser.rankLevel || 0
+                    ) >= 10
+                ) {
+
+                    await loadDiscordRoles();
+                }
+
+                counter.textContent =
+                    personnel.length;
+
+                if (!personnel.length) {
+
+                    container.innerHTML = `
+
+                        <div class="dashboard-panel">
+
+                            <div class="empty-state">
+                                Nu au fost găsiți membri DIICOT.
+                            </div>
+
+                        </div>
+                    `;
+
+                    return;
+                }
+
+                const groups = {};
+
+                personnel.forEach(
+                    member => {
+
+                        if (!groups[member.rank]) {
+
+                            groups[
+                                member.rank
+                            ] = [];
+                        }
+
+                        groups[
+                            member.rank
+                        ].push(
+                            member
+                        );
+                    }
+                );
+
+                const rankOrder = [
+                    "PROCUROR ȘEF",
+                    "PROCUROR ȘEF ADJUNCT",
+                    "PROCUROR",
+                    "COORDONATOR",
+                    "COMISAR ȘEF",
+                    "COMISAR",
+                    "SUB COMISAR",
+                    "INSPECTOR PRINCIPAL",
+                    "INSPECTOR",
+                    "SUB INSPECTOR",
+                    "AGENT PRINCIPAL",
+                    "AGENT OPERATIV",
+                    "AGENT STAGIAR"
+                ];
+
+                let html = "";
+
+                rankOrder.forEach(
+                    rank => {
+
+                        const members =
+                            groups[rank];
+
+                        if (
+                            !members ||
+                            !members.length
+                        ) {
+                            return;
+                        }
+
+                        html += `
+
+                            <div class="personnel-rank-section">
+
+                                <div class="personnel-rank-header">
+
+                                    <span>
+                                        ${escapeHTML(rank)}
+                                    </span>
+
+                                    <strong>
+                                        ${members.length}
+                                    </strong>
+
+                                </div>
+
+                                <div class="personnel-grid">
+                        `;
+
+                        members.forEach(
+                            member => {
+
+                                const canManage =
+                                    currentUser &&
+                                    Number(
+                                        currentUser.rankLevel || 0
+                                    ) >= 10 &&
+                                    String(
+                                        currentUser.id
+                                    ) !==
+                                    String(
+                                        member.id
+                                    );
+
+                                const manageButton =
+                                    canManage
+
+                                        ? `
+
+                                            <button
+                                                type="button"
+                                                class="manage-rank-btn"
+                                                data-user-id="${escapeHTML(member.id)}"
+                                                data-user-name="${escapeHTML(member.displayName)}"
+                                                data-current-role="${escapeHTML(member.rankRoleId || "")}"
+                                            >
+                                                GESTIONEAZĂ GRADUL
+                                            </button>
+                                        `
+
+                                        : "";
+
+                                html += `
+
+                                    <div class="personnel-card">
+
+                                        <img
+                                            src="${escapeHTML(member.avatar)}"
+                                            alt="Avatar"
+                                            class="personnel-avatar"
+                                        >
+
+                                        <div class="personnel-info">
+
+                                            <strong>
+                                                ${escapeHTML(member.displayName)}
+                                            </strong>
+
+                                            <span>
+                                                ${escapeHTML(member.rank)}
+                                            </span>
+
+                                            <small>
+                                                @${escapeHTML(member.username)}
+                                            </small>
+
+                                            ${manageButton}
+
+                                        </div>
+
+                                    </div>
+                                `;
+                            }
+                        );
+
+                        html += `
+
+                                </div>
+
+                            </div>
+                        `;
+                    }
+                );
+
+                container.innerHTML =
+                    html;
+
+                container
+                    .querySelectorAll(
+                        ".manage-rank-btn"
+                    )
+                    .forEach(
+                        button => {
+
+                            button.addEventListener(
+                                "click",
+                                function () {
+
+                                    openRankManager(
+                                        this.dataset.userId,
+                                        this.dataset.userName,
+                                        this.dataset.currentRole
+                                    );
+                                }
+                            );
+                        }
+                    );
+
+            }
+
+            catch (error) {
+
+                counter.textContent = "0";
+
+                container.innerHTML = `
+
+                    <div class="dashboard-panel">
+
+                        <div class="empty-state">
+                            ${escapeHTML(error.message)}
+                        </div>
+
+                    </div>
+                `;
+            }
+        }
+
+        /* =====================================================
+           LOAD GRADE
+        ====================================================== */
+
+        async function loadDiscordRoles() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/admin/roles",
+                        {
+                            credentials: "include",
+                            cache: "no-store"
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Gradele nu au putut fi încărcate."
+                    );
+                }
+
+                adminDiscordRoles =
+                    Array.isArray(
+                        data.roles
+                    )
+                        ? data.roles
+                        : [];
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Discord roles error:",
+                    error
+                );
+
+                adminDiscordRoles = [];
+            }
+        }
+
+        /* =====================================================
+           OPEN MANAGER GRAD
+        ====================================================== */
+
+        function openRankManager(
+            userId,
+            displayName,
+            currentRoleId
         ) {
 
             if (
-                error.code === "LIMIT_FILE_SIZE"
+                !currentUser ||
+                Number(
+                    currentUser.rankLevel || 0
+                ) < 10
             ) {
 
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "O imagine depășește 8 MB."
-                    });
+                return;
             }
 
+            const modal =
+                document.getElementById(
+                    "rank-manager-modal"
+                );
 
-            if (
-                error.code === "LIMIT_FILE_COUNT"
-            ) {
+            const select =
+                document.getElementById(
+                    "rank-manager-select"
+                );
 
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Poți încărca maximum 5 imagini."
-                    });
+            document.getElementById(
+                "rank-manager-user-id"
+            ).value =
+                userId;
+
+            document.getElementById(
+                "rank-manager-name"
+            ).textContent =
+                displayName;
+
+            const message =
+                document.getElementById(
+                    "rank-manager-message"
+                );
+
+            message.className =
+                "rank-manager-message";
+
+            message.textContent = "";
+
+            const availableRoles =
+                adminDiscordRoles;
+
+            if (!availableRoles.length) {
+
+                select.innerHTML = `
+
+                    <option value="">
+                        Nu există grade disponibile
+                    </option>
+                `;
+
+            }
+
+            else {
+
+                select.innerHTML =
+                    availableRoles
+                        .map(
+                            role => `
+
+                                <option
+                                    value="${escapeHTML(role.id)}"
+                                    ${
+                                        String(role.id) ===
+                                        String(currentRoleId)
+                                            ? "selected"
+                                            : ""
+                                    }
+                                >
+                                    ${escapeHTML(role.name)}
+                                </option>
+                            `
+                        )
+                        .join("");
+            }
+
+            modal.classList.add(
+                "open"
+            );
+
+            document.body.classList.add(
+                "rank-modal-open"
+            );
+        }
+
+        /* =====================================================
+           CLOSE MANAGER
+        ====================================================== */
+
+        function closeRankManager() {
+
+            document.getElementById(
+                "rank-manager-modal"
+            ).classList.remove(
+                "open"
+            );
+
+            document.body.classList.remove(
+                "rank-modal-open"
+            );
+        }
+
+        /* =====================================================
+           SALVARE GRAD
+        ====================================================== */
+
+        async function saveMemberRank() {
+
+            const userId =
+                document.getElementById(
+                    "rank-manager-user-id"
+                ).value;
+
+            const roleId =
+                document.getElementById(
+                    "rank-manager-select"
+                ).value;
+
+            const message =
+                document.getElementById(
+                    "rank-manager-message"
+                );
+
+            const button =
+                document.getElementById(
+                    "rank-manager-save"
+                );
+
+            if (!roleId) {
+
+                message.className =
+                    "rank-manager-message error";
+
+                message.textContent =
+                    "Selectează un grad.";
+
+                return;
+            }
+
+            try {
+
+                button.disabled = true;
+
+                button.textContent =
+                    "SE ACTUALIZEAZĂ...";
+
+                message.className =
+                    "rank-manager-message";
+
+                message.textContent = "";
+
+                const response =
+                    await fetch(
+                        `/api/admin/members/${encodeURIComponent(userId)}/role`,
+                        {
+                            method: "PATCH",
+                            credentials: "include",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify({
+                                    roleId: roleId
+                                })
+                        }
+                    );
+
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Gradul nu a putut fi modificat."
+                    );
+                }
+
+                message.className =
+                    "rank-manager-message success";
+
+                message.textContent =
+                    "✓ " + data.message;
+
+                setTimeout(
+                    async function () {
+
+                        closeRankManager();
+
+                        await loadPersonnel();
+
+                    },
+                    800
+                );
+
+            }
+
+            catch (error) {
+
+                message.className =
+                    "rank-manager-message error";
+
+                message.textContent =
+                    error.message;
+            }
+
+            finally {
+
+                button.disabled = false;
+
+                button.textContent =
+                    "SALVEAZĂ GRADUL";
             }
         }
 
+        /* =====================================================
+           PROFIL
+        ====================================================== */
 
-        console.error(
-            "Server Error:",
-            error
-        );
+        async function loadProfile() {
 
+            const message =
+                document.getElementById(
+                    "profile-message"
+                );
 
-        res
-            .status(400)
-            .json({
-                error:
-                    error.message ||
-                    "A apărut o eroare."
-            });
-    }
-);
+            message.textContent = "";
 
+            try {
 
-app.use(
-    (req, res) => {
+                const response =
+                    await fetch(
+                        "/api/profile",
+                        {
+                            credentials: "include",
+                            cache: "no-store"
+                        }
+                    );
 
-        res
-            .status(404)
-            .send(
-                "Pagina nu a fost găsită."
+                const data =
+                    await response.json();
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Profilul nu a putut fi încărcat."
+                    );
+                }
+
+                const profile =
+                    data.profile;
+
+                document.getElementById(
+                    "profile-name"
+                ).textContent =
+                    profile.displayName;
+
+                document.getElementById(
+                    "profile-username"
+                ).textContent =
+                    `@${profile.username}`;
+
+                document.getElementById(
+                    "profile-rank"
+                ).textContent =
+                    profile.rank;
+
+                document.getElementById(
+                    "profile-nickname"
+                ).value =
+                    profile.displayName;
+
+                document.getElementById(
+                    "profile-total-reports"
+                ).textContent =
+                    profile.statistics.totalReports;
+
+                document.getElementById(
+                    "profile-image-reports"
+                ).textContent =
+                    profile.statistics.reportsWithImages;
+
+                document.getElementById(
+                    "profile-last-activity"
+                ).textContent =
+                    profile.statistics.lastActivity;
+
+                const avatar =
+                    getAvatarURL({
+                        id: profile.id,
+                        avatar: profile.avatar
+                    });
+
+                document.getElementById(
+                    "profile-avatar"
+                ).src =
+                    avatar;
+
+                profileDuties =
+                    Array.isArray(
+                        profile.duties
+                    )
+                        ? [...profile.duties]
+                        : [];
+
+                renderDutyEditor();
+
+                renderProfileActivity(
+                    profile.recentActivity || []
+                );
+
+                if (currentUser) {
+
+                    currentUser.displayName =
+                        profile.displayName;
+
+                    currentUser.rank =
+                        profile.rank;
+
+                    currentUser.rankLevel =
+                        profile.rankLevel;
+
+                    renderTopbarUser();
+                }
+
+            }
+
+            catch (error) {
+
+                message.textContent =
+                    error.message;
+            }
+        }
+
+        /* =====================================================
+           ATRIBUȚII
+        ====================================================== */
+
+        function renderDutyEditor() {
+
+            const container =
+                document.getElementById(
+                    "duties-editor"
+                );
+
+            if (!profileDuties.length) {
+
+                container.innerHTML = `
+
+                    <div class="profile-no-duties">
+                        Nu ai adăugat nicio atribuție.
+                    </div>
+                `;
+
+                return;
+            }
+
+            container.innerHTML =
+                profileDuties
+                    .map(
+                        (duty, index) => `
+
+                            <div class="profile-duty-editor-row">
+
+                                <input
+                                    type="text"
+                                    maxlength="80"
+                                    value="${escapeHTML(duty)}"
+                                    data-duty-index="${index}"
+                                    class="profile-duty-input"
+                                    placeholder="Ex: Responsabil evaluare teste"
+                                >
+
+                                <button
+                                    type="button"
+                                    class="profile-duty-remove"
+                                    data-remove-duty="${index}"
+                                    title="Șterge atribuția"
+                                >
+                                    ×
+                                </button>
+
+                            </div>
+                        `
+                    )
+                    .join("");
+
+            document
+                .querySelectorAll(
+                    ".profile-duty-input"
+                )
+                .forEach(
+                    input => {
+
+                        input.addEventListener(
+                            "input",
+                            function () {
+
+                                const index =
+                                    Number(
+                                        this.dataset.dutyIndex
+                                    );
+
+                                profileDuties[index] =
+                                    this.value;
+                            }
+                        );
+                    }
+                );
+
+            document
+                .querySelectorAll(
+                    "[data-remove-duty]"
+                )
+                .forEach(
+                    button => {
+
+                        button.addEventListener(
+                            "click",
+                            function () {
+
+                                const index =
+                                    Number(
+                                        this.dataset.removeDuty
+                                    );
+
+                                profileDuties.splice(
+                                    index,
+                                    1
+                                );
+
+                                renderDutyEditor();
+                            }
+                        );
+                    }
+                );
+        }
+
+        /* =====================================================
+           ADAUGĂ ATRIBUȚIE
+        ====================================================== */
+
+        document
+            .getElementById(
+                "add-duty"
+            )
+            .addEventListener(
+                "click",
+                function () {
+
+                    if (
+                        profileDuties.length >= 8
+                    ) {
+
+                        document.getElementById(
+                            "profile-message"
+                        ).textContent =
+                            "Poți avea maximum 8 atribuții.";
+
+                        return;
+                    }
+
+                    profileDuties.push("");
+
+                    renderDutyEditor();
+
+                    const inputs =
+                        document.querySelectorAll(
+                            ".profile-duty-input"
+                        );
+
+                    if (inputs.length) {
+
+                        inputs[
+                            inputs.length - 1
+                        ].focus();
+                    }
+                }
             );
-    }
-);
 
+        /* =====================================================
+           SALVARE PROFIL
+        ====================================================== */
 
-// ======================================================
-// START
-// ======================================================
+        document
+            .getElementById(
+                "profile-form"
+            )
+            .addEventListener(
+                "submit",
+                async function (event) {
 
-app.listen(
-    PORT,
-    "0.0.0.0",
+                    event.preventDefault();
 
-    () => {
+                    const nickname =
+                        document.getElementById(
+                            "profile-nickname"
+                        ).value.trim();
 
-        console.log("");
-        console.log("==============================");
-        console.log("DIICOT HUB ONLINE");
-        console.log("PORT:", PORT);
-        console.log("ADMIN: COORDONATOR+");
-        console.log("GRADE: ENABLED");
-        console.log("CONDUCERE: ENABLED");
-        console.log(
-            "ANNOUNCEMENT CHANNEL:",
-            ANNOUNCEMENT_CHANNEL_ID
+                    const message =
+                        document.getElementById(
+                            "profile-message"
+                        );
+
+                    const button =
+                        document.getElementById(
+                            "save-profile"
+                        );
+
+                    const duties =
+                        profileDuties
+                            .map(
+                                duty =>
+                                    String(
+                                        duty || ""
+                                    ).trim()
+                            )
+                            .filter(Boolean);
+
+                    try {
+
+                        button.disabled = true;
+
+                        button.textContent =
+                            "SE SALVEAZĂ...";
+
+                        message.textContent = "";
+
+                        const response =
+                            await fetch(
+                                "/api/profile",
+                                {
+                                    method: "PATCH",
+                                    credentials: "include",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify({
+                                            nickname: nickname,
+                                            duties: duties
+                                        })
+                                }
+                            );
+
+                        const data =
+                            await response.json();
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                data.error ||
+                                "Profilul nu a putut fi salvat."
+                            );
+                        }
+
+                        profileDuties =
+                            duties;
+
+                        if (currentUser) {
+
+                            currentUser.displayName =
+                                nickname;
+                        }
+
+                        document.getElementById(
+                            "profile-name"
+                        ).textContent =
+                            nickname;
+
+                        renderTopbarUser();
+
+                        renderDutyEditor();
+
+                        if (data.discordSynced) {
+
+                            message.textContent =
+                                "✓ Profil salvat și sincronizat cu Discord.";
+
+                        }
+
+                        else {
+
+                            message.textContent =
+                                "✓ Profil salvat pe site. Discord nu a permis schimbarea nickname-ului.";
+                        }
+
+                    }
+
+                    catch (error) {
+
+                        message.textContent =
+                            error.message;
+                    }
+
+                    finally {
+
+                        button.disabled = false;
+
+                        button.textContent =
+                            "SALVEAZĂ MODIFICĂRILE";
+                    }
+                }
+            );
+
+        /* =====================================================
+           ACTIVITATE PROFIL
+        ====================================================== */
+
+        function renderProfileActivity(activity) {
+
+            const container =
+                document.getElementById(
+                    "profile-activity"
+                );
+
+            if (!activity.length) {
+
+                container.innerHTML = `
+
+                    <div class="empty-state">
+                        Nu există activitate recentă.
+                    </div>
+                `;
+
+                return;
+            }
+
+            container.innerHTML =
+                activity
+                    .map(
+                        item => `
+
+                            <div class="profile-activity-item">
+
+                                <div class="profile-activity-icon">
+                                    ◆
+                                </div>
+
+                                <div class="profile-activity-info">
+
+                                    <span>
+                                        ${escapeHTML(item.type)}
+                                    </span>
+
+                                    <strong>
+                                        ${escapeHTML(item.title)}
+                                    </strong>
+
+                                    <small>
+                                        ${escapeHTML(
+                                            item.createdAtFormatted
+                                        )}
+                                    </small>
+
+                                </div>
+
+                            </div>
+                        `
+                    )
+                    .join("");
+        }
+
+        /* =====================================================
+           CONDUCERE - PREVIEW
+        ====================================================== */
+
+        const announcementTitleInput =
+            document.getElementById(
+                "announcement-title"
+            );
+
+        const announcementMessageInput =
+            document.getElementById(
+                "announcement-message-input"
+            );
+
+        function updateAnnouncementPreview() {
+
+            const title =
+                announcementTitleInput.value.trim();
+
+            const message =
+                announcementMessageInput.value;
+
+            document.getElementById(
+                "announcement-preview-title"
+            ).textContent =
+                title
+                    ? `📢 ${title}`
+                    : "📢 Titlul anunțului";
+
+            document.getElementById(
+                "announcement-preview-message"
+            ).textContent =
+                message ||
+                "Mesajul anunțului va apărea aici.";
+
+            document.getElementById(
+                "announcement-counter"
+            ).textContent =
+                `${announcementMessageInput.value.length} / 4000`;
+        }
+
+        announcementTitleInput.addEventListener(
+            "input",
+            updateAnnouncementPreview
         );
-        console.log(
-            "BOT:",
-            BOT_TOKEN
-                ? "CONNECTED"
-                : "NOT CONFIGURED"
+
+        announcementMessageInput.addEventListener(
+            "input",
+            updateAnnouncementPreview
         );
-        console.log("==============================");
-        console.log("");
-    }
-);
+
+        /* =====================================================
+           TRIMITE ANUNȚ DISCORD
+        ====================================================== */
+
+        document
+            .getElementById(
+                "announcement-form"
+            )
+            .addEventListener(
+                "submit",
+                async function (event) {
+
+                    event.preventDefault();
+
+                    if (
+                        !currentUser ||
+                        Number(
+                            currentUser.rankLevel || 0
+                        ) < 10
+                    ) {
+
+                        return;
+                    }
+
+                    const title =
+                        announcementTitleInput
+                            .value
+                            .trim();
+
+                    const messageText =
+                        announcementMessageInput
+                            .value
+                            .trim();
+
+                    const button =
+                        document.getElementById(
+                            "announcement-submit"
+                        );
+
+                    const result =
+                        document.getElementById(
+                            "announcement-result"
+                        );
+
+                    if (!title) {
+
+                        result.className =
+                            "announcement-message error";
+
+                        result.textContent =
+                            "Introdu un titlu.";
+
+                        return;
+                    }
+
+                    if (!messageText) {
+
+                        result.className =
+                            "announcement-message error";
+
+                        result.textContent =
+                            "Introdu mesajul anunțului.";
+
+                        return;
+                    }
+
+                    try {
+
+                        button.disabled = true;
+
+                        button.textContent =
+                            "SE TRIMITE...";
+
+                        result.className =
+                            "announcement-message";
+
+                        result.textContent = "";
+
+                        const response =
+                            await fetch(
+                                "/api/leadership/announcement",
+                                {
+                                    method: "POST",
+                                    credentials: "include",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify({
+                                            title: title,
+                                            message: messageText
+                                        })
+                                }
+                            );
+
+                        let data = {};
+
+                        try {
+
+                            data =
+                                await response.json();
+
+                        }
+
+                        catch (_) {
+                            data = {};
+                        }
+
+                        if (!response.ok) {
+
+                            throw new Error(
+                                data.error ||
+                                "Anunțul nu a putut fi trimis."
+                            );
+                        }
+
+                        result.className =
+                            "announcement-message success";
+
+                        result.textContent =
+                            "✓ Anunțul a fost trimis pe Discord.";
+
+                        this.reset();
+
+                        updateAnnouncementPreview();
+
+                    }
+
+                    catch (error) {
+
+                        result.className =
+                            "announcement-message error";
+
+                        result.textContent =
+                            error.message;
+                    }
+
+                    finally {
+
+                        button.disabled = false;
+
+                        button.textContent =
+                            "TRIMITE ANUNȚUL";
+                    }
+                }
+            );
+
+        /* =====================================================
+           MODAL GRADE
+        ====================================================== */
+
+        document
+            .getElementById(
+                "rank-manager-close"
+            )
+            .addEventListener(
+                "click",
+                closeRankManager
+            );
+
+        document
+            .getElementById(
+                "rank-manager-overlay"
+            )
+            .addEventListener(
+                "click",
+                closeRankManager
+            );
+
+        document
+            .getElementById(
+                "rank-manager-save"
+            )
+            .addEventListener(
+                "click",
+                saveMemberRank
+            );
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    closeRankManager();
+                }
+            }
+        );
+
+        /* =====================================================
+           START
+        ====================================================== */
+
+        updateAnnouncementPreview();
+
+        loadDashboardUser();
+
+    </script>
+
+</body>
+
+</html>
