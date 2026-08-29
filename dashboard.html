@@ -6388,132 +6388,35 @@
     }
 
 
-    function reportHTML(
-        report,
-        admin = false
-    ) {
+const images =
+    Array.isArray(
+        report.images
+    )
+        ? report.images
+            .map(
+                image => {
 
-        const images =
-            Array.isArray(
-                report.images
+                    if (
+                        typeof image ===
+                        "string"
+                    ) {
+                        return image;
+                    }
+
+                    if (
+                        image &&
+                        typeof image ===
+                        "object" &&
+                        image.url
+                    ) {
+                        return image.url;
+                    }
+
+                    return "";
+                }
             )
-                ? report.images
-                : [];
-
-
-        return `
-
-            <article class="report-card">
-
-                ${
-                    admin
-                        ? `
-                            <div class="admin-report-author">
-
-                                <span>
-                                    RAPORT POSTAT DE
-                                </span>
-
-                                <strong>
-                                    ${escapeHTML(report.authorName)}
-                                </strong>
-
-                                <small>
-                                    @${escapeHTML(report.authorUsername)}
-                                    •
-                                    ${escapeHTML(report.authorRank)}
-                                </small>
-
-                            </div>
-                        `
-                        : ""
-                }
-
-
-                <div class="report-card-header">
-
-                    <div>
-
-                        <span class="report-type">
-                            ${escapeHTML(report.type)}
-                        </span>
-
-                        <h3>
-                            ${escapeHTML(report.title)}
-                        </h3>
-
-                    </div>
-
-
-                    <span class="report-published">
-                        POSTAT
-                    </span>
-
-                </div>
-
-
-                <div class="report-description">
-                    ${escapeHTML(report.description)}
-                </div>
-
-
-                ${
-                    images.length
-                        ? `
-                            <div class="report-images">
-
-                                ${images
-                                    .map(
-                                        image => `
-
-                                            <a
-                                                href="${escapeHTML(image)}"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-
-                                                <img
-                                                    src="${escapeHTML(image)}"
-                                                    alt="Dovadă raport"
-                                                    loading="lazy"
-                                                >
-
-                                            </a>
-                                        `
-                                    )
-                                    .join("")}
-
-                            </div>
-                        `
-                        : ""
-                }
-
-
-                <div class="report-meta">
-
-                    <span>
-                        ${escapeHTML(
-                            report.createdAtFormatted ||
-                            formatDateTime(
-                                report.createdAt
-                            )
-                        )}
-                    </span>
-
-                    <span>
-                        ${images.length}
-                        ${
-                            images.length === 1
-                                ? "imagine"
-                                : "imagini"
-                        }
-                    </span>
-
-                </div>
-
-            </article>
-        `;
-    }
+            .filter(Boolean)
+        : [];
 
 
     function renderReports(
@@ -7404,12 +7307,35 @@
                 .map(
                     report => {
 
-                        const images =
-                            Array.isArray(
-                                report.images
-                            )
-                                ? report.images
-                                : [];
+const images =
+    Array.isArray(
+        report.images
+    )
+        ? report.images
+            .map(
+                image => {
+
+                    if (
+                        typeof image ===
+                        "string"
+                    ) {
+                        return image;
+                    }
+
+                    if (
+                        image &&
+                        typeof image ===
+                        "object" &&
+                        image.url
+                    ) {
+                        return image.url;
+                    }
+
+                    return "";
+                }
+            )
+            .filter(Boolean)
+        : [];
 
 
                         return `
