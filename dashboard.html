@@ -8,6 +8,187 @@
     <title>Centru de Comandă | DIICOT</title>
 
     <link rel="stylesheet" href="/style.css">
+
+    <style>
+        /* =====================================================
+           GESTIONARE GRADE DIICOT
+        ====================================================== */
+
+        .manage-rank-btn {
+            margin-top: 10px;
+            padding: 8px 11px;
+            width: fit-content;
+            border: 1px solid rgba(255, 196, 0, 0.22);
+            border-radius: 6px;
+            background: rgba(255, 196, 0, 0.05);
+            color: #ffc400;
+            font-family: inherit;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: 0.7px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .manage-rank-btn:hover {
+            background: #ffc400;
+            color: #080b10;
+            border-color: #ffc400;
+            transform: translateY(-1px);
+        }
+
+        body.rank-modal-open {
+            overflow: hidden;
+        }
+
+        .rank-manager-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 999999;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .rank-manager-modal.open {
+            display: flex;
+        }
+
+        .rank-manager-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(8px);
+        }
+
+        .rank-manager-box {
+            position: relative;
+            z-index: 2;
+            width: min(470px, 100%);
+            box-sizing: border-box;
+            padding: 26px;
+            background: linear-gradient(145deg, #0d131b, #080c12);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            box-shadow: 0 35px 100px rgba(0, 0, 0, 0.75);
+        }
+
+        .rank-manager-box::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            height: 2px;
+            background: linear-gradient(90deg, #ffc400, transparent);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .rank-manager-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 20px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .rank-manager-kicker {
+            display: block;
+            margin-bottom: 6px;
+            color: #ffc400;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.3px;
+        }
+
+        .rank-manager-top h3 {
+            margin: 0;
+            color: #ffffff;
+            font-size: 21px;
+        }
+
+        .rank-manager-close {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 7px;
+            background: rgba(255, 255, 255, 0.025);
+            color: #76808c;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .rank-manager-close:hover {
+            color: #ffffff;
+            border-color: rgba(255, 196, 0, 0.3);
+        }
+
+        .rank-manager-member {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            margin: 22px 0;
+            padding: 14px 15px;
+            background: rgba(255, 196, 0, 0.035);
+            border: 1px solid rgba(255, 196, 0, 0.11);
+            border-radius: 7px;
+        }
+
+        .rank-manager-member span {
+            color: #626d79;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .rank-manager-member strong {
+            color: #f5f6f8;
+            font-size: 12px;
+        }
+
+        .rank-manager-form {
+            margin-bottom: 14px;
+        }
+
+        .rank-manager-form select {
+            width: 100%;
+        }
+
+        .rank-manager-warning {
+            padding: 11px 13px;
+            margin-top: 12px;
+            border-left: 2px solid #ffc400;
+            background: rgba(255, 196, 0, 0.035);
+            color: #737d89;
+            font-size: 8px;
+            line-height: 1.6;
+        }
+
+        .rank-manager-save {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .rank-manager-message {
+            min-height: 18px;
+            margin-top: 13px;
+            font-size: 9px;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .rank-manager-message.success {
+            color: #67ce85;
+        }
+
+        .rank-manager-message.error {
+            color: #ff6b6b;
+        }
+    </style>
+
 </head>
 
 <body class="dashboard-body">
@@ -704,7 +885,7 @@
                                     >
 
                                     <small class="profile-help">
-                                        Acest nume va fi sincronizat cu nickname-ul tău de pe serverul Discord.
+                                        Profilul se salvează pe site. Dacă Discord permite, nickname-ul se sincronizează și pe server.
                                     </small>
 
                                 </div>
@@ -815,6 +996,98 @@
     </div>
 
 
+
+    <!-- =====================================================
+         MODAL GESTIONARE GRAD
+    ====================================================== -->
+
+    <div
+        id="rank-manager-modal"
+        class="rank-manager-modal"
+    >
+
+        <div
+            class="rank-manager-overlay"
+            id="rank-manager-overlay"
+        ></div>
+
+        <div class="rank-manager-box">
+
+            <div class="rank-manager-top">
+
+                <div>
+                    <span class="rank-manager-kicker">
+                        ADMINISTRARE PERSONAL
+                    </span>
+
+                    <h3>
+                        Gestionare grad
+                    </h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="rank-manager-close"
+                    id="rank-manager-close"
+                >
+                    ×
+                </button>
+
+            </div>
+
+            <div class="rank-manager-member">
+
+                <span>
+                    MEMBRU SELECTAT
+                </span>
+
+                <strong id="rank-manager-name">
+                    -
+                </strong>
+
+            </div>
+
+            <input
+                type="hidden"
+                id="rank-manager-user-id"
+            >
+
+            <div class="form-group rank-manager-form">
+
+                <label for="rank-manager-select">
+                    GRAD NOU
+                </label>
+
+                <select id="rank-manager-select">
+                    <option value="">
+                        Se încarcă...
+                    </option>
+                </select>
+
+            </div>
+
+            <div class="rank-manager-warning">
+                Schimbarea gradului se aplică direct pe serverul Discord.
+            </div>
+
+            <button
+                type="button"
+                id="rank-manager-save"
+                class="primary-btn rank-manager-save"
+            >
+                SALVEAZĂ GRADUL
+            </button>
+
+            <div
+                id="rank-manager-message"
+                class="rank-manager-message"
+            ></div>
+
+        </div>
+
+    </div>
+
+
     <!-- =====================================================
          JAVASCRIPT
     ====================================================== -->
@@ -824,6 +1097,8 @@
         let currentUser = null;
 
         let profileDuties = [];
+
+        let adminDiscordRoles = [];
 
 
         // =====================================================
@@ -2004,6 +2279,21 @@
                     data.personnel || [];
 
 
+                // ---------------------------------------------
+                // DOAR COORDONATOR+ PRIMEȘTE LISTA GRADELOR
+                // ---------------------------------------------
+
+                if (
+                    currentUser &&
+                    Number(
+                        currentUser.rankLevel || 0
+                    ) >= 10
+                ) {
+
+                    await loadDiscordRoles();
+                }
+
+
                 counter.textContent =
                     personnel.length;
 
@@ -2125,6 +2415,43 @@
                         members.forEach(
                             member => {
 
+                                const canManage =
+
+                                    currentUser &&
+
+                                    Number(
+                                        currentUser.rankLevel || 0
+                                    ) >= 10 &&
+
+                                    String(
+                                        currentUser.id
+                                    ) !==
+                                    String(
+                                        member.id
+                                    );
+
+
+                                const manageButton =
+
+                                    canManage
+
+                                        ? `
+
+                                            <button
+                                                type="button"
+                                                class="manage-rank-btn"
+                                                data-user-id="${escapeHTML(member.id)}"
+                                                data-user-name="${escapeHTML(member.displayName)}"
+                                                data-current-role="${escapeHTML(member.rankRoleId || "")}"
+                                            >
+                                                GESTIONEAZĂ GRADUL
+                                            </button>
+
+                                        `
+
+                                        : "";
+
+
                                 html += `
 
                                     <div class="personnel-card">
@@ -2149,6 +2476,8 @@
                                                 @${escapeHTML(member.username)}
                                             </small>
 
+                                            ${manageButton}
+
                                         </div>
 
                                     </div>
@@ -2172,6 +2501,29 @@
                 container.innerHTML =
                     html;
 
+
+                container
+                    .querySelectorAll(
+                        ".manage-rank-btn"
+                    )
+                    .forEach(
+                        button => {
+
+                            button.addEventListener(
+                                "click",
+
+                                function () {
+
+                                    openRankManager(
+                                        this.dataset.userId,
+                                        this.dataset.userName,
+                                        this.dataset.currentRole
+                                    );
+                                }
+                            );
+                        }
+                    );
+
             }
 
             catch (error) {
@@ -2191,6 +2543,356 @@
                     </div>
 
                 `;
+            }
+        }
+
+
+        // =====================================================
+        // ÎNCĂRCARE GRADE DE PE DISCORD
+        // =====================================================
+
+        async function loadDiscordRoles() {
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/admin/roles",
+
+                        {
+                            credentials:
+                                "include",
+
+                            cache:
+                                "no-store"
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Gradele nu au putut fi încărcate."
+                    );
+                }
+
+
+                adminDiscordRoles =
+                    Array.isArray(
+                        data.roles
+                    )
+                        ? data.roles
+                        : [];
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Discord roles error:",
+                    error
+                );
+
+
+                adminDiscordRoles =
+                    [];
+            }
+        }
+
+
+        // =====================================================
+        // DESCHIDERE MANAGER GRAD
+        // =====================================================
+
+        function openRankManager(
+            userId,
+            displayName,
+            currentRoleId
+        ) {
+
+            if (
+                !currentUser ||
+                Number(
+                    currentUser.rankLevel || 0
+                ) < 10
+            ) {
+
+                return;
+            }
+
+
+            const modal =
+                document.getElementById(
+                    "rank-manager-modal"
+                );
+
+
+            const select =
+                document.getElementById(
+                    "rank-manager-select"
+                );
+
+
+            const myLevel =
+                Number(
+                    currentUser.rankLevel || 0
+                );
+
+
+            // Server.js permite doar grade sub gradul adminului.
+            const availableRoles =
+                adminDiscordRoles.filter(
+                    role =>
+                        Number(
+                            role.level || 0
+                        ) < myLevel
+                );
+
+
+            document.getElementById(
+                "rank-manager-user-id"
+            ).value =
+                userId;
+
+
+            document.getElementById(
+                "rank-manager-name"
+            ).textContent =
+                displayName;
+
+
+            const message =
+                document.getElementById(
+                    "rank-manager-message"
+                );
+
+
+            message.className =
+                "rank-manager-message";
+
+
+            message.textContent =
+                "";
+
+
+            if (!availableRoles.length) {
+
+                select.innerHTML = `
+
+                    <option value="">
+                        Nu există grade disponibile
+                    </option>
+
+                `;
+            }
+
+            else {
+
+                select.innerHTML =
+                    availableRoles
+                        .map(
+                            role => `
+
+                                <option
+                                    value="${escapeHTML(role.id)}"
+                                    ${
+                                        String(role.id) ===
+                                        String(currentRoleId)
+
+                                            ? "selected"
+
+                                            : ""
+                                    }
+                                >
+                                    ${escapeHTML(role.name)}
+                                </option>
+
+                            `
+                        )
+                        .join("");
+            }
+
+
+            modal.classList.add(
+                "open"
+            );
+
+
+            document.body.classList.add(
+                "rank-modal-open"
+            );
+        }
+
+
+        // =====================================================
+        // ÎNCHIDERE MANAGER GRAD
+        // =====================================================
+
+        function closeRankManager() {
+
+            document.getElementById(
+                "rank-manager-modal"
+            ).classList.remove(
+                "open"
+            );
+
+
+            document.body.classList.remove(
+                "rank-modal-open"
+            );
+        }
+
+
+        // =====================================================
+        // SALVARE GRAD PE DISCORD
+        // =====================================================
+
+        async function saveMemberRank() {
+
+            const userId =
+                document.getElementById(
+                    "rank-manager-user-id"
+                ).value;
+
+
+            const roleId =
+                document.getElementById(
+                    "rank-manager-select"
+                ).value;
+
+
+            const message =
+                document.getElementById(
+                    "rank-manager-message"
+                );
+
+
+            const button =
+                document.getElementById(
+                    "rank-manager-save"
+                );
+
+
+            if (!roleId) {
+
+                message.className =
+                    "rank-manager-message error";
+
+
+                message.textContent =
+                    "Selectează un grad.";
+
+
+                return;
+            }
+
+
+            try {
+
+                button.disabled =
+                    true;
+
+
+                button.textContent =
+                    "SE ACTUALIZEAZĂ...";
+
+
+                message.className =
+                    "rank-manager-message";
+
+
+                message.textContent =
+                    "";
+
+
+                const response =
+                    await fetch(
+                        `/api/admin/members/${encodeURIComponent(userId)}/role`,
+
+                        {
+                            method:
+                                "PATCH",
+
+                            credentials:
+                                "include",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    {
+                                        roleId:
+                                            roleId
+                                    }
+                                )
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.error ||
+                        "Gradul nu a putut fi modificat."
+                    );
+                }
+
+
+                message.className =
+                    "rank-manager-message success";
+
+
+                message.textContent =
+                    "✓ " +
+                    data.message;
+
+
+                setTimeout(
+                    async function () {
+
+                        closeRankManager();
+
+
+                        await loadPersonnel();
+                    },
+
+                    800
+                );
+
+            }
+
+            catch (error) {
+
+                message.className =
+                    "rank-manager-message error";
+
+
+                message.textContent =
+                    error.message;
+
+            }
+
+            finally {
+
+                button.disabled =
+                    false;
+
+
+                button.textContent =
+                    "SALVEAZĂ GRADUL";
             }
         }
 
@@ -2669,8 +3371,18 @@
                         renderDutyEditor();
 
 
-                        message.textContent =
-                            "✓ Profil actualizat. Numele a fost sincronizat cu Discord.";
+                        if (data.discordSynced) {
+
+                            message.textContent =
+                                "✓ Profil salvat și sincronizat cu Discord.";
+
+                        }
+
+                        else {
+
+                            message.textContent =
+                                "✓ Profil salvat pe site. Discord nu a permis schimbarea nickname-ului.";
+                        }
 
                     }
 
@@ -2756,6 +3468,56 @@
                     )
                     .join("");
         }
+
+
+        // =====================================================
+        // EVENIMENTE MODAL GRADE
+        // =====================================================
+
+        document
+            .getElementById(
+                "rank-manager-close"
+            )
+            .addEventListener(
+                "click",
+                closeRankManager
+            );
+
+
+        document
+            .getElementById(
+                "rank-manager-overlay"
+            )
+            .addEventListener(
+                "click",
+                closeRankManager
+            );
+
+
+        document
+            .getElementById(
+                "rank-manager-save"
+            )
+            .addEventListener(
+                "click",
+                saveMemberRank
+            );
+
+
+        document.addEventListener(
+            "keydown",
+
+            function (event) {
+
+                if (
+                    event.key ===
+                    "Escape"
+                ) {
+
+                    closeRankManager();
+                }
+            }
+        );
 
 
         // =====================================================
