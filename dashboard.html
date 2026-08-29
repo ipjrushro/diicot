@@ -1,81 +1,1492 @@
-const DIICOT_ROLES = [
+<!DOCTYPE html>
+<html lang="ro">
 
-    {
-        id: "1441514560900169785",
-        name: "PROCUROR ȘEF",
-        level: 13
-    },
+<head>
 
-    {
-        id: "1441514560900169784",
-        name: "PROCUROR ȘEF ADJUNCT",
-        level: 12
-    },
+    <meta charset="UTF-8">
 
-    {
-        id: "1441514560900169783",
-        name: "PROCUROR",
-        level: 11
-    },
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    {
-        id: "1441514560900169782",
-        name: "COORDONATOR",
-        level: 10
-    },
+    <title>
+        Centru de Comandă | DIICOT
+    </title>
 
-    {
-        id: "1441514560900169781",
-        name: "COMISAR ȘEF",
-        level: 9
-    },
+    <link
+        rel="stylesheet"
+        href="/style.css"
+    >
 
-    {
-        id: "1441514560900169779",
-        name: "COMISAR",
-        level: 8
-    },
+</head>
 
-    {
-        id: "1441514560900169778",
-        name: "SUB COMISAR",
-        level: 7
-    },
 
-    {
-        id: "1441514560891650098",
-        name: "INSPECTOR PRINCIPAL",
-        level: 6
-    },
+<body class="dashboard-body">
 
-    {
-        id: "1441514560891650097",
-        name: "INSPECTOR",
-        level: 5
-    },
 
-    {
-        id: "1441514560891650095",
-        name: "SUB INSPECTOR",
-        level: 4
-    },
+<header class="dashboard-topbar">
 
-    {
-        id: "1441514560875135229",
-        name: "AGENT PRINCIPAL",
-        level: 3
-    },
+    <div class="brand">
 
-    {
-        id: "1441514560875135228",
-        name: "AGENT OPERATIV",
-        level: 2
-    },
+        <div class="brand-logo">
+            D
+        </div>
 
-    {
-        id: "1441514560875135227",
-        name: "AGENT STAGIAR",
-        level: 1
+        <div class="brand-text">
+
+            <strong>
+                DIICOT
+            </strong>
+
+            <span>
+                CENTRU DE COMANDĂ
+            </span>
+
+        </div>
+
+    </div>
+
+
+    <div id="dashboard-user">
+
+        Se încarcă...
+
+    </div>
+
+</header>
+
+
+<div class="dashboard-layout">
+
+
+    <aside class="dashboard-sidebar">
+
+        <a
+            href="/"
+            class="sidebar-link"
+        >
+            PAGINA PRINCIPALĂ
+        </a>
+
+
+        <button
+            type="button"
+            class="sidebar-link active"
+            data-section="overview"
+        >
+            PREZENTARE GENERALĂ
+        </button>
+
+
+        <button
+            type="button"
+            class="sidebar-link"
+            data-section="new-report"
+        >
+            RAPORT NOU
+        </button>
+
+
+        <button
+            type="button"
+            class="sidebar-link"
+            data-section="my-reports"
+        >
+            RAPOARTELE MELE
+        </button>
+
+
+        <button
+            type="button"
+            class="sidebar-link"
+            data-section="personnel"
+        >
+            PERSONAL DIICOT
+        </button>
+
+
+        <button
+            type="button"
+            class="sidebar-link admin-only"
+            data-section="admin"
+        >
+            ADMINISTRARE
+        </button>
+
+
+        <a
+            href="/logout"
+            class="sidebar-link logout-sidebar"
+        >
+            DECONECTARE
+        </a>
+
+    </aside>
+
+
+    <main class="dashboard-content">
+
+
+        <!-- =============================================
+             OVERVIEW
+        ============================================== -->
+
+        <section
+            id="overview"
+            class="dashboard-section active"
+        >
+
+            <div class="dashboard-welcome">
+
+                <span class="dashboard-kicker">
+                    BINE AI REVENIT
+                </span>
+
+                <h1 id="welcome-name">
+                    Membru DIICOT
+                </h1>
+
+                <p id="welcome-rank">
+                    Se verifică gradul...
+                </p>
+
+            </div>
+
+
+            <div class="stats-grid">
+
+                <div class="stat-card">
+
+                    <span>
+                        RAPOARTE TOTALE
+                    </span>
+
+                    <strong id="stat-total">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        RAPOARTE CU POZE
+                    </span>
+
+                    <strong id="stat-images">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        TIPURI ACTIVITATE
+                    </span>
+
+                    <strong id="stat-types">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        ULTIMA ACTIVITATE
+                    </span>
+
+                    <strong
+                        id="stat-last"
+                        class="stat-last"
+                    >
+                        -
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div class="dashboard-panel">
+
+                <div class="panel-heading">
+
+                    ACTIVITATE RECENTĂ
+
+                </div>
+
+
+                <div
+                    id="recent-activity"
+                    class="empty-state"
+                >
+
+                    Momentan nu există activitate.
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             RAPORT NOU
+        ============================================== -->
+
+        <section
+            id="new-report"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+
+                <span>
+                    RAPOARTE
+                </span>
+
+                <h2>
+                    Raport nou
+                </h2>
+
+            </div>
+
+
+            <div class="dashboard-panel">
+
+                <form
+                    id="report-form"
+                    class="report-form"
+                    enctype="multipart/form-data"
+                >
+
+
+                    <div class="form-group">
+
+                        <label for="report-type">
+                            TIP RAPORT
+                        </label>
+
+
+                        <select
+                            id="report-type"
+                            required
+                        >
+
+                            <option value="">
+                                Selectează tipul
+                            </option>
+
+                            <option value="RAZIE">
+                                RAZIE
+                            </option>
+
+                            <option value="ANTRENAMENT">
+                                ANTRENAMENT
+                            </option>
+
+                            <option value="JAFURI">
+                                JAFURI
+                            </option>
+
+                            <option value="PATRULA">
+                                PATRULĂ
+                            </option>
+
+                            <option value="PERCHEZITIE">
+                                PERCHEZIȚIE
+                            </option>
+
+                            <option value="VERIFICARE ZONA">
+                                VERIFICARE ZONĂ
+                            </option>
+
+                            <option value="FOCURI DE ARMA">
+                                FOCURI DE ARMĂ
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="report-title">
+                            TITLU RAPORT
+                        </label>
+
+
+                        <input
+                            type="text"
+                            id="report-title"
+                            maxlength="120"
+                            placeholder="Ex: Razie Sandy Shores"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="report-description">
+                            DESCRIERE
+                        </label>
+
+
+                        <textarea
+                            id="report-description"
+                            rows="8"
+                            maxlength="5000"
+                            placeholder="Descrie activitatea desfășurată..."
+                            required
+                        ></textarea>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="report-images">
+                            POZE DOVADĂ
+                        </label>
+
+
+                        <input
+                            type="file"
+                            id="report-images"
+                            accept="image/jpeg,image/png,image/webp"
+                            multiple
+                        >
+
+
+                        <small class="upload-help">
+
+                            Maximum 5 poze.
+                            JPG, PNG sau WEBP.
+                            Maximum 8 MB per imagine.
+
+                        </small>
+
+
+                        <div
+                            id="image-preview"
+                            class="image-preview-grid"
+                        ></div>
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        id="submit-report"
+                        class="primary-btn dashboard-submit"
+                    >
+
+                        POSTEAZĂ RAPORTUL
+
+                    </button>
+
+
+                    <div
+                        id="report-message"
+                        class="report-message"
+                    ></div>
+
+                </form>
+
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             RAPOARTELE MELE
+        ============================================== -->
+
+        <section
+            id="my-reports"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+
+                <span>
+                    ACTIVITATE
+                </span>
+
+                <h2>
+                    Rapoartele mele
+                </h2>
+
+            </div>
+
+
+            <div
+                id="my-reports-container"
+                class="reports-list"
+            >
+
+                <div class="empty-state">
+
+                    Se încarcă rapoartele...
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             PERSONAL
+        ============================================== -->
+
+        <section
+            id="personnel"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+
+                <span>
+                    STRUCTURĂ
+                </span>
+
+                <h2>
+                    Personal DIICOT
+                </h2>
+
+            </div>
+
+
+            <div class="dashboard-panel">
+
+                <div class="empty-state">
+
+                    Lista personalului DIICOT va fi
+                    conectată ulterior la Discord.
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =============================================
+             ADMIN
+        ============================================== -->
+
+        <section
+            id="admin"
+            class="dashboard-section"
+        >
+
+            <div class="section-title">
+
+                <span>
+                    CONDUCERE
+                </span>
+
+                <h2>
+                    Administrare
+                </h2>
+
+            </div>
+
+
+            <div class="dashboard-panel">
+
+                <div class="empty-state">
+
+                    Panoul de administrare va fi
+                    adăugat ulterior.
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </main>
+
+</div>
+
+
+<script>
+
+let currentUser = null;
+
+
+// ======================================================
+// ESCAPE HTML
+// ======================================================
+
+function escapeHTML(value) {
+
+    const div =
+        document.createElement("div");
+
+    div.textContent =
+        String(value ?? "");
+
+    return div.innerHTML;
+
+}
+
+
+// ======================================================
+// AVATAR
+// ======================================================
+
+function getAvatarURL(user) {
+
+    if (
+        user &&
+        user.id &&
+        user.avatar
+    ) {
+
+        return (
+            `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`
+        );
+
     }
 
-];
+
+    return (
+        "https://cdn.discordapp.com/embed/avatars/0.png"
+    );
+
+}
+
+
+// ======================================================
+// USER
+// ======================================================
+
+async function loadDashboardUser() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/me",
+                {
+                    credentials:
+                        "include",
+
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+
+            window.location.replace("/");
+
+            return;
+
+        }
+
+
+        const data =
+            await response.json();
+
+
+        if (
+            !data.loggedIn ||
+            !data.user
+        ) {
+
+            window.location.replace("/");
+
+            return;
+
+        }
+
+
+        currentUser =
+            data.user;
+
+
+        const displayName =
+            currentUser.globalName ||
+            currentUser.username ||
+            "Membru DIICOT";
+
+
+        const rank =
+            currentUser.rank ||
+            "MEMBRU DIICOT";
+
+
+        const rankLevel =
+            Number(
+                currentUser.rankLevel || 0
+            );
+
+
+        const avatar =
+            getAvatarURL(
+                currentUser
+            );
+
+
+        document.getElementById(
+            "dashboard-user"
+        ).innerHTML = `
+
+            <div class="user-menu">
+
+                <img
+                    src="${avatar}"
+                    class="user-avatar"
+                    alt="Avatar Discord"
+                >
+
+                <div class="user-info">
+
+                    <strong>
+                        ${escapeHTML(displayName)}
+                    </strong>
+
+                    <span>
+                        ${escapeHTML(rank)}
+                    </span>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        document.getElementById(
+            "welcome-name"
+        ).textContent =
+            displayName;
+
+
+        document.getElementById(
+            "welcome-rank"
+        ).textContent =
+            rank;
+
+
+        if (rankLevel < 8) {
+
+            document
+                .querySelectorAll(
+                    ".admin-only"
+                )
+                .forEach(
+                    element => {
+
+                        element.style.display =
+                            "none";
+
+                    }
+                );
+
+        }
+
+
+        await loadMyReports();
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Dashboard:",
+            error
+        );
+
+
+        window.location.replace("/");
+
+    }
+
+}
+
+
+// ======================================================
+// SIDEBAR
+// ======================================================
+
+document
+    .querySelectorAll(
+        ".sidebar-link[data-section]"
+    )
+    .forEach(
+        button => {
+
+            button.addEventListener(
+                "click",
+
+                function () {
+
+                    const target =
+                        this.dataset.section;
+
+
+                    openSection(
+                        target
+                    );
+
+
+                    if (
+                        target ===
+                        "my-reports"
+                    ) {
+
+                        loadMyReports();
+
+                    }
+
+                }
+            );
+
+        }
+    );
+
+
+function openSection(name) {
+
+    document
+        .querySelectorAll(
+            ".dashboard-section"
+        )
+        .forEach(
+            section => {
+
+                section.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+
+    document
+        .querySelectorAll(
+            ".sidebar-link[data-section]"
+        )
+        .forEach(
+            button => {
+
+                button.classList.remove(
+                    "active"
+                );
+
+            }
+        );
+
+
+    const section =
+        document.getElementById(
+            name
+        );
+
+
+    const button =
+        document.querySelector(
+            `[data-section="${name}"]`
+        );
+
+
+    if (section) {
+
+        section.classList.add(
+            "active"
+        );
+
+    }
+
+
+    if (button) {
+
+        button.classList.add(
+            "active"
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// PREVIEW POZE
+// ======================================================
+
+const imageInput =
+    document.getElementById(
+        "report-images"
+    );
+
+
+imageInput.addEventListener(
+    "change",
+
+    function () {
+
+        const preview =
+            document.getElementById(
+                "image-preview"
+            );
+
+
+        preview.innerHTML =
+            "";
+
+
+        const files =
+            Array.from(
+                this.files
+            );
+
+
+        if (files.length > 5) {
+
+            alert(
+                "Poți selecta maximum 5 poze."
+            );
+
+
+            this.value =
+                "";
+
+
+            return;
+
+        }
+
+
+        for (const file of files) {
+
+            if (file.size > 8 * 1024 * 1024) {
+
+                alert(
+                    "O poză depășește limita de 8 MB."
+                );
+
+
+                this.value =
+                    "";
+
+
+                preview.innerHTML =
+                    "";
+
+
+                return;
+
+            }
+
+
+            const reader =
+                new FileReader();
+
+
+            reader.onload =
+                function (event) {
+
+                    const image =
+                        document.createElement(
+                            "img"
+                        );
+
+
+                    image.src =
+                        event.target.result;
+
+
+                    image.className =
+                        "report-preview-image";
+
+
+                    preview.appendChild(
+                        image
+                    );
+
+                };
+
+
+            reader.readAsDataURL(
+                file
+            );
+
+        }
+
+    }
+);
+
+
+// ======================================================
+// POSTARE RAPORT
+// ======================================================
+
+const reportForm =
+    document.getElementById(
+        "report-form"
+    );
+
+
+reportForm.addEventListener(
+    "submit",
+
+    async function (event) {
+
+        event.preventDefault();
+
+
+        const type =
+            document.getElementById(
+                "report-type"
+            ).value;
+
+
+        const title =
+            document.getElementById(
+                "report-title"
+            ).value.trim();
+
+
+        const description =
+            document.getElementById(
+                "report-description"
+            ).value.trim();
+
+
+        const images =
+            document.getElementById(
+                "report-images"
+            ).files;
+
+
+        const button =
+            document.getElementById(
+                "submit-report"
+            );
+
+
+        const message =
+            document.getElementById(
+                "report-message"
+            );
+
+
+        if (
+            !type ||
+            !title ||
+            !description
+        ) {
+
+            message.textContent =
+                "Completează toate câmpurile obligatorii.";
+
+            return;
+
+        }
+
+
+        const formData =
+            new FormData();
+
+
+        formData.append(
+            "type",
+            type
+        );
+
+
+        formData.append(
+            "title",
+            title
+        );
+
+
+        formData.append(
+            "description",
+            description
+        );
+
+
+        for (
+            let i = 0;
+            i < images.length;
+            i++
+        ) {
+
+            formData.append(
+                "images",
+                images[i]
+            );
+
+        }
+
+
+        try {
+
+            button.disabled =
+                true;
+
+
+            button.textContent =
+                "SE POSTEAZĂ...";
+
+
+            message.textContent =
+                "";
+
+
+            const response =
+                await fetch(
+                    "/api/reports",
+
+                    {
+
+                        method:
+                            "POST",
+
+                        credentials:
+                            "include",
+
+                        body:
+                            formData
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.error ||
+                    "Raportul nu a putut fi postat."
+                );
+
+            }
+
+
+            message.textContent =
+                "✓ Raportul a fost postat cu succes.";
+
+
+            reportForm.reset();
+
+
+            document.getElementById(
+                "image-preview"
+            ).innerHTML =
+                "";
+
+
+            await loadMyReports();
+
+
+            setTimeout(
+                () => {
+
+                    openSection(
+                        "my-reports"
+                    );
+
+                },
+
+                400
+            );
+
+        }
+
+        catch (error) {
+
+            message.textContent =
+                error.message;
+
+        }
+
+        finally {
+
+            button.disabled =
+                false;
+
+
+            button.textContent =
+                "POSTEAZĂ RAPORTUL";
+
+        }
+
+    }
+);
+
+
+// ======================================================
+// LOAD REPORTS
+// ======================================================
+
+async function loadMyReports() {
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/reports/my",
+
+                {
+                    credentials:
+                        "include",
+
+                    cache:
+                        "no-store"
+                }
+            );
+
+
+        if (!response.ok) {
+            return;
+        }
+
+
+        const data =
+            await response.json();
+
+
+        const reports =
+            data.reports || [];
+
+
+        renderReports(
+            reports
+        );
+
+
+        updateStatistics(
+            reports
+        );
+
+
+        renderRecentActivity(
+            reports
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Reports:",
+            error
+        );
+
+    }
+
+}
+
+
+// ======================================================
+// STATISTICI
+// ======================================================
+
+function updateStatistics(reports) {
+
+    const total =
+        reports.length;
+
+
+    const withImages =
+        reports.filter(
+
+            report =>
+                Array.isArray(
+                    report.images
+                ) &&
+                report.images.length > 0
+
+        ).length;
+
+
+    const uniqueTypes =
+        new Set(
+
+            reports.map(
+                report =>
+                    report.type
+            )
+
+        ).size;
+
+
+    document.getElementById(
+        "stat-total"
+    ).textContent =
+        total;
+
+
+    document.getElementById(
+        "stat-images"
+    ).textContent =
+        withImages;
+
+
+    document.getElementById(
+        "stat-types"
+    ).textContent =
+        uniqueTypes;
+
+
+    document.getElementById(
+        "stat-last"
+    ).textContent =
+        reports.length
+
+            ? reports[0].createdAtFormatted
+
+            : "-";
+
+}
+
+
+// ======================================================
+// AFIȘARE RAPOARTE
+// ======================================================
+
+function renderReports(reports) {
+
+    const container =
+        document.getElementById(
+            "my-reports-container"
+        );
+
+
+    if (!reports.length) {
+
+        container.innerHTML = `
+
+            <div class="dashboard-panel">
+
+                <div class="empty-state">
+
+                    Nu ai încă rapoarte postate.
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        return;
+
+    }
+
+
+    container.innerHTML =
+        reports
+            .map(
+                report => {
+
+                    const images =
+                        Array.isArray(
+                            report.images
+                        )
+
+                            ? report.images
+
+                            : [];
+
+
+                    const imagesHTML =
+                        images.length
+
+                            ? `
+
+                                <div class="report-images">
+
+                                    ${images
+                                        .map(
+                                            image => `
+
+                                                <a
+                                                    href="${escapeHTML(image.url)}"
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                >
+
+                                                    <img
+                                                        src="${escapeHTML(image.url)}"
+                                                        alt="Poză raport"
+                                                    >
+
+                                                </a>
+
+                                            `
+                                        )
+                                        .join("")}
+
+                                </div>
+
+                            `
+
+                            : "";
+
+
+                    return `
+
+                        <article class="report-card">
+
+                            <div class="report-card-header">
+
+                                <div>
+
+                                    <span class="report-type">
+
+                                        ${escapeHTML(report.type)}
+
+                                    </span>
+
+
+                                    <h3>
+
+                                        ${escapeHTML(report.title)}
+
+                                    </h3>
+
+                                </div>
+
+
+                                <span class="report-published">
+
+                                    POSTAT
+
+                                </span>
+
+                            </div>
+
+
+                            <p class="report-description">
+
+                                ${escapeHTML(report.description)}
+
+                            </p>
+
+
+                            ${imagesHTML}
+
+
+                            <div class="report-meta">
+
+                                <span>
+
+                                    ${escapeHTML(report.authorRank)}
+
+                                </span>
+
+
+                                <span>
+
+                                    ${escapeHTML(report.createdAtFormatted)}
+
+                                </span>
+
+                            </div>
+
+                        </article>
+
+                    `;
+
+                }
+            )
+            .join("");
+
+}
+
+
+// ======================================================
+// ACTIVITATE RECENTĂ
+// ======================================================
+
+function renderRecentActivity(reports) {
+
+    const container =
+        document.getElementById(
+            "recent-activity"
+        );
+
+
+    if (!reports.length) {
+
+        container.className =
+            "empty-state";
+
+
+        container.textContent =
+            "Momentan nu există activitate.";
+
+
+        return;
+
+    }
+
+
+    const report =
+        reports[0];
+
+
+    container.className =
+        "recent-report";
+
+
+    container.innerHTML = `
+
+        <strong>
+
+            ${escapeHTML(report.type)}
+
+        </strong>
+
+
+        <span>
+
+            ${escapeHTML(report.title)}
+
+        </span>
+
+
+        <small>
+
+            ${escapeHTML(report.createdAtFormatted)}
+
+        </small>
+
+    `;
+
+}
+
+
+// ======================================================
+// START
+// ======================================================
+
+loadDashboardUser();
+
+</script>
+
+
+</body>
+</html>
