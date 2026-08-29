@@ -1,100 +1,204 @@
 <!DOCTYPE html>
 <html lang="ro">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>DIICOT | Rush România</title>
+    <title>DIICOT | Rush România</title>
 
-  <link rel="stylesheet" href="style.css">
+    <!-- CSS -->
+    <link rel="stylesheet" href="/style.css">
 </head>
 
 <body>
 
-<header class="navbar">
-  <div class="brand">
-    <div class="brand-logo">D</div>
+    <!-- NAVBAR -->
+    <header class="navbar">
 
-    <div>
-      <strong>DIICOT</strong>
-      <span>RUSH ROMÂNIA</span>
-    </div>
-  </div>
+        <div class="brand">
 
-  <a class="login-btn" href="/auth/discord">
-    Autentificare Discord
-  </a>
-</header>
+            <div class="brand-logo">
+                D
+            </div>
 
-<main class="hero">
+            <div class="brand-text">
+                <strong>DIICOT</strong>
+                <span>RUSH ROMÂNIA</span>
+            </div>
 
-  <div class="overlay"></div>
+        </div>
 
-  <section class="hero-content">
 
-    <div class="badge">
-      DIRECȚIA DE INVESTIGARE A INFRACȚIUNILOR
-    </div>
+        <a href="/auth/discord" class="login-btn">
+            AUTENTIFICARE DISCORD
+        </a>
 
-    <h1>
-      HUB
-      <span>DIICOT</span>
-    </h1>
+    </header>
 
-    <p>
-      Platformă internă pentru gestionarea activității,
-      rapoartelor și personalului DIICOT.
-    </p>
 
-    <div class="actions">
+    <!-- HERO -->
+    <main class="hero">
 
-      <a href="/auth/discord" class="primary-btn">
-        INTRĂ ÎN CONT
-      </a>
+        <div class="hero-overlay"></div>
 
-      <a href="#info" class="secondary-btn">
-        AFLĂ MAI MULTE
-      </a>
+        <div class="hero-glow"></div>
 
-    </div>
 
-  </section>
+        <section class="hero-content">
 
-</main>
+            <div class="badge">
+                DIRECȚIA DE INVESTIGARE A INFRACȚIUNILOR
+            </div>
 
-<section id="info" class="features">
 
-  <div class="card">
-    <div class="icon">01</div>
+            <h1>
+                HUB
+                <span>DIICOT</span>
+            </h1>
 
-    <h3>Rapoarte</h3>
 
-    <p>
-      Postează și urmărește rapoartele tale de activitate.
-    </p>
-  </div>
+            <p class="hero-description">
+                Platformă internă pentru gestionarea activității,
+                rapoartelor și personalului DIICOT.
+            </p>
 
-  <div class="card">
-    <div class="icon">02</div>
 
-    <h3>Personal</h3>
+            <div class="hero-actions">
 
-    <p>
-      Vizualizează membrii și gradele din cadrul structurii.
-    </p>
-  </div>
+                <a href="/auth/discord" class="primary-btn">
+                    INTRĂ ÎN CONT
+                </a>
 
-  <div class="card">
-    <div class="icon">03</div>
+                <a href="#features" class="secondary-btn">
+                    AFLĂ MAI MULTE
+                </a>
 
-    <h3>Centru de comandă</h3>
+            </div>
 
-    <p>
-      Instrumente administrative pentru conducerea DIICOT.
-    </p>
-  </div>
+        </section>
 
-</section>
+
+        <!-- DECORATION -->
+
+        <div class="hero-decoration">
+
+            <div class="diamond">
+
+                <div class="diamond-inner">
+
+                    <div class="diamond-icon">
+                        ⚖
+                    </div>
+
+                    <strong>DIICOT</strong>
+
+                    <span>RUSH ROMÂNIA</span>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+
+    <!-- FEATURES -->
+
+    <section id="features" class="features">
+
+
+        <!-- RAPOARTE -->
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                01
+            </div>
+
+            <div class="feature-icon">
+                ◈
+            </div>
+
+            <h2>
+                RAPOARTE
+            </h2>
+
+            <p>
+                Postează și urmărește rapoartele tale de activitate.
+            </p>
+
+            <div class="feature-line"></div>
+
+        </div>
+
+
+        <!-- PERSONAL -->
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                02
+            </div>
+
+            <div class="feature-icon">
+                ◉
+            </div>
+
+            <h2>
+                PERSONAL
+            </h2>
+
+            <p>
+                Vizualizează membrii și gradele din cadrul structurii.
+            </p>
+
+            <div class="feature-line"></div>
+
+        </div>
+
+
+        <!-- COMMAND CENTER -->
+
+        <div class="feature-card">
+
+            <div class="feature-number">
+                03
+            </div>
+
+            <div class="feature-icon">
+                ⚙
+            </div>
+
+            <h2>
+                CENTRU DE COMANDĂ
+            </h2>
+
+            <p>
+                Instrumente administrative destinate conducerii DIICOT.
+            </p>
+
+            <div class="feature-line"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <div>
+            DIICOT • RUSH ROMÂNIA
+        </div>
+
+        <span>
+            SISTEM INTERN
+        </span>
+
+    </footer>
+
 
 </body>
 </html>
