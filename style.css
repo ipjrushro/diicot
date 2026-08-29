@@ -1,0 +1,305 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background: #05070b;
+  color: white;
+}
+
+.navbar {
+  height: 82px;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 8%;
+
+  background: #101725;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+
+  position: relative;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.brand-logo {
+  width: 44px;
+  height: 44px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: linear-gradient(135deg, #ffc400, #8e6600);
+  color: #111;
+
+  font-weight: 900;
+
+  border-radius: 8px;
+}
+
+.brand strong {
+  display: block;
+
+  font-size: 18px;
+  letter-spacing: 2px;
+}
+
+.brand span {
+  display: block;
+
+  font-size: 10px;
+  color: #ffc400;
+
+  margin-top: 3px;
+  letter-spacing: 2px;
+}
+
+.login-btn {
+  text-decoration: none;
+
+  color: #111;
+  background: white;
+
+  padding: 13px 24px;
+
+  border-radius: 30px;
+
+  font-size: 13px;
+  font-weight: 800;
+
+  transition: 0.25s;
+}
+
+.login-btn:hover {
+  background: #ffc400;
+  transform: translateY(-2px);
+}
+
+.hero {
+  min-height: calc(100vh - 82px);
+
+  display: flex;
+  align-items: center;
+
+  position: relative;
+
+  background:
+    radial-gradient(
+      circle at 70% 40%,
+      rgba(255, 183, 0, 0.15),
+      transparent 30%
+    ),
+    linear-gradient(
+      90deg,
+      rgba(4, 7, 13, 0.98),
+      rgba(5, 8, 12, 0.75)
+    ),
+    url("https://images.unsplash.com/photo-1519608487953-e999c86e7455");
+
+  background-size: cover;
+  background-position: center;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+
+  background:
+    linear-gradient(
+      180deg,
+      transparent 60%,
+      #05070b
+    );
+}
+
+.hero-content {
+  position: relative;
+
+  width: 650px;
+
+  margin-left: 10%;
+
+  z-index: 2;
+}
+
+.badge {
+  display: inline-block;
+
+  padding: 9px 15px;
+
+  border: 1px solid rgba(255, 196, 0, 0.3);
+
+  color: #ffc400;
+
+  background: rgba(255, 196, 0, 0.05);
+
+  font-size: 11px;
+  letter-spacing: 2px;
+
+  margin-bottom: 22px;
+}
+
+.hero h1 {
+  font-size: clamp(65px, 8vw, 120px);
+
+  line-height: 0.85;
+
+  letter-spacing: -5px;
+
+  font-weight: 900;
+}
+
+.hero h1 span {
+  display: block;
+
+  color: #ffc400;
+}
+
+.hero p {
+  color: #aeb6c4;
+
+  max-width: 570px;
+
+  font-size: 18px;
+
+  margin-top: 30px;
+
+  line-height: 1.7;
+}
+
+.actions {
+  display: flex;
+
+  gap: 15px;
+
+  margin-top: 35px;
+}
+
+.primary-btn,
+.secondary-btn {
+  padding: 17px 28px;
+
+  text-decoration: none;
+
+  font-size: 12px;
+  font-weight: 900;
+
+  letter-spacing: 1px;
+
+  transition: 0.25s;
+}
+
+.primary-btn {
+  background: #ffc400;
+  color: #101010;
+}
+
+.primary-btn:hover {
+  background: #ffd84c;
+  transform: translateY(-3px);
+}
+
+.secondary-btn {
+  color: white;
+
+  border: 1px solid rgba(255,255,255,0.18);
+
+  background: rgba(255,255,255,0.03);
+}
+
+.secondary-btn:hover {
+  background: rgba(255,255,255,0.08);
+}
+
+.features {
+  padding: 60px 8% 90px;
+
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 18px;
+
+  background: #05070b;
+}
+
+.card {
+  padding: 35px;
+
+  min-height: 230px;
+
+  background: linear-gradient(
+    145deg,
+    #0d121c,
+    #080b11
+  );
+
+  border: 1px solid rgba(255,255,255,0.06);
+
+  transition: 0.3s;
+}
+
+.card:hover {
+  border-color: rgba(255,196,0,0.35);
+
+  transform: translateY(-4px);
+}
+
+.icon {
+  color: #ffc400;
+
+  font-size: 13px;
+  font-weight: 900;
+
+  margin-bottom: 35px;
+}
+
+.card h3 {
+  font-size: 22px;
+
+  margin-bottom: 13px;
+}
+
+.card p {
+  color: #838d9e;
+
+  line-height: 1.6;
+}
+
+@media(max-width: 850px) {
+
+  .navbar {
+    padding: 0 5%;
+  }
+
+  .hero-content {
+    margin: 0 7%;
+
+    width: auto;
+  }
+
+  .hero h1 {
+    font-size: 65px;
+  }
+
+  .features {
+    grid-template-columns: 1fr;
+  }
+
+}
