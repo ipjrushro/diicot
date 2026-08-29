@@ -17,7 +17,7 @@ const GUILD_ID = process.env.DISCORD_GUILD_ID;
 
 // ======================================================
 // GRADE DIICOT
-// De la gradul cel mai mare la cel mai mic
+// De la cel mai mare la cel mai mic
 // ======================================================
 
 const DIICOT_ROLES = [
@@ -104,7 +104,7 @@ const DIICOT_ROLES = [
 
 
 // ======================================================
-// CAUTĂ CEL MAI MARE GRAD
+// DETECTARE CEL MAI MARE GRAD
 // ======================================================
 
 function getHighestDIICOTRole(userRoles = []) {
@@ -112,9 +112,7 @@ function getHighestDIICOTRole(userRoles = []) {
     for (const role of DIICOT_ROLES) {
 
         if (userRoles.includes(role.id)) {
-
             return role;
-
         }
 
     }
@@ -124,7 +122,7 @@ function getHighestDIICOTRole(userRoles = []) {
 
 
 // ======================================================
-// EXPRESS
+// EXPRESS CONFIG
 // ======================================================
 
 app.set("trust proxy", 1);
@@ -206,7 +204,7 @@ app.get("/auth/discord", (req, res) => {
     ) {
 
         console.error(
-            "LIPSESC VARIABILELE DISCORD DIN RENDER!"
+            "Lipsesc variabile Discord din Render."
         );
 
         return res
@@ -214,7 +212,6 @@ app.get("/auth/discord", (req, res) => {
             .send(
                 "Configurarea Discord nu este completă."
             );
-
     }
 
 
@@ -224,8 +221,7 @@ app.get("/auth/discord", (req, res) => {
             .toString("hex");
 
 
-    req.session.oauthState =
-        state;
+    req.session.oauthState = state;
 
 
     const params =
@@ -254,9 +250,7 @@ app.get("/auth/discord", (req, res) => {
         params.toString();
 
 
-    return res.redirect(
-        discordURL
-    );
+    return res.redirect(discordURL);
 
 });
 
@@ -270,21 +264,18 @@ app.get(
 
     async (req, res) => {
 
-        const code =
-            req.query.code;
-
-        const state =
-            req.query.state;
+        const code = req.query.code;
+        const state = req.query.state;
 
 
-        // ------------------------------------------
+        // ==================================================
         // VERIFICARE CODE
-        // ------------------------------------------
+        // ==================================================
 
         if (!code) {
 
             console.log(
-                "Discord callback fără CODE."
+                "Callback Discord fără CODE."
             );
 
             return res.redirect(
@@ -294,9 +285,9 @@ app.get(
         }
 
 
-        // ------------------------------------------
+        // ==================================================
         // VERIFICARE STATE
-        // ------------------------------------------
+        // ==================================================
 
         if (
             !state ||
@@ -321,7 +312,7 @@ app.get(
         try {
 
             // ==================================================
-            // TOKEN DISCORD
+            // ACCESS TOKEN
             // ==================================================
 
             const tokenParams =
@@ -369,7 +360,7 @@ app.get(
 
 
             // ==================================================
-            // DATE UTILIZATOR
+            // USER DISCORD
             // ==================================================
 
             const userResponse =
@@ -394,7 +385,7 @@ app.get(
 
 
             // ==================================================
-            // VERIFICARE SERVER + ROLURI
+            // MEMBER + ROLURI SERVER
             // ==================================================
 
             let member;
@@ -427,31 +418,9 @@ app.get(
             catch (memberError) {
 
                 console.error(
-                    "================================"
-                );
-
-                console.error(
-                    "EROARE VERIFICARE SERVER"
-                );
-
-                console.error(
-                    "USER:",
-                    discordUser.username
-                );
-
-                console.error(
-                    "GUILD ID:",
-                    GUILD_ID
-                );
-
-                console.error(
-                    "DISCORD:",
+                    "Utilizatorul nu poate fi verificat pe server:",
                     memberError.response?.data ||
                     memberError.message
-                );
-
-                console.error(
-                    "================================"
                 );
 
 
@@ -473,7 +442,17 @@ app.get(
 
 
             // ==================================================
-            // DEBUG IMPORTANT
+            // DETECTARE GRAD
+            // ==================================================
+
+            const diicotRole =
+                getHighestDIICOTRole(
+                    roles
+                );
+
+
+            // ==================================================
+            // LOG
             // ==================================================
 
             console.log("");
@@ -482,11 +461,7 @@ app.get(
             );
 
             console.log(
-                "        DIICOT DISCORD DEBUG"
-            );
-
-            console.log(
-                "========================================"
+                "DIICOT LOGIN"
             );
 
             console.log(
@@ -500,94 +475,21 @@ app.get(
             );
 
             console.log(
-                "GUILD ID FOLOSIT:",
+                "GUILD:",
                 GUILD_ID
             );
 
             console.log(
-                "NICKNAME:",
-                member.nick || "Fără nickname"
+                "ROLE IDS:",
+                roles
             );
 
             console.log(
-                "NUMĂR ROLURI:",
-                roles.length
+                "GRAD:",
+                diicotRole
+                    ? diicotRole.name
+                    : "FĂRĂ GRAD"
             );
-
-            console.log(
-                "ROLE IDS PRIMITE:"
-            );
-
-            console.log(
-                JSON.stringify(
-                    roles,
-                    null,
-                    2
-                )
-            );
-
-
-            console.log(
-                "----------------------------------------"
-            );
-
-            console.log(
-                "ROLE IDS CONFIGURATE PE SITE:"
-            );
-
-            console.log(
-                JSON.stringify(
-                    DIICOT_ROLES.map(role => ({
-                        name: role.name,
-                        id: role.id
-                    })),
-                    null,
-                    2
-                )
-            );
-
-
-            // ==================================================
-            // DETECTARE GRAD
-            // ==================================================
-
-            const diicotRole =
-                getHighestDIICOTRole(
-                    roles
-                );
-
-
-            console.log(
-                "----------------------------------------"
-            );
-
-
-            if (diicotRole) {
-
-                console.log(
-                    "GRAD DETECTAT:",
-                    diicotRole.name
-                );
-
-                console.log(
-                    "ROLE ID:",
-                    diicotRole.id
-                );
-
-            }
-
-            else {
-
-                console.log(
-                    "GRAD DETECTAT: FĂRĂ GRAD"
-                );
-
-                console.log(
-                    "Niciun ROLE ID primit nu se potrivește cu lista DIICOT."
-                );
-
-            }
-
 
             console.log(
                 "========================================"
@@ -597,7 +499,7 @@ app.get(
 
 
             // ==================================================
-            // SESSION
+            // SALVARE SESSION
             // ==================================================
 
             req.session.user = {
@@ -639,28 +541,20 @@ app.get(
             };
 
 
+            // ==================================================
+            // LOGIN REUȘIT
+            // ==================================================
+
             return res.redirect("/");
 
         }
 
         catch (error) {
 
-            console.error("");
             console.error(
-                "========================================"
-            );
-
-            console.error(
-                "DISCORD OAUTH ERROR"
-            );
-
-            console.error(
+                "Discord OAuth Error:",
                 error.response?.data ||
                 error.message
-            );
-
-            console.error(
-                "========================================"
             );
 
 
@@ -675,7 +569,37 @@ app.get(
 
 
 // ======================================================
-// API USER
+// DASHBOARD
+// PROTEJAT - TREBUIE SĂ FII LOGAT
+// ======================================================
+
+app.get(
+    "/dashboard",
+
+    (req, res) => {
+
+        if (
+            !req.session ||
+            !req.session.user
+        ) {
+
+            return res.redirect("/");
+        }
+
+
+        return res.sendFile(
+            path.join(
+                __dirname,
+                "dashboard.html"
+            )
+        );
+
+    }
+);
+
+
+// ======================================================
+// API - USER CURENT
 // ======================================================
 
 app.get(
@@ -692,8 +616,7 @@ app.get(
                 .status(401)
                 .json({
 
-                    loggedIn:
-                        false
+                    loggedIn: false
 
                 });
 
@@ -702,11 +625,9 @@ app.get(
 
         return res.json({
 
-            loggedIn:
-                true,
+            loggedIn: true,
 
-            user:
-                req.session.user
+            user: req.session.user
 
         });
 
@@ -740,7 +661,7 @@ app.get(
 
     (req, res) => {
 
-        return res.json({
+        return res.status(200).json({
 
             status:
                 "online",
@@ -785,7 +706,7 @@ app.use(
 
 
 // ======================================================
-// START SERVER
+// START
 // ======================================================
 
 app.listen(
@@ -816,6 +737,10 @@ app.listen(
         console.log(
             "GRADE CONFIGURATE:",
             DIICOT_ROLES.length
+        );
+
+        console.log(
+            "DASHBOARD: /dashboard"
         );
 
         console.log(
