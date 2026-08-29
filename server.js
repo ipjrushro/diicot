@@ -17,7 +17,6 @@ const GUILD_ID = process.env.DISCORD_GUILD_ID;
 
 // ======================================================
 // GRADE DIICOT
-// De la cel mai mare la cel mai mic
 // ======================================================
 
 const DIICOT_ROLES = [
@@ -102,7 +101,6 @@ const DIICOT_ROLES = [
 
 ];
 
-
 // ======================================================
 // DETECTARE CEL MAI MARE GRAD
 // ======================================================
@@ -168,19 +166,13 @@ app.use(
 
 
 // ======================================================
-// STATIC FILES
-// ======================================================
-
-app.use(express.static(__dirname));
-
-
-// ======================================================
 // HOME
+// IMPORTANT: / trebuie să încarce index.html
 // ======================================================
 
 app.get("/", (req, res) => {
 
-    res.sendFile(
+    return res.sendFile(
         path.join(
             __dirname,
             "index.html"
@@ -188,6 +180,46 @@ app.get("/", (req, res) => {
     );
 
 });
+
+
+// ======================================================
+// DASHBOARD
+// ACCES DOAR DACĂ EȘTI AUTENTIFICAT
+// ======================================================
+
+app.get("/dashboard", (req, res) => {
+
+    if (
+        !req.session ||
+        !req.session.user
+    ) {
+
+        return res.redirect("/");
+    }
+
+    return res.sendFile(
+        path.join(
+            __dirname,
+            "dashboard.html"
+        )
+    );
+
+});
+
+
+// ======================================================
+// STATIC FILES
+// index:false împiedică Express să aleagă singur index.html
+// ======================================================
+
+app.use(
+    express.static(
+        __dirname,
+        {
+            index: false
+        }
+    )
+);
 
 
 // ======================================================
@@ -268,10 +300,6 @@ app.get(
         const state = req.query.state;
 
 
-        // ==================================================
-        // VERIFICARE CODE
-        // ==================================================
-
         if (!code) {
 
             console.log(
@@ -281,13 +309,8 @@ app.get(
             return res.redirect(
                 "/?error=no_code"
             );
-
         }
 
-
-        // ==================================================
-        // VERIFICARE STATE
-        // ==================================================
 
         if (
             !state ||
@@ -302,7 +325,6 @@ app.get(
             return res.redirect(
                 "/?error=invalid_state"
             );
-
         }
 
 
@@ -360,7 +382,7 @@ app.get(
 
 
             // ==================================================
-            // USER DISCORD
+            // DATE USER DISCORD
             // ==================================================
 
             const userResponse =
@@ -385,7 +407,7 @@ app.get(
 
 
             // ==================================================
-            // MEMBER + ROLURI SERVER
+            // DATE MEMBER + ROLURI
             // ==================================================
 
             let member;
@@ -452,7 +474,7 @@ app.get(
 
 
             // ==================================================
-            // LOG
+            // DEBUG
             // ==================================================
 
             console.log("");
@@ -541,10 +563,6 @@ app.get(
             };
 
 
-            // ==================================================
-            // LOGIN REUȘIT
-            // ==================================================
-
             return res.redirect("/");
 
         }
@@ -569,37 +587,7 @@ app.get(
 
 
 // ======================================================
-// DASHBOARD
-// PROTEJAT - TREBUIE SĂ FII LOGAT
-// ======================================================
-
-app.get(
-    "/dashboard",
-
-    (req, res) => {
-
-        if (
-            !req.session ||
-            !req.session.user
-        ) {
-
-            return res.redirect("/");
-        }
-
-
-        return res.sendFile(
-            path.join(
-                __dirname,
-                "dashboard.html"
-            )
-        );
-
-    }
-);
-
-
-// ======================================================
-// API - USER CURENT
+// API USER CURENT
 // ======================================================
 
 app.get(
@@ -615,11 +603,8 @@ app.get(
             return res
                 .status(401)
                 .json({
-
                     loggedIn: false
-
                 });
-
         }
 
 
@@ -644,7 +629,26 @@ app.get(
 
     (req, res) => {
 
+        console.log(
+            "Logout:",
+            req.session?.user?.username ||
+            "utilizator necunoscut"
+        );
+
+
         req.session = null;
+
+
+        res.clearCookie(
+            "diicot_session",
+            {
+                httpOnly: true,
+                sameSite: "lax",
+                secure:
+                    process.env.NODE_ENV === "production"
+            }
+        );
+
 
         return res.redirect("/");
 
@@ -706,7 +710,7 @@ app.use(
 
 
 // ======================================================
-// START
+// START SERVER
 // ======================================================
 
 app.listen(
