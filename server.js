@@ -20,7 +20,7 @@ const GUILD_ID = process.env.DISCORD_GUILD_ID;
 
 // ======================================================
 // GRADE DIICOT
-// ORDINE: CEL MAI MARE -> CEL MAI MIC
+// CEL MAI MARE -> CEL MAI MIC
 // ======================================================
 
 const DIICOT_ROLES = [
@@ -107,7 +107,7 @@ const DIICOT_ROLES = [
 
 
 // ======================================================
-// DETECTARE CEL MAI MARE GRAD
+// DETECTARE GRAD
 // ======================================================
 
 function getHighestDIICOTRole(userRoles = []) {
@@ -171,7 +171,7 @@ app.use(
 
 
 // ======================================================
-// FOLDER UPLOADS
+// UPLOADS
 // ======================================================
 
 const uploadsDirectory =
@@ -192,10 +192,6 @@ if (!fs.existsSync(uploadsDirectory)) {
 
 }
 
-
-// ======================================================
-// MULTER - UPLOAD POZE
-// ======================================================
 
 const storage =
     multer.diskStorage({
@@ -284,11 +280,7 @@ const upload =
                 ];
 
 
-            if (
-                allowed.includes(
-                    file.mimetype
-                )
-            ) {
+            if (allowed.includes(file.mimetype)) {
 
                 return callback(
                     null,
@@ -311,14 +303,14 @@ const upload =
 
 // ======================================================
 // RAPOARTE
-// MOMENTAN SUNT SALVATE ÎN MEMORIA SERVERULUI
+// MOMENTAN ÎN MEMORIA SERVERULUI
 // ======================================================
 
 const reports = [];
 
 
 // ======================================================
-// REQUIRE AUTH
+// AUTH
 // ======================================================
 
 function requireAuth(
@@ -349,7 +341,7 @@ function requireAuth(
 
 
 // ======================================================
-// HOME
+// PAGINI
 // ======================================================
 
 app.get("/", (req, res) => {
@@ -363,10 +355,6 @@ app.get("/", (req, res) => {
 
 });
 
-
-// ======================================================
-// DASHBOARD PROTEJAT
-// ======================================================
 
 app.get("/dashboard", (req, res) => {
 
@@ -390,27 +378,30 @@ app.get("/dashboard", (req, res) => {
 
 
 // ======================================================
-// SERVIRE POZE
+// CSS
+// NU SERVIM TOT FOLDERUL CU express.static(__dirname)
+// ======================================================
+
+app.get("/style.css", (req, res) => {
+
+    return res.sendFile(
+        path.join(
+            __dirname,
+            "style.css"
+        )
+    );
+
+});
+
+
+// ======================================================
+// POZE RAPOARTE
 // ======================================================
 
 app.use(
     "/uploads",
     express.static(
         uploadsDirectory
-    )
-);
-
-
-// ======================================================
-// STATIC FILES
-// ======================================================
-
-app.use(
-    express.static(
-        __dirname,
-        {
-            index: false
-        }
     )
 );
 
@@ -433,6 +424,7 @@ app.get("/auth/discord", (req, res) => {
             .send(
                 "Configurarea Discord nu este completă."
             );
+
     }
 
 
@@ -468,17 +460,15 @@ app.get("/auth/discord", (req, res) => {
 
 
     return res.redirect(
-
         "https://discord.com/oauth2/authorize?" +
         params.toString()
-
     );
 
 });
 
 
 // ======================================================
-// CALLBACK DISCORD
+// DISCORD CALLBACK
 // ======================================================
 
 app.get(
@@ -506,8 +496,7 @@ app.get(
         if (
             !state ||
             !req.session.oauthState ||
-            state !==
-                req.session.oauthState
+            state !== req.session.oauthState
         ) {
 
             return res.redirect(
@@ -521,10 +510,6 @@ app.get(
 
 
         try {
-
-            // ==================================================
-            // ACCESS TOKEN
-            // ==================================================
 
             const tokenParams =
                 new URLSearchParams({
@@ -572,10 +557,6 @@ app.get(
                 tokenResponse.data.access_token;
 
 
-            // ==================================================
-            // USER DISCORD
-            // ==================================================
-
             const userResponse =
                 await axios.get(
 
@@ -598,10 +579,6 @@ app.get(
             const discordUser =
                 userResponse.data;
 
-
-            // ==================================================
-            // MEMBER + ROLES
-            // ==================================================
 
             let member;
 
@@ -662,10 +639,6 @@ app.get(
                 );
 
 
-            // ==================================================
-            // SESSION
-            // ==================================================
-
             req.session.user = {
 
                 id:
@@ -706,35 +679,12 @@ app.get(
 
 
             console.log("");
-            console.log(
-                "================================"
-            );
-
-            console.log(
-                "LOGIN:",
-                discordUser.username
-            );
-
-            console.log(
-                "ROLE IDS:",
-                roles
-            );
-
-            console.log(
-                "GRAD:",
-                req.session.user.rank
-            );
-
-            console.log(
-                "================================"
-            );
-
+            console.log("============================");
+            console.log("LOGIN:", discordUser.username);
+            console.log("GRAD:", req.session.user.rank);
+            console.log("============================");
             console.log("");
 
-
-            // IMPORTANT:
-            // DUPĂ LOGIN REVINE PE HOMEPAGE
-            // NU INTRĂ AUTOMAT ÎN DASHBOARD
 
             return res.redirect("/");
 
@@ -774,8 +724,7 @@ app.get("/api/me", (req, res) => {
             .status(401)
             .json({
 
-                loggedIn:
-                    false
+                loggedIn: false
 
             });
 
@@ -784,8 +733,7 @@ app.get("/api/me", (req, res) => {
 
     return res.json({
 
-        loggedIn:
-            true,
+        loggedIn: true,
 
         user:
             req.session.user
@@ -797,7 +745,6 @@ app.get("/api/me", (req, res) => {
 
 // ======================================================
 // POSTARE RAPORT DIRECT
-// FĂRĂ ACCEPTARE / RESPINGERE
 // ======================================================
 
 app.post(
@@ -833,33 +780,21 @@ app.post(
             .trim();
 
 
-        // ==================================================
-        // TIPURI RAPORT
-        // ==================================================
-
         const allowedTypes =
             [
 
                 "RAZIE",
-
                 "ANTRENAMENT",
-
                 "JAFURI",
-
                 "PATRULA",
-
                 "PERCHEZITIE",
-
                 "VERIFICARE ZONA",
-
                 "FOCURI DE ARMA"
 
             ];
 
 
-        if (
-            !allowedTypes.includes(type)
-        ) {
+        if (!allowedTypes.includes(type)) {
 
             return res
                 .status(400)
@@ -872,10 +807,6 @@ app.post(
 
         }
 
-
-        // ==================================================
-        // TITLU
-        // ==================================================
 
         if (
             title.length < 2 ||
@@ -894,10 +825,6 @@ app.post(
         }
 
 
-        // ==================================================
-        // DESCRIERE
-        // ==================================================
-
         if (
             description.length < 2 ||
             description.length > 5000
@@ -914,10 +841,6 @@ app.post(
 
         }
 
-
-        // ==================================================
-        // POZE
-        // ==================================================
 
         const images =
             (req.files || [])
@@ -937,10 +860,6 @@ app.post(
         const now =
             new Date();
 
-
-        // ==================================================
-        // RAPORT
-        // ==================================================
 
         const report = {
 
@@ -1007,62 +926,26 @@ app.post(
         };
 
 
-        // ==================================================
-        // POSTARE DIRECTĂ
-        // ==================================================
-
         reports.unshift(
             report
         );
 
 
-        console.log("");
         console.log(
-            "================================"
-        );
-
-        console.log(
-            "RAPORT POSTAT"
-        );
-
-        console.log(
-            "AUTOR:",
-            report.authorName
-        );
-
-        console.log(
-            "GRAD:",
-            report.authorRank
-        );
-
-        console.log(
-            "TIP:",
-            report.type
-        );
-
-        console.log(
-            "TITLU:",
+            "RAPORT POSTAT:",
+            report.authorName,
+            "|",
+            report.type,
+            "|",
             report.title
         );
-
-        console.log(
-            "POZE:",
-            report.images.length
-        );
-
-        console.log(
-            "================================"
-        );
-
-        console.log("");
 
 
         return res
             .status(201)
             .json({
 
-                success:
-                    true,
+                success: true,
 
                 message:
                     "Raportul a fost postat cu succes.",
@@ -1122,11 +1005,9 @@ app.get("/logout", (req, res) => {
         "diicot_session",
         {
 
-            httpOnly:
-                true,
+            httpOnly: true,
 
-            sameSite:
-                "lax",
+            sameSite: "lax",
 
             secure:
                 process.env.NODE_ENV ===
@@ -1167,7 +1048,7 @@ app.get("/health", (req, res) => {
 
 
 // ======================================================
-// MULTER / UPLOAD ERRORS
+// UPLOAD ERRORS
 // ======================================================
 
 app.use(
@@ -1193,7 +1074,7 @@ app.use(
                     .json({
 
                         error:
-                            "O poză este prea mare. Maximum 8 MB per imagine."
+                            "O poză este prea mare. Maximum 8 MB."
 
                     });
 
@@ -1282,40 +1163,12 @@ app.listen(
     () => {
 
         console.log("");
-        console.log(
-            "================================"
-        );
-
-        console.log(
-            "DIICOT HUB ONLINE"
-        );
-
-        console.log(
-            "PORT:",
-            PORT
-        );
-
-        console.log(
-            "GRADE CONFIGURATE:",
-            DIICOT_ROLES.length
-        );
-
-        console.log(
-            "RAPOARTE: POSTARE DIRECTĂ"
-        );
-
-        console.log(
-            "UPLOAD: MAX 5 POZE"
-        );
-
-        console.log(
-            "MAX POZĂ: 8 MB"
-        );
-
-        console.log(
-            "================================"
-        );
-
+        console.log("============================");
+        console.log("DIICOT HUB ONLINE");
+        console.log("PORT:", PORT);
+        console.log("GRADE:", DIICOT_ROLES.length);
+        console.log("RAPOARTE: POSTARE DIRECTĂ");
+        console.log("============================");
         console.log("");
 
     }
