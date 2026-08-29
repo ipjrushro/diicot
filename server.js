@@ -101,8 +101,9 @@ const DIICOT_ROLES = [
 
 ];
 
+
 // ======================================================
-// DETECTARE CEL MAI MARE GRAD
+// DETECTARE GRAD
 // ======================================================
 
 function getHighestDIICOTRole(userRoles = []) {
@@ -112,7 +113,6 @@ function getHighestDIICOTRole(userRoles = []) {
         if (userRoles.includes(role.id)) {
             return role;
         }
-
     }
 
     return null;
@@ -120,7 +120,7 @@ function getHighestDIICOTRole(userRoles = []) {
 
 
 // ======================================================
-// EXPRESS CONFIG
+// EXPRESS
 // ======================================================
 
 app.set("trust proxy", 1);
@@ -145,7 +145,7 @@ app.use(
 
         keys: [
             process.env.SESSION_SECRET ||
-            "diicot-change-this-secret"
+            "change-this-secret"
         ],
 
         maxAge:
@@ -167,7 +167,6 @@ app.use(
 
 // ======================================================
 // HOME
-// IMPORTANT: / trebuie să încarce index.html
 // ======================================================
 
 app.get("/", (req, res) => {
@@ -183,8 +182,7 @@ app.get("/", (req, res) => {
 
 
 // ======================================================
-// DASHBOARD
-// ACCES DOAR DACĂ EȘTI AUTENTIFICAT
+// DASHBOARD PROTEJAT
 // ======================================================
 
 app.get("/dashboard", (req, res) => {
@@ -209,7 +207,6 @@ app.get("/dashboard", (req, res) => {
 
 // ======================================================
 // STATIC FILES
-// index:false împiedică Express să aleagă singur index.html
 // ======================================================
 
 app.use(
@@ -223,7 +220,7 @@ app.use(
 
 
 // ======================================================
-// DISCORD LOGIN
+// LOGIN DISCORD
 // ======================================================
 
 app.get("/auth/discord", (req, res) => {
@@ -235,10 +232,6 @@ app.get("/auth/discord", (req, res) => {
         !GUILD_ID
     ) {
 
-        console.error(
-            "Lipsesc variabile Discord din Render."
-        );
-
         return res
             .status(500)
             .send(
@@ -246,15 +239,13 @@ app.get("/auth/discord", (req, res) => {
             );
     }
 
-
     const state =
         crypto
             .randomBytes(24)
             .toString("hex");
 
-
-    req.session.oauthState = state;
-
+    req.session.oauthState =
+        state;
 
     const params =
         new URLSearchParams({
@@ -276,19 +267,16 @@ app.get("/auth/discord", (req, res) => {
 
         });
 
-
-    const discordURL =
+    return res.redirect(
         "https://discord.com/oauth2/authorize?" +
-        params.toString();
-
-
-    return res.redirect(discordURL);
+        params.toString()
+    );
 
 });
 
 
 // ======================================================
-// DISCORD CALLBACK
+// CALLBACK DISCORD
 // ======================================================
 
 app.get(
@@ -296,21 +284,17 @@ app.get(
 
     async (req, res) => {
 
-        const code = req.query.code;
-        const state = req.query.state;
+        const code =
+            req.query.code;
 
+        const state =
+            req.query.state;
 
         if (!code) {
-
-            console.log(
-                "Callback Discord fără CODE."
-            );
-
             return res.redirect(
                 "/?error=no_code"
             );
         }
-
 
         if (
             !state ||
@@ -318,23 +302,17 @@ app.get(
             state !== req.session.oauthState
         ) {
 
-            console.log(
-                "OAuth STATE invalid."
-            );
-
             return res.redirect(
                 "/?error=invalid_state"
             );
         }
 
-
         delete req.session.oauthState;
-
 
         try {
 
             // ==================================================
-            // ACCESS TOKEN
+            // TOKEN
             // ==================================================
 
             const tokenParams =
@@ -357,7 +335,6 @@ app.get(
 
                 });
 
-
             const tokenResponse =
                 await axios.post(
 
@@ -367,22 +344,19 @@ app.get(
 
                     {
                         headers: {
-
                             "Content-Type":
                                 "application/x-www-form-urlencoded"
-
                         }
                     }
 
                 );
-
 
             const accessToken =
                 tokenResponse.data.access_token;
 
 
             // ==================================================
-            // DATE USER DISCORD
+            // USER
             // ==================================================
 
             const userResponse =
@@ -392,26 +366,22 @@ app.get(
 
                     {
                         headers: {
-
                             Authorization:
                                 `Bearer ${accessToken}`
-
                         }
                     }
 
                 );
-
 
             const discordUser =
                 userResponse.data;
 
 
             // ==================================================
-            // DATE MEMBER + ROLURI
+            // MEMBER SERVER
             // ==================================================
 
             let member;
-
 
             try {
 
@@ -422,39 +392,32 @@ app.get(
 
                         {
                             headers: {
-
                                 Authorization:
                                     `Bearer ${accessToken}`
-
                             }
                         }
 
                     );
 
-
                 member =
                     memberResponse.data;
 
-            }
-
-            catch (memberError) {
+            } catch (memberError) {
 
                 console.error(
-                    "Utilizatorul nu poate fi verificat pe server:",
+                    "Eroare member:",
                     memberError.response?.data ||
                     memberError.message
                 );
 
-
                 return res.redirect(
                     "/?error=not_member"
                 );
-
             }
 
 
             // ==================================================
-            // ROLE IDS
+            // ROLURI
             // ==================================================
 
             const roles =
@@ -462,19 +425,12 @@ app.get(
                     ? member.roles.map(String)
                     : [];
 
-
-            // ==================================================
-            // DETECTARE GRAD
-            // ==================================================
-
             const diicotRole =
-                getHighestDIICOTRole(
-                    roles
-                );
+                getHighestDIICOTRole(roles);
 
 
             // ==================================================
-            // DEBUG
+            // LOG
             // ==================================================
 
             console.log("");
@@ -489,16 +445,6 @@ app.get(
             console.log(
                 "USER:",
                 discordUser.username
-            );
-
-            console.log(
-                "USER ID:",
-                discordUser.id
-            );
-
-            console.log(
-                "GUILD:",
-                GUILD_ID
             );
 
             console.log(
@@ -521,7 +467,7 @@ app.get(
 
 
             // ==================================================
-            // SALVARE SESSION
+            // SESSION
             // ==================================================
 
             req.session.user = {
@@ -563,6 +509,10 @@ app.get(
             };
 
 
+            // IMPORTANT:
+            // DUPĂ LOGIN REVINE PE HOMEPAGE
+            // NU INTRĂ AUTOMAT ÎN DASHBOARD
+
             return res.redirect("/");
 
         }
@@ -575,11 +525,9 @@ app.get(
                 error.message
             );
 
-
             return res.redirect(
                 "/?error=discord"
             );
-
         }
 
     }
@@ -587,130 +535,101 @@ app.get(
 
 
 // ======================================================
-// API USER CURENT
+// API USER
 // ======================================================
 
-app.get(
-    "/api/me",
+app.get("/api/me", (req, res) => {
 
-    (req, res) => {
+    if (
+        !req.session ||
+        !req.session.user
+    ) {
 
-        if (
-            !req.session ||
-            !req.session.user
-        ) {
-
-            return res
-                .status(401)
-                .json({
-                    loggedIn: false
-                });
-        }
-
-
-        return res.json({
-
-            loggedIn: true,
-
-            user: req.session.user
-
-        });
-
+        return res
+            .status(401)
+            .json({
+                loggedIn: false
+            });
     }
-);
+
+    return res.json({
+
+        loggedIn:
+            true,
+
+        user:
+            req.session.user
+
+    });
+
+});
 
 
 // ======================================================
 // LOGOUT
 // ======================================================
 
-app.get(
-    "/logout",
+app.get("/logout", (req, res) => {
 
-    (req, res) => {
+    req.session = null;
 
-        console.log(
-            "Logout:",
-            req.session?.user?.username ||
-            "utilizator necunoscut"
-        );
+    res.clearCookie(
+        "diicot_session",
+        {
+            httpOnly: true,
+            sameSite: "lax",
+            secure:
+                process.env.NODE_ENV === "production"
+        }
+    );
 
+    return res.redirect("/");
 
-        req.session = null;
-
-
-        res.clearCookie(
-            "diicot_session",
-            {
-                httpOnly: true,
-                sameSite: "lax",
-                secure:
-                    process.env.NODE_ENV === "production"
-            }
-        );
-
-
-        return res.redirect("/");
-
-    }
-);
+});
 
 
 // ======================================================
-// HEALTH CHECK
+// HEALTH
 // ======================================================
 
-app.get(
-    "/health",
+app.get("/health", (req, res) => {
 
-    (req, res) => {
+    return res.json({
 
-        return res.status(200).json({
+        status:
+            "online",
 
-            status:
-                "online",
+        service:
+            "DIICOT Hub",
 
-            service:
-                "DIICOT Hub",
+        guildConfigured:
+            Boolean(GUILD_ID),
 
-            guildConfigured:
-                Boolean(GUILD_ID),
+        rolesConfigured:
+            DIICOT_ROLES.length
 
-            rolesConfigured:
-                DIICOT_ROLES.length
+    });
 
-        });
-
-    }
-);
+});
 
 
 // ======================================================
 // 404
 // ======================================================
 
-app.use(
-    (req, res) => {
+app.use((req, res) => {
 
-        console.log(
-            "404:",
-            req.method,
-            req.originalUrl
+    return res
+        .status(404)
+        .send(
+            "Pagina nu a fost găsită."
         );
 
-
-        return res
-            .status(404)
-            .send(
-                "Pagina nu a fost găsită."
-            );
-
-    }
-);
+});
 
 
 // ======================================================
-// START SERVER
+// START
 // ======================================================
 
 app.listen(
@@ -734,17 +653,8 @@ app.listen(
         );
 
         console.log(
-            "GUILD ID:",
-            GUILD_ID || "LIPSEȘTE"
-        );
-
-        console.log(
-            "GRADE CONFIGURATE:",
-            DIICOT_ROLES.length
-        );
-
-        console.log(
-            "DASHBOARD: /dashboard"
+            "DASHBOARD:",
+            "/dashboard"
         );
 
         console.log(
