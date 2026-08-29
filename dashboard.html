@@ -49,9 +49,7 @@
 
 
     <div id="dashboard-user">
-
         Se încarcă...
-
     </div>
 
 </header>
@@ -214,9 +212,7 @@
             <div class="dashboard-panel">
 
                 <div class="panel-heading">
-
                     ACTIVITATE RECENTĂ
-
                 </div>
 
 
@@ -439,7 +435,7 @@
         </section>
 
 
-        <!-- PERSONAL DIICOT -->
+        <!-- PERSONAL -->
 
         <section
             id="personnel"
@@ -492,7 +488,7 @@
         </section>
 
 
-        <!-- ADMIN -->
+        <!-- ADMINISTRARE -->
 
         <section
             id="admin"
@@ -502,22 +498,45 @@
             <div class="section-title">
 
                 <span>
-                    CONDUCERE
+                    CONDUCERE DIICOT
                 </span>
 
                 <h2>
-                    Administrare
+                    Administrare rapoarte
                 </h2>
 
             </div>
 
 
-            <div class="dashboard-panel">
+            <div class="admin-stats">
 
-                <div class="empty-state">
+                <div class="stat-card">
 
-                    Panoul de administrare va fi
-                    următorul pas.
+                    <span>
+                        TOTAL RAPOARTE
+                    </span>
+
+                    <strong id="admin-total">
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="admin-reports-container"
+                class="reports-list"
+            >
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+
+                        Se încarcă rapoartele...
+
+                    </div>
 
                 </div>
 
@@ -580,7 +599,7 @@ function getAvatarURL(user) {
 
 
 // ======================================================
-// LOAD USER
+// USER
 // ======================================================
 
 async function loadDashboardUser() {
@@ -695,7 +714,9 @@ async function loadDashboardUser() {
             rank;
 
 
-        if (rankLevel < 8) {
+        // ADMIN DOAR COORDONATOR+
+
+        if (rankLevel < 10) {
 
             document
                 .querySelectorAll(
@@ -841,6 +862,16 @@ document
                     ) {
 
                         loadPersonnel();
+
+                    }
+
+
+                    if (
+                        target ===
+                        "admin"
+                    ) {
+
+                        loadAdminReports();
 
                     }
 
@@ -1015,20 +1046,6 @@ reportForm.addEventListener(
             );
 
 
-        if (
-            !type ||
-            !title ||
-            !description
-        ) {
-
-            message.textContent =
-                "Completează toate câmpurile obligatorii.";
-
-            return;
-
-        }
-
-
         const formData =
             new FormData();
 
@@ -1075,13 +1092,10 @@ reportForm.addEventListener(
                 "SE POSTEAZĂ...";
 
 
-            message.textContent =
-                "";
-
-
             const response =
                 await fetch(
                     "/api/reports",
+
                     {
 
                         method:
@@ -1164,7 +1178,7 @@ reportForm.addEventListener(
 
 
 // ======================================================
-// LOAD REPORTS
+// RAPOARTELE MELE
 // ======================================================
 
 async function loadMyReports() {
@@ -1174,7 +1188,6 @@ async function loadMyReports() {
         const response =
             await fetch(
                 "/api/reports/my",
-
                 {
 
                     credentials:
@@ -1293,7 +1306,7 @@ function updateStatistics(reports) {
 
 
 // ======================================================
-// RENDER RAPOARTE
+// RENDER RAPOARTELE MELE
 // ======================================================
 
 function renderReports(reports) {
@@ -1329,118 +1342,11 @@ function renderReports(reports) {
     container.innerHTML =
         reports
             .map(
-                report => {
-
-                    const images =
-                        Array.isArray(
-                            report.images
-                        )
-
-                            ? report.images
-
-                            : [];
-
-
-                    const imagesHTML =
-                        images.length
-
-                            ? `
-
-                                <div class="report-images">
-
-                                    ${images
-                                        .map(
-                                            image => `
-
-                                                <a
-                                                    href="${escapeHTML(image.url)}"
-                                                    target="_blank"
-                                                    rel="noopener noreferrer"
-                                                >
-
-                                                    <img
-                                                        src="${escapeHTML(image.url)}"
-                                                        alt="Poză raport"
-                                                    >
-
-                                                </a>
-
-                                            `
-                                        )
-                                        .join("")}
-
-                                </div>
-
-                            `
-
-                            : "";
-
-
-                    return `
-
-                        <article class="report-card">
-
-                            <div class="report-card-header">
-
-                                <div>
-
-                                    <span class="report-type">
-
-                                        ${escapeHTML(report.type)}
-
-                                    </span>
-
-
-                                    <h3>
-
-                                        ${escapeHTML(report.title)}
-
-                                    </h3>
-
-                                </div>
-
-
-                                <span class="report-published">
-
-                                    POSTAT
-
-                                </span>
-
-                            </div>
-
-
-                            <p class="report-description">
-
-                                ${escapeHTML(report.description)}
-
-                            </p>
-
-
-                            ${imagesHTML}
-
-
-                            <div class="report-meta">
-
-                                <span>
-
-                                    ${escapeHTML(report.authorRank)}
-
-                                </span>
-
-
-                                <span>
-
-                                    ${escapeHTML(report.createdAtFormatted)}
-
-                                </span>
-
-                            </div>
-
-                        </article>
-
-                    `;
-
-                }
+                report =>
+                    createReportHTML(
+                        report,
+                        false
+                    )
             )
             .join("");
 
@@ -1448,7 +1354,292 @@ function renderReports(reports) {
 
 
 // ======================================================
-// ACTIVITATE RECENTĂ
+// ADMIN RAPOARTE
+// ======================================================
+
+async function loadAdminReports() {
+
+    const container =
+        document.getElementById(
+            "admin-reports-container"
+        );
+
+
+    const counter =
+        document.getElementById(
+            "admin-total"
+        );
+
+
+    container.innerHTML = `
+
+        <div class="dashboard-panel">
+
+            <div class="empty-state">
+
+                Se încarcă toate rapoartele...
+
+            </div>
+
+        </div>
+
+    `;
+
+
+    try {
+
+        const response =
+            await fetch(
+                "/api/admin/reports",
+
+                {
+
+                    credentials:
+                        "include",
+
+                    cache:
+                        "no-store"
+
+                }
+            );
+
+
+        const data =
+            await response.json();
+
+
+        if (!response.ok) {
+
+            throw new Error(
+                data.error ||
+                "Rapoartele nu au putut fi încărcate."
+            );
+
+        }
+
+
+        const reports =
+            data.reports || [];
+
+
+        counter.textContent =
+            reports.length;
+
+
+        if (!reports.length) {
+
+            container.innerHTML = `
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+
+                        Nu există rapoarte postate.
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            return;
+
+        }
+
+
+        container.innerHTML =
+            reports
+                .map(
+                    report =>
+                        createReportHTML(
+                            report,
+                            true
+                        )
+                )
+                .join("");
+
+    }
+
+    catch (error) {
+
+        counter.textContent =
+            "0";
+
+
+        container.innerHTML = `
+
+            <div class="dashboard-panel">
+
+                <div class="empty-state">
+
+                    ${escapeHTML(error.message)}
+
+                </div>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+
+// ======================================================
+// HTML RAPORT
+// ======================================================
+
+function createReportHTML(
+    report,
+    showAuthor
+) {
+
+    const images =
+        Array.isArray(
+            report.images
+        )
+
+            ? report.images
+
+            : [];
+
+
+    const imagesHTML =
+        images.length
+
+            ? `
+
+                <div class="report-images">
+
+                    ${images
+                        .map(
+                            image => `
+
+                                <a
+                                    href="${escapeHTML(image.url)}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+
+                                    <img
+                                        src="${escapeHTML(image.url)}"
+                                        alt="Poză raport"
+                                    >
+
+                                </a>
+
+                            `
+                        )
+                        .join("")}
+
+                </div>
+
+            `
+
+            : "";
+
+
+    const authorHTML =
+        showAuthor
+
+            ? `
+
+                <div class="admin-report-author">
+
+                    <span>
+                        RAPORT POSTAT DE
+                    </span>
+
+                    <strong>
+                        ${escapeHTML(report.authorName)}
+                    </strong>
+
+                    <small>
+                        @${escapeHTML(report.authorUsername)}
+                        •
+                        ${escapeHTML(report.authorRank)}
+                    </small>
+
+                </div>
+
+            `
+
+            : "";
+
+
+    return `
+
+        <article class="report-card">
+
+            ${authorHTML}
+
+
+            <div class="report-card-header">
+
+                <div>
+
+                    <span class="report-type">
+
+                        ${escapeHTML(report.type)}
+
+                    </span>
+
+
+                    <h3>
+
+                        ${escapeHTML(report.title)}
+
+                    </h3>
+
+                </div>
+
+
+                <span class="report-published">
+
+                    POSTAT
+
+                </span>
+
+            </div>
+
+
+            <p class="report-description">
+
+                ${escapeHTML(report.description)}
+
+            </p>
+
+
+            ${imagesHTML}
+
+
+            <div class="report-meta">
+
+                <span>
+
+                    ${escapeHTML(report.authorRank)}
+
+                </span>
+
+
+                <span>
+
+                    ${escapeHTML(report.createdAtFormatted)}
+
+                </span>
+
+            </div>
+
+        </article>
+
+    `;
+
+}
+
+
+// ======================================================
+// RECENT
 // ======================================================
 
 function renderRecentActivity(reports) {
@@ -1485,23 +1676,15 @@ function renderRecentActivity(reports) {
     container.innerHTML = `
 
         <strong>
-
             ${escapeHTML(report.type)}
-
         </strong>
 
-
         <span>
-
             ${escapeHTML(report.title)}
-
         </span>
 
-
         <small>
-
             ${escapeHTML(report.createdAtFormatted)}
-
         </small>
 
     `;
@@ -1510,7 +1693,7 @@ function renderRecentActivity(reports) {
 
 
 // ======================================================
-// PERSONAL DIICOT
+// PERSONAL
 // ======================================================
 
 async function loadPersonnel() {
@@ -1676,16 +1859,11 @@ async function loadPersonnel() {
                         <div class="personnel-rank-header">
 
                             <span>
-
                                 ${escapeHTML(rank)}
-
                             </span>
 
-
                             <strong>
-
                                 ${members.length}
-
                             </strong>
 
                         </div>
@@ -1709,27 +1887,18 @@ async function loadPersonnel() {
                                     class="personnel-avatar"
                                 >
 
-
                                 <div class="personnel-info">
 
                                     <strong>
-
                                         ${escapeHTML(member.displayName)}
-
                                     </strong>
 
-
                                     <span>
-
                                         ${escapeHTML(member.rank)}
-
                                     </span>
 
-
                                     <small>
-
                                         @${escapeHTML(member.username)}
-
                                     </small>
 
                                 </div>
@@ -1760,12 +1929,6 @@ async function loadPersonnel() {
     }
 
     catch (error) {
-
-        console.error(
-            "Personnel:",
-            error
-        );
-
 
         counter.textContent =
             "0";
