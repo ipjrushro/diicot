@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Centru de Comandă | DIICOT</title>
+
+    <link rel="stylesheet" href="/style.css">
+</head>
+
+<body class="dashboard-body">
+
+    <header class="dashboard-topbar">
+
+        <div class="brand">
+
+            <div class="brand-logo">
+                D
+            </div>
+
+            <div class="brand-text">
+                <strong>DIICOT</strong>
+                <span>CENTRU DE COMANDĂ</span>
+            </div>
+
+        </div>
+
+        <div id="dashboard-user">
+            Se încarcă...
+        </div>
+
+    </header>
+
+
+    <div class="dashboard-layout">
+
+        <aside class="dashboard-sidebar">
+
+            <a href="/" class="sidebar-link">
+                PAGINA PRINCIPALĂ
+            </a>
+
+            <button class="sidebar-link active" data-section="overview">
+                PREZENTARE GENERALĂ
+            </button>
+
+            <button class="sidebar-link" data-section="new-report">
+                RAPORT NOU
+            </button>
+
+            <button class="sidebar-link" data-section="my-reports">
+                RAPOARTELE MELE
+            </button>
+
+            <button class="sidebar-link" data-section="personnel">
+                PERSONAL DIICOT
+            </button>
+
+            <button class="sidebar-link admin-only" data-section="admin">
+                ADMINISTRARE
+            </button>
+
+            <a href="/logout" class="sidebar-link logout-sidebar">
+                DECONECTARE
+            </a>
+
+        </aside>
+
+
+        <main class="dashboard-content">
+
+            <section id="overview" class="dashboard-section active">
+
+                <div class="dashboard-welcome">
+
+                    <div>
+                        <span class="dashboard-kicker">
+                            BINE AI REVENIT
+                        </span>
+
+                        <h1 id="welcome-name">
+                            Membru DIICOT
+                        </h1>
+
+                        <p id="welcome-rank">
+                            Se verifică gradul...
+                        </p>
+                    </div>
+
+                </div>
+
+
+                <div class="stats-grid">
+
+                    <div class="stat-card">
+                        <span>RAPOARTE TOTALE</span>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>ACCEPTATE</span>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>ÎN VERIFICARE</span>
+                        <strong>0</strong>
+                    </div>
+
+                    <div class="stat-card">
+                        <span>RESPINSE</span>
+                        <strong>0</strong>
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-panel">
+
+                    <div class="panel-heading">
+                        <span>ACTIVITATE RECENTĂ</span>
+                    </div>
+
+                    <div class="empty-state">
+                        Momentan nu există activitate.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section id="new-report" class="dashboard-section">
+
+                <div class="section-title">
+                    <span>RAPOARTE</span>
+                    <h2>Raport nou</h2>
+                </div>
+
+                <div class="dashboard-panel">
+
+                    <form id="report-form" class="report-form">
+
+                        <div class="form-group">
+
+                            <label>
+                                Tip raport
+                            </label>
+
+                            <select id="report-type" required>
+                                <option value="">
+                                    Selectează tipul
+                                </option>
+
+                                <option value="activitate">
+                                    Raport activitate
+                                </option>
+
+                                <option value="operatiune">
+                                    Raport operațiune
+                                </option>
+
+                                <option value="arestare">
+                                    Raport arestare
+                                </option>
+
+                                <option value="ancheta">
+                                    Raport anchetă
+                                </option>
+                            </select>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Titlu raport
+                            </label>
+
+                            <input
+                                type="text"
+                                id="report-title"
+                                placeholder="Ex: Operațiune DIICOT"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Descriere
+                            </label>
+
+                            <textarea
+                                id="report-description"
+                                rows="8"
+                                placeholder="Descrie activitatea..."
+                                required
+                            ></textarea>
+
+                        </div>
+
+
+                        <div class="form-group">
+
+                            <label>
+                                Link dovadă / imagine
+                            </label>
+
+                            <input
+                                type="url"
+                                id="report-proof"
+                                placeholder="https://..."
+                            >
+
+                        </div>
+
+
+                        <button
+                            type="submit"
+                            class="primary-btn dashboard-submit"
+                        >
+                            TRIMITE RAPORTUL
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </section>
+
+
+            <section id="my-reports" class="dashboard-section">
+
+                <div class="section-title">
+                    <span>ACTIVITATE</span>
+                    <h2>Rapoartele mele</h2>
+                </div>
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+                        Nu ai încă rapoarte postate.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section id="personnel" class="dashboard-section">
+
+                <div class="section-title">
+                    <span>STRUCTURĂ</span>
+                    <h2>Personal DIICOT</h2>
+                </div>
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+                        Lista personalului va fi conectată ulterior la Discord.
+                    </div>
+
+                </div>
+
+            </section>
+
+
+            <section id="admin" class="dashboard-section">
+
+                <div class="section-title">
+                    <span>CONDUCERE</span>
+                    <h2>Administrare</h2>
+                </div>
+
+                <div class="dashboard-panel">
+
+                    <div class="empty-state">
+                        Zonă destinată conducerii DIICOT.
+                    </div>
+
+                </div>
+
+            </section>
+
+        </main>
+
+    </div>
+
+
+    <script>
+
+        function escapeHTML(value) {
+            const div = document.createElement("div");
+            div.textContent = String(value ?? "");
+            return div.innerHTML;
+        }
+
+
+        async function loadDashboardUser() {
+
+            try {
+
+                const response = await fetch("/api/me", {
+                    credentials: "include",
+                    cache: "no-store"
+                });
+
+
+                if (!response.ok) {
+
+                    window.location.href = "/";
+
+                    return;
+                }
+
+
+                const data = await response.json();
+
+
+                if (!data.loggedIn || !data.user) {
+
+                    window.location.href = "/";
+
+                    return;
+                }
+
+
+                const user = data.user;
+
+                const displayName =
+                    user.globalName ||
+                    user.username ||
+                    "Membru DIICOT";
+
+                const rank =
+                    user.rank ||
+                    "MEMBRU DIICOT";
+
+
+                let avatarURL;
+
+                if (user.avatar) {
+
+                    avatarURL =
+                        `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`;
+
+                } else {
+
+                    avatarURL =
+                        "https://cdn.discordapp.com/embed/avatars/0.png";
+
+                }
+
+
+                document.getElementById("dashboard-user").innerHTML = `
+
+                    <div class="user-menu">
+
+                        <img
+                            src="${avatarURL}"
+                            class="user-avatar"
+                            alt="Avatar"
+                        >
+
+                        <div class="user-info">
+
+                            <strong>
+                                ${escapeHTML(displayName)}
+                            </strong>
+
+                            <span>
+                                ${escapeHTML(rank)}
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                `;
+
+
+                document.getElementById("welcome-name").textContent =
+                    displayName;
+
+                document.getElementById("welcome-rank").textContent =
+                    rank;
+
+
+                // Conducere: de la COMISAR în sus
+                if ((user.rankLevel || 0) < 8) {
+
+                    document
+                        .querySelectorAll(".admin-only")
+                        .forEach(element => {
+                            element.style.display = "none";
+                        });
+
+                }
+
+            }
+
+            catch (error) {
+
+                console.error(error);
+
+                window.location.href = "/";
+
+            }
+
+        }
+
+
+        document
+            .querySelectorAll(".sidebar-link[data-section]")
+            .forEach(button => {
+
+                button.addEventListener("click", () => {
+
+                    const target =
+                        button.dataset.section;
+
+
+                    document
+                        .querySelectorAll(".sidebar-link[data-section]")
+                        .forEach(item => {
+                            item.classList.remove("active");
+                        });
+
+
+                    document
+                        .querySelectorAll(".dashboard-section")
+                        .forEach(section => {
+                            section.classList.remove("active");
+                        });
+
+
+                    button.classList.add("active");
+
+                    document
+                        .getElementById(target)
+                        .classList.add("active");
+
+                });
+
+            });
+
+
+        document
+            .getElementById("report-form")
+            .addEventListener("submit", event => {
+
+                event.preventDefault();
+
+                alert(
+                    "Formularul este pregătit. Următorul pas este să salvăm rapoartele."
+                );
+
+            });
+
+
+        loadDashboardUser();
+
+    </script>
+
+</body>
+</html>
