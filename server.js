@@ -45,7 +45,7 @@ const DIICOT_ROLES = [
         level: 11
     },
     {
-        id: "1441514560900169782",
+        id: "1528758226416435219",
         name: "COORDONATOR",
         level: 10
     },
