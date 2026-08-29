@@ -3,20 +3,40 @@ const axios = require("axios");
 const cookieSession = require("cookie-session");
 const path = require("path");
 const crypto = require("crypto");
+const multer = require("multer");
+const fs = require("fs");
+
 require("dotenv").config();
+
 
 const app = express();
 
-const PORT = process.env.PORT || 3000;
+const PORT =
+    process.env.PORT || 3000;
 
-const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
-const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
-const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
-const GUILD_ID = process.env.DISCORD_GUILD_ID;
+
+const CLIENT_ID =
+    process.env.DISCORD_CLIENT_ID;
+
+
+const CLIENT_SECRET =
+    process.env.DISCORD_CLIENT_SECRET;
+
+
+const REDIRECT_URI =
+    process.env.DISCORD_REDIRECT_URI;
+
+
+const GUILD_ID =
+    process.env.DISCORD_GUILD_ID;
 
 
 // ======================================================
 // GRADE DIICOT
+//
+// IMPORTANT:
+// PUNE AICI EXACT ID-URILE DIN server.js-UL TĂU ACTUAL,
+// CELE CARE ÎȚI DETECTEAZĂ DEJA CORECT GRADELE.
 // ======================================================
 
 const DIICOT_ROLES = [
@@ -106,16 +126,30 @@ const DIICOT_ROLES = [
 // DETECTARE GRAD
 // ======================================================
 
-function getHighestDIICOTRole(userRoles = []) {
+function getHighestDIICOTRole(
+    userRoles = []
+) {
 
-    for (const role of DIICOT_ROLES) {
+    for (
+        const role
+        of DIICOT_ROLES
+    ) {
 
-        if (userRoles.includes(role.id)) {
+        if (
+            userRoles.includes(
+                role.id
+            )
+        ) {
+
             return role;
+
         }
+
     }
 
+
     return null;
+
 }
 
 
@@ -123,9 +157,16 @@ function getHighestDIICOTRole(userRoles = []) {
 // EXPRESS
 // ======================================================
 
-app.set("trust proxy", 1);
+app.set(
+    "trust proxy",
+    1
+);
 
-app.use(express.json());
+
+app.use(
+    express.json()
+);
+
 
 app.use(
     express.urlencoded({
@@ -141,7 +182,8 @@ app.use(
 app.use(
     cookieSession({
 
-        name: "diicot_session",
+        name:
+            "diicot_session",
 
         keys: [
             process.env.SESSION_SECRET ||
@@ -154,59 +196,266 @@ app.use(
             60 *
             1000,
 
-        httpOnly: true,
+        httpOnly:
+            true,
 
-        sameSite: "lax",
+        sameSite:
+            "lax",
 
         secure:
-            process.env.NODE_ENV === "production"
+            process.env.NODE_ENV ===
+            "production"
 
     })
 );
 
 
 // ======================================================
-// HOME
+// UPLOADS
 // ======================================================
 
-app.get("/", (req, res) => {
-
-    return res.sendFile(
-        path.join(
-            __dirname,
-            "index.html"
-        )
+const uploadsDirectory =
+    path.join(
+        __dirname,
+        "uploads"
     );
 
-});
+
+if (
+    !fs.existsSync(
+        uploadsDirectory
+    )
+) {
+
+    fs.mkdirSync(
+        uploadsDirectory,
+        {
+            recursive: true
+        }
+    );
+
+}
 
 
 // ======================================================
-// DASHBOARD PROTEJAT
+// MULTER
 // ======================================================
 
-app.get("/dashboard", (req, res) => {
+const storage =
+    multer.diskStorage({
+
+        destination:
+            function (
+                req,
+                file,
+                callback
+            ) {
+
+                callback(
+                    null,
+                    uploadsDirectory
+                );
+
+            },
+
+
+        filename:
+            function (
+                req,
+                file,
+                callback
+            ) {
+
+                const extension =
+                    path.extname(
+                        file.originalname
+                    )
+                    .toLowerCase();
+
+
+                const filename =
+                    Date.now() +
+                    "-" +
+                    crypto
+                        .randomBytes(8)
+                        .toString("hex") +
+                    extension;
+
+
+                callback(
+                    null,
+                    filename
+                );
+
+            }
+
+    });
+
+
+const allowedMimeTypes =
+    [
+        "image/jpeg",
+        "image/png",
+        "image/webp"
+    ];
+
+
+const upload =
+    multer({
+
+        storage,
+
+        limits: {
+
+            fileSize:
+                8 *
+                1024 *
+                1024,
+
+            files:
+                5
+
+        },
+
+
+        fileFilter:
+            function (
+                req,
+                file,
+                callback
+            ) {
+
+                if (
+                    allowedMimeTypes.includes(
+                        file.mimetype
+                    )
+                ) {
+
+                    callback(
+                        null,
+                        true
+                    );
+
+                }
+
+                else {
+
+                    callback(
+                        new Error(
+                            "Sunt acceptate doar imagini JPG, PNG și WEBP."
+                        )
+                    );
+
+                }
+
+            }
+
+    });
+
+
+// ======================================================
+// RAPOARTE
+//
+// Momentan sunt ținute în memorie.
+// ======================================================
+
+const reports = [];
+
+
+// ======================================================
+// AUTH MIDDLEWARE
+// ======================================================
+
+function requireAuth(
+    req,
+    res,
+    next
+) {
 
     if (
         !req.session ||
         !req.session.user
     ) {
 
-        return res.redirect("/");
+        return res
+            .status(401)
+            .json({
+                error:
+                    "Trebuie să fii autentificat."
+            });
+
     }
 
-    return res.sendFile(
-        path.join(
-            __dirname,
-            "dashboard.html"
-        )
-    );
 
-});
+    next();
+
+}
 
 
 // ======================================================
-// STATIC FILES
+// HOME
+// ======================================================
+
+app.get(
+    "/",
+    (req, res) => {
+
+        return res.sendFile(
+            path.join(
+                __dirname,
+                "index.html"
+            )
+        );
+
+    }
+);
+
+
+// ======================================================
+// DASHBOARD
+// ======================================================
+
+app.get(
+    "/dashboard",
+    (req, res) => {
+
+        if (
+            !req.session ||
+            !req.session.user
+        ) {
+
+            return res.redirect(
+                "/"
+            );
+
+        }
+
+
+        return res.sendFile(
+            path.join(
+                __dirname,
+                "dashboard.html"
+            )
+        );
+
+    }
+);
+
+
+// ======================================================
+// UPLOAD STATIC
+// ======================================================
+
+app.use(
+    "/uploads",
+    express.static(
+        uploadsDirectory
+    )
+);
+
+
+// ======================================================
+// STATIC SITE
 // ======================================================
 
 app.use(
@@ -220,100 +469,118 @@ app.use(
 
 
 // ======================================================
-// LOGIN DISCORD
+// DISCORD LOGIN
 // ======================================================
 
-app.get("/auth/discord", (req, res) => {
+app.get(
+    "/auth/discord",
+    (req, res) => {
 
-    if (
-        !CLIENT_ID ||
-        !CLIENT_SECRET ||
-        !REDIRECT_URI ||
-        !GUILD_ID
-    ) {
+        if (
+            !CLIENT_ID ||
+            !CLIENT_SECRET ||
+            !REDIRECT_URI ||
+            !GUILD_ID
+        ) {
 
-        return res
-            .status(500)
-            .send(
-                "Configurarea Discord nu este completă."
-            );
+            return res
+                .status(500)
+                .send(
+                    "Configurarea Discord nu este completă."
+                );
+
+        }
+
+
+        const state =
+            crypto
+                .randomBytes(24)
+                .toString("hex");
+
+
+        req.session.oauthState =
+            state;
+
+
+        const params =
+            new URLSearchParams({
+
+                client_id:
+                    CLIENT_ID,
+
+                redirect_uri:
+                    REDIRECT_URI,
+
+                response_type:
+                    "code",
+
+                scope:
+                    "identify guilds guilds.members.read",
+
+                state:
+                    state
+
+            });
+
+
+        return res.redirect(
+
+            "https://discord.com/oauth2/authorize?" +
+            params.toString()
+
+        );
+
     }
-
-    const state =
-        crypto
-            .randomBytes(24)
-            .toString("hex");
-
-    req.session.oauthState =
-        state;
-
-    const params =
-        new URLSearchParams({
-
-            client_id:
-                CLIENT_ID,
-
-            redirect_uri:
-                REDIRECT_URI,
-
-            response_type:
-                "code",
-
-            scope:
-                "identify guilds guilds.members.read",
-
-            state:
-                state
-
-        });
-
-    return res.redirect(
-        "https://discord.com/oauth2/authorize?" +
-        params.toString()
-    );
-
-});
+);
 
 
 // ======================================================
-// CALLBACK DISCORD
+// DISCORD CALLBACK
 // ======================================================
 
 app.get(
     "/auth/discord/callback",
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
 
         const code =
             req.query.code;
 
+
         const state =
             req.query.state;
 
+
         if (!code) {
+
             return res.redirect(
                 "/?error=no_code"
             );
+
         }
+
 
         if (
             !state ||
             !req.session.oauthState ||
-            state !== req.session.oauthState
+            state !==
+                req.session.oauthState
         ) {
 
             return res.redirect(
                 "/?error=invalid_state"
             );
+
         }
+
 
         delete req.session.oauthState;
 
-        try {
 
-            // ==================================================
-            // TOKEN
-            // ==================================================
+        try {
 
             const tokenParams =
                 new URLSearchParams({
@@ -335,6 +602,7 @@ app.get(
 
                 });
 
+
             const tokenResponse =
                 await axios.post(
 
@@ -343,21 +611,24 @@ app.get(
                     tokenParams.toString(),
 
                     {
+
                         headers: {
+
                             "Content-Type":
                                 "application/x-www-form-urlencoded"
+
                         }
+
                     }
 
                 );
 
+
             const accessToken =
-                tokenResponse.data.access_token;
+                tokenResponse
+                    .data
+                    .access_token;
 
-
-            // ==================================================
-            // USER
-            // ==================================================
 
             const userResponse =
                 await axios.get(
@@ -365,23 +636,25 @@ app.get(
                     "https://discord.com/api/users/@me",
 
                     {
+
                         headers: {
+
                             Authorization:
                                 `Bearer ${accessToken}`
+
                         }
+
                     }
 
                 );
+
 
             const discordUser =
                 userResponse.data;
 
 
-            // ==================================================
-            // MEMBER SERVER
-            // ==================================================
-
             let member;
+
 
             try {
 
@@ -391,84 +664,59 @@ app.get(
                         `https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`,
 
                         {
+
                             headers: {
+
                                 Authorization:
                                     `Bearer ${accessToken}`
+
                             }
+
                         }
 
                     );
 
+
                 member =
                     memberResponse.data;
 
-            } catch (memberError) {
+            }
+
+            catch (
+                memberError
+            ) {
 
                 console.error(
-                    "Eroare member:",
+                    "Member error:",
                     memberError.response?.data ||
                     memberError.message
                 );
 
+
                 return res.redirect(
                     "/?error=not_member"
                 );
+
             }
 
 
-            // ==================================================
-            // ROLURI
-            // ==================================================
-
             const roles =
-                Array.isArray(member.roles)
-                    ? member.roles.map(String)
+                Array.isArray(
+                    member.roles
+                )
+
+                    ? member.roles.map(
+                        String
+                    )
+
                     : [];
 
+
             const diicotRole =
-                getHighestDIICOTRole(roles);
+                getHighestDIICOTRole(
+                    roles
+                );
 
-
-            // ==================================================
-            // LOG
-            // ==================================================
-
-            console.log("");
-            console.log(
-                "========================================"
-            );
-
-            console.log(
-                "DIICOT LOGIN"
-            );
-
-            console.log(
-                "USER:",
-                discordUser.username
-            );
-
-            console.log(
-                "ROLE IDS:",
-                roles
-            );
-
-            console.log(
-                "GRAD:",
-                diicotRole
-                    ? diicotRole.name
-                    : "FĂRĂ GRAD"
-            );
-
-            console.log(
-                "========================================"
-            );
-
-            console.log("");
-
-
-            // ==================================================
-            // SESSION
-            // ==================================================
 
             req.session.user = {
 
@@ -509,11 +757,17 @@ app.get(
             };
 
 
-            // IMPORTANT:
-            // DUPĂ LOGIN REVINE PE HOMEPAGE
-            // NU INTRĂ AUTOMAT ÎN DASHBOARD
+            console.log(
+                "Login:",
+                discordUser.username,
+                "| Grad:",
+                req.session.user.rank
+            );
 
-            return res.redirect("/");
+
+            return res.redirect(
+                "/"
+            );
 
         }
 
@@ -525,9 +779,11 @@ app.get(
                 error.message
             );
 
+
             return res.redirect(
                 "/?error=discord"
             );
+
         }
 
     }
@@ -535,97 +791,452 @@ app.get(
 
 
 // ======================================================
-// API USER
+// USER
 // ======================================================
 
-app.get("/api/me", (req, res) => {
+app.get(
+    "/api/me",
+    (
+        req,
+        res
+    ) => {
 
-    if (
-        !req.session ||
-        !req.session.user
-    ) {
+        if (
+            !req.session ||
+            !req.session.user
+        ) {
+
+            return res
+                .status(401)
+                .json({
+
+                    loggedIn:
+                        false
+
+                });
+
+        }
+
+
+        return res.json({
+
+            loggedIn:
+                true,
+
+            user:
+                req.session.user
+
+        });
+
+    }
+);
+
+
+// ======================================================
+// POST RAPORT
+// ======================================================
+
+app.post(
+    "/api/reports",
+
+    requireAuth,
+
+    upload.array(
+        "images",
+        5
+    ),
+
+    (
+        req,
+        res
+    ) => {
+
+        const type =
+            String(
+                req.body.type || ""
+            )
+            .trim();
+
+
+        const title =
+            String(
+                req.body.title || ""
+            )
+            .trim();
+
+
+        const description =
+            String(
+                req.body.description || ""
+            )
+            .trim();
+
+
+        const allowedTypes =
+            [
+
+                "RAZIE",
+                "ANTRENAMENT",
+                "JAFURI",
+                "PATRULA",
+                "PERCHEZITIE",
+                "VERIFICARE ZONA",
+                "FOCURI DE ARMA"
+
+            ];
+
+
+        if (
+            !allowedTypes.includes(
+                type
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+
+                    error:
+                        "Tipul raportului nu este valid."
+
+                });
+
+        }
+
+
+        if (
+            title.length < 2 ||
+            title.length > 120
+        ) {
+
+            return res
+                .status(400)
+                .json({
+
+                    error:
+                        "Titlul raportului nu este valid."
+
+                });
+
+        }
+
+
+        if (
+            description.length < 2 ||
+            description.length > 5000
+        ) {
+
+            return res
+                .status(400)
+                .json({
+
+                    error:
+                        "Descrierea raportului nu este validă."
+
+                });
+
+        }
+
+
+        const images =
+            (req.files || [])
+                .map(
+                    file => ({
+
+                        filename:
+                            file.filename,
+
+                        url:
+                            `/uploads/${file.filename}`
+
+                    })
+                );
+
+
+        const now =
+            new Date();
+
+
+        const report = {
+
+            id:
+                crypto.randomUUID(),
+
+            authorId:
+                req.session.user.id,
+
+            authorName:
+                req.session.user.globalName ||
+                req.session.user.username,
+
+            authorRank:
+                req.session.user.rank,
+
+            type,
+
+            title,
+
+            description,
+
+            images,
+
+            status:
+                "IN VERIFICARE",
+
+            createdAt:
+                now.toISOString(),
+
+            createdAtFormatted:
+                now.toLocaleString(
+                    "ro-RO",
+                    {
+                        timeZone:
+                            "Europe/Bucharest"
+                    }
+                )
+
+        };
+
+
+        reports.unshift(
+            report
+        );
+
+
+        console.log(
+            "Raport nou:",
+            report.authorName,
+            "|",
+            report.type,
+            "|",
+            report.title
+        );
+
 
         return res
-            .status(401)
+            .status(201)
             .json({
-                loggedIn: false
+
+                success:
+                    true,
+
+                report
+
             });
+
     }
+);
 
-    return res.json({
 
-        loggedIn:
-            true,
+// ======================================================
+// RAPOARTELE MELE
+// ======================================================
 
-        user:
-            req.session.user
+app.get(
+    "/api/reports/my",
 
-    });
+    requireAuth,
 
-});
+    (
+        req,
+        res
+    ) => {
+
+        const userReports =
+            reports.filter(
+                report =>
+                    report.authorId ===
+                    req.session.user.id
+            );
+
+
+        return res.json({
+
+            reports:
+                userReports
+
+        });
+
+    }
+);
 
 
 // ======================================================
 // LOGOUT
 // ======================================================
 
-app.get("/logout", (req, res) => {
+app.get(
+    "/logout",
+    (
+        req,
+        res
+    ) => {
 
-    req.session = null;
+        req.session =
+            null;
 
-    res.clearCookie(
-        "diicot_session",
-        {
-            httpOnly: true,
-            sameSite: "lax",
-            secure:
-                process.env.NODE_ENV === "production"
-        }
-    );
 
-    return res.redirect("/");
+        res.clearCookie(
+            "diicot_session",
+            {
 
-});
+                httpOnly:
+                    true,
+
+                sameSite:
+                    "lax",
+
+                secure:
+                    process.env.NODE_ENV ===
+                    "production"
+
+            }
+        );
+
+
+        return res.redirect(
+            "/"
+        );
+
+    }
+);
 
 
 // ======================================================
 // HEALTH
 // ======================================================
 
-app.get("/health", (req, res) => {
+app.get(
+    "/health",
+    (
+        req,
+        res
+    ) => {
 
-    return res.json({
+        return res.json({
 
-        status:
-            "online",
+            status:
+                "online",
 
-        service:
-            "DIICOT Hub",
+            service:
+                "DIICOT Hub",
 
-        guildConfigured:
-            Boolean(GUILD_ID),
+            reports:
+                reports.length
 
-        rolesConfigured:
-            DIICOT_ROLES.length
+        });
 
-    });
+    }
+);
 
-});
+
+// ======================================================
+// MULTER ERROR
+// ======================================================
+
+app.use(
+    (
+        error,
+        req,
+        res,
+        next
+    ) => {
+
+        if (
+            error instanceof
+            multer.MulterError
+        ) {
+
+            if (
+                error.code ===
+                "LIMIT_FILE_SIZE"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        error:
+                            "O imagine este prea mare. Maximum 8 MB per poză."
+
+                    });
+
+            }
+
+
+            if (
+                error.code ===
+                "LIMIT_FILE_COUNT"
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+
+                        error:
+                            "Poți încărca maximum 5 poze."
+
+                    });
+
+            }
+
+
+            return res
+                .status(400)
+                .json({
+
+                    error:
+                        error.message
+
+                });
+
+        }
+
+
+        if (error) {
+
+            console.error(
+                error
+            );
+
+
+            return res
+                .status(400)
+                .json({
+
+                    error:
+                        error.message ||
+                        "A apărut o eroare."
+
+                });
+
+        }
+
+
+        next();
+
+    }
+);
 
 
 // ======================================================
 // 404
 // ======================================================
 
-app.use((req, res) => {
+app.use(
+    (
+        req,
+        res
+    ) => {
 
-    return res
-        .status(404)
-        .send(
-            "Pagina nu a fost găsită."
-        );
+        return res
+            .status(404)
+            .send(
+                "Pagina nu a fost găsită."
+            );
 
-});
+    }
+);
 
 
 // ======================================================
@@ -640,7 +1251,7 @@ app.listen(
 
         console.log("");
         console.log(
-            "========================================"
+            "================================"
         );
 
         console.log(
@@ -653,12 +1264,12 @@ app.listen(
         );
 
         console.log(
-            "DASHBOARD:",
-            "/dashboard"
+            "UPLOAD:",
+            uploadsDirectory
         );
 
         console.log(
-            "========================================"
+            "================================"
         );
 
         console.log("");
