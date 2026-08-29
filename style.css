@@ -2356,3 +2356,65 @@ footer span {
     }
 
 }
+
+/* ======================================================
+   ADMINISTRARE
+====================================================== */
+
+.admin-stats {
+    display: grid;
+
+    grid-template-columns:
+        minmax(180px, 260px);
+
+    margin-top: 20px;
+    margin-bottom: 25px;
+}
+
+
+.admin-report-author {
+    display: flex;
+    flex-direction: column;
+
+    gap: 4px;
+
+    margin-bottom: 20px;
+
+    padding: 14px 16px;
+
+    background:
+        rgba(255, 196, 0, 0.035);
+
+    border:
+        1px solid rgba(255, 196, 0, 0.12);
+
+    border-left:
+        2px solid #ffc400;
+}
+
+
+.admin-report-author span {
+    color: #687485;
+
+    font-size: 8px;
+
+    font-weight: 900;
+
+    letter-spacing: 1.2px;
+}
+
+
+.admin-report-author strong {
+    color: #ffffff;
+
+    font-size: 13px;
+}
+
+
+.admin-report-author small {
+    color: #ffc400;
+
+    font-size: 9px;
+
+    font-weight: 700;
+}
