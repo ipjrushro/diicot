@@ -27,8 +27,7 @@
 
         </div>
 
-
-        <!-- ZONA LOGIN / USER -->
+        <!-- LOGIN / USER -->
         <div id="auth-area">
 
             <a href="/auth/discord" class="login-btn">
@@ -46,33 +45,36 @@
         <div class="hero-overlay"></div>
         <div class="hero-glow"></div>
 
-
         <section class="hero-content">
 
             <div class="badge">
                 DIRECȚIA DE INVESTIGARE A INFRACȚIUNILOR
             </div>
 
-
             <h1>
                 HUB
                 <span>DIICOT</span>
             </h1>
-
 
             <p class="hero-description">
                 Platformă internă pentru gestionarea activității,
                 rapoartelor și personalului DIICOT.
             </p>
 
-
             <div class="hero-actions">
 
-                <a href="/auth/discord" class="primary-btn" id="main-login-btn">
+                <a
+                    href="/auth/discord"
+                    class="primary-btn"
+                    id="main-login-btn"
+                >
                     INTRĂ ÎN CONT
                 </a>
 
-                <a href="#features" class="secondary-btn">
+                <a
+                    href="#features"
+                    class="secondary-btn"
+                >
                     AFLĂ MAI MULTE
                 </a>
 
@@ -111,7 +113,6 @@
 
     <!-- FEATURES -->
     <section id="features" class="features">
-
 
         <!-- RAPOARTE -->
         <div class="feature-card">
@@ -204,6 +205,18 @@
     <!-- SCRIPT LOGIN DISCORD -->
     <script>
 
+        function escapeHTML(value) {
+
+            const div =
+                document.createElement("div");
+
+            div.textContent =
+                String(value ?? "");
+
+            return div.innerHTML;
+        }
+
+
         async function verificaAutentificarea() {
 
             const authArea =
@@ -226,7 +239,7 @@
                 if (!response.ok) {
 
                     console.log(
-                        "Utilizatorul nu este autentificat."
+                        "Utilizator neautentificat."
                     );
 
                     return;
@@ -256,7 +269,6 @@
 
                 let avatarURL;
 
-
                 if (user.avatar) {
 
                     avatarURL =
@@ -281,7 +293,16 @@
 
 
                 // =========================
-                // NAVBAR USER
+                // GRAD
+                // =========================
+
+                const rank =
+                    user.rank ||
+                    "MEMBRU DIICOT";
+
+
+                // =========================
+                // NAVBAR
                 // =========================
 
                 authArea.innerHTML = `
@@ -294,7 +315,6 @@
                             alt="Avatar Discord"
                         >
 
-
                         <div class="user-info">
 
                             <strong>
@@ -302,11 +322,10 @@
                             </strong>
 
                             <span id="discord-rank">
-                                MEMBRU DIICOT
+                                ${escapeHTML(rank)}
                             </span>
 
                         </div>
-
 
                         <a
                             href="/logout"
@@ -321,7 +340,7 @@
 
 
                 // =========================
-                // BUTON PRINCIPAL
+                // BUTON HERO
                 // =========================
 
                 if (mainLoginBtn) {
@@ -336,12 +355,15 @@
 
 
                 console.log(
-                    "Utilizator autentificat:",
-                    displayName
+                    "Autentificat:",
+                    displayName,
+                    "| Grad:",
+                    rank
                 );
 
+            }
 
-            } catch (error) {
+            catch (error) {
 
                 console.error(
                     "Eroare verificare autentificare:",
@@ -349,20 +371,6 @@
                 );
 
             }
-
-        }
-
-
-        // Protecție simplă împotriva inserării HTML în nume
-        function escapeHTML(value) {
-
-            const div =
-                document.createElement("div");
-
-            div.textContent =
-                String(value);
-
-            return div.innerHTML;
 
         }
 
