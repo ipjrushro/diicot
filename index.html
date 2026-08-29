@@ -6,7 +6,6 @@
 
     <title>DIICOT | Rush România</title>
 
-    <!-- CSS -->
     <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -29,9 +28,14 @@
         </div>
 
 
-        <a href="/auth/discord" class="login-btn">
-            AUTENTIFICARE DISCORD
-        </a>
+        <!-- ZONA LOGIN / USER -->
+        <div id="auth-area">
+
+            <a href="/auth/discord" class="login-btn">
+                AUTENTIFICARE DISCORD
+            </a>
+
+        </div>
 
     </header>
 
@@ -40,7 +44,6 @@
     <main class="hero">
 
         <div class="hero-overlay"></div>
-
         <div class="hero-glow"></div>
 
 
@@ -65,7 +68,7 @@
 
             <div class="hero-actions">
 
-                <a href="/auth/discord" class="primary-btn">
+                <a href="/auth/discord" class="primary-btn" id="main-login-btn">
                     INTRĂ ÎN CONT
                 </a>
 
@@ -78,8 +81,7 @@
         </section>
 
 
-        <!-- DECORATION -->
-
+        <!-- DIAMOND -->
         <div class="hero-decoration">
 
             <div class="diamond">
@@ -90,9 +92,13 @@
                         ⚖
                     </div>
 
-                    <strong>DIICOT</strong>
+                    <strong>
+                        DIICOT
+                    </strong>
 
-                    <span>RUSH ROMÂNIA</span>
+                    <span>
+                        RUSH ROMÂNIA
+                    </span>
 
                 </div>
 
@@ -104,12 +110,10 @@
 
 
     <!-- FEATURES -->
-
     <section id="features" class="features">
 
 
         <!-- RAPOARTE -->
-
         <div class="feature-card">
 
             <div class="feature-number">
@@ -134,7 +138,6 @@
 
 
         <!-- PERSONAL -->
-
         <div class="feature-card">
 
             <div class="feature-number">
@@ -159,7 +162,6 @@
 
 
         <!-- COMMAND CENTER -->
-
         <div class="feature-card">
 
             <div class="feature-number">
@@ -186,7 +188,6 @@
 
 
     <!-- FOOTER -->
-
     <footer>
 
         <div>
@@ -199,6 +200,176 @@
 
     </footer>
 
+
+    <!-- SCRIPT LOGIN DISCORD -->
+    <script>
+
+        async function verificaAutentificarea() {
+
+            const authArea =
+                document.getElementById("auth-area");
+
+            const mainLoginBtn =
+                document.getElementById("main-login-btn");
+
+
+            try {
+
+                const response =
+                    await fetch("/api/me", {
+                        method: "GET",
+                        credentials: "include",
+                        cache: "no-store"
+                    });
+
+
+                if (!response.ok) {
+
+                    console.log(
+                        "Utilizatorul nu este autentificat."
+                    );
+
+                    return;
+                }
+
+
+                const data =
+                    await response.json();
+
+
+                if (
+                    !data.loggedIn ||
+                    !data.user
+                ) {
+
+                    return;
+                }
+
+
+                const user =
+                    data.user;
+
+
+                // =========================
+                // AVATAR DISCORD
+                // =========================
+
+                let avatarURL;
+
+
+                if (user.avatar) {
+
+                    avatarURL =
+                        `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`;
+
+                } else {
+
+                    avatarURL =
+                        "https://cdn.discordapp.com/embed/avatars/0.png";
+
+                }
+
+
+                // =========================
+                // NUME
+                // =========================
+
+                const displayName =
+                    user.globalName ||
+                    user.username ||
+                    "Utilizator";
+
+
+                // =========================
+                // NAVBAR USER
+                // =========================
+
+                authArea.innerHTML = `
+
+                    <div class="user-menu">
+
+                        <img
+                            src="${avatarURL}"
+                            class="user-avatar"
+                            alt="Avatar Discord"
+                        >
+
+
+                        <div class="user-info">
+
+                            <strong>
+                                ${escapeHTML(displayName)}
+                            </strong>
+
+                            <span id="discord-rank">
+                                MEMBRU DIICOT
+                            </span>
+
+                        </div>
+
+
+                        <a
+                            href="/logout"
+                            class="logout-btn"
+                        >
+                            DECONECTARE
+                        </a>
+
+                    </div>
+
+                `;
+
+
+                // =========================
+                // BUTON PRINCIPAL
+                // =========================
+
+                if (mainLoginBtn) {
+
+                    mainLoginBtn.textContent =
+                        "CENTRU DE COMANDĂ";
+
+                    mainLoginBtn.href =
+                        "#features";
+
+                }
+
+
+                console.log(
+                    "Utilizator autentificat:",
+                    displayName
+                );
+
+
+            } catch (error) {
+
+                console.error(
+                    "Eroare verificare autentificare:",
+                    error
+                );
+
+            }
+
+        }
+
+
+        // Protecție simplă împotriva inserării HTML în nume
+        function escapeHTML(value) {
+
+            const div =
+                document.createElement("div");
+
+            div.textContent =
+                String(value);
+
+            return div.innerHTML;
+
+        }
+
+
+        verificaAutentificarea();
+
+    </script>
 
 </body>
 </html>
