@@ -11,14 +11,8 @@ html {
 body {
     background: #05070b;
     color: #ffffff;
-
-    font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
+    font-family: Arial, Helvetica, sans-serif;
     min-height: 100vh;
-
     overflow-x: hidden;
 }
 
@@ -55,7 +49,6 @@ body {
 .brand {
     display: flex;
     align-items: center;
-
     gap: 13px;
 }
 
@@ -89,9 +82,7 @@ body {
 
 .brand-text strong {
     display: block;
-
     font-size: 18px;
-
     letter-spacing: 2px;
 }
 
@@ -102,18 +93,20 @@ body {
     color: #f4b900;
 
     font-size: 9px;
-
     letter-spacing: 2.5px;
 
     margin-top: 4px;
 }
 
 
+/* =========================
+   LOGIN BUTTON
+========================= */
+
 .login-btn {
     text-decoration: none;
 
     color: #111827;
-
     background: #f3f6fa;
 
     padding: 13px 23px;
@@ -121,9 +114,7 @@ body {
     border-radius: 25px;
 
     font-size: 11px;
-
     letter-spacing: 1px;
-
     font-weight: 900;
 
     transition: 0.25s;
@@ -137,6 +128,119 @@ body {
 
     box-shadow:
         0 7px 25px rgba(255,196,0,0.20);
+}
+
+
+/* =========================
+   DISCORD USER
+========================= */
+
+#auth-area {
+    display: flex;
+    align-items: center;
+}
+
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 6px 8px 6px 6px;
+
+    border:
+        1px solid rgba(255,255,255,0.07);
+
+    background:
+        rgba(255,255,255,0.025);
+
+    border-radius: 12px;
+}
+
+
+.user-avatar {
+    width: 42px;
+    height: 42px;
+
+    border-radius: 50%;
+
+    object-fit: cover;
+
+    border: 2px solid #ffc400;
+
+    box-shadow:
+        0 0 16px rgba(255,196,0,0.22);
+}
+
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+
+    min-width: 110px;
+}
+
+
+.user-info strong {
+    color: #ffffff;
+
+    font-size: 12px;
+
+    letter-spacing: 0.4px;
+
+    white-space: nowrap;
+
+    max-width: 160px;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.user-info span {
+    color: #ffc400;
+
+    font-size: 9px;
+
+    margin-top: 4px;
+
+    letter-spacing: 1px;
+
+    font-weight: 800;
+}
+
+
+.logout-btn {
+    text-decoration: none;
+
+    color: #9ca7b7;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    padding: 10px 12px;
+
+    border:
+        1px solid rgba(255,255,255,0.10);
+
+    border-radius: 7px;
+
+    transition: 0.2s;
+}
+
+
+.logout-btn:hover {
+    color: #ffffff;
+
+    border-color:
+        rgba(255,196,0,0.40);
+
+    background:
+        rgba(255,196,0,0.05);
 }
 
 
@@ -222,7 +326,6 @@ body {
     inset: 0;
 
     background:
-
         linear-gradient(
             180deg,
             transparent 60%,
@@ -495,7 +598,6 @@ body {
     overflow: hidden;
 
     background:
-
         linear-gradient(
             145deg,
             #101620,
@@ -652,6 +754,42 @@ footer span {
     }
 
 
+    .user-menu {
+        gap: 8px;
+    }
+
+
+    .user-info {
+        min-width: 0;
+    }
+
+
+    .user-info strong {
+        max-width: 90px;
+
+        font-size: 10px;
+    }
+
+
+    .user-info span {
+        font-size: 7px;
+    }
+
+
+    .logout-btn {
+        padding:
+            8px 9px;
+
+        font-size: 7px;
+    }
+
+
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+    }
+
+
     .hero-content {
         margin:
             0 7%;
@@ -680,6 +818,55 @@ footer span {
         flex-direction: column;
 
         align-items: flex-start;
+    }
+
+}
+
+
+@media
+(max-width: 520px) {
+
+    .navbar {
+        height: 72px;
+    }
+
+
+    .brand-logo {
+        width: 38px;
+        height: 38px;
+
+        font-size: 18px;
+    }
+
+
+    .brand-text strong {
+        font-size: 14px;
+    }
+
+
+    .user-info {
+        display: none;
+    }
+
+
+    .logout-btn {
+        display: none;
+    }
+
+
+    .hero {
+        min-height:
+            calc(100vh - 72px);
+    }
+
+
+    .hero h1 {
+        font-size: 58px;
+    }
+
+
+    .hero-description {
+        font-size: 14px;
     }
 
 }
