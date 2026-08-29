@@ -6,6 +6,7 @@ const crypto = require("crypto");
 require("dotenv").config();
 
 const app = express();
+
 const PORT = process.env.PORT || 3000;
 
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
@@ -16,87 +17,85 @@ const GUILD_ID = process.env.DISCORD_GUILD_ID;
 
 // ======================================================
 // GRADE DIICOT
-// Ordinea este de la cel mai mare la cel mai mic.
-// Dacă un utilizator are mai multe roluri, îl ia pe cel
-// mai mare din această listă.
+// De la gradul cel mai mare la cel mai mic
 // ======================================================
 
 const DIICOT_ROLES = [
 
     {
-        id: "1528758226420633746",
+        id: "1441514560900169785",
         name: "PROCUROR ȘEF",
         level: 13
     },
 
     {
-        id: "1528758226420633745",
+        id: "1441514560900169784",
         name: "PROCUROR ȘEF ADJUNCT",
         level: 12
     },
 
     {
-        id: "1528758226420633744",
+        id: "1441514560900169783",
         name: "PROCUROR",
         level: 11
     },
 
     {
-        id: "1528758226416435219",
+        id: "1441514560900169782",
         name: "COORDONATOR",
         level: 10
     },
 
     {
-        id: "1528758226416435217",
+        id: "1441514560900169781",
         name: "COMISAR ȘEF",
         level: 9
     },
 
     {
-        id: "1528758226416435216",
+        id: "1441514560900169779",
         name: "COMISAR",
         level: 8
     },
 
     {
-        id: "1528758226416435215",
+        id: "1441514560900169778",
         name: "SUB COMISAR",
         level: 7
     },
 
     {
-        id: "1528758226416435214",
+        id: "1441514560891650098",
         name: "INSPECTOR PRINCIPAL",
         level: 6
     },
 
     {
-        id: "1528758226416435213",
+        id: "1441514560891650097",
         name: "INSPECTOR",
         level: 5
     },
 
     {
-        id: "1528758226416435211",
+        id: "1441514560891650095",
         name: "SUB INSPECTOR",
         level: 4
     },
 
     {
-        id: "1528758226416435210",
+        id: "1441514560875135229",
         name: "AGENT PRINCIPAL",
         level: 3
     },
 
     {
-        id: "1528758226407919645",
+        id: "1441514560875135228",
         name: "AGENT OPERATIV",
         level: 2
     },
 
     {
-        id: "1528758226407919644",
+        id: "1441514560875135227",
         name: "AGENT STAGIAR",
         level: 1
     }
@@ -105,7 +104,7 @@ const DIICOT_ROLES = [
 
 
 // ======================================================
-// FUNCȚIE GRAD
+// CAUTĂ CEL MAI MARE GRAD
 // ======================================================
 
 function getHighestDIICOTRole(userRoles = []) {
@@ -125,7 +124,7 @@ function getHighestDIICOTRole(userRoles = []) {
 
 
 // ======================================================
-// EXPRESS CONFIG
+// EXPRESS
 // ======================================================
 
 app.set("trust proxy", 1);
@@ -150,7 +149,7 @@ app.use(
 
         keys: [
             process.env.SESSION_SECRET ||
-            "change-this-session-secret"
+            "diicot-change-this-secret"
         ],
 
         maxAge:
@@ -206,14 +205,19 @@ app.get("/auth/discord", (req, res) => {
         !GUILD_ID
     ) {
 
-        return res.status(500).send(
-            "Configurarea Discord nu este completă."
+        console.error(
+            "LIPSESC VARIABILELE DISCORD DIN RENDER!"
         );
+
+        return res
+            .status(500)
+            .send(
+                "Configurarea Discord nu este completă."
+            );
 
     }
 
 
-    // State pentru protecția autentificării
     const state =
         crypto
             .randomBytes(24)
@@ -245,9 +249,13 @@ app.get("/auth/discord", (req, res) => {
         });
 
 
-    res.redirect(
+    const discordURL =
         "https://discord.com/oauth2/authorize?" +
-        params.toString()
+        params.toString();
+
+
+    return res.redirect(
+        discordURL
     );
 
 });
@@ -259,6 +267,7 @@ app.get("/auth/discord", (req, res) => {
 
 app.get(
     "/auth/discord/callback",
+
     async (req, res) => {
 
         const code =
@@ -268,7 +277,15 @@ app.get(
             req.query.state;
 
 
+        // ------------------------------------------
+        // VERIFICARE CODE
+        // ------------------------------------------
+
         if (!code) {
+
+            console.log(
+                "Discord callback fără CODE."
+            );
 
             return res.redirect(
                 "/?error=no_code"
@@ -277,11 +294,19 @@ app.get(
         }
 
 
+        // ------------------------------------------
+        // VERIFICARE STATE
+        // ------------------------------------------
+
         if (
             !state ||
             !req.session.oauthState ||
             state !== req.session.oauthState
         ) {
+
+            console.log(
+                "OAuth STATE invalid."
+            );
 
             return res.redirect(
                 "/?error=invalid_state"
@@ -296,7 +321,7 @@ app.get(
         try {
 
             // ==================================================
-            // ACCESS TOKEN
+            // TOKEN DISCORD
             // ==================================================
 
             const tokenParams =
@@ -344,7 +369,7 @@ app.get(
 
 
             // ==================================================
-            // DISCORD USER
+            // DATE UTILIZATOR
             // ==================================================
 
             const userResponse =
@@ -369,7 +394,7 @@ app.get(
 
 
             // ==================================================
-            // MEMBER INFO
+            // VERIFICARE SERVER + ROLURI
             // ==================================================
 
             let member;
@@ -399,10 +424,34 @@ app.get(
 
             }
 
-            catch (error) {
+            catch (memberError) {
 
-                console.log(
-                    "Utilizatorul nu este membru pe server."
+                console.error(
+                    "================================"
+                );
+
+                console.error(
+                    "EROARE VERIFICARE SERVER"
+                );
+
+                console.error(
+                    "USER:",
+                    discordUser.username
+                );
+
+                console.error(
+                    "GUILD ID:",
+                    GUILD_ID
+                );
+
+                console.error(
+                    "DISCORD:",
+                    memberError.response?.data ||
+                    memberError.message
+                );
+
+                console.error(
+                    "================================"
                 );
 
 
@@ -413,8 +462,89 @@ app.get(
             }
 
 
+            // ==================================================
+            // ROLE IDS
+            // ==================================================
+
             const roles =
-                member.roles || [];
+                Array.isArray(member.roles)
+                    ? member.roles.map(String)
+                    : [];
+
+
+            // ==================================================
+            // DEBUG IMPORTANT
+            // ==================================================
+
+            console.log("");
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "        DIICOT DISCORD DEBUG"
+            );
+
+            console.log(
+                "========================================"
+            );
+
+            console.log(
+                "USER:",
+                discordUser.username
+            );
+
+            console.log(
+                "USER ID:",
+                discordUser.id
+            );
+
+            console.log(
+                "GUILD ID FOLOSIT:",
+                GUILD_ID
+            );
+
+            console.log(
+                "NICKNAME:",
+                member.nick || "Fără nickname"
+            );
+
+            console.log(
+                "NUMĂR ROLURI:",
+                roles.length
+            );
+
+            console.log(
+                "ROLE IDS PRIMITE:"
+            );
+
+            console.log(
+                JSON.stringify(
+                    roles,
+                    null,
+                    2
+                )
+            );
+
+
+            console.log(
+                "----------------------------------------"
+            );
+
+            console.log(
+                "ROLE IDS CONFIGURATE PE SITE:"
+            );
+
+            console.log(
+                JSON.stringify(
+                    DIICOT_ROLES.map(role => ({
+                        name: role.name,
+                        id: role.id
+                    })),
+                    null,
+                    2
+                )
+            );
 
 
             // ==================================================
@@ -427,22 +557,47 @@ app.get(
                 );
 
 
-            // Dacă vrei să permiți DOAR persoanelor cu grad DIICOT,
-            // decomentează blocul următor:
+            console.log(
+                "----------------------------------------"
+            );
 
-            /*
-            if (!diicotRole) {
 
-                return res.redirect(
-                    "/?error=no_diicot_role"
+            if (diicotRole) {
+
+                console.log(
+                    "GRAD DETECTAT:",
+                    diicotRole.name
+                );
+
+                console.log(
+                    "ROLE ID:",
+                    diicotRole.id
                 );
 
             }
-            */
+
+            else {
+
+                console.log(
+                    "GRAD DETECTAT: FĂRĂ GRAD"
+                );
+
+                console.log(
+                    "Niciun ROLE ID primit nu se potrivește cu lista DIICOT."
+                );
+
+            }
+
+
+            console.log(
+                "========================================"
+            );
+
+            console.log("");
 
 
             // ==================================================
-            // SESSION USER
+            // SESSION
             // ==================================================
 
             req.session.user = {
@@ -484,37 +639,28 @@ app.get(
             };
 
 
-            console.log(
-                "=============================="
-            );
-
-            console.log(
-                `LOGIN: ${discordUser.username}`
-            );
-
-            console.log(
-                `GRAD: ${
-                    diicotRole
-                        ? diicotRole.name
-                        : "FĂRĂ GRAD"
-                }`
-            );
-
-            console.log(
-                "=============================="
-            );
-
-
             return res.redirect("/");
 
         }
 
         catch (error) {
 
+            console.error("");
             console.error(
-                "Discord OAuth Error:",
+                "========================================"
+            );
+
+            console.error(
+                "DISCORD OAUTH ERROR"
+            );
+
+            console.error(
                 error.response?.data ||
                 error.message
+            );
+
+            console.error(
+                "========================================"
             );
 
 
@@ -532,79 +678,110 @@ app.get(
 // API USER
 // ======================================================
 
-app.get("/api/me", (req, res) => {
+app.get(
+    "/api/me",
 
-    if (
-        !req.session ||
-        !req.session.user
-    ) {
+    (req, res) => {
 
-        return res.status(401).json({
+        if (
+            !req.session ||
+            !req.session.user
+        ) {
+
+            return res
+                .status(401)
+                .json({
+
+                    loggedIn:
+                        false
+
+                });
+
+        }
+
+
+        return res.json({
 
             loggedIn:
-                false
+                true,
+
+            user:
+                req.session.user
 
         });
 
     }
-
-
-    return res.json({
-
-        loggedIn:
-            true,
-
-        user:
-            req.session.user
-
-    });
-
-});
+);
 
 
 // ======================================================
 // LOGOUT
 // ======================================================
 
-app.get("/logout", (req, res) => {
+app.get(
+    "/logout",
 
-    req.session = null;
+    (req, res) => {
 
-    res.redirect("/");
+        req.session = null;
 
-});
+        return res.redirect("/");
+
+    }
+);
 
 
 // ======================================================
-// HEALTH
+// HEALTH CHECK
 // ======================================================
 
-app.get("/health", (req, res) => {
+app.get(
+    "/health",
 
-    res.status(200).json({
+    (req, res) => {
 
-        status:
-            "online",
+        return res.json({
 
-        service:
-            "DIICOT Hub"
+            status:
+                "online",
 
-    });
+            service:
+                "DIICOT Hub",
 
-});
+            guildConfigured:
+                Boolean(GUILD_ID),
+
+            rolesConfigured:
+                DIICOT_ROLES.length
+
+        });
+
+    }
+);
 
 
 // ======================================================
 // 404
 // ======================================================
 
-app.use((req, res) => {
+app.use(
+    (req, res) => {
 
-    res.status(404).send(
-        "Pagina nu a fost găsită."
-    );
+        console.log(
+            "404:",
+            req.method,
+            req.originalUrl
+        );
 
-});
+
+        return res
+            .status(404)
+            .send(
+                "Pagina nu a fost găsită."
+            );
+
+    }
+);
 
 
 // ======================================================
@@ -614,10 +791,12 @@ app.use((req, res) => {
 app.listen(
     PORT,
     "0.0.0.0",
+
     () => {
 
+        console.log("");
         console.log(
-            "=============================="
+            "========================================"
         );
 
         console.log(
@@ -625,12 +804,25 @@ app.listen(
         );
 
         console.log(
-            `PORT: ${PORT}`
+            "PORT:",
+            PORT
         );
 
         console.log(
-            "=============================="
+            "GUILD ID:",
+            GUILD_ID || "LIPSEȘTE"
         );
+
+        console.log(
+            "GRADE CONFIGURATE:",
+            DIICOT_ROLES.length
+        );
+
+        console.log(
+            "========================================"
+        );
+
+        console.log("");
 
     }
 );
