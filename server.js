@@ -1136,7 +1136,6 @@ app.get(
     }
 );
 
-
 // ======================================================
 // CALLBACK DISCORD
 // ======================================================
@@ -1395,8 +1394,9 @@ app.get(
     }
 );
 
+
 // ======================================================
-// PROFIL
+// PROFILUL MEU
 // ======================================================
 
 app.get(
@@ -1712,6 +1712,10 @@ app.get(
     }
 );
 
+
+// ======================================================
+// EDITARE PROFILUL MEU
+// ======================================================
 
 app.patch(
     "/api/profile",
@@ -2136,9 +2140,7 @@ app.post(
                     [],
                     req.session.user.id
                 );
-
-
-            const reportId =
+                        const reportId =
                 crypto.randomUUID();
 
 
@@ -3139,8 +3141,7 @@ app.post(
                         mapLeaveRequest(
                             inserted
                         ),
-
-                    usage:
+                                        usage:
                         await getLeaveUsage(
                             userId
                         )
@@ -3786,6 +3787,7 @@ app.patch(
     }
 );
 
+
 // ======================================================
 // BLACKLIST - LISTĂ
 // ======================================================
@@ -4136,9 +4138,7 @@ app.post(
                 name =
                     "Necunoscut";
             }
-
-
-            if (
+                        if (
                 name.length > 80
             ) {
 
@@ -5137,7 +5137,7 @@ app.patch(
                         "discord_id",
                         current.discord_id
                     )
-                    .eq(
+                                .eq(
                         "status",
                         "ACTIVE"
                     )
@@ -5741,7 +5741,6 @@ app.get(
                         "Personnel Profile Supabase Error:",
                         profilesError
                     );
-
                 }
 
                 else {
@@ -5911,6 +5910,345 @@ app.get(
 
 
 // ======================================================
+// PROFIL MEMBRU DIICOT
+// ======================================================
+
+app.get(
+    "/api/profile/:userId",
+
+    requireAuth,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+
+        try {
+
+            const userId =
+                String(
+                    req.params.userId ||
+                    ""
+                ).trim();
+
+
+            if (
+                !/^\d{15,25}$/.test(
+                    userId
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "ID-ul membrului nu este valid."
+                    });
+            }
+
+
+            if (!BOT_TOKEN) {
+
+                return res
+                    .status(500)
+                    .json({
+                        error:
+                            "Botul Discord nu este configurat."
+                    });
+            }
+
+
+            let member;
+
+
+            try {
+
+                const response =
+                    await axios.get(
+
+                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
+
+                        {
+                            headers: {
+
+                                Authorization:
+                                    `Bot ${BOT_TOKEN}`
+                            }
+                        }
+                    );
+
+
+                member =
+                    response.data;
+
+            }
+
+            catch (error) {
+
+                if (
+                    error.response?.status ===
+                    404
+                ) {
+
+                    return res
+                        .status(404)
+                        .json({
+                            error:
+                                "Membrul nu a fost găsit pe serverul Discord."
+                        });
+                }
+
+
+                throw error;
+            }
+
+
+            const roles =
+                Array.isArray(
+                    member.roles
+                )
+
+                    ? member.roles
+                        .map(String)
+
+                    : [];
+
+
+            const rank =
+                getHighestDIICOTRole(
+                    roles
+                );
+
+
+            if (!rank) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Această persoană nu face parte din personalul DIICOT."
+                    });
+            }
+
+
+            const discordUser =
+                member.user;
+
+
+            const {
+                data:
+                    profileRow,
+
+                error:
+                    profileError
+            } =
+                await supabase
+                    .from(
+                        "user_profiles"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "user_id",
+                        userId
+                    )
+                    .maybeSingle();
+
+
+            if (
+                profileError
+            ) {
+
+                throw profileError;
+            }
+
+
+            const {
+                data:
+                    reportRows,
+
+                error:
+                    reportsError
+            } =
+                await supabase
+                    .from(
+                        "reports"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "author_id",
+                        userId
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending:
+                                false
+                        }
+                    );
+
+
+            if (
+                reportsError
+            ) {
+
+                throw reportsError;
+            }
+
+
+            const reports =
+                (
+                    reportRows ||
+                    []
+                )
+                    .map(
+                        mapReport
+                    );
+
+
+            const reportsWithImages =
+                reports.filter(
+                    report =>
+                        Array.isArray(
+                            report.images
+                        ) &&
+                        report.images.length >
+                        0
+                ).length;
+
+
+            const displayName =
+                profileRow?.display_name ||
+                member.nick ||
+                discordUser.global_name ||
+                discordUser.username;
+
+
+            const avatar =
+                discordUser.avatar
+
+                    ? `https://cdn.discordapp.com/avatars/${userId}/${discordUser.avatar}.png?size=256`
+
+                    : "https://cdn.discordapp.com/embed/avatars/0.png";
+
+
+            res.json({
+
+                success:
+                    true,
+
+                profile: {
+
+                    id:
+                        userId,
+
+                    username:
+                        discordUser.username,
+
+                    displayName,
+
+                    avatar,
+
+                    rank:
+                        rank.name,
+
+                    rankLevel:
+                        rank.level,
+
+                    rankRoleId:
+                        rank.id,
+
+                    duties:
+                        Array.isArray(
+                            profileRow?.duties
+                        )
+
+                            ? profileRow.duties
+
+                            : [],
+
+                    statistics: {
+
+                        totalReports:
+                            reports.length,
+
+                        reportsWithImages,
+
+                        lastActivity:
+                            reports.length
+
+                                ? reports[0]
+                                    .createdAtFormatted
+
+                                : "-"
+                    },
+
+                    recentActivity:
+                        reports
+                            .slice(
+                                0,
+                                10
+                            )
+                            .map(
+                                report => ({
+
+                                    id:
+                                        report.id,
+
+                                    type:
+                                        report.type,
+
+                                    title:
+                                        report.title,
+
+                                    description:
+                                        report.description,
+
+                                    images:
+                                        report.images,
+
+                                    createdAt:
+                                        report.createdAt,
+
+                                    createdAtFormatted:
+                                        report.createdAtFormatted
+                                })
+                            )
+                }
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Member Profile Error:",
+                error.response?.data ||
+                error.message ||
+                error
+            );
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Profilul membrului nu a putut fi încărcat."
+                });
+        }
+    }
+);
+// ======================================================
 // LOGOUT
 // ======================================================
 
@@ -5980,7 +6318,6 @@ app.get(
             try {
 
                 await updateBlacklistStatuses();
-
 
                 const [
                     reportsResult,
