@@ -16,6 +16,7 @@ const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
+const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 
 // ======================================================
@@ -171,7 +172,7 @@ app.use(
 
 
 // ======================================================
-// UPLOADS
+// UPLOAD DIRECTORY
 // ======================================================
 
 const uploadsDirectory =
@@ -192,6 +193,10 @@ if (!fs.existsSync(uploadsDirectory)) {
 
 }
 
+
+// ======================================================
+// MULTER
+// ======================================================
 
 const storage =
     multer.diskStorage({
@@ -379,7 +384,6 @@ app.get("/dashboard", (req, res) => {
 
 // ======================================================
 // CSS
-// NU SERVIM TOT FOLDERUL CU express.static(__dirname)
 // ======================================================
 
 app.get("/style.css", (req, res) => {
@@ -395,7 +399,7 @@ app.get("/style.css", (req, res) => {
 
 
 // ======================================================
-// POZE RAPOARTE
+// UPLOADS STATIC
 // ======================================================
 
 app.use(
@@ -407,7 +411,7 @@ app.use(
 
 
 // ======================================================
-// LOGIN DISCORD
+// DISCORD LOGIN
 // ======================================================
 
 app.get("/auth/discord", (req, res) => {
@@ -992,6 +996,245 @@ app.get(
 
 
 // ======================================================
+// PERSONAL DIICOT DIN DISCORD
+// ======================================================
+
+app.get(
+    "/api/personnel",
+
+    requireAuth,
+
+    async (req, res) => {
+
+        if (!BOT_TOKEN) {
+
+            return res
+                .status(500)
+                .json({
+
+                    error:
+                        "DISCORD_BOT_TOKEN nu este configurat."
+
+                });
+
+        }
+
+
+        try {
+
+            let allMembers = [];
+
+            let after = "0";
+
+            let hasMore = true;
+
+
+            while (hasMore) {
+
+                const response =
+                    await axios.get(
+
+                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members`,
+
+                        {
+
+                            params: {
+
+                                limit:
+                                    1000,
+
+                                after:
+                                    after
+
+                            },
+
+                            headers: {
+
+                                Authorization:
+                                    `Bot ${BOT_TOKEN}`
+
+                            }
+
+                        }
+
+                    );
+
+
+                const members =
+                    response.data;
+
+
+                allMembers.push(
+                    ...members
+                );
+
+
+                if (
+                    members.length < 1000
+                ) {
+
+                    hasMore =
+                        false;
+
+                }
+
+                else {
+
+                    after =
+                        members[
+                            members.length - 1
+                        ].user.id;
+
+                }
+
+            }
+
+
+            const personnel =
+                [];
+
+
+            for (
+                const member
+                of allMembers
+            ) {
+
+                const memberRoles =
+                    Array.isArray(
+                        member.roles
+                    )
+
+                        ? member.roles.map(String)
+
+                        : [];
+
+
+                const diicotRole =
+                    getHighestDIICOTRole(
+                        memberRoles
+                    );
+
+
+                if (!diicotRole) {
+                    continue;
+                }
+
+
+                const user =
+                    member.user;
+
+
+                let avatarUrl =
+                    "https://cdn.discordapp.com/embed/avatars/0.png";
+
+
+                if (user.avatar) {
+
+                    avatarUrl =
+                        `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`;
+
+                }
+
+
+                personnel.push({
+
+                    id:
+                        user.id,
+
+                    username:
+                        user.username,
+
+                    displayName:
+                        member.nick ||
+                        user.global_name ||
+                        user.username,
+
+                    avatar:
+                        avatarUrl,
+
+                    rank:
+                        diicotRole.name,
+
+                    rankLevel:
+                        diicotRole.level,
+
+                    rankRoleId:
+                        diicotRole.id
+
+                });
+
+            }
+
+
+            personnel.sort(
+                (a, b) => {
+
+                    if (
+                        b.rankLevel !==
+                        a.rankLevel
+                    ) {
+
+                        return (
+                            b.rankLevel -
+                            a.rankLevel
+                        );
+
+                    }
+
+
+                    return (
+                        a.displayName ||
+                        ""
+                    ).localeCompare(
+                        b.displayName ||
+                        "",
+                        "ro"
+                    );
+
+                }
+            );
+
+
+            return res.json({
+
+                success:
+                    true,
+
+                total:
+                    personnel.length,
+
+                personnel:
+                    personnel
+
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Personnel Discord Error:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            return res
+                .status(500)
+                .json({
+
+                    error:
+                        "Nu am putut încărca personalul DIICOT."
+
+                });
+
+        }
+
+    }
+);
+
+
+// ======================================================
 // LOGOUT
 // ======================================================
 
@@ -1005,9 +1248,11 @@ app.get("/logout", (req, res) => {
         "diicot_session",
         {
 
-            httpOnly: true,
+            httpOnly:
+                true,
 
-            sameSite: "lax",
+            sameSite:
+                "lax",
 
             secure:
                 process.env.NODE_ENV ===
@@ -1040,7 +1285,10 @@ app.get("/health", (req, res) => {
             reports.length,
 
         rolesConfigured:
-            DIICOT_ROLES.length
+            DIICOT_ROLES.length,
+
+        botConfigured:
+            Boolean(BOT_TOKEN)
 
     });
 
@@ -1167,6 +1415,7 @@ app.listen(
         console.log("DIICOT HUB ONLINE");
         console.log("PORT:", PORT);
         console.log("GRADE:", DIICOT_ROLES.length);
+        console.log("BOT CONFIGURAT:", Boolean(BOT_TOKEN));
         console.log("RAPOARTE: POSTARE DIRECTĂ");
         console.log("============================");
         console.log("");
