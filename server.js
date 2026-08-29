@@ -97,7 +97,9 @@ const DIICOT_ROLES = [
 // ======================================================
 
 function getHighestDIICOTRole(userRoles = []) {
+
     for (const role of DIICOT_ROLES) {
+
         if (userRoles.includes(role.id)) {
             return role;
         }
@@ -135,19 +137,22 @@ app.use(
             "change-this-secret"
         ],
 
-        maxAge: 24 * 60 * 60 * 1000,
+        maxAge:
+            24 * 60 * 60 * 1000,
 
         httpOnly: true,
+
         sameSite: "lax",
 
         secure:
-            process.env.NODE_ENV === "production"
+            process.env.NODE_ENV ===
+            "production"
     })
 );
 
 
 // ======================================================
-// UPLOAD DIRECTORY
+// UPLOADS
 // ======================================================
 
 const uploadsDirectory =
@@ -157,7 +162,12 @@ const uploadsDirectory =
     );
 
 
-if (!fs.existsSync(uploadsDirectory)) {
+if (
+    !fs.existsSync(
+        uploadsDirectory
+    )
+) {
+
     fs.mkdirSync(
         uploadsDirectory,
         {
@@ -167,49 +177,59 @@ if (!fs.existsSync(uploadsDirectory)) {
 }
 
 
-// ======================================================
-// MULTER
-// ======================================================
-
 const storage =
     multer.diskStorage({
-        destination: function (
+
+        destination(
             req,
             file,
             callback
         ) {
+
             callback(
                 null,
                 uploadsDirectory
             );
         },
 
-        filename: function (
+
+        filename(
             req,
             file,
             callback
         ) {
-            let extension = ".jpg";
 
-            if (file.mimetype === "image/png") {
-                extension = ".png";
+            let extension =
+                ".jpg";
+
+
+            if (
+                file.mimetype ===
+                "image/png"
+            ) {
+                extension =
+                    ".png";
             }
 
-            if (file.mimetype === "image/webp") {
-                extension = ".webp";
+
+            if (
+                file.mimetype ===
+                "image/webp"
+            ) {
+                extension =
+                    ".webp";
             }
 
-            const filename =
+
+            callback(
+                null,
+
                 Date.now() +
                 "-" +
                 crypto
                     .randomBytes(8)
                     .toString("hex") +
-                extension;
-
-            callback(
-                null,
-                filename
+                extension
             );
         }
     });
@@ -217,36 +237,48 @@ const storage =
 
 const upload =
     multer({
+
         storage,
 
         limits: {
+
             fileSize:
                 8 *
                 1024 *
                 1024,
 
-            files: 5
+            files:
+                5
         },
 
-        fileFilter: function (
+
+        fileFilter(
             req,
             file,
             callback
         ) {
+
             const allowed = [
                 "image/jpeg",
                 "image/png",
                 "image/webp"
             ];
 
-            if (allowed.includes(file.mimetype)) {
+
+            if (
+                allowed.includes(
+                    file.mimetype
+                )
+            ) {
+
                 return callback(
                     null,
                     true
                 );
             }
 
-            return callback(
+
+            callback(
                 new Error(
                     "Sunt acceptate doar imagini JPG, PNG și WEBP."
                 )
@@ -261,7 +293,8 @@ const upload =
 
 const reports = [];
 
-const userProfiles = new Map();
+const userProfiles =
+    new Map();
 
 
 // ======================================================
@@ -273,10 +306,12 @@ function requireAuth(
     res,
     next
 ) {
+
     if (
         !req.session ||
         !req.session.user
     ) {
+
         return res
             .status(401)
             .json({
@@ -284,6 +319,7 @@ function requireAuth(
                     "Trebuie să fii autentificat."
             });
     }
+
 
     next();
 }
@@ -298,10 +334,12 @@ function requireAdmin(
     res,
     next
 ) {
+
     if (
         !req.session ||
         !req.session.user
     ) {
+
         return res
             .status(401)
             .json({
@@ -310,12 +348,18 @@ function requireAdmin(
             });
     }
 
+
     const rankLevel =
         Number(
-            req.session.user.rankLevel || 0
+            req.session.user.rankLevel ||
+            0
         );
 
-    if (rankLevel < 10) {
+
+    if (
+        rankLevel < 10
+    ) {
+
         return res
             .status(403)
             .json({
@@ -323,6 +367,7 @@ function requireAdmin(
                     "Nu ai acces la Administrare."
             });
     }
+
 
     next();
 }
@@ -336,7 +381,8 @@ app.get(
     "/",
 
     (req, res) => {
-        return res.sendFile(
+
+        res.sendFile(
             path.join(
                 __dirname,
                 "index.html"
@@ -354,14 +400,17 @@ app.get(
     "/dashboard",
 
     (req, res) => {
+
         if (
             !req.session ||
             !req.session.user
         ) {
+
             return res.redirect("/");
         }
 
-        return res.sendFile(
+
+        res.sendFile(
             path.join(
                 __dirname,
                 "dashboard.html"
@@ -379,7 +428,8 @@ app.get(
     "/style.css",
 
     (req, res) => {
-        return res.sendFile(
+
+        res.sendFile(
             path.join(
                 __dirname,
                 "style.css"
@@ -390,11 +440,12 @@ app.get(
 
 
 // ======================================================
-// UPLOADS
+// UPLOADS STATIC
 // ======================================================
 
 app.use(
     "/uploads",
+
     express.static(
         uploadsDirectory
     )
@@ -402,19 +453,21 @@ app.use(
 
 
 // ======================================================
-// DISCORD LOGIN
+// LOGIN DISCORD
 // ======================================================
 
 app.get(
     "/auth/discord",
 
     (req, res) => {
+
         if (
             !CLIENT_ID ||
             !CLIENT_SECRET ||
             !REDIRECT_URI ||
             !GUILD_ID
         ) {
+
             return res
                 .status(500)
                 .send(
@@ -422,16 +475,20 @@ app.get(
                 );
         }
 
+
         const state =
             crypto
                 .randomBytes(24)
                 .toString("hex");
 
+
         req.session.oauthState =
             state;
 
+
         const params =
             new URLSearchParams({
+
                 client_id:
                     CLIENT_ID,
 
@@ -448,7 +505,8 @@ app.get(
                     state
             });
 
-        return res.redirect(
+
+        res.redirect(
             "https://discord.com/oauth2/authorize?" +
             params.toString()
         );
@@ -457,40 +515,54 @@ app.get(
 
 
 // ======================================================
-// DISCORD CALLBACK
+// CALLBACK DISCORD
 // ======================================================
 
 app.get(
     "/auth/discord/callback",
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
+
         const code =
             req.query.code;
+
 
         const state =
             req.query.state;
 
+
         if (!code) {
+
             return res.redirect(
                 "/?error=no_code"
             );
         }
 
+
         if (
             !state ||
             !req.session.oauthState ||
-            state !== req.session.oauthState
+            state !==
+            req.session.oauthState
         ) {
+
             return res.redirect(
                 "/?error=invalid_state"
             );
         }
 
+
         delete req.session.oauthState;
 
+
         try {
+
             const tokenParams =
                 new URLSearchParams({
+
                     client_id:
                         CLIENT_ID,
 
@@ -507,35 +579,43 @@ app.get(
                         REDIRECT_URI
                 });
 
+
             const tokenResponse =
                 await axios.post(
+
                     "https://discord.com/api/oauth2/token",
 
                     tokenParams.toString(),
 
                     {
                         headers: {
+
                             "Content-Type":
                                 "application/x-www-form-urlencoded"
                         }
                     }
                 );
 
+
             const accessToken =
-                tokenResponse.data.access_token;
+                tokenResponse.data
+                    .access_token;
 
 
             const userResponse =
                 await axios.get(
+
                     "https://discord.com/api/users/@me",
 
                     {
                         headers: {
+
                             Authorization:
                                 `Bearer ${accessToken}`
                         }
                     }
                 );
+
 
             const discordUser =
                 userResponse.data;
@@ -545,28 +625,35 @@ app.get(
 
 
             try {
+
                 const memberResponse =
                     await axios.get(
+
                         `https://discord.com/api/users/@me/guilds/${GUILD_ID}/member`,
 
                         {
                             headers: {
+
                                 Authorization:
                                     `Bearer ${accessToken}`
                             }
                         }
                     );
 
+
                 member =
                     memberResponse.data;
+
             }
 
-            catch (memberError) {
+            catch (error) {
+
                 console.error(
                     "Discord Member Error:",
-                    memberError.response?.data ||
-                    memberError.message
+                    error.response?.data ||
+                    error.message
                 );
+
 
                 return res.redirect(
                     "/?error=not_member"
@@ -575,8 +662,14 @@ app.get(
 
 
             const roles =
-                Array.isArray(member.roles)
-                    ? member.roles.map(String)
+                Array.isArray(
+                    member.roles
+                )
+
+                    ? member.roles.map(
+                        String
+                    )
+
                     : [];
 
 
@@ -586,13 +679,24 @@ app.get(
                 );
 
 
+            const savedProfile =
+                userProfiles.get(
+                    discordUser.id
+                );
+
+
             const displayName =
+                savedProfile?.displayName ||
+
                 member.nick ||
+
                 discordUser.global_name ||
+
                 discordUser.username;
 
 
             req.session.user = {
+
                 id:
                     discordUser.id,
 
@@ -632,17 +736,19 @@ app.get(
             };
 
 
-            return res.redirect("/");
+            res.redirect("/");
         }
 
         catch (error) {
+
             console.error(
                 "Discord OAuth Error:",
                 error.response?.data ||
                 error.message
             );
 
-            return res.redirect(
+
+            res.redirect(
                 "/?error=discord"
             );
         }
@@ -657,20 +763,29 @@ app.get(
 app.get(
     "/api/me",
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
+
         if (
             !req.session ||
             !req.session.user
         ) {
+
             return res
                 .status(401)
                 .json({
-                    loggedIn: false
+                    loggedIn:
+                        false
                 });
         }
 
-        return res.json({
-            loggedIn: true,
+
+        res.json({
+
+            loggedIn:
+                true,
 
             user:
                 req.session.user
@@ -680,7 +795,7 @@ app.get(
 
 
 // ======================================================
-// PROFILUL MEU
+// PROFIL
 // ======================================================
 
 app.get(
@@ -688,14 +803,24 @@ app.get(
 
     requireAuth,
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
+
         const userId =
             req.session.user.id;
 
 
         let displayName =
             req.session.user.displayName ||
+
             req.session.user.globalName ||
+
+            req.session.user.username;
+
+
+        let username =
             req.session.user.username;
 
 
@@ -703,22 +828,20 @@ app.get(
             req.session.user.avatar;
 
 
-        let username =
-            req.session.user.username;
+        if (
+            BOT_TOKEN
+        ) {
 
-
-        // ==================================================
-        // SINCRONIZARE CU DISCORD
-        // ==================================================
-
-        if (BOT_TOKEN) {
             try {
-                const memberResponse =
+
+                const response =
                     await axios.get(
+
                         `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
 
                         {
                             headers: {
+
                                 Authorization:
                                     `Bot ${BOT_TOKEN}`
                             }
@@ -727,14 +850,7 @@ app.get(
 
 
                 const member =
-                    memberResponse.data;
-
-
-                displayName =
-                    member.nick ||
-                    member.user?.global_name ||
-                    member.user?.username ||
-                    displayName;
+                    response.data;
 
 
                 username =
@@ -748,12 +864,18 @@ app.get(
 
 
                 const memberRoles =
-                    Array.isArray(member.roles)
-                        ? member.roles.map(String)
+                    Array.isArray(
+                        member.roles
+                    )
+
+                        ? member.roles.map(
+                            String
+                        )
+
                         : [];
 
 
-                const diicotRole =
+                const rank =
                     getHighestDIICOTRole(
                         memberRoles
                     );
@@ -764,20 +886,20 @@ app.get(
 
 
                 req.session.user.rank =
-                    diicotRole
-                        ? diicotRole.name
+                    rank
+                        ? rank.name
                         : "MEMBRU DIICOT";
 
 
                 req.session.user.rankLevel =
-                    diicotRole
-                        ? diicotRole.level
+                    rank
+                        ? rank.level
                         : 0;
 
 
                 req.session.user.rankRoleId =
-                    diicotRole
-                        ? diicotRole.id
+                    rank
+                        ? rank.id
                         : null;
 
 
@@ -787,11 +909,30 @@ app.get(
 
                 req.session.user.avatar =
                     discordAvatar;
+
+
+                if (
+                    !userProfiles
+                        .get(userId)
+                        ?.displayName
+                ) {
+
+                    displayName =
+                        member.nick ||
+
+                        member.user?.global_name ||
+
+                        member.user?.username ||
+
+                        displayName;
+                }
+
             }
 
             catch (error) {
+
                 console.error(
-                    "Profile Discord Member Error:",
+                    "Profile Discord Error:",
                     error.response?.data ||
                     error.message
                 );
@@ -799,21 +940,23 @@ app.get(
         }
 
 
-        // ==================================================
-        // PROFIL SALVAT PE SITE
-        // ==================================================
-
         const savedProfile =
-            userProfiles.get(userId) || {
-                displayName: null,
-                duties: []
+            userProfiles.get(
+                userId
+            ) || {
+
+                displayName:
+                    null,
+
+                duties:
+                    []
             };
 
 
-        // Numele salvat pe site are prioritate
-        // peste nickname-ul Discord.
+        if (
+            savedProfile.displayName
+        ) {
 
-        if (savedProfile.displayName) {
             displayName =
                 savedProfile.displayName;
         }
@@ -823,55 +966,31 @@ app.get(
             displayName;
 
 
-        // ==================================================
-        // RAPOARTE
-        // ==================================================
-
         const myReports =
             reports.filter(
                 report =>
-                    report.authorId === userId
+                    report.authorId ===
+                    userId
             );
 
 
         const reportsWithImages =
             myReports.filter(
                 report =>
-                    Array.isArray(report.images) &&
-                    report.images.length > 0
+                    Array.isArray(
+                        report.images
+                    ) &&
+                    report.images.length
             ).length;
 
 
-        const lastActivity =
-            myReports.length
-                ? myReports[0].createdAtFormatted
-                : "-";
+        res.json({
 
-
-        const recentActivity =
-            myReports
-                .slice(0, 5)
-                .map(
-                    report => ({
-                        id:
-                            report.id,
-
-                        type:
-                            report.type,
-
-                        title:
-                            report.title,
-
-                        createdAtFormatted:
-                            report.createdAtFormatted
-                    })
-                );
-
-
-        return res.json({
-            success: true,
+            success:
+                true,
 
             profile: {
+
                 id:
                     userId,
 
@@ -891,9 +1010,11 @@ app.get(
                     req.session.user.rankLevel,
 
                 duties:
-                    savedProfile.duties || [],
+                    savedProfile.duties ||
+                    [],
 
                 statistics: {
+
                     totalReports:
                         myReports.length,
 
@@ -901,11 +1022,33 @@ app.get(
                         reportsWithImages,
 
                     lastActivity:
-                        lastActivity
+                        myReports.length
+
+                            ? myReports[0]
+                                .createdAtFormatted
+
+                            : "-"
                 },
 
                 recentActivity:
-                    recentActivity
+                    myReports
+                        .slice(0, 5)
+                        .map(
+                            report => ({
+
+                                id:
+                                    report.id,
+
+                                type:
+                                    report.type,
+
+                                title:
+                                    report.title,
+
+                                createdAtFormatted:
+                                    report.createdAtFormatted
+                            })
+                        )
             }
         });
     }
@@ -913,10 +1056,7 @@ app.get(
 
 
 // ======================================================
-// ACTUALIZARE PROFIL
-//
-// Profilul se salvează indiferent dacă Discord
-// permite sau nu modificarea nickname-ului.
+// SALVARE PROFIL
 // ======================================================
 
 app.patch(
@@ -924,31 +1064,45 @@ app.patch(
 
     requireAuth,
 
-    async (req, res) => {
+    async (
+        req,
+        res
+    ) => {
+
         const userId =
             req.session.user.id;
 
 
         const nickname =
             String(
-                req.body.nickname || ""
+                req.body.nickname ||
+                ""
             ).trim();
 
 
-        const dutiesInput =
-            Array.isArray(req.body.duties)
+        const duties =
+            Array.isArray(
+                req.body.duties
+            )
+
                 ? req.body.duties
+                    .map(
+                        duty =>
+                            String(
+                                duty ||
+                                ""
+                            ).trim()
+                    )
+                    .filter(Boolean)
+
                 : [];
 
-
-        // ==================================================
-        // VALIDARE NUME
-        // ==================================================
 
         if (
             nickname.length < 2 ||
             nickname.length > 32
         ) {
+
             return res
                 .status(400)
                 .json({
@@ -958,22 +1112,10 @@ app.patch(
         }
 
 
-        // ==================================================
-        // VALIDARE ATRIBUȚII
-        // ==================================================
+        if (
+            duties.length > 8
+        ) {
 
-        const duties =
-            dutiesInput
-                .map(
-                    duty =>
-                        String(
-                            duty || ""
-                        ).trim()
-                )
-                .filter(Boolean);
-
-
-        if (duties.length > 8) {
             return res
                 .status(400)
                 .json({
@@ -983,11 +1125,16 @@ app.patch(
         }
 
 
-        for (const duty of duties) {
+        for (
+            const duty
+            of duties
+        ) {
+
             if (
                 duty.length < 2 ||
                 duty.length > 80
             ) {
+
                 return res
                     .status(400)
                     .json({
@@ -998,13 +1145,10 @@ app.patch(
         }
 
 
-        // ==================================================
-        // SALVĂM ÎNTÂI PE SITE
-        // ==================================================
-
         userProfiles.set(
             userId,
             {
+
                 displayName:
                     nickname,
 
@@ -1018,21 +1162,22 @@ app.patch(
             nickname;
 
 
-        // ==================================================
-        // ÎNCERCĂM SINCRONIZAREA CU DISCORD
-        // ==================================================
-
         let discordSynced =
             false;
 
 
-        let discordMessage =
+        let message =
             "Profilul a fost salvat pe site.";
 
 
-        if (BOT_TOKEN) {
+        if (
+            BOT_TOKEN
+        ) {
+
             try {
+
                 await axios.patch(
+
                     `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
 
                     {
@@ -1042,6 +1187,7 @@ app.patch(
 
                     {
                         headers: {
+
                             Authorization:
                                 `Bot ${BOT_TOKEN}`,
 
@@ -1056,29 +1202,28 @@ app.patch(
                     true;
 
 
-                discordMessage =
-                    "Profilul a fost salvat și numele a fost sincronizat cu Discord.";
+                message =
+                    "Profilul a fost salvat și sincronizat cu Discord.";
+
             }
 
             catch (error) {
+
                 console.error(
-                    "Discord Nickname Update Error:",
+                    "Discord Nickname Error:",
                     error.response?.data ||
                     error.message
                 );
 
 
-                discordSynced =
-                    false;
-
-
-                discordMessage =
+                message =
                     "Profilul a fost salvat pe site, dar Discord nu a permis schimbarea nickname-ului.";
             }
         }
 
 
-        return res.json({
+        res.json({
+
             success:
                 true,
 
@@ -1086,9 +1231,10 @@ app.patch(
                 discordSynced,
 
             message:
-                discordMessage,
+                message,
 
             profile: {
+
                 displayName:
                     nickname,
 
@@ -1101,7 +1247,7 @@ app.patch(
 
 
 // ======================================================
-// POSTARE RAPORT
+// RAPORT NOU
 // ======================================================
 
 app.post(
@@ -1114,22 +1260,29 @@ app.post(
         5
     ),
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
+
         const type =
             String(
-                req.body.type || ""
+                req.body.type ||
+                ""
             ).trim();
 
 
         const title =
             String(
-                req.body.title || ""
+                req.body.title ||
+                ""
             ).trim();
 
 
         const description =
             String(
-                req.body.description || ""
+                req.body.description ||
+                ""
             ).trim();
 
 
@@ -1144,7 +1297,12 @@ app.post(
         ];
 
 
-        if (!allowedTypes.includes(type)) {
+        if (
+            !allowedTypes.includes(
+                type
+            )
+        ) {
+
             return res
                 .status(400)
                 .json({
@@ -1158,6 +1316,7 @@ app.post(
             title.length < 2 ||
             title.length > 120
         ) {
+
             return res
                 .status(400)
                 .json({
@@ -1171,6 +1330,7 @@ app.post(
             description.length < 2 ||
             description.length > 5000
         ) {
+
             return res
                 .status(400)
                 .json({
@@ -1184,6 +1344,7 @@ app.post(
             (req.files || [])
                 .map(
                     file => ({
+
                         filename:
                             file.filename,
 
@@ -1198,6 +1359,7 @@ app.post(
 
 
         const report = {
+
             id:
                 crypto.randomUUID(),
 
@@ -1206,7 +1368,9 @@ app.post(
 
             authorName:
                 req.session.user.displayName ||
+
                 req.session.user.globalName ||
+
                 req.session.user.username,
 
             authorUsername:
@@ -1237,6 +1401,7 @@ app.post(
                 now.toLocaleString(
                     "ro-RO",
                     {
+
                         timeZone:
                             "Europe/Bucharest",
 
@@ -1264,9 +1429,10 @@ app.post(
         );
 
 
-        return res
+        res
             .status(201)
             .json({
+
                 success:
                     true,
 
@@ -1289,25 +1455,26 @@ app.get(
 
     requireAuth,
 
-    (req, res) => {
-        const userReports =
-            reports.filter(
-                report =>
-                    report.authorId ===
-                    req.session.user.id
-            );
+    (
+        req,
+        res
+    ) => {
 
+        res.json({
 
-        return res.json({
             reports:
-                userReports
+                reports.filter(
+                    report =>
+                        report.authorId ===
+                        req.session.user.id
+                )
         });
     }
 );
 
 
 // ======================================================
-// ADMIN - TOATE RAPOARTELE
+// TOATE RAPOARTELE - ADMIN
 // ======================================================
 
 app.get(
@@ -1315,8 +1482,13 @@ app.get(
 
     requireAdmin,
 
-    (req, res) => {
-        return res.json({
+    (
+        req,
+        res
+    ) => {
+
+        res.json({
+
             success:
                 true,
 
@@ -1331,6 +1503,316 @@ app.get(
 
 
 // ======================================================
+// LISTA COMPLETĂ DE GRADE
+//
+// IMPORTANT:
+// Nu mai luăm lista pentru dropdown prin filtrarea
+// rolurilor Discord.
+//
+// Folosim direct toate cele 13 grade configurate.
+// ======================================================
+
+app.get(
+    "/api/admin/roles",
+
+    requireAdmin,
+
+    (
+        req,
+        res
+    ) => {
+
+        res.json({
+
+            success:
+                true,
+
+            roles:
+                DIICOT_ROLES
+                    .map(
+                        role => ({
+
+                            id:
+                                role.id,
+
+                            name:
+                                role.name,
+
+                            level:
+                                role.level
+                        })
+                    )
+                    .sort(
+                        (
+                            a,
+                            b
+                        ) =>
+                            b.level -
+                            a.level
+                    )
+        });
+    }
+);
+
+
+// ======================================================
+// SCHIMBARE GRAD
+//
+// DOAR COORDONATOR+ POATE FOLOSI RUTA.
+//
+// COORDONATOR+ POATE SELECTA ORICARE DINTRE
+// CELE 13 GRADE.
+//
+// NU ÎȘI POATE MODIFICA PROPRIUL GRAD.
+// ======================================================
+
+app.patch(
+    "/api/admin/members/:userId/role",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !BOT_TOKEN
+        ) {
+
+            return res
+                .status(500)
+                .json({
+                    error:
+                        "Botul Discord nu este configurat."
+                });
+        }
+
+
+        const targetUserId =
+            String(
+                req.params.userId ||
+                ""
+            ).trim();
+
+
+        const newRoleId =
+            String(
+                req.body.roleId ||
+                ""
+            ).trim();
+
+
+        const newRole =
+            DIICOT_ROLES.find(
+                role =>
+                    role.id ===
+                    newRoleId
+            );
+
+
+        if (
+            !targetUserId
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Membrul nu este valid."
+                });
+        }
+
+
+        if (
+            !newRole
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Gradul selectat nu este valid."
+                });
+        }
+
+
+        if (
+            targetUserId ===
+            String(
+                req.session.user.id
+            )
+        ) {
+
+            return res
+                .status(403)
+                .json({
+                    error:
+                        "Nu îți poți modifica propriul grad."
+                });
+        }
+
+
+        try {
+
+            const memberResponse =
+                await axios.get(
+
+                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetUserId}`,
+
+                    {
+                        headers: {
+
+                            Authorization:
+                                `Bot ${BOT_TOKEN}`
+                        }
+                    }
+                );
+
+
+            const member =
+                memberResponse.data;
+
+
+            const currentRoles =
+                Array.isArray(
+                    member.roles
+                )
+
+                    ? member.roles.map(
+                        String
+                    )
+
+                    : [];
+
+
+            const diicotRoleIds =
+                new Set(
+                    DIICOT_ROLES.map(
+                        role =>
+                            role.id
+                    )
+                );
+
+
+            // ==================================================
+            // SCOATEM DOAR GRADELE DIICOT
+            //
+            // Alte roluri Discord rămân intacte.
+            // ==================================================
+
+            const rolesWithoutDIICOT =
+                currentRoles.filter(
+                    roleId =>
+                        !diicotRoleIds.has(
+                            roleId
+                        )
+                );
+
+
+            const updatedRoles = [
+                ...rolesWithoutDIICOT,
+                newRoleId
+            ];
+
+
+            await axios.patch(
+
+                `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetUserId}`,
+
+                {
+                    roles:
+                        updatedRoles
+                },
+
+                {
+                    headers: {
+
+                        Authorization:
+                            `Bot ${BOT_TOKEN}`,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+            res.json({
+
+                success:
+                    true,
+
+                message:
+                    `Gradul a fost schimbat în ${newRole.name}.`,
+
+                member: {
+
+                    id:
+                        targetUserId,
+
+                    rank:
+                        newRole.name,
+
+                    rankLevel:
+                        newRole.level,
+
+                    rankRoleId:
+                        newRole.id
+                }
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Discord Role Update Error:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            if (
+                error.response?.status ===
+                403
+            ) {
+
+                return res
+                    .status(403)
+                    .json({
+                        error:
+                            "Discord nu permite botului să gestioneze acest rol. Verifică Manage Roles și poziția rolului botului."
+                    });
+            }
+
+
+            if (
+                error.response?.status ===
+                404
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Membrul nu a fost găsit."
+                    });
+            }
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Gradul nu a putut fi modificat."
+                });
+        }
+    }
+);
+
+
+// ======================================================
 // PERSONAL DIICOT
 // ======================================================
 
@@ -1339,8 +1821,15 @@ app.get(
 
     requireAuth,
 
-    async (req, res) => {
-        if (!BOT_TOKEN) {
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !BOT_TOKEN
+        ) {
+
             return res
                 .status(500)
                 .json({
@@ -1351,20 +1840,29 @@ app.get(
 
 
         try {
+
             let allMembers = [];
 
-            let after = "0";
+            let after =
+                "0";
 
-            let hasMore = true;
+            let hasMore =
+                true;
 
 
-            while (hasMore) {
+            while (
+                hasMore
+            ) {
+
                 const response =
                     await axios.get(
+
                         `https://discord.com/api/v10/guilds/${GUILD_ID}/members`,
 
                         {
+
                             params: {
+
                                 limit:
                                     1000,
 
@@ -1373,6 +1871,7 @@ app.get(
                             },
 
                             headers: {
+
                                 Authorization:
                                     `Bot ${BOT_TOKEN}`
                             }
@@ -1390,43 +1889,57 @@ app.get(
 
 
                 if (
-                    members.length < 1000
+                    members.length <
+                    1000
                 ) {
+
                     hasMore =
                         false;
+
                 }
 
                 else {
+
                     after =
                         members[
-                            members.length - 1
+                            members.length -
+                            1
                         ].user.id;
                 }
             }
 
 
-            const personnel = [];
+            const personnel =
+                [];
 
 
             for (
                 const member
                 of allMembers
             ) {
+
                 const memberRoles =
                     Array.isArray(
                         member.roles
                     )
-                        ? member.roles.map(String)
+
+                        ? member.roles.map(
+                            String
+                        )
+
                         : [];
 
 
-                const diicotRole =
+                const rank =
                     getHighestDIICOTRole(
                         memberRoles
                     );
 
 
-                if (!diicotRole) {
+                if (
+                    !rank
+                ) {
+
                     continue;
                 }
 
@@ -1435,31 +1948,27 @@ app.get(
                     member.user;
 
 
-                let avatarUrl =
+                const savedProfile =
+                    userProfiles.get(
+                        user.id
+                    );
+
+
+                let avatar =
                     "https://cdn.discordapp.com/embed/avatars/0.png";
 
 
-                if (user.avatar) {
-                    avatarUrl =
+                if (
+                    user.avatar
+                ) {
+
+                    avatar =
                         `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`;
                 }
 
 
-                // Profilul salvat pe site are prioritate
-                // pentru numele afișat în Personal DIICOT.
-
-                const savedProfile =
-                    userProfiles.get(user.id);
-
-
-                const displayName =
-                    savedProfile?.displayName ||
-                    member.nick ||
-                    user.global_name ||
-                    user.username;
-
-
                 personnel.push({
+
                     id:
                         user.id,
 
@@ -1467,32 +1976,44 @@ app.get(
                         user.username,
 
                     displayName:
-                        displayName,
+                        savedProfile?.displayName ||
+
+                        member.nick ||
+
+                        user.global_name ||
+
+                        user.username,
 
                     avatar:
-                        avatarUrl,
+                        avatar,
 
                     rank:
-                        diicotRole.name,
+                        rank.name,
 
                     rankLevel:
-                        diicotRole.level,
+                        rank.level,
 
                     rankRoleId:
-                        diicotRole.id,
+                        rank.id,
 
                     duties:
-                        savedProfile?.duties || []
+                        savedProfile?.duties ||
+                        []
                 });
             }
 
 
             personnel.sort(
-                (a, b) => {
+                (
+                    a,
+                    b
+                ) => {
+
                     if (
                         b.rankLevel !==
                         a.rankLevel
                     ) {
+
                         return (
                             b.rankLevel -
                             a.rankLevel
@@ -1501,16 +2022,19 @@ app.get(
 
 
                     return (
-                        a.displayName || ""
+                        a.displayName ||
+                        ""
                     ).localeCompare(
-                        b.displayName || "",
+                        b.displayName ||
+                        "",
                         "ro"
                     );
                 }
             );
 
 
-            return res.json({
+            res.json({
+
                 success:
                     true,
 
@@ -1520,9 +2044,11 @@ app.get(
                 personnel:
                     personnel
             });
+
         }
 
         catch (error) {
+
             console.error(
                 "Personnel Discord Error:",
                 error.response?.data ||
@@ -1530,7 +2056,7 @@ app.get(
             );
 
 
-            return res
+            res
                 .status(500)
                 .json({
                     error:
@@ -1548,29 +2074,21 @@ app.get(
 app.get(
     "/logout",
 
-    (req, res) => {
+    (
+        req,
+        res
+    ) => {
+
         req.session =
             null;
 
 
         res.clearCookie(
-            "diicot_session",
-
-            {
-                httpOnly:
-                    true,
-
-                sameSite:
-                    "lax",
-
-                secure:
-                    process.env.NODE_ENV ===
-                    "production"
-            }
+            "diicot_session"
         );
 
 
-        return res.redirect("/");
+        res.redirect("/");
     }
 );
 
@@ -1582,8 +2100,13 @@ app.get(
 app.get(
     "/health",
 
-    (req, res) => {
-        return res.json({
+    (
+        req,
+        res
+    ) => {
+
+        res.json({
+
             status:
                 "online",
 
@@ -1600,10 +2123,18 @@ app.get(
                 DIICOT_ROLES.length,
 
             botConfigured:
-                Boolean(BOT_TOKEN),
+                Boolean(
+                    BOT_TOKEN
+                ),
 
             adminMinimumRank:
-                "COORDONATOR"
+                "COORDONATOR",
+
+            roleManagement:
+                true,
+
+            assignAllDIICOTRanks:
+                true
         });
     }
 );
@@ -1620,14 +2151,17 @@ app.use(
         res,
         next
     ) => {
+
         if (
             error instanceof
             multer.MulterError
         ) {
+
             if (
                 error.code ===
                 "LIMIT_FILE_SIZE"
             ) {
+
                 return res
                     .status(400)
                     .json({
@@ -1641,6 +2175,7 @@ app.use(
                 error.code ===
                 "LIMIT_FILE_COUNT"
             ) {
+
                 return res
                     .status(400)
                     .json({
@@ -1648,35 +2183,22 @@ app.use(
                             "Poți încărca maximum 5 poze."
                     });
             }
-
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        error.message
-                });
         }
 
 
-        if (error) {
-            console.error(
-                "Server Error:",
-                error
-            );
+        console.error(
+            "Server Error:",
+            error
+        );
 
 
-            return res
-                .status(400)
-                .json({
-                    error:
-                        error.message ||
-                        "A apărut o eroare."
-                });
-        }
-
-
-        next();
+        res
+            .status(400)
+            .json({
+                error:
+                    error.message ||
+                    "A apărut o eroare."
+            });
     }
 );
 
@@ -1686,8 +2208,12 @@ app.use(
 // ======================================================
 
 app.use(
-    (req, res) => {
-        return res
+    (
+        req,
+        res
+    ) => {
+
+        res
             .status(404)
             .send(
                 "Pagina nu a fost găsită."
@@ -1705,19 +2231,44 @@ app.listen(
     "0.0.0.0",
 
     () => {
+
         console.log("");
-        console.log("============================");
-        console.log("DIICOT HUB ONLINE");
-        console.log("PORT:", PORT);
-        console.log("ADMIN: COORDONATOR+");
-        console.log("PROFILE: ENABLED");
+        console.log(
+            "============================"
+        );
+
+        console.log(
+            "DIICOT HUB ONLINE"
+        );
+
+        console.log(
+            "PORT:",
+            PORT
+        );
+
+        console.log(
+            "ADMIN: COORDONATOR+"
+        );
+
+        console.log(
+            "PROFILE: ENABLED"
+        );
+
+        console.log(
+            "ROLE MANAGEMENT: ALL 13 RANKS"
+        );
+
         console.log(
             "DISCORD BOT:",
             BOT_TOKEN
                 ? "CONNECTED"
                 : "NOT CONFIGURED"
         );
-        console.log("============================");
+
+        console.log(
+            "============================"
+        );
+
         console.log("");
     }
 );
