@@ -1,10 +1,8 @@
 <!DOCTYPE html>
 <html lang="ro">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>DIICOT | Rush România</title>
 
     <style>
@@ -13,31 +11,34 @@
         }
 
         :root {
-            --bg: #05080d;
-            --bg-2: #07101a;
-            --panel: rgba(8, 17, 28, .84);
-            --panel-2: rgba(11, 23, 38, .88);
-            --border: rgba(255, 255, 255, .08);
-            --border-gold: rgba(236, 181, 51, .28);
+            --bg: #03070c;
+            --bg-soft: #07101a;
+            --panel: rgba(8, 18, 30, .78);
+            --panel-2: rgba(11, 24, 39, .9);
+            --text: #f7f9fc;
+            --muted: #91a0b3;
+            --muted-2: #5f7188;
+            --line: rgba(255,255,255,.07);
             --gold: #e9b949;
-            --gold-2: #ffc93f;
-            --gold-dark: #8f6718;
-            --text: #f6f8fb;
-            --muted: #8899ad;
-            --muted-2: #536477;
-            --green: #39d98a;
-            --shadow: 0 28px 80px rgba(0, 0, 0, .45);
+            --gold-2: #ffd45f;
+            --gold-3: #b87a10;
+            --green: #38d58a;
+            --blue: #67a7ff;
+            --danger: #ff6262;
+            --shadow: 0 30px 90px rgba(0,0,0,.45);
         }
 
         html {
             scroll-behavior: smooth;
         }
 
-        html,
         body {
             margin: 0;
-            min-height: 100%;
-            background: var(--bg);
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 77% 9%, rgba(198,137,22,.10), transparent 28%),
+                radial-gradient(circle at 16% 74%, rgba(42,82,133,.11), transparent 30%),
+                linear-gradient(180deg, #03070c 0%, #07111c 48%, #03070c 100%);
             color: var(--text);
             font-family:
                 Inter,
@@ -47,198 +48,188 @@
                 BlinkMacSystemFont,
                 "Segoe UI",
                 sans-serif;
+            overflow-x: hidden;
         }
 
-        body {
-            overflow-x: hidden;
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            opacity: .16;
+            background-image:
+                linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+            background-size: 46px 46px;
+            mask-image: linear-gradient(to bottom, black 0 70%, transparent 100%);
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -1;
+            background:
+                radial-gradient(circle at center, transparent 42%, rgba(0,0,0,.38) 100%);
         }
 
         a {
             color: inherit;
         }
 
-        button,
-        input {
+        button, input {
             font: inherit;
         }
 
         ::selection {
-            background: rgba(233, 185, 73, .3);
+            background: rgba(233,185,73,.3);
         }
 
-        .page {
-            min-height: 100vh;
-            position: relative;
-            isolation: isolate;
-            background:
-                radial-gradient(circle at 78% 22%, rgba(214, 155, 30, .10), transparent 28%),
-                radial-gradient(circle at 12% 78%, rgba(27, 73, 125, .09), transparent 28%),
-                linear-gradient(180deg, #05090f 0%, #07111c 46%, #05090f 100%);
-        }
-
-        .page::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: -2;
-            opacity: .18;
-            pointer-events: none;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, .018) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, .018) 1px, transparent 1px);
-            background-size: 52px 52px;
-            mask-image: linear-gradient(to bottom, black, transparent 82%);
-        }
-
-        .page::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            pointer-events: none;
-            background:
-                linear-gradient(90deg, rgba(0, 0, 0, .18), transparent 25%, transparent 75%, rgba(0, 0, 0, .22)),
-                radial-gradient(circle at center, transparent 38%, rgba(0, 0, 0, .4) 100%);
-        }
-
-        /* =============================
+        /* =========================================
            NAVBAR
-        ============================== */
+        ========================================== */
 
-        .navbar-shell {
+        .nav-shell {
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid rgba(255, 255, 255, .055);
-            background: rgba(5, 10, 17, .78);
+            border-bottom: 1px solid rgba(255,255,255,.055);
+            background: rgba(4,9,15,.78);
             backdrop-filter: blur(22px);
         }
 
         .navbar {
-            width: min(1500px, calc(100% - 48px));
-            height: 84px;
+            width: min(1500px, calc(100% - 44px));
+            height: 82px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 26px;
+            gap: 22px;
         }
 
         .brand {
             display: flex;
             align-items: center;
             gap: 13px;
-            text-decoration: none;
             min-width: max-content;
+            text-decoration: none;
         }
 
-        .brand-logo {
-            width: 48px;
-            height: 48px;
+        .brand-emblem {
+            width: 52px;
+            height: 52px;
             display: grid;
             place-items: center;
-            border: 1px solid rgba(233, 185, 73, .34);
-            border-radius: 11px;
-            color: #0a0d12;
-            font-weight: 1000;
-            font-size: 22px;
+            border: 1px solid rgba(233,185,73,.34);
+            border-radius: 12px;
             background:
-                linear-gradient(145deg, #ffd45c 0%, #d49309 100%);
+                linear-gradient(145deg, rgba(255,212,95,.18), rgba(125,83,13,.08));
             box-shadow:
-                inset 0 1px 0 rgba(255, 255, 255, .35),
-                0 10px 30px rgba(205, 146, 13, .18);
+                inset 0 0 24px rgba(233,185,73,.06),
+                0 12px 34px rgba(0,0,0,.28);
+            overflow: hidden;
         }
 
-        .brand-text strong {
+        .brand-emblem img {
+            width: 44px;
+            height: 44px;
+            object-fit: contain;
+            filter: drop-shadow(0 0 12px rgba(233,185,73,.12));
+        }
+
+        .brand-copy strong {
             display: block;
+            color: #fff;
             font-size: 19px;
             letter-spacing: 2px;
         }
 
-        .brand-text span {
+        .brand-copy span {
             display: block;
-            margin-top: 3px;
+            margin-top: 4px;
             color: var(--gold);
-            font-size: 8px;
+            font-size: 7px;
             font-weight: 900;
             letter-spacing: 2.2px;
         }
 
-        .nav-center {
+        .nav-links {
             display: flex;
             align-items: center;
             gap: 4px;
             padding: 5px;
-            border: 1px solid rgba(255, 255, 255, .055);
+            border: 1px solid rgba(255,255,255,.055);
             border-radius: 12px;
-            background: rgba(255, 255, 255, .018);
+            background: rgba(255,255,255,.018);
         }
 
-        .nav-link {
-            min-height: 40px;
+        .nav-links a {
+            min-height: 39px;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
             padding: 0 14px;
             border-radius: 8px;
             text-decoration: none;
-            color: #a9b6c6;
-            font-size: 9px;
+            color: #9eacbd;
+            font-size: 8px;
             font-weight: 850;
             letter-spacing: .45px;
             transition: .18s ease;
         }
 
-        .nav-link:hover,
-        .nav-link.active {
+        .nav-links a:hover,
+        .nav-links a.active {
             color: #fff;
-            background: rgba(255, 255, 255, .035);
+            background: rgba(255,255,255,.035);
         }
 
-        .nav-link.active {
+        .nav-links a.active {
             box-shadow: inset 0 -2px 0 var(--gold);
         }
 
-        .auth-area {
+        #auth-area {
             display: flex;
-            align-items: center;
             justify-content: flex-end;
-            min-width: 250px;
+            min-width: 245px;
         }
 
         .login-btn,
         .logout-btn {
-            min-height: 42px;
+            min-height: 41px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0 15px;
-            border: 1px solid rgba(233, 185, 73, .30);
+            padding: 0 14px;
+            border: 1px solid rgba(233,185,73,.30);
             border-radius: 8px;
             text-decoration: none;
             color: var(--gold);
-            background: rgba(233, 185, 73, .045);
-            font-size: 8px;
+            background: rgba(233,185,73,.045);
+            font-size: 7px;
             font-weight: 950;
-            letter-spacing: .7px;
+            letter-spacing: .65px;
             transition: .18s ease;
         }
 
         .login-btn:hover,
         .logout-btn:hover {
             transform: translateY(-1px);
-            border-color: rgba(233, 185, 73, .55);
-            background: rgba(233, 185, 73, .09);
+            background: rgba(233,185,73,.09);
+            border-color: rgba(233,185,73,.55);
         }
 
         .user-menu {
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 6px 7px 6px 8px;
-            border: 1px solid rgba(255, 255, 255, .07);
+            padding: 6px 7px;
+            border: 1px solid rgba(255,255,255,.07);
             border-radius: 11px;
-            background: rgba(255, 255, 255, .025);
+            background: rgba(255,255,255,.025);
         }
 
         .user-avatar {
@@ -246,7 +237,7 @@
             height: 38px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid rgba(233, 185, 73, .55);
+            border: 2px solid rgba(233,185,73,.50);
         }
 
         .user-info {
@@ -271,91 +262,83 @@
         .user-menu .logout-btn {
             min-height: 34px;
             padding: 0 10px;
-            border-color: rgba(255, 255, 255, .08);
-            color: #9eacbe;
-            background: rgba(255, 255, 255, .02);
+            color: #9faec0;
+            border-color: rgba(255,255,255,.08);
+            background: rgba(255,255,255,.02);
         }
 
-        /* =============================
+        /* =========================================
            HERO
-        ============================== */
+        ========================================== */
 
         .hero {
-            width: min(1500px, calc(100% - 48px));
-            min-height: calc(100vh - 84px);
+            width: min(1500px, calc(100% - 44px));
+            min-height: calc(100vh - 82px);
             margin: 0 auto;
             display: grid;
-            grid-template-columns: minmax(0, .95fr) minmax(460px, 1.05fr);
+            grid-template-columns: minmax(0,.92fr) minmax(520px,1.08fr);
             align-items: center;
-            gap: 55px;
-            position: relative;
-            padding: 82px 0 70px;
+            gap: 54px;
+            padding: 76px 0 56px;
         }
 
         .hero-copy {
             position: relative;
-            z-index: 4;
-            max-width: 720px;
+            z-index: 5;
         }
 
-        .eyebrow {
+        .hero-badge {
             display: inline-flex;
             align-items: center;
             gap: 9px;
-            min-height: 34px;
+            min-height: 33px;
             padding: 0 13px;
-            border: 1px solid var(--border-gold);
+            border: 1px solid rgba(233,185,73,.28);
             border-radius: 5px;
-            background: rgba(233, 185, 73, .035);
             color: var(--gold-2);
-            font-size: 8px;
+            background: rgba(233,185,73,.035);
+            font-size: 7px;
             font-weight: 950;
-            letter-spacing: 1.5px;
+            letter-spacing: 1.45px;
         }
 
-        .eyebrow::before {
+        .hero-badge::before {
             content: "";
-            width: 18px;
+            width: 17px;
             height: 2px;
             background: var(--gold);
         }
 
         .hero h1 {
             margin: 28px 0 18px;
-            font-size: clamp(74px, 8vw, 140px);
+            font-size: clamp(76px, 8vw, 138px);
             line-height: .78;
             letter-spacing: -6px;
             text-transform: uppercase;
         }
 
-        .hero h1 .white {
+        .hero h1 .hub {
             display: block;
-            color: #f7f8fa;
-            text-shadow: 0 8px 35px rgba(255, 255, 255, .05);
+            color: #f5f6f8;
+            text-shadow: 0 12px 40px rgba(255,255,255,.04);
         }
 
-        .hero h1 .gold {
+        .hero h1 .diicot {
             display: block;
-            margin-top: 18px;
+            margin-top: 19px;
             color: transparent;
             background:
-                linear-gradient(
-                    180deg,
-                    #ffe17a 0%,
-                    #ffc629 34%,
-                    #d99308 100%
-                );
-            background-clip: text;
+                linear-gradient(180deg, #ffe27b 0%, #ffc628 35%, #d89207 100%);
             -webkit-background-clip: text;
-            text-shadow: 0 20px 45px rgba(194, 128, 10, .12);
+            background-clip: text;
         }
 
-        .hero-description {
+        .hero-copy > p {
             max-width: 650px;
             margin: 0;
-            color: #9badc0;
-            font-size: 15px;
-            line-height: 1.75;
+            color: #98a8ba;
+            font-size: 14px;
+            line-height: 1.78;
         }
 
         .hero-actions {
@@ -372,7 +355,7 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
-            padding: 0 20px;
+            padding: 0 21px;
             border-radius: 8px;
             text-decoration: none;
             font-size: 8px;
@@ -382,28 +365,26 @@
         }
 
         .primary-btn {
-            min-width: 210px;
-            border: 1px solid #f3c54b;
+            min-width: 214px;
             color: #111;
-            background:
-                linear-gradient(135deg, #ffd759 0%, #e5a918 100%);
+            border: 1px solid #f3c54b;
+            background: linear-gradient(135deg,#ffd759 0%,#e5a918 100%);
             box-shadow:
-                0 14px 38px rgba(218, 159, 24, .22),
-                inset 0 1px 0 rgba(255, 255, 255, .5);
+                0 15px 40px rgba(218,159,24,.22),
+                inset 0 1px 0 rgba(255,255,255,.48);
         }
 
         .secondary-btn {
-            min-width: 180px;
-            border: 1px solid rgba(133, 157, 188, .22);
-            color: #dbe5f1;
-            background: rgba(9, 19, 31, .58);
+            min-width: 178px;
+            color: #dce6f1;
+            border: 1px solid rgba(133,157,188,.22);
+            background: rgba(8,18,30,.56);
         }
 
         .primary-btn::after,
         .secondary-btn::after {
             content: "→";
             font-size: 15px;
-            line-height: 1;
         }
 
         .primary-btn:hover,
@@ -413,21 +394,21 @@
 
         .primary-btn:hover {
             filter: brightness(1.05);
-            box-shadow: 0 18px 42px rgba(218, 159, 24, .28);
+            box-shadow: 0 19px 45px rgba(218,159,24,.28);
         }
 
         .secondary-btn:hover {
-            border-color: rgba(233, 185, 73, .28);
+            border-color: rgba(233,185,73,.27);
             color: #fff;
         }
 
         .hero-trust {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(3,minmax(0,1fr));
+            gap: 18px;
             margin-top: 44px;
             padding-top: 22px;
-            border-top: 1px solid rgba(255, 255, 255, .055);
+            border-top: 1px solid rgba(255,255,255,.055);
         }
 
         .trust-item {
@@ -437,104 +418,94 @@
         }
 
         .trust-icon {
-            width: 35px;
-            height: 35px;
-            flex: 0 0 35px;
+            width: 34px;
+            height: 34px;
+            flex: 0 0 34px;
             display: grid;
             place-items: center;
-            border: 1px solid rgba(233, 185, 73, .24);
+            border: 1px solid rgba(233,185,73,.24);
             border-radius: 8px;
             color: var(--gold);
-            background: rgba(233, 185, 73, .035);
-            font-size: 15px;
+            background: rgba(233,185,73,.035);
+            font-size: 14px;
         }
 
         .trust-item strong {
             display: block;
             color: #dce5ef;
-            font-size: 8px;
-            letter-spacing: .5px;
+            font-size: 7px;
+            letter-spacing: .45px;
         }
 
         .trust-item span {
             display: block;
             margin-top: 3px;
-            color: #65778b;
+            color: #627489;
             font-size: 7px;
         }
 
-        /* =============================
-           VISUAL RIGHT
-        ============================== */
+        /* =========================================
+           HERO VISUAL
+        ========================================== */
 
         .hero-visual {
+            min-height: 640px;
             position: relative;
-            min-height: 610px;
             display: grid;
             place-items: center;
         }
 
-        .visual-backdrop {
+        .visual-panel {
             position: absolute;
-            inset: 3% -10% 0 0;
-            border-radius: 28px 0 0 28px;
+            inset: 1% -2% 1% 0;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, .045);
+            border: 1px solid rgba(255,255,255,.05);
+            border-radius: 24px;
             background:
-                linear-gradient(
-                    90deg,
-                    rgba(5, 10, 17, .94) 0%,
-                    rgba(7, 13, 19, .45) 34%,
-                    rgba(8, 14, 20, .18) 100%
-                ),
-                radial-gradient(circle at 67% 45%, rgba(235, 176, 37, .16), transparent 32%),
-                linear-gradient(145deg, #0b1520, #070a0d 70%);
+                linear-gradient(90deg,rgba(4,9,15,.95) 0%,rgba(6,12,18,.58) 40%,rgba(5,9,13,.28) 100%),
+                radial-gradient(circle at 62% 43%,rgba(227,166,36,.16),transparent 33%),
+                linear-gradient(145deg,#0a131d,#05090e 72%);
             box-shadow: var(--shadow);
         }
 
-        .visual-backdrop::before {
+        .visual-panel::before {
             content: "DIICOT";
             position: absolute;
-            right: 4%;
+            right: 3%;
             top: 6%;
-            font-size: clamp(72px, 8vw, 120px);
+            color: rgba(255,255,255,.022);
+            font-size: clamp(74px,8vw,126px);
             font-weight: 1000;
             letter-spacing: 8px;
-            color: rgba(255, 255, 255, .025);
             transform: rotate(-4deg);
         }
 
-        .visual-backdrop::after {
+        .visual-panel::after {
             content: "";
             position: absolute;
             inset: 0;
-            opacity: .25;
-            background-image:
-                repeating-linear-gradient(
-                    90deg,
-                    transparent 0 88px,
-                    rgba(255, 255, 255, .025) 89px 90px
-                ),
-                linear-gradient(180deg, transparent 55%, rgba(0,0,0,.5));
+            background:
+                linear-gradient(180deg,transparent 55%,rgba(0,0,0,.42)),
+                repeating-linear-gradient(90deg,transparent 0 84px,rgba(255,255,255,.02) 85px 86px);
         }
 
         .radar {
-            position: relative;
-            width: min(500px, 86%);
+            width: min(510px,86%);
             aspect-ratio: 1;
+            position: relative;
+            z-index: 3;
             display: grid;
             place-items: center;
             border-radius: 50%;
-            border: 1px solid rgba(233, 185, 73, .16);
+            border: 1px solid rgba(233,185,73,.16);
             background:
-                radial-gradient(circle, rgba(233, 185, 73, .04) 0 32%, transparent 33%),
-                rgba(2, 7, 12, .45);
+                radial-gradient(circle,rgba(233,185,73,.035) 0 31%,transparent 32%),
+                rgba(2,7,12,.42);
             box-shadow:
-                0 0 0 34px rgba(233, 185, 73, .02),
-                0 0 0 70px rgba(233, 185, 73, .016),
-                0 0 80px rgba(210, 148, 24, .13),
-                inset 0 0 50px rgba(0, 0, 0, .5);
-            z-index: 3;
+                0 0 0 34px rgba(233,185,73,.018),
+                0 0 0 72px rgba(233,185,73,.012),
+                0 0 90px rgba(210,148,24,.13),
+                inset 0 0 60px rgba(0,0,0,.52);
         }
 
         .radar::before,
@@ -542,7 +513,7 @@
             content: "";
             position: absolute;
             border-radius: 50%;
-            border: 1px solid rgba(233, 185, 73, .12);
+            border: 1px solid rgba(233,185,73,.12);
         }
 
         .radar::before {
@@ -555,132 +526,130 @@
             height: 48%;
         }
 
-        .radar-cross-x,
-        .radar-cross-y {
+        .radar-line-x,
+        .radar-line-y {
             position: absolute;
-            background: linear-gradient(90deg, transparent, rgba(233, 185, 73, .18), transparent);
+            background: linear-gradient(90deg,transparent,rgba(233,185,73,.18),transparent);
         }
 
-        .radar-cross-x {
-            width: 112%;
+        .radar-line-x {
+            width: 110%;
             height: 1px;
         }
 
-        .radar-cross-y {
+        .radar-line-y {
             width: 1px;
-            height: 112%;
-            background: linear-gradient(180deg, transparent, rgba(233, 185, 73, .18), transparent);
+            height: 110%;
+            background: linear-gradient(180deg,transparent,rgba(233,185,73,.18),transparent);
         }
 
         .crest {
-            width: 230px;
-            height: 260px;
+            width: 245px;
+            height: 285px;
             position: relative;
+            z-index: 5;
             display: grid;
             place-items: center;
-            clip-path: polygon(50% 0%, 92% 17%, 86% 72%, 50% 100%, 14% 72%, 8% 17%);
-            border: 1px solid var(--gold);
+            clip-path: polygon(50% 0%,91% 15%,86% 72%,50% 100%,14% 72%,9% 15%);
             background:
-                linear-gradient(165deg, rgba(233, 185, 73, .11), rgba(3, 8, 14, .92) 34%, #02060a 100%);
-            filter: drop-shadow(0 20px 40px rgba(0, 0, 0, .48));
-            z-index: 4;
+                linear-gradient(165deg,rgba(233,185,73,.12),rgba(2,7,12,.95) 36%,#02060a 100%);
+            filter: drop-shadow(0 24px 44px rgba(0,0,0,.48));
         }
 
         .crest::before {
             content: "";
             position: absolute;
-            inset: 8px;
+            inset: 3px;
             clip-path: inherit;
-            border: 1px solid rgba(233, 185, 73, .18);
-            background: transparent;
+            border: 1px solid rgba(233,185,73,.7);
         }
 
         .crest-inner {
             text-align: center;
-            padding: 28px;
         }
 
-        .crest-symbol {
-            display: block;
-            margin-bottom: 14px;
-            color: var(--gold-2);
-            font-size: 38px;
-            filter: drop-shadow(0 0 12px rgba(233, 185, 73, .25));
+        .crest-inner img {
+            width: 115px;
+            height: 115px;
+            object-fit: contain;
+            filter:
+                drop-shadow(0 0 22px rgba(233,185,73,.12));
         }
 
         .crest-inner strong {
             display: block;
+            margin-top: 8px;
             color: #fff;
-            font-size: 25px;
+            font-size: 24px;
             letter-spacing: 4px;
         }
 
         .crest-inner span {
             display: block;
-            margin-top: 8px;
+            margin-top: 7px;
             color: var(--gold);
             font-size: 7px;
             font-weight: 900;
-            letter-spacing: 2.2px;
+            letter-spacing: 2px;
         }
 
-        .scan-dot {
+        .orbital-dot {
             position: absolute;
             width: 7px;
             height: 7px;
             border-radius: 50%;
             background: var(--gold-2);
-            box-shadow: 0 0 15px rgba(255, 201, 63, .8);
+            box-shadow: 0 0 15px rgba(255,212,95,.8);
+            z-index: 6;
         }
 
-        .scan-dot.one {
-            top: 22%;
-            right: 8%;
+        .orbital-dot.one {
+            top: 20%;
+            right: 9%;
         }
 
-        .scan-dot.two {
-            bottom: 24%;
-            left: 5%;
+        .orbital-dot.two {
+            left: 7%;
+            bottom: 23%;
         }
 
-        .visual-card {
+        .status-card {
             position: absolute;
             z-index: 6;
-            min-width: 175px;
-            padding: 12px 14px;
-            border: 1px solid rgba(255, 255, 255, .07);
+            min-width: 182px;
+            padding: 13px 15px;
+            border: 1px solid rgba(255,255,255,.07);
             border-radius: 10px;
-            background: rgba(5, 12, 20, .82);
+            background: rgba(5,12,20,.82);
             backdrop-filter: blur(16px);
-            box-shadow: 0 18px 45px rgba(0, 0, 0, .35);
+            box-shadow: 0 18px 45px rgba(0,0,0,.35);
         }
 
-        .visual-card.top {
-            top: 16%;
-            left: 3%;
+        .status-card.top {
+            top: 15%;
+            left: 2%;
         }
 
-        .visual-card.bottom {
+        .status-card.bottom {
             right: 1%;
-            bottom: 15%;
+            bottom: 14%;
         }
 
-        .visual-card span {
+        .status-card span {
             display: block;
-            color: #607286;
+            color: #5f7185;
             font-size: 6px;
             font-weight: 900;
             letter-spacing: .65px;
         }
 
-        .visual-card strong {
+        .status-card strong {
             display: block;
             margin-top: 5px;
             font-size: 11px;
-            color: #eef4fb;
         }
 
-        .visual-card em {
+        .status-card em {
             display: inline-flex;
             align-items: center;
             gap: 5px;
@@ -690,48 +659,43 @@
             font-size: 7px;
         }
 
-        .visual-card em::before {
+        .status-card em::before {
             content: "";
             width: 6px;
             height: 6px;
             border-radius: 50%;
             background: var(--green);
-            box-shadow: 0 0 9px rgba(57, 217, 138, .7);
+            box-shadow: 0 0 9px rgba(56,213,138,.7);
         }
 
-        /* =============================
+        /* =========================================
            METRICS
-        ============================== */
+        ========================================== */
 
         .metrics-wrap {
-            width: min(1500px, calc(100% - 48px));
-            margin: -18px auto 0;
+            width: min(1500px, calc(100% - 44px));
+            margin: -12px auto 0;
             position: relative;
             z-index: 10;
         }
 
         .metrics {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            border: 1px solid rgba(233, 185, 73, .18);
-            border-radius: 14px;
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(8, 17, 28, .96),
-                    rgba(5, 12, 20, .96)
-                );
-            box-shadow: var(--shadow);
+            grid-template-columns: repeat(4,minmax(0,1fr));
             overflow: hidden;
+            border: 1px solid rgba(233,185,73,.18);
+            border-radius: 14px;
+            background: linear-gradient(145deg,rgba(8,17,28,.96),rgba(5,12,20,.96));
+            box-shadow: var(--shadow);
         }
 
         .metric {
-            min-height: 128px;
+            min-height: 124px;
             display: flex;
             align-items: center;
             gap: 15px;
-            padding: 22px 26px;
             position: relative;
+            padding: 22px 25px;
         }
 
         .metric:not(:last-child)::after {
@@ -741,7 +705,7 @@
             right: 0;
             width: 1px;
             height: 52%;
-            background: rgba(255, 255, 255, .06);
+            background: rgba(255,255,255,.06);
         }
 
         .metric-icon {
@@ -750,17 +714,17 @@
             flex: 0 0 54px;
             display: grid;
             place-items: center;
-            border: 1px solid rgba(233, 185, 73, .24);
+            border: 1px solid rgba(233,185,73,.23);
             border-radius: 11px;
             color: var(--gold);
-            background: rgba(233, 185, 73, .04);
+            background: rgba(233,185,73,.04);
             font-size: 21px;
         }
 
         .metric strong {
             display: block;
+            font-size: 25px;
             color: #fff;
-            font-size: 26px;
         }
 
         .metric b {
@@ -768,171 +732,348 @@
             margin-top: 4px;
             color: var(--gold);
             font-size: 7px;
-            letter-spacing: .75px;
+            letter-spacing: .72px;
         }
 
         .metric span {
             display: block;
             margin-top: 5px;
-            color: #627488;
+            color: #647589;
             font-size: 8px;
         }
 
-        /* =============================
-           FEATURES
-        ============================== */
+        /* =========================================
+           SECTION TITLE
+        ========================================== */
 
-        .features {
-            width: min(1500px, calc(100% - 48px));
+        .section {
+            width: min(1500px, calc(100% - 44px));
             margin: 88px auto 0;
-            padding-bottom: 90px;
         }
 
-        .features-heading {
+        .section-heading {
             display: flex;
-            justify-content: space-between;
             align-items: end;
+            justify-content: space-between;
             gap: 30px;
             margin-bottom: 24px;
         }
 
-        .features-heading span {
+        .section-heading span {
+            display: block;
             color: var(--gold);
             font-size: 8px;
             font-weight: 950;
             letter-spacing: 1.5px;
         }
 
-        .features-heading h2 {
+        .section-heading h2 {
             margin: 7px 0 0;
-            font-size: 32px;
+            font-size: 34px;
         }
 
-        .features-heading p {
-            max-width: 500px;
+        .section-heading p {
+            max-width: 520px;
             margin: 0;
             color: #718398;
             font-size: 11px;
             line-height: 1.7;
         }
 
-        .features-grid {
+        /* =========================================
+           FUNCTION CARDS
+        ========================================== */
+
+        .feature-grid {
             display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
+            grid-template-columns: repeat(3,minmax(0,1fr));
             gap: 14px;
         }
 
         .feature-card {
-            min-height: 250px;
-            padding: 24px;
+            min-height: 320px;
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, .065);
-            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid rgba(255,255,255,.065);
+            border-radius: 13px;
             background:
-                linear-gradient(
-                    145deg,
-                    rgba(12, 24, 40, .86),
-                    rgba(6, 14, 24, .88)
-                );
-            transition: .2s ease;
+                linear-gradient(180deg,rgba(4,10,17,.22),rgba(5,11,19,.92)),
+                radial-gradient(circle at 70% 20%,rgba(233,185,73,.08),transparent 27%),
+                linear-gradient(145deg,#0b1726,#07101a 72%);
+            transition: .22s ease;
         }
 
         .feature-card::before {
             content: "";
             position: absolute;
+            inset: 0;
+            background:
+                linear-gradient(115deg,transparent 0 60%,rgba(233,185,73,.025));
+            pointer-events: none;
+        }
+
+        .feature-card::after {
+            content: "";
+            position: absolute;
             width: 180px;
             height: 180px;
-            right: -60px;
-            top: -60px;
+            right: -65px;
+            top: -65px;
             border-radius: 50%;
-            border: 1px solid rgba(233, 185, 73, .05);
+            border: 1px solid rgba(233,185,73,.05);
         }
 
         .feature-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(233, 185, 73, .18);
-            background:
-                linear-gradient(
-                    145deg,
-                    rgba(14, 28, 46, .94),
-                    rgba(7, 16, 27, .94)
-                );
+            transform: translateY(-4px);
+            border-color: rgba(233,185,73,.19);
+            box-shadow: 0 22px 55px rgba(0,0,0,.24);
         }
 
         .feature-top {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
         }
 
         .feature-icon {
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             display: grid;
             place-items: center;
-            border: 1px solid rgba(233, 185, 73, .22);
-            border-radius: 9px;
+            border: 1px solid rgba(233,185,73,.24);
+            border-radius: 10px;
             color: var(--gold);
-            background: rgba(233, 185, 73, .04);
-            font-size: 17px;
+            background: rgba(233,185,73,.04);
+            font-size: 19px;
         }
 
         .feature-number {
-            color: rgba(255, 255, 255, .12);
-            font-size: 22px;
+            color: rgba(255,255,255,.12);
+            font-size: 24px;
             font-weight: 950;
         }
 
         .feature-card h3 {
-            margin: 28px 0 10px;
-            font-size: 17px;
+            margin: 34px 0 12px;
+            font-size: 19px;
         }
 
         .feature-card p {
             margin: 0;
-            color: #77899d;
+            max-width: 360px;
+            color: #7d8ea2;
             font-size: 10px;
-            line-height: 1.75;
+            line-height: 1.8;
         }
 
-        .feature-line {
-            width: 48px;
-            height: 2px;
-            margin-top: 28px;
-            background: linear-gradient(90deg, var(--gold), transparent);
+        .feature-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 33px;
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 7px;
+            font-weight: 950;
+            letter-spacing: .7px;
         }
 
-        /* =============================
-           FOOTER
-        ============================== */
+        /* =========================================
+           SECURITY STRIP
+        ========================================== */
 
-        footer {
-            border-top: 1px solid rgba(255, 255, 255, .055);
-            background: rgba(4, 9, 15, .78);
+        .security-strip {
+            display: grid;
+            grid-template-columns: repeat(4,minmax(0,1fr));
+            gap: 0;
+            margin-top: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 12px;
+            background: rgba(7,15,25,.76);
         }
 
-        .footer-inner {
-            width: min(1500px, calc(100% - 48px));
-            min-height: 82px;
-            margin: 0 auto;
+        .security-item {
+            min-height: 110px;
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            position: relative;
+            padding: 18px 21px;
+        }
+
+        .security-item:not(:last-child)::after {
+            content: "";
+            position: absolute;
+            top: 23%;
+            right: 0;
+            width: 1px;
+            height: 54%;
+            background: rgba(255,255,255,.06);
+        }
+
+        .security-icon {
+            width: 44px;
+            height: 44px;
+            flex: 0 0 44px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(233,185,73,.22);
+            border-radius: 9px;
+            color: var(--gold);
+            background: rgba(233,185,73,.035);
+            font-size: 17px;
+        }
+
+        .security-item strong {
+            display: block;
+            font-size: 8px;
+            letter-spacing: .4px;
+        }
+
+        .security-item span {
+            display: block;
+            margin-top: 4px;
+            color: #66788d;
+            font-size: 7px;
+            line-height: 1.5;
+        }
+
+        /* =========================================
+           CTA
+        ========================================== */
+
+        .cta {
+            width: min(1500px, calc(100% - 44px));
+            margin: 76px auto 86px;
+            position: relative;
+            overflow: hidden;
+            padding: 34px 36px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 20px;
-            color: #566779;
-            font-size: 8px;
-            letter-spacing: .45px;
+            gap: 30px;
+            border: 1px solid rgba(233,185,73,.18);
+            border-radius: 14px;
+            background:
+                radial-gradient(circle at 88% 30%,rgba(233,185,73,.12),transparent 30%),
+                linear-gradient(145deg,rgba(12,24,39,.94),rgba(6,13,22,.96));
+            box-shadow: var(--shadow);
         }
 
-        .footer-inner strong {
-            color: #a6b4c4;
+        .cta::before {
+            content: "DIICOT";
+            position: absolute;
+            right: 4%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 96px;
+            font-weight: 1000;
+            letter-spacing: 7px;
+            color: rgba(255,255,255,.022);
+        }
+
+        .cta-copy {
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-copy span {
+            color: var(--gold);
+            font-size: 7px;
+            font-weight: 950;
+            letter-spacing: 1.2px;
+        }
+
+        .cta-copy h3 {
+            margin: 7px 0 8px;
+            font-size: 28px;
+        }
+
+        .cta-copy p {
+            margin: 0;
+            color: #77899d;
+            font-size: 10px;
+        }
+
+        .cta .primary-btn {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* =========================================
+           FOOTER
+        ========================================== */
+
+        footer {
+            border-top: 1px solid rgba(255,255,255,.055);
+            background: rgba(4,9,15,.82);
+        }
+
+        .footer-inner {
+            width: min(1500px, calc(100% - 44px));
+            min-height: 150px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr .8fr .8fr 1fr;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .footer-brand img {
+            width: 58px;
+            height: 58px;
+            object-fit: contain;
+        }
+
+        .footer-brand strong {
+            display: block;
+            font-size: 16px;
+            letter-spacing: 1.5px;
+        }
+
+        .footer-brand span {
+            display: block;
+            margin-top: 3px;
+            color: var(--gold);
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: 1.6px;
+        }
+
+        .footer-col strong {
+            display: block;
+            margin-bottom: 8px;
+            color: #cfd8e4;
+            font-size: 8px;
+            letter-spacing: .55px;
+        }
+
+        .footer-col a,
+        .footer-col span {
+            display: block;
+            margin-top: 6px;
+            color: #63758a;
+            font-size: 8px;
+            text-decoration: none;
+        }
+
+        .footer-col a:hover {
+            color: var(--gold);
         }
 
         .footer-status {
-            display: inline-flex;
+            display: inline-flex !important;
             align-items: center;
-            gap: 7px;
+            gap: 6px;
+            color: var(--green) !important;
         }
 
         .footer-status::before {
@@ -941,25 +1082,38 @@
             height: 6px;
             border-radius: 50%;
             background: var(--green);
-            box-shadow: 0 0 9px rgba(57, 217, 138, .55);
+            box-shadow: 0 0 9px rgba(56,213,138,.55);
         }
 
-        /* =============================
+        .footer-bottom {
+            width: min(1500px, calc(100% - 44px));
+            margin: 0 auto;
+            min-height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            border-top: 1px solid rgba(255,255,255,.045);
+            color: #48596d;
+            font-size: 7px;
+            letter-spacing: .65px;
+        }
+
+        /* =========================================
            RESPONSIVE
-        ============================== */
+        ========================================== */
 
         @media (max-width: 1180px) {
-            .nav-center {
+            .nav-links {
                 display: none;
             }
 
             .hero {
                 grid-template-columns: 1fr;
-                padding-top: 64px;
             }
 
             .hero-copy {
-                max-width: 760px;
+                max-width: 780px;
             }
 
             .hero-visual {
@@ -967,15 +1121,28 @@
             }
 
             .metrics {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(2,minmax(0,1fr));
             }
 
             .metric:nth-child(2)::after {
                 display: none;
             }
 
-            .features-grid {
+            .feature-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+
+            .security-strip {
+                grid-template-columns: repeat(2,minmax(0,1fr));
+            }
+
+            .security-item:nth-child(2)::after {
+                display: none;
+            }
+
+            .footer-inner {
+                grid-template-columns: 1fr 1fr;
+                padding: 30px 0;
             }
         }
 
@@ -983,47 +1150,51 @@
             .navbar,
             .hero,
             .metrics-wrap,
-            .features,
-            .footer-inner {
-                width: min(100% - 28px, 1500px);
+            .section,
+            .cta,
+            .footer-inner,
+            .footer-bottom {
+                width: min(100% - 28px,1500px);
             }
 
             .navbar {
                 height: 72px;
             }
 
-            .brand-logo {
-                width: 42px;
-                height: 42px;
+            .brand-emblem {
+                width: 44px;
+                height: 44px;
             }
 
-            .brand-text strong {
+            .brand-emblem img {
+                width: 38px;
+                height: 38px;
+            }
+
+            .brand-copy strong {
                 font-size: 16px;
             }
 
-            .auth-area {
+            #auth-area {
                 min-width: 0;
             }
 
-            .user-info {
-                display: none;
-            }
-
+            .user-info,
             .user-menu .logout-btn {
                 display: none;
             }
 
             .hero {
                 min-height: auto;
-                padding: 56px 0 46px;
+                padding: 54px 0 40px;
             }
 
             .hero h1 {
-                font-size: clamp(64px, 20vw, 100px);
+                font-size: clamp(64px,20vw,100px);
                 letter-spacing: -4px;
             }
 
-            .hero-description {
+            .hero-copy > p {
                 font-size: 13px;
             }
 
@@ -1037,15 +1208,20 @@
             }
 
             .radar {
-                width: min(360px, 86vw);
+                width: min(350px,86vw);
             }
 
             .crest {
                 width: 180px;
-                height: 205px;
+                height: 210px;
             }
 
-            .visual-card {
+            .crest-inner img {
+                width: 90px;
+                height: 90px;
+            }
+
+            .status-card {
                 display: none;
             }
 
@@ -1058,31 +1234,52 @@
             }
 
             .metric {
-                min-height: 110px;
-                border-bottom: 1px solid rgba(255, 255, 255, .05);
+                min-height: 106px;
+                border-bottom: 1px solid rgba(255,255,255,.05);
             }
 
-            .features-heading {
+            .section-heading {
                 align-items: start;
                 flex-direction: column;
             }
 
-            .features-grid {
+            .feature-grid {
                 grid-template-columns: 1fr;
             }
 
+            .security-strip {
+                grid-template-columns: 1fr;
+            }
+
+            .security-item::after {
+                display: none;
+            }
+
+            .cta {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .cta::before {
+                font-size: 68px;
+            }
+
             .footer-inner {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
                 flex-direction: column;
                 align-items: flex-start;
                 justify-content: center;
-                padding: 18px 0;
+                padding: 14px 0;
             }
         }
 
         @media (prefers-reduced-motion: reduce) {
             * {
-                scroll-behavior: auto !important;
                 transition: none !important;
+                scroll-behavior: auto !important;
             }
         }
     </style>
@@ -1090,281 +1287,367 @@
 
 <body>
 
-<div class="page">
+<div class="nav-shell">
+    <header class="navbar">
 
-    <div class="navbar-shell">
-        <header class="navbar">
+        <a href="/" class="brand">
+            <div class="brand-emblem">
+                <img src="/uploads/diicot-logo.png" alt="DIICOT">
+            </div>
 
-            <a href="/" class="brand">
-                <div class="brand-logo">D</div>
+            <div class="brand-copy">
+                <strong>DIICOT</strong>
+                <span>RUSH ROMÂNIA</span>
+            </div>
+        </a>
 
-                <div class="brand-text">
+        <nav class="nav-links">
+            <a href="/" class="active">ACASĂ</a>
+            <a href="/dashboard">CENTRU DE COMANDĂ</a>
+            <a href="#features">FUNCȚIONALITĂȚI</a>
+            <a href="#security">SECURITATE</a>
+            <a href="#about">DESPRE HUB</a>
+        </nav>
+
+        <div id="auth-area">
+            <a href="/auth/discord" class="login-btn">
+                AUTENTIFICARE DISCORD
+            </a>
+        </div>
+
+    </header>
+</div>
+
+
+<main class="hero">
+
+    <section class="hero-copy">
+
+        <div class="hero-badge">
+            DIRECȚIA DE INVESTIGARE A INFRACȚIUNILOR
+        </div>
+
+        <h1>
+            <span class="hub">HUB</span>
+            <span class="diicot">DIICOT</span>
+        </h1>
+
+        <p>
+            Platformă internă securizată pentru gestionarea activității,
+            rapoartelor, personalului și instrumentelor operaționale DIICOT.
+        </p>
+
+        <div class="hero-actions">
+            <a
+                href="/auth/discord"
+                class="primary-btn"
+                id="main-login-btn"
+            >
+                INTRĂ ÎN CONT
+            </a>
+
+            <a
+                href="#features"
+                class="secondary-btn"
+            >
+                AFLĂ MAI MULTE
+            </a>
+        </div>
+
+        <div class="hero-trust">
+
+            <div class="trust-item">
+                <div class="trust-icon">◇</div>
+                <div>
+                    <strong>ACCES SECURIZAT</strong>
+                    <span>Autentificare Discord</span>
+                </div>
+            </div>
+
+            <div class="trust-item">
+                <div class="trust-icon">◎</div>
+                <div>
+                    <strong>CONTROL CENTRALIZAT</strong>
+                    <span>Instrumente integrate</span>
+                </div>
+            </div>
+
+            <div class="trust-item">
+                <div class="trust-icon">♙</div>
+                <div>
+                    <strong>STRUCTURĂ UNITĂ</strong>
+                    <span>Personal și grade</span>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <section class="hero-visual" aria-hidden="true">
+
+        <div class="visual-panel"></div>
+
+        <div class="status-card top">
+            <span>SISTEM INTERN</span>
+            <strong>Centru operațional</strong>
+            <em>ONLINE</em>
+        </div>
+
+        <div class="status-card bottom">
+            <span>ACCES</span>
+            <strong>Autorizare pe grade</strong>
+            <em>SECURIZAT</em>
+        </div>
+
+        <div class="radar">
+
+            <div class="radar-line-x"></div>
+            <div class="radar-line-y"></div>
+
+            <div class="orbital-dot one"></div>
+            <div class="orbital-dot two"></div>
+
+            <div class="crest">
+                <div class="crest-inner">
+                    <img src="/uploads/diicot-logo.png" alt="">
                     <strong>DIICOT</strong>
                     <span>RUSH ROMÂNIA</span>
                 </div>
-            </a>
-
-            <nav class="nav-center">
-                <a href="/" class="nav-link active">⌂ ACASĂ</a>
-                <a href="/dashboard" class="nav-link">◈ CENTRU DE COMANDĂ</a>
-                <a href="#features" class="nav-link">▤ FUNCȚIONALITĂȚI</a>
-                <a href="#about" class="nav-link">ⓘ DESPRE HUB</a>
-            </nav>
-
-            <div id="auth-area" class="auth-area">
-                <a href="/auth/discord" class="login-btn">
-                    AUTENTIFICARE DISCORD
-                </a>
             </div>
 
-        </header>
+        </div>
+
+    </section>
+
+</main>
+
+
+<section class="metrics-wrap">
+    <div class="metrics">
+
+        <article class="metric">
+            <div class="metric-icon">♙</div>
+            <div>
+                <strong>58</strong>
+                <b>MEMBRI ÎNREGISTRAȚI</b>
+                <span>Structura DIICOT</span>
+            </div>
+        </article>
+
+        <article class="metric">
+            <div class="metric-icon">▤</div>
+            <div>
+                <strong>RAPOARTE</strong>
+                <b>GESTIONARE CENTRALIZATĂ</b>
+                <span>Activitate operațională</span>
+            </div>
+        </article>
+
+        <article class="metric">
+            <div class="metric-icon">§</div>
+            <div>
+                <strong>COD PENAL</strong>
+                <b>LEGISLAȚIE INTERNĂ</b>
+                <span>Acces rapid la articole</span>
+            </div>
+        </article>
+
+        <article class="metric">
+            <div class="metric-icon">◇</div>
+            <div>
+                <strong>100%</strong>
+                <b>ACCES CONTROLAT</b>
+                <span>Permisiuni pe grade</span>
+            </div>
+        </article>
+
+    </div>
+</section>
+
+
+<section class="section" id="features">
+
+    <div class="section-heading">
+        <div>
+            <span>SISTEME & FUNCȚIONALITĂȚI</span>
+            <h2>Control complet într-un singur hub</h2>
+        </div>
+
+        <p>
+            Interfața centralizează activitatea DIICOT într-un sistem
+            rapid, clar și construit în jurul accesului pe grade.
+        </p>
+    </div>
+
+    <div class="feature-grid">
+
+        <article class="feature-card">
+            <div class="feature-top">
+                <div class="feature-icon">▤</div>
+                <div class="feature-number">01</div>
+            </div>
+
+            <h3>RAPOARTE</h3>
+
+            <p>
+                Postează, urmărește și gestionează rapoarte de activitate
+                cu suport pentru imagini și istoric complet.
+            </p>
+
+            <a href="/dashboard" class="feature-link">
+                ACCESEAZĂ →
+            </a>
+        </article>
+
+
+        <article class="feature-card">
+            <div class="feature-top">
+                <div class="feature-icon">♙</div>
+                <div class="feature-number">02</div>
+            </div>
+
+            <h3>PERSONAL DIICOT</h3>
+
+            <p>
+                Vizualizează membrii structurii, gradele, profilurile,
+                callsign-urile și datele operaționale disponibile.
+            </p>
+
+            <a href="/dashboard" class="feature-link">
+                ACCESEAZĂ →
+            </a>
+        </article>
+
+
+        <article class="feature-card">
+            <div class="feature-top">
+                <div class="feature-icon">⚙</div>
+                <div class="feature-number">03</div>
+            </div>
+
+            <h3>ADMINISTRARE</h3>
+
+            <p>
+                Instrumente pentru conducere, blacklist, concedii,
+                învoiri, anunțuri și controlul structurii interne.
+            </p>
+
+            <a href="/dashboard" class="feature-link">
+                ACCESEAZĂ →
+            </a>
+        </article>
+
     </div>
 
 
-    <main class="hero">
+    <div class="security-strip" id="security">
 
-        <section class="hero-copy">
-
-            <div class="eyebrow">
-                DIRECȚIA DE INVESTIGARE A INFRACȚIUNILOR
-            </div>
-
-            <h1>
-                <span class="white">HUB</span>
-                <span class="gold">DIICOT</span>
-            </h1>
-
-            <p class="hero-description">
-                Platformă internă securizată pentru gestionarea activității,
-                rapoartelor, personalului și instrumentelor operaționale DIICOT.
-            </p>
-
-            <div class="hero-actions">
-
-                <a
-                    href="/auth/discord"
-                    class="primary-btn"
-                    id="main-login-btn"
-                >
-                    INTRĂ ÎN CONT
-                </a>
-
-                <a
-                    href="#features"
-                    class="secondary-btn"
-                >
-                    AFLĂ MAI MULTE
-                </a>
-
-            </div>
-
-            <div class="hero-trust">
-
-                <div class="trust-item">
-                    <div class="trust-icon">◇</div>
-                    <div>
-                        <strong>ACCES SECURIZAT</strong>
-                        <span>Autentificare Discord</span>
-                    </div>
-                </div>
-
-                <div class="trust-item">
-                    <div class="trust-icon">◎</div>
-                    <div>
-                        <strong>CONTROL CENTRALIZAT</strong>
-                        <span>Instrumente integrate</span>
-                    </div>
-                </div>
-
-                <div class="trust-item">
-                    <div class="trust-icon">♙</div>
-                    <div>
-                        <strong>STRUCTURĂ UNITĂ</strong>
-                        <span>Personal și grade</span>
-                    </div>
-                </div>
-
-            </div>
-
-        </section>
-
-
-        <section class="hero-visual" aria-hidden="true">
-
-            <div class="visual-backdrop"></div>
-
-            <div class="visual-card top">
-                <span>SISTEM INTERN</span>
-                <strong>Centru operațional</strong>
-                <em>ONLINE</em>
-            </div>
-
-            <div class="visual-card bottom">
-                <span>ACCES</span>
-                <strong>Autorizare pe grade</strong>
-                <em>SECURIZAT</em>
-            </div>
-
-            <div class="radar">
-
-                <div class="radar-cross-x"></div>
-                <div class="radar-cross-y"></div>
-
-                <div class="scan-dot one"></div>
-                <div class="scan-dot two"></div>
-
-                <div class="crest">
-                    <div class="crest-inner">
-                        <span class="crest-symbol">⚖</span>
-                        <strong>DIICOT</strong>
-                        <span>RUSH ROMÂNIA</span>
-                    </div>
-                </div>
-
-            </div>
-
-        </section>
-
-    </main>
-
-
-    <section class="metrics-wrap">
-        <div class="metrics">
-
-            <article class="metric">
-                <div class="metric-icon">♙</div>
-                <div>
-                    <strong>58</strong>
-                    <b>MEMBRI ÎNREGISTRAȚI</b>
-                    <span>Structura DIICOT</span>
-                </div>
-            </article>
-
-            <article class="metric">
-                <div class="metric-icon">▤</div>
-                <div>
-                    <strong>RAPOARTE</strong>
-                    <b>GESTIONARE CENTRALIZATĂ</b>
-                    <span>Activitate operațională</span>
-                </div>
-            </article>
-
-            <article class="metric">
-                <div class="metric-icon">§</div>
-                <div>
-                    <strong>COD PENAL</strong>
-                    <b>LEGISLAȚIE INTERNĂ</b>
-                    <span>Acces rapid la articole</span>
-                </div>
-            </article>
-
-            <article class="metric">
-                <div class="metric-icon">◇</div>
-                <div>
-                    <strong>100%</strong>
-                    <b>ACCES CONTROLAT</b>
-                    <span>Permisiuni pe grade</span>
-                </div>
-            </article>
-
-        </div>
-    </section>
-
-
-    <section class="features" id="features">
-
-        <div class="features-heading">
+        <div class="security-item">
+            <div class="security-icon">◇</div>
             <div>
-                <span>INSTRUMENTE OPERAȚIONALE</span>
-                <h2>Totul într-un singur hub</h2>
+                <strong>ACCES SECURIZAT</strong>
+                <span>Autentificare prin Discord și sesiuni protejate.</span>
             </div>
-
-            <p id="about">
-                Interfața centralizează raportarea, personalul și funcțiile
-                administrative într-o experiență rapidă și ușor de utilizat.
-            </p>
         </div>
 
-        <div class="features-grid">
-
-            <article class="feature-card">
-                <div class="feature-top">
-                    <div class="feature-icon">▤</div>
-                    <div class="feature-number">01</div>
-                </div>
-
-                <h3>RAPOARTE</h3>
-
-                <p>
-                    Postează rapoarte de activitate, atașează imagini și
-                    urmărește istoricul direct din centrul de comandă.
-                </p>
-
-                <div class="feature-line"></div>
-            </article>
-
-
-            <article class="feature-card">
-                <div class="feature-top">
-                    <div class="feature-icon">♙</div>
-                    <div class="feature-number">02</div>
-                </div>
-
-                <h3>PERSONAL DIICOT</h3>
-
-                <p>
-                    Vizualizează membrii structurii, gradele, profilurile și
-                    informațiile operaționale disponibile.
-                </p>
-
-                <div class="feature-line"></div>
-            </article>
-
-
-            <article class="feature-card">
-                <div class="feature-top">
-                    <div class="feature-icon">⚙</div>
-                    <div class="feature-number">03</div>
-                </div>
-
-                <h3>CENTRU DE COMANDĂ</h3>
-
-                <p>
-                    Instrumente de conducere, administrare, blacklist,
-                    concedii, învoiri și control al structurii.
-                </p>
-
-                <div class="feature-line"></div>
-            </article>
-
-        </div>
-
-    </section>
-
-
-    <footer>
-        <div class="footer-inner">
+        <div class="security-item">
+            <div class="security-icon">◎</div>
             <div>
-                © 2026 <strong>DIICOT • RUSH ROMÂNIA</strong>
+                <strong>CONTROL CENTRALIZAT</strong>
+                <span>Instrumente interne într-o singură interfață.</span>
             </div>
+        </div>
 
-            <div class="footer-status">
-                SISTEM INTERN • CONEXIUNE SECURIZATĂ
+        <div class="security-item">
+            <div class="security-icon">◷</div>
+            <div>
+                <strong>ACTIVITATE ÎN TIMP REAL</strong>
+                <span>Date actualizate și acces rapid la informații.</span>
             </div>
+        </div>
+
+        <div class="security-item">
+            <div class="security-icon">▣</div>
+            <div>
+                <strong>DATE PROTEJATE</strong>
+                <span>Permisiuni diferențiate în funcție de grad.</span>
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+
+<section class="cta" id="about">
+
+    <div class="cta-copy">
+        <span>CENTRU OPERAȚIONAL</span>
+        <h3>Accesează sistemul intern DIICOT</h3>
+        <p>
+            Rapoarte, personal, legislație și administrare într-o singură platformă.
+        </p>
+    </div>
+
+    <a
+        href="/auth/discord"
+        class="primary-btn"
+        id="bottom-login-btn"
+    >
+        INTRĂ ÎN CONT
+    </a>
+
+</section>
+
+
+<footer>
+
+    <div class="footer-inner">
+
+        <div class="footer-brand">
+            <img src="/uploads/diicot-logo.png" alt="DIICOT">
 
             <div>
-                ACCES RESTRICȚIONAT
+                <strong>DIICOT</strong>
+                <span>RUSH ROMÂNIA</span>
             </div>
         </div>
-    </footer>
 
-</div>
+        <div class="footer-col">
+            <strong>LINK-URI RAPIDE</strong>
+            <a href="/dashboard">Centru de Comandă</a>
+            <a href="/dashboard">Rapoarte</a>
+            <a href="/dashboard">Personal</a>
+        </div>
+
+        <div class="footer-col">
+            <strong>SISTEM</strong>
+            <span>Acces pe bază de grade</span>
+            <span>Sistem intern securizat</span>
+            <span>Integrare Discord</span>
+        </div>
+
+        <div class="footer-col">
+            <strong>STARE SERVICIU</strong>
+            <span class="footer-status">Sistem operațional</span>
+            <span>Rush România</span>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <span>© 2026 DIICOT • RUSH ROMÂNIA</span>
+        <span>SISTEM INTERN • ACCES RESTRICȚIONAT</span>
+    </div>
+
+</footer>
 
 
 <script>
 
     function escapeHTML(value) {
-
         const div =
             document.createElement("div");
 
@@ -1406,6 +1689,11 @@
                 "main-login-btn"
             );
 
+        const bottomLoginBtn =
+            document.getElementById(
+                "bottom-login-btn"
+            );
+
 
         if (authArea) {
 
@@ -1422,14 +1710,23 @@
         }
 
 
-        if (mainLoginBtn) {
+        [
+            mainLoginBtn,
+            bottomLoginBtn
+        ].forEach(
+            button => {
 
-            mainLoginBtn.textContent =
-                "INTRĂ ÎN CONT";
+                if (!button) {
+                    return;
+                }
 
-            mainLoginBtn.href =
-                "/auth/discord";
-        }
+                button.textContent =
+                    "INTRĂ ÎN CONT";
+
+                button.href =
+                    "/auth/discord";
+            }
+        );
     }
 
 
@@ -1443,6 +1740,11 @@
         const mainLoginBtn =
             document.getElementById(
                 "main-login-btn"
+            );
+
+        const bottomLoginBtn =
+            document.getElementById(
+                "bottom-login-btn"
             );
 
 
@@ -1499,14 +1801,23 @@
         }
 
 
-        if (mainLoginBtn) {
+        [
+            mainLoginBtn,
+            bottomLoginBtn
+        ].forEach(
+            button => {
 
-            mainLoginBtn.textContent =
-                "CENTRU DE COMANDĂ";
+                if (!button) {
+                    return;
+                }
 
-            mainLoginBtn.href =
-                "/dashboard";
-        }
+                button.textContent =
+                    "CENTRU DE COMANDĂ";
+
+                button.href =
+                    "/dashboard";
+            }
+        );
     }
 
 
@@ -1573,10 +1884,7 @@
 
     window.addEventListener(
         "pageshow",
-        function () {
-
-            verificaAutentificarea();
-        }
+        verificaAutentificarea
     );
 
 
