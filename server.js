@@ -51,67 +51,67 @@ const supabase = createClient(
 const DIICOT_ROLES = [
     {
         id: "1528758226420633746",
-        name: "PROCUROR ȘEF",
+        name: "PROCUROR ȘEF DIICOT",
         level: 13
     },
     {
         id: "1528758226420633745",
-        name: "PROCUROR ȘEF ADJUNCT",
+        name: "PROCUROR ȘEF ADJUNCT DIICOT",
         level: 12
     },
     {
         id: "1528758226420633744",
-        name: "PROCUROR",
+        name: "PROCUROR DIICOT",
         level: 11
     },
     {
         id: "1528758226416435219",
-        name: "COORDONATOR",
+        name: "COORDONATOR DIICOT",
         level: 10
     },
     {
         id: "1528758226416435217",
-        name: "COMISAR ȘEF",
+        name: "COMISAR ȘEF DIICOT",
         level: 9
     },
     {
         id: "1528758226416435216",
-        name: "COMISAR",
+        name: "COMISAR DIICOT",
         level: 8
     },
     {
         id: "1528758226416435215",
-        name: "SUB COMISAR",
+        name: "SUB COMISAR DIICOT",
         level: 7
     },
     {
         id: "1528758226416435214",
-        name: "INSPECTOR PRINCIPAL",
+        name: "INSPECTOR PRINCIPAL DIICOT",
         level: 6
     },
     {
         id: "1528758226416435213",
-        name: "INSPECTOR",
+        name: "INSPECTOR DIICOT",
         level: 5
     },
     {
         id: "1528758226416435211",
-        name: "SUB INSPECTOR",
+        name: "SUB INSPECTOR DIICOT",
         level: 4
     },
     {
         id: "1528758226416435210",
-        name: "AGENT PRINCIPAL",
+        name: "AGENT PRINCIPAL DIICOT",
         level: 3
     },
     {
         id: "1528758226407919645",
-        name: "AGENT OPERATIV",
+        name: "AGENT OPERATIV DIICOT",
         level: 2
     },
     {
         id: "1528758226407919644",
-        name: "AGENT STAGIAR",
+        name: "AGENT STAGIAR DIICOT",
         level: 1
     }
 ];
