@@ -10889,7 +10889,163 @@
 
     }
 
-        /* =========================================================
+    
+    /* =========================================================
+       PERSONNEL — CARD / RANK EVENTS
+    ========================================================== */
+
+    function bindPersonnelProfileEvents() {
+
+        document
+            .querySelectorAll(
+                ".personnel-card[data-profile-user-id]"
+            )
+            .forEach(
+                card => {
+
+                    if (
+                        card.dataset.profileBound ===
+                        "1"
+                    ) {
+                        return;
+                    }
+
+                    card.dataset.profileBound =
+                        "1";
+
+                    const openProfile =
+                        async () => {
+
+                            const userId =
+                                card.dataset.profileUserId;
+
+                            if (!userId) {
+                                return;
+                            }
+
+                            await openMemberProfile(
+                                userId
+                            );
+                        };
+
+                    card.addEventListener(
+                        "click",
+                        async event => {
+
+                            if (
+                                event.target.closest(
+                                    ".manage-rank-btn"
+                                )
+                            ) {
+                                return;
+                            }
+
+                            await openProfile();
+                        }
+                    );
+
+                    card.addEventListener(
+                        "keydown",
+                        async event => {
+
+                            if (
+                                event.key !== "Enter" &&
+                                event.key !== " "
+                            ) {
+                                return;
+                            }
+
+                            if (
+                                event.target.closest(
+                                    ".manage-rank-btn"
+                                )
+                            ) {
+                                return;
+                            }
+
+                            event.preventDefault();
+
+                            await openProfile();
+                        }
+                    );
+                }
+            );
+    }
+
+
+    function bindManageRankButtons() {
+
+        document
+            .querySelectorAll(
+                ".manage-rank-btn[data-manage-rank]"
+            )
+            .forEach(
+                button => {
+
+                    if (
+                        button.dataset.rankBound ===
+                        "1"
+                    ) {
+                        return;
+                    }
+
+                    button.dataset.rankBound =
+                        "1";
+
+                    button.addEventListener(
+                        "click",
+                        async event => {
+
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            const userId =
+                                button.dataset.manageRank;
+
+                            const memberName =
+                                button.dataset.memberName ||
+                                "Membru DIICOT";
+
+                            const currentRole =
+                                button.dataset.currentRole ||
+                                "";
+
+                            if (!userId) {
+                                return;
+                            }
+
+                            try {
+
+                                await ensureDiscordRolesLoaded();
+
+                                openRankManager(
+                                    userId,
+                                    memberName,
+                                    currentRole
+                                );
+
+                            }
+
+                            catch (error) {
+
+                                console.error(
+                                    "Rank Manager:",
+                                    error
+                                );
+
+                                alert(
+                                    error.message ||
+                                    "Gradele DIICOT nu au putut fi încărcate."
+                                );
+                            }
+                        }
+                    );
+                }
+            );
+    }
+
+
+    /* =========================================================
        MEMBER PROFILE
     ========================================================== */
 
@@ -12479,7 +12635,7 @@
                         await fetch(
                             `/api/admin/members/${encodeURIComponent(
                                 userId
-                            )}/rank`,
+                            )}/role`,
                             {
                                 method:
                                     "PATCH",
