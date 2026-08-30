@@ -126,6 +126,104 @@ function getHighestDIICOTRole(roles = []) {
 
 
 // ======================================================
+// HELPERS ACȚIUNI CONDUCERE
+// ======================================================
+
+function getDIICOTRoleByLevel(level) {
+    return (
+        DIICOT_ROLES.find(
+            role =>
+                Number(role.level) ===
+                Number(level)
+        ) || null
+    );
+}
+
+
+function normalizeCallsign(value) {
+
+    let raw =
+        String(value || "")
+            .trim()
+            .toUpperCase();
+
+    /*
+     * Acceptăm:
+     * 6
+     * 06
+     * D-6
+     * D-06
+     * [D-06]
+     */
+
+    raw =
+        raw.replace(
+            /^\[?D-/,
+            ""
+        );
+
+    raw =
+        raw.replace(
+            /\]?$/,
+            ""
+        );
+
+    raw =
+        raw.trim();
+
+    if (
+        !/^\d{1,2}$/.test(raw)
+    ) {
+        return null;
+    }
+
+    const number =
+        Number(raw);
+
+    if (
+        !Number.isInteger(number) ||
+        number < 1 ||
+        number > 99
+    ) {
+        return null;
+    }
+
+    return (
+        "D-" +
+        String(number).padStart(
+            2,
+            "0"
+        )
+    );
+}
+
+
+function removeExistingCallsign(name) {
+
+    return String(name || "")
+        .replace(
+            /^\s*\[D-\d{1,2}\]\s*/i,
+            ""
+        )
+        .trim();
+}
+
+
+function buildCallsignNickname(
+    callsign,
+    currentName
+) {
+
+    const cleanName =
+        removeExistingCallsign(
+            currentName
+        );
+
+    return `[${callsign}] ${cleanName}`.trim();
+}
+
+
+// ======================================================
 // EXPRESS
 // ======================================================
 
@@ -476,7 +574,6 @@ function mapReport(row) {
             )
     };
 }
-
 
 function mapBlacklist(row) {
 
@@ -1009,7 +1106,6 @@ function requireAdmin(
     next();
 }
 
-
 // ======================================================
 // PAGINI
 // ======================================================
@@ -1135,6 +1231,7 @@ app.get(
         );
     }
 );
+
 
 // ======================================================
 // CALLBACK DISCORD
@@ -1712,7 +1809,6 @@ app.get(
     }
 );
 
-
 // ======================================================
 // EDITARE PROFILUL MEU
 // ======================================================
@@ -2140,7 +2236,8 @@ app.post(
                     [],
                     req.session.user.id
                 );
-                        const reportId =
+
+            const reportId =
                 crypto.randomUUID();
 
 
@@ -2240,9 +2337,6 @@ app.post(
                 error
             );
 
-
-            // Dacă baza eșuează după upload,
-            // încercăm să curățăm imaginile urcate.
 
             if (
                 uploadedImages.length
@@ -2461,7 +2555,6 @@ app.get(
         }
     }
 );
-
 
 // ======================================================
 // CONDUCERE - ANUNȚURI DISCORD
@@ -3141,7 +3234,8 @@ app.post(
                         mapLeaveRequest(
                             inserted
                         ),
-                                        usage:
+
+                    usage:
                         await getLeaveUsage(
                             userId
                         )
@@ -3337,7 +3431,6 @@ app.patch(
                 error
             );
 
-
             res
                 .status(500)
                 .json({
@@ -3347,7 +3440,6 @@ app.patch(
         }
     }
 );
-
 
 // ======================================================
 // CONCEDII / ÎNVOIRI - ADMIN LISTĂ
@@ -3808,6 +3900,7 @@ app.get(
             return;
         }
 
+
         try {
 
             await updateBlacklistStatuses();
@@ -4051,8 +4144,8 @@ app.post(
 
 
                 if (
-                    expiry <=
-                    new Date()
+                    expiry.getTime() <=
+                    Date.now()
                 ) {
 
                     return res
@@ -4110,7 +4203,7 @@ app.post(
                     .status(409)
                     .json({
                         error:
-                            "Acest Discord ID este deja în blacklist."
+                            "Acest Discord ID este deja activ în blacklist."
                     });
             }
 
@@ -4123,31 +4216,18 @@ app.post(
 
             if (
                 !name &&
-                discordUser
+                discordUser?.displayName
             ) {
 
                 name =
-                    discordUser.displayName ||
-                    discordUser.username ||
-                    "";
+                    discordUser.displayName;
             }
 
 
             if (!name) {
 
                 name =
-                    "Necunoscut";
-            }
-                        if (
-                name.length > 80
-            ) {
-
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Numele este prea lung."
-                    });
+                    `Discord ${discordId}`;
             }
 
 
@@ -4216,13 +4296,16 @@ app.post(
                     null,
 
                 updated_at:
-                    null,
+                    now,
 
                 updated_by_id:
-                    null,
+                    String(
+                        req.session.user.id
+                    ),
 
                 updated_by_name:
-                    null
+                    req.session.user.displayName ||
+                    req.session.user.username
             };
 
 
@@ -4252,12 +4335,6 @@ app.post(
             }
 
 
-            const entry =
-                mapBlacklist(
-                    inserted
-                );
-
-
             res
                 .status(201)
                 .json({
@@ -4266,9 +4343,12 @@ app.post(
                         true,
 
                     message:
-                        `${name} a fost adăugat în blacklist.`,
+                        "Persoana a fost adăugată în blacklist.",
 
-                    entry
+                    entry:
+                        mapBlacklist(
+                            inserted
+                        )
                 });
 
         }
@@ -4290,7 +4370,6 @@ app.post(
         }
     }
 );
-
 
 // ======================================================
 // BLACKLIST - CHECK DISCORD ID
@@ -5137,7 +5216,7 @@ app.patch(
                         "discord_id",
                         current.discord_id
                     )
-                                .eq(
+                    .eq(
                         "status",
                         "ACTIVE"
                     )
@@ -5387,7 +5466,6 @@ app.delete(
     }
 );
 
-
 // ======================================================
 // GRADE DIICOT
 // ======================================================
@@ -5607,6 +5685,20 @@ app.patch(
             }
 
 
+            if (
+                error.response?.status ===
+                404
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Membrul nu a fost găsit."
+                    });
+            }
+
+
             res
                 .status(500)
                 .json({
@@ -5617,6 +5709,709 @@ app.patch(
     }
 );
 
+
+// ======================================================
+// ACȚIUNI CONDUCERE - AVANSARE / RETROGRADARE
+// Doar COORDONATOR+ prin requireAdmin
+// ======================================================
+
+app.patch(
+    "/api/admin/members/:userId/rank-step",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (!BOT_TOKEN) {
+
+            return res
+                .status(500)
+                .json({
+                    error:
+                        "Botul Discord nu este configurat."
+                });
+        }
+
+
+        const targetUserId =
+            String(
+                req.params.userId ||
+                ""
+            ).trim();
+
+
+        const direction =
+            String(
+                req.body.direction ||
+                ""
+            )
+                .trim()
+                .toUpperCase();
+
+
+        if (
+            !/^\d{15,25}$/.test(
+                targetUserId
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "ID-ul membrului nu este valid."
+                });
+        }
+
+
+        if (
+            ![
+                "UP",
+                "DOWN"
+            ].includes(
+                direction
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Direcția trebuie să fie UP sau DOWN."
+                });
+        }
+
+
+        if (
+            targetUserId ===
+            String(
+                req.session.user.id
+            )
+        ) {
+
+            return res
+                .status(403)
+                .json({
+                    error:
+                        "Nu îți poți modifica propriul grad."
+                });
+        }
+
+
+        try {
+
+            const memberResponse =
+                await axios.get(
+
+                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetUserId}`,
+
+                    {
+                        headers: {
+
+                            Authorization:
+                                `Bot ${BOT_TOKEN}`
+                        }
+                    }
+                );
+
+
+            const member =
+                memberResponse.data;
+
+
+            const currentRoles =
+                Array.isArray(
+                    member.roles
+                )
+
+                    ? member.roles
+                        .map(String)
+
+                    : [];
+
+
+            const currentRank =
+                getHighestDIICOTRole(
+                    currentRoles
+                );
+
+
+            if (!currentRank) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Membrul nu are un grad DIICOT."
+                    });
+            }
+
+
+            const targetLevel =
+                direction ===
+                "UP"
+
+                    ? currentRank.level + 1
+
+                    : currentRank.level - 1;
+
+
+            const newRank =
+                DIICOT_ROLES.find(
+                    role =>
+                        Number(
+                            role.level
+                        ) ===
+                        Number(
+                            targetLevel
+                        )
+                );
+
+
+            if (!newRank) {
+
+                if (
+                    direction ===
+                    "UP"
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                `${currentRank.name} este deja gradul maxim.`
+                        });
+                }
+
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            `${currentRank.name} este deja gradul minim.`
+                    });
+            }
+
+
+            const diicotRoleIds =
+                new Set(
+                    DIICOT_ROLES.map(
+                        role =>
+                            String(
+                                role.id
+                            )
+                    )
+                );
+
+
+            const preservedRoles =
+                currentRoles.filter(
+                    roleId =>
+                        !diicotRoleIds.has(
+                            String(
+                                roleId
+                            )
+                        )
+                );
+
+
+            const newRoles = [
+                ...preservedRoles,
+                newRank.id
+            ];
+
+
+            await axios.patch(
+
+                `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetUserId}`,
+
+                {
+                    roles:
+                        newRoles
+                },
+
+                {
+                    headers: {
+
+                        Authorization:
+                            `Bot ${BOT_TOKEN}`,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+            res.json({
+
+                success:
+                    true,
+
+                direction,
+
+                oldRank: {
+                    id:
+                        currentRank.id,
+
+                    name:
+                        currentRank.name,
+
+                    level:
+                        currentRank.level
+                },
+
+                newRank: {
+                    id:
+                        newRank.id,
+
+                    name:
+                        newRank.name,
+
+                    level:
+                        newRank.level
+                },
+
+                message:
+                    direction ===
+                    "UP"
+
+                        ? `Membrul a fost avansat de la ${currentRank.name} la ${newRank.name}.`
+
+                        : `Membrul a fost retrogradat de la ${currentRank.name} la ${newRank.name}.`
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Rank Step Error:",
+                error.response?.data ||
+                error.message
+            );
+
+
+            if (
+                error.response?.status ===
+                404
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Membrul nu a fost găsit pe Discord."
+                    });
+            }
+
+
+            if (
+                error.response?.status ===
+                403
+            ) {
+
+                return res
+                    .status(403)
+                    .json({
+                        error:
+                            "Botul nu poate modifica gradul acestui membru. Verifică ierarhia rolurilor Discord."
+                    });
+            }
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Gradul membrului nu a putut fi modificat."
+                });
+        }
+    }
+);
+
+
+// ======================================================
+// ACȚIUNI CONDUCERE - SCHIMBĂ INDICATIV
+// Format: [D-XX]
+// Exemple: [D-01], [D-06], [D-15], [D-99]
+// ======================================================
+
+app.patch(
+    "/api/admin/members/:userId/callsign",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (!BOT_TOKEN) {
+
+            return res
+                .status(500)
+                .json({
+                    error:
+                        "Botul Discord nu este configurat."
+                });
+        }
+
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+
+        const targetUserId =
+            String(
+                req.params.userId ||
+                ""
+            ).trim();
+
+
+        if (
+            !/^\d{15,25}$/.test(
+                targetUserId
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "ID-ul membrului nu este valid."
+                });
+        }
+
+
+        if (
+            targetUserId ===
+            String(
+                req.session.user.id
+            )
+        ) {
+
+            return res
+                .status(403)
+                .json({
+                    error:
+                        "Nu îți poți modifica propriul indicativ."
+                });
+        }
+
+
+        const rawCallsign =
+            String(
+                req.body.callsign ||
+                ""
+            )
+                .trim()
+                .toUpperCase();
+
+
+        const match =
+            rawCallsign.match(
+                /^(?:\[?D-?)?(\d{1,2})\]?$/
+            );
+
+
+        if (!match) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Indicativ invalid. Folosește un număr între 01 și 99."
+                });
+        }
+
+
+        const callsignNumber =
+            Number(
+                match[1]
+            );
+
+
+        if (
+            !Number.isInteger(
+                callsignNumber
+            ) ||
+            callsignNumber < 1 ||
+            callsignNumber > 99
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Indicativul trebuie să fie între D-01 și D-99."
+                });
+        }
+
+
+        const callsign =
+            `D-${String(
+                callsignNumber
+            ).padStart(
+                2,
+                "0"
+            )}`;
+
+
+        try {
+
+            const memberResponse =
+                await axios.get(
+
+                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetUserId}`,
+
+                    {
+                        headers: {
+
+                            Authorization:
+                                `Bot ${BOT_TOKEN}`
+                        }
+                    }
+                );
+
+
+            const member =
+                memberResponse.data;
+
+
+            const memberRoles =
+                Array.isArray(
+                    member.roles
+                )
+
+                    ? member.roles.map(
+                        String
+                    )
+
+                    : [];
+
+
+            const rank =
+                getHighestDIICOTRole(
+                    memberRoles
+                );
+
+
+            if (!rank) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Această persoană nu face parte din personalul DIICOT."
+                    });
+            }
+
+
+            const {
+                data:
+                    profileRow,
+
+                error:
+                    profileLoadError
+            } =
+                await supabase
+                    .from(
+                        "user_profiles"
+                    )
+                    .select(
+                        "display_name,duties"
+                    )
+                    .eq(
+                        "user_id",
+                        targetUserId
+                    )
+                    .maybeSingle();
+
+
+            if (
+                profileLoadError
+            ) {
+
+                throw profileLoadError;
+            }
+
+
+            const sourceName =
+                profileRow?.display_name ||
+                member.nick ||
+                member.user?.global_name ||
+                member.user?.username ||
+                "Membru DIICOT";
+
+
+            const cleanName =
+                String(
+                    sourceName
+                )
+                    .replace(
+                        /^\s*\[D-\d{1,3}\]\s*/i,
+                        ""
+                    )
+                    .trim();
+
+
+            const newNickname =
+                `[${callsign}] ${cleanName}`;
+
+
+            if (
+                newNickname.length >
+                32
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Numele împreună cu indicativul depășește limita Discord de 32 de caractere."
+                    });
+            }
+
+
+            await axios.patch(
+
+                `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetUserId}`,
+
+                {
+                    nick:
+                        newNickname
+                },
+
+                {
+                    headers: {
+
+                        Authorization:
+                            `Bot ${BOT_TOKEN}`,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+
+            const {
+                error:
+                    profileSaveError
+            } =
+                await supabase
+                    .from(
+                        "user_profiles"
+                    )
+                    .upsert(
+                        {
+                            user_id:
+                                targetUserId,
+
+                            display_name:
+                                newNickname,
+
+                            duties:
+                                Array.isArray(
+                                    profileRow?.duties
+                                )
+
+                                    ? profileRow.duties
+
+                                    : [],
+
+                            updated_at:
+                                new Date()
+                                    .toISOString()
+                        },
+                        {
+                            onConflict:
+                                "user_id"
+                        }
+                    );
+
+
+            if (
+                profileSaveError
+            ) {
+
+                console.error(
+                    "Callsign Profile Save Error:",
+                    profileSaveError
+                );
+            }
+
+
+            res.json({
+
+                success:
+                    true,
+
+                callsign,
+
+                nickname:
+                    newNickname,
+
+                message:
+                    `Indicativul a fost schimbat în [${callsign}].`
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Callsign Update Error:",
+                error.response?.data ||
+                error.message ||
+                error
+            );
+
+
+            if (
+                error.response?.status ===
+                404
+            ) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Membrul nu a fost găsit pe Discord."
+                    });
+            }
+
+
+            if (
+                error.response?.status ===
+                403
+            ) {
+
+                return res
+                    .status(403)
+                    .json({
+                        error:
+                            "Botul nu poate schimba nickname-ul acestui membru. Verifică ierarhia rolului botului pe Discord."
+                    });
+            }
+
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Indicativul nu a putut fi modificat."
+                });
+        }
+    }
+);
 
 // ======================================================
 // PERSONAL DIICOT
@@ -5648,10 +6443,8 @@ app.get(
             let members =
                 [];
 
-
             let after =
                 "0";
-
 
             let hasMore =
                 true;
@@ -5694,7 +6487,6 @@ app.get(
 
                     hasMore =
                         false;
-
                 }
 
                 else {
@@ -6248,6 +7040,7 @@ app.get(
         }
     }
 );
+
 // ======================================================
 // LOGOUT
 // ======================================================
@@ -6318,6 +7111,7 @@ app.get(
             try {
 
                 await updateBlacklistStatuses();
+
 
                 const [
                     reportsResult,
