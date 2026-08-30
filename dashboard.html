@@ -8992,6 +8992,43 @@
 
     let discordRoles = [];
 
+    async function loadDiscordRoles() {
+        const response = await fetch(
+            "/api/admin/roles",
+            {
+                credentials: "include",
+                cache: "no-store"
+            }
+        );
+
+        if (response.status === 401) {
+            throw new Error("SESSION_EXPIRED");
+        }
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                "Gradele DIICOT nu au putut fi încărcate."
+            );
+        }
+
+        discordRoles = Array.isArray(data.roles)
+            ? data.roles
+            : [];
+
+        return discordRoles;
+    }
+
+    async function ensureDiscordRolesLoaded() {
+        if (discordRoles.length) {
+            return discordRoles;
+        }
+
+        return await loadDiscordRoles();
+    }
+
     let profileDuties = [];
 
     let blacklistEntries = [];
@@ -9623,9 +9660,15 @@
                 error
             );
 
+            // Nu delogăm utilizatorul pentru o eroare secundară
+            // (ex. încărcarea listei de grade). Redirect doar dacă
+            // sesiunea chiar a expirat.
+            if (error?.message === "SESSION_EXPIRED") {
+                window.location.href = "/";
+                return;
+            }
 
-            window.location.href =
-                "/";
+            return currentUser;
         }
 
     }
