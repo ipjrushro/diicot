@@ -7818,10 +7818,6 @@
             display: none;
         }
 
-        body.can-test-diicot .tester-home-card {
-            display: block;
-        }
-
 </style>
 
 </head>
@@ -8510,8 +8506,7 @@
                             <div class="home-action-icon">✓</div>
                             <h3>TESTARE CANDIDAȚI</h3>
                             <p>
-                                Înregistrează rezultatul unui test pentru
-                                recrutare.
+                                Gestionare teste pentru Conducere și Tester DIICOT.
                             </p>
                             <span class="home-action-arrow">→</span>
                         </button>
@@ -12866,6 +12861,38 @@
                     currentUser.rankLevel ||
                     0
                 ) >= 10;
+
+
+            const isTester =
+                Array.isArray(
+                    currentUser.roles
+                ) &&
+                currentUser.roles
+                    .map(String)
+                    .includes(
+                        "1543701312359759973"
+                    );
+
+
+            const canUseTestManagement =
+                isAdmin ||
+                isTester;
+
+
+            document
+                .querySelectorAll(
+                    '.tester-home-card'
+                )
+                .forEach(
+                    element => {
+
+                        element.style.display =
+                            canUseTestManagement
+                                ? ""
+                                : "none";
+
+                    }
+                );
 
 
             document
