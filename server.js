@@ -1781,7 +1781,7 @@ app.get(
 app.get(
     "/api/me",
 
-    (
+    async (
         req,
         res
     ) => {
@@ -1798,12 +1798,117 @@ app.get(
                 });
         }
 
+        /*
+         * Refresh LIVE din Discord.
+         * Astfel, dacă îi dai cuiva rolul Tester DIICOT după ce s-a logat,
+         * site-ul îl vede fără să depindă de rolurile vechi salvate în sesiune.
+         */
+        if (
+            BOT_TOKEN &&
+            GUILD_ID &&
+            req.session.user.id
+        ) {
+
+            try {
+
+                const memberResponse =
+                    await axios.get(
+                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${req.session.user.id}`,
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bot ${BOT_TOKEN}`
+                            }
+                        }
+                    );
+
+                const member =
+                    memberResponse.data;
+
+                const roles =
+                    Array.isArray(
+                        member.roles
+                    )
+                        ? member.roles.map(String)
+                        : [];
+
+                const rank =
+                    getHighestDIICOTRole(
+                        roles
+                    );
+
+                req.session.user.roles =
+                    roles;
+
+                req.session.user.rank =
+                    rank
+                        ? rank.name
+                        : "MEMBRU DIICOT";
+
+                req.session.user.rankLevel =
+                    rank
+                        ? rank.level
+                        : 0;
+
+                req.session.user.rankRoleId =
+                    rank
+                        ? rank.id
+                        : null;
+
+                req.session.user.displayName =
+                    member.nick ||
+                    member.user?.global_name ||
+                    member.user?.username ||
+                    req.session.user.displayName ||
+                    req.session.user.username;
+
+            }
+            catch (error) {
+
+                console.error(
+                    "API ME Discord Refresh Error:",
+                    error.response?.data ||
+                    error.message
+                );
+            }
+        }
+
+        const roles =
+            Array.isArray(
+                req.session.user.roles
+            )
+                ? req.session.user.roles.map(String)
+                : [];
+
+        const isAdmin =
+            Number(
+                req.session.user.rankLevel ||
+                0
+            ) >= 10;
+
+        const isTester =
+            roles.includes(
+                "1543701312359759973"
+            );
+
         res.json({
             loggedIn:
                 true,
 
             user:
-                req.session.user
+                req.session.user,
+
+            permissions: {
+                admin:
+                    isAdmin,
+
+                tester:
+                    isTester,
+
+                testManagement:
+                    isAdmin ||
+                    isTester
+            }
         });
     }
 );
