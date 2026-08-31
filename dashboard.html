@@ -1977,6 +1977,182 @@
         }
 
 
+
+        /* =========================================================
+           EVENIMENTE — OVERVIEW
+        ========================================================== */
+
+        .events-overview-panel {
+            margin-top: 16px;
+            overflow: hidden;
+        }
+
+        .events-panel-head {
+            min-height: 58px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 0 18px;
+            border-bottom: 1px solid rgba(255,255,255,.055);
+        }
+
+        .events-panel-title {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            color: #e8eef6;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .7px;
+        }
+
+        .events-panel-title::before {
+            content: "⚡";
+            color: var(--gold);
+            font-size: 14px;
+        }
+
+        .events-add-btn {
+            min-height: 34px !important;
+            padding: 0 13px !important;
+            font-size: 7px !important;
+        }
+
+        .events-list {
+            display: grid;
+            gap: 9px;
+            padding: 14px;
+        }
+
+        .event-card {
+            position: relative;
+            display: grid;
+            grid-template-columns: 72px minmax(0,1fr) auto;
+            align-items: center;
+            gap: 14px;
+            min-height: 74px;
+            padding: 12px 14px;
+            border: 1px solid rgba(100,129,168,.14);
+            border-radius: 9px;
+            background:
+                linear-gradient(135deg,rgba(18,29,46,.82),rgba(12,21,35,.78));
+            transition: .18s ease;
+        }
+
+        .event-card:hover {
+            border-color: rgba(233,185,73,.22);
+            transform: translateY(-1px);
+        }
+
+        .event-time {
+            color: #9eafc3;
+            font-size: 13px;
+            font-weight: 900;
+            letter-spacing: .2px;
+        }
+
+        .event-main {
+            min-width: 0;
+        }
+
+        .event-title-row {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            min-width: 0;
+        }
+
+        .event-dot {
+            width: 7px;
+            height: 7px;
+            flex: 0 0 7px;
+            border-radius: 50%;
+            background: var(--gold);
+            box-shadow: 0 0 10px rgba(233,185,73,.35);
+        }
+
+        .event-dot.blue {
+            background: var(--blue);
+            box-shadow: 0 0 10px rgba(49,131,255,.35);
+        }
+
+        .event-dot.red {
+            background: var(--red);
+            box-shadow: 0 0 10px rgba(255,83,83,.35);
+        }
+
+        .event-dot.green {
+            background: var(--green);
+            box-shadow: 0 0 10px rgba(49,216,135,.35);
+        }
+
+        .event-dot.purple {
+            background: var(--purple);
+            box-shadow: 0 0 10px rgba(169,108,255,.35);
+        }
+
+        .event-title {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: #e7edf5;
+            font-size: 10px;
+            font-weight: 850;
+        }
+
+        .event-meta {
+            margin-top: 6px;
+            color: #596b80;
+            font-size: 7px;
+            line-height: 1.5;
+        }
+
+        .event-description {
+            margin-top: 5px;
+            color: #8293a8;
+            font-size: 8px;
+            line-height: 1.55;
+        }
+
+        .event-delete {
+            min-height: 30px;
+            padding: 0 10px;
+            border: 1px solid rgba(255,83,83,.18);
+            border-radius: 6px;
+            color: #ff8c8c;
+            background: rgba(255,83,83,.055);
+            font-size: 7px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .event-delete:hover {
+            background: rgba(255,83,83,.1);
+        }
+
+        .event-form-grid {
+            display: grid;
+            grid-template-columns: 1.2fr .8fr .8fr;
+            gap: 12px;
+        }
+
+        @media (max-width: 900px) {
+            .event-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .event-card {
+                grid-template-columns: 60px minmax(0,1fr);
+            }
+
+            .event-delete {
+                grid-column: 1 / -1;
+                justify-self: end;
+            }
+        }
+
+
         .system-row {
             display: flex;
 
@@ -6804,6 +6980,36 @@
                 </div>
 
 
+                <div class="dashboard-panel events-overview-panel">
+
+                    <div class="events-panel-head">
+
+                        <div class="events-panel-title">
+                            EVENIMENTE
+                        </div>
+
+                        <button
+                            type="button"
+                            id="open-event-modal-btn"
+                            class="primary-btn gold-btn events-add-btn admin-only"
+                        >
+                            + ADAUGĂ EVENIMENT
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="overview-events-list"
+                        class="events-list"
+                    >
+                        <div class="empty-state">
+                            Se încarcă evenimentele...
+                        </div>
+                    </div>
+
+                </div>
+
+
             </section>
 
 
@@ -9404,6 +9610,111 @@
 
 
 
+
+    <!-- =========================================================
+         MODAL EVENIMENT — COORDONATOR+
+    ========================================================== -->
+
+    <div
+        class="modal"
+        id="event-modal"
+    >
+        <div class="modal-card">
+
+            <div class="modal-head">
+                <div>
+                    <span>CONDUCERE</span>
+                    <h3>Adaugă eveniment</h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="event-modal"
+                >
+                    ×
+                </button>
+            </div>
+
+            <form id="event-form">
+
+                <div class="event-form-grid">
+
+                    <div class="form-group">
+                        <label for="event-title">
+                            TITLU EVENIMENT
+                        </label>
+
+                        <input
+                            id="event-title"
+                            type="text"
+                            maxlength="100"
+                            placeholder="Ex: Ședință Generală DIICOT"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-at">
+                            DATA ȘI ORA
+                        </label>
+
+                        <input
+                            id="event-at"
+                            type="datetime-local"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="event-type">
+                            TIP
+                        </label>
+
+                        <select
+                            id="event-type"
+                            required
+                        >
+                            <option value="SEDINTA">ȘEDINȚĂ</option>
+                            <option value="BRIEFING">BRIEFING</option>
+                            <option value="RAZIE">RAZIE</option>
+                            <option value="ANTRENAMENT">ANTRENAMENT</option>
+                            <option value="ALTUL">ALTUL</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="event-description">
+                        DETALII (OPȚIONAL)
+                    </label>
+
+                    <textarea
+                        id="event-description"
+                        maxlength="500"
+                        placeholder="Detalii suplimentare despre eveniment..."
+                    ></textarea>
+                </div>
+
+                <div
+                    id="event-message"
+                    class="form-message"
+                ></div>
+
+                <button
+                    type="submit"
+                    class="primary-btn gold-btn"
+                >
+                    POSTEAZĂ EVENIMENT
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+
 <script>
 
     let currentUser = null;
@@ -9910,6 +10221,485 @@
 
 
 
+
+    /* =========================================================
+       EVENIMENTE OVERVIEW
+    ========================================================== */
+
+    function getEventTypeMeta(
+        type
+    ) {
+
+        const map = {
+            SEDINTA: {
+                label: "ȘEDINȚĂ",
+                color: ""
+            },
+            BRIEFING: {
+                label: "BRIEFING",
+                color: "blue"
+            },
+            RAZIE: {
+                label: "RAZIE",
+                color: "red"
+            },
+            ANTRENAMENT: {
+                label: "ANTRENAMENT",
+                color: "green"
+            },
+            ALTUL: {
+                label: "EVENIMENT",
+                color: "purple"
+            }
+        };
+
+        return (
+            map[type] ||
+            map.ALTUL
+        );
+    }
+
+
+    function formatEventDate(
+        value
+    ) {
+
+        const date =
+            new Date(value);
+
+        if (
+            Number.isNaN(
+                date.getTime()
+            )
+        ) {
+            return {
+                time: "--:--",
+                date: "-"
+            };
+        }
+
+        return {
+            time:
+                date.toLocaleTimeString(
+                    "ro-RO",
+                    {
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    }
+                ),
+
+            date:
+                date.toLocaleDateString(
+                    "ro-RO",
+                    {
+                        weekday: "short",
+                        day: "2-digit",
+                        month: "short"
+                    }
+                )
+        };
+    }
+
+
+    function renderOverviewEvents(
+        events = []
+    ) {
+
+        const container =
+            document.getElementById(
+                "overview-events-list"
+            );
+
+        if (!container) {
+            return;
+        }
+
+        if (!events.length) {
+
+            container.innerHTML = `
+                <div class="empty-state">
+                    Nu există evenimente programate.
+                </div>
+            `;
+
+            return;
+        }
+
+        const canManage =
+            Number(
+                currentUser?.rankLevel ||
+                0
+            ) >= 10;
+
+        container.innerHTML =
+            events
+                .map(
+                    event => {
+
+                        const meta =
+                            getEventTypeMeta(
+                                event.type
+                            );
+
+                        const date =
+                            formatEventDate(
+                                event.eventAt
+                            );
+
+                        return `
+                            <div class="event-card">
+
+                                <div class="event-time">
+                                    ${escapeHTML(date.time)}
+                                </div>
+
+                                <div class="event-main">
+
+                                    <div class="event-title-row">
+                                        <span class="event-dot ${escapeHTML(meta.color)}"></span>
+
+                                        <span class="event-title">
+                                            ${escapeHTML(event.title)}
+                                        </span>
+                                    </div>
+
+                                    <div class="event-meta">
+                                        ${escapeHTML(date.date)}
+                                        •
+                                        ${escapeHTML(meta.label)}
+                                        ${event.createdByName
+                                            ? ` • postat de ${escapeHTML(event.createdByName)}`
+                                            : ""}
+                                    </div>
+
+                                    ${event.description
+                                        ? `
+                                            <div class="event-description">
+                                                ${escapeHTML(event.description)}
+                                            </div>
+                                        `
+                                        : ""}
+                                </div>
+
+                                ${canManage
+                                    ? `
+                                        <button
+                                            type="button"
+                                            class="event-delete"
+                                            data-delete-event="${escapeHTML(event.id)}"
+                                        >
+                                            ȘTERGE
+                                        </button>
+                                    `
+                                    : ""}
+
+                            </div>
+                        `;
+                    }
+                )
+                .join("");
+
+        container
+            .querySelectorAll(
+                "[data-delete-event]"
+            )
+            .forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+
+                        async () => {
+
+                            if (
+                                !confirm(
+                                    "Ștergi acest eveniment?"
+                                )
+                            ) {
+                                return;
+                            }
+
+                            try {
+
+                                const response =
+                                    await fetch(
+                                        `/api/admin/events/${encodeURIComponent(button.dataset.deleteEvent)}`,
+                                        {
+                                            method:
+                                                "DELETE",
+
+                                            credentials:
+                                                "include"
+                                        }
+                                    );
+
+                                const data =
+                                    await response.json();
+
+                                if (!response.ok) {
+                                    throw new Error(
+                                        data.error ||
+                                        "Evenimentul nu a putut fi șters."
+                                    );
+                                }
+
+                                await loadOverviewEvents();
+
+                            }
+
+                            catch (error) {
+
+                                alert(
+                                    error.message ||
+                                    "Evenimentul nu a putut fi șters."
+                                );
+                            }
+                        }
+                    );
+                }
+            );
+    }
+
+
+    async function loadOverviewEvents() {
+
+        const container =
+            document.getElementById(
+                "overview-events-list"
+            );
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/events",
+                    {
+                        credentials:
+                            "include",
+
+                        cache:
+                            "no-store"
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    "Evenimentele nu au putut fi încărcate."
+                );
+            }
+
+            renderOverviewEvents(
+                Array.isArray(data.events)
+                    ? data.events
+                    : []
+            );
+
+        }
+
+        catch (error) {
+
+            if (container) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        ${escapeHTML(error.message || "Evenimente indisponibile.")}
+                    </div>
+                `;
+            }
+        }
+    }
+
+
+    document
+        .getElementById(
+            "open-event-modal-btn"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+
+                if (
+                    Number(
+                        currentUser?.rankLevel ||
+                        0
+                    ) < 10
+                ) {
+                    return;
+                }
+
+                openModal(
+                    "event-modal"
+                );
+            }
+        );
+
+
+    document
+        .getElementById(
+            "event-form"
+        )
+        ?.addEventListener(
+            "submit",
+
+            async function (
+                event
+            ) {
+
+                event.preventDefault();
+
+                if (
+                    Number(
+                        currentUser?.rankLevel ||
+                        0
+                    ) < 10
+                ) {
+                    return;
+                }
+
+                const message =
+                    document.getElementById(
+                        "event-message"
+                    );
+
+                const button =
+                    this.querySelector(
+                        'button[type="submit"]'
+                    );
+
+                message.className =
+                    "form-message";
+
+                message.textContent =
+                    "";
+
+                const eventAtValue =
+                    document.getElementById(
+                        "event-at"
+                    ).value;
+
+                const eventAt =
+                    new Date(
+                        eventAtValue
+                    );
+
+                if (
+                    Number.isNaN(
+                        eventAt.getTime()
+                    )
+                ) {
+
+                    message.className =
+                        "form-message error";
+
+                    message.textContent =
+                        "Data și ora evenimentului sunt invalide.";
+
+                    return;
+                }
+
+                button.disabled =
+                    true;
+
+                button.textContent =
+                    "SE POSTEAZĂ...";
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/admin/events",
+                            {
+                                method:
+                                    "POST",
+
+                                credentials:
+                                    "include",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+                                        title:
+                                            document.getElementById(
+                                                "event-title"
+                                            ).value.trim(),
+
+                                        eventAt:
+                                            eventAt.toISOString(),
+
+                                        type:
+                                            document.getElementById(
+                                                "event-type"
+                                            ).value,
+
+                                        description:
+                                            document.getElementById(
+                                                "event-description"
+                                            ).value.trim()
+                                    })
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error ||
+                            "Evenimentul nu a putut fi postat."
+                        );
+                    }
+
+                    this.reset();
+
+                    message.className =
+                        "form-message success";
+
+                    message.textContent =
+                        "✓ Eveniment postat.";
+
+                    await loadOverviewEvents();
+
+                    setTimeout(
+                        () => {
+                            closeModal(
+                                "event-modal"
+                            );
+                        },
+                        450
+                    );
+
+                }
+
+                catch (error) {
+
+                    message.className =
+                        "form-message error";
+
+                    message.textContent =
+                        error.message ||
+                        "Evenimentul nu a putut fi postat.";
+
+                }
+
+                finally {
+
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        "POSTEAZĂ EVENIMENT";
+                }
+            }
+        );
+
+
     /* =========================================================
        USER
     ========================================================== */
@@ -10070,6 +10860,9 @@
 
                 await loadDiscordRoles();
             }
+
+
+            await loadOverviewEvents();
 
 
             return currentUser;
