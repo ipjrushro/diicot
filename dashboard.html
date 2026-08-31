@@ -3636,6 +3636,50 @@
             line-height: 1.6;
         }
 
+        .docs-save-all-wrap {
+            position: fixed;
+            right: 28px;
+            bottom: 26px;
+            z-index: 160;
+            display: none;
+        }
+
+        .docs-save-all-wrap.visible {
+            display: block;
+        }
+
+        .docs-save-all-btn {
+            min-width: 180px;
+            min-height: 52px;
+            padding: 0 22px;
+            border: 1px solid rgba(233,185,73,.55);
+            border-radius: 9px;
+            background: linear-gradient(135deg,#ffd45f,#d99a13);
+            color: #101318;
+            box-shadow: 0 18px 48px rgba(0,0,0,.42), 0 0 24px rgba(233,185,73,.12);
+            font-size: 8px;
+            font-weight: 1000;
+            letter-spacing: .9px;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+
+        .docs-save-all-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .docs-save-all-btn:disabled {
+            opacity: .55;
+            cursor: wait;
+            transform: none;
+        }
+
+        .docs-save-all-btn.dirty::before {
+            content: "●";
+            margin-right: 8px;
+            color: #8a5600;
+        }
+
 
         /* =========================================================
            COD PENAL — COMMAND CENTER
@@ -7548,6 +7592,19 @@
                     class="form-message"
                 ></div>
 
+                <div
+                    id="docs-save-all-wrap"
+                    class="docs-save-all-wrap"
+                >
+                    <button
+                        type="button"
+                        id="docs-save-all-btn"
+                        class="docs-save-all-btn"
+                    >
+                        SALVEAZĂ MODIFICĂRILE
+                    </button>
+                </div>
+
             </section>
 
 
@@ -9436,6 +9493,8 @@
 
     let docsRows = [];
 
+    let docsHasUnsavedChanges = false;
+
 
     // Profilul care este afișat în acest moment.
     // null = profilul propriu.
@@ -10179,6 +10238,16 @@
                 canEdit
             );
 
+        document
+            .getElementById(
+                "docs-save-all-wrap"
+            )
+            ?.classList
+            .toggle(
+                "visible",
+                canEdit
+            );
+
         const query =
             String(
                 document
@@ -10272,14 +10341,6 @@
                                     <div class="docs-actions">
                                         <button
                                             type="button"
-                                            class="docs-mini-btn save"
-                                            data-docs-save="${escapeHTML(row.id)}"
-                                        >
-                                            SALVEAZĂ
-                                        </button>
-
-                                        <button
-                                            type="button"
                                             class="docs-mini-btn delete"
                                             data-docs-delete="${escapeHTML(row.id)}"
                                         >
@@ -10297,7 +10358,7 @@
                                         class="docs-rank-badge"
                                         data-level="${level}"
                                     >
-                                        ${escapeHTML(row.rank || "LOC LIBER")}
+                                        ${escapeHTML(row.rank || "—")}
                                     </div>
                                 </td>
 
@@ -10525,6 +10586,147 @@
     }
 
 
+
+    function setDocsDirty(
+        dirty = true
+    ) {
+
+        docsHasUnsavedChanges =
+            Boolean(dirty);
+
+        const button =
+            document.getElementById(
+                "docs-save-all-btn"
+            );
+
+        button
+            ?.classList
+            .toggle(
+                "dirty",
+                docsHasUnsavedChanges
+            );
+
+        if (button) {
+            button.textContent =
+                docsHasUnsavedChanges
+                    ? "SALVEAZĂ MODIFICĂRILE"
+                    : "TOTUL ESTE SALVAT";
+        }
+    }
+
+
+    async function saveAllDocsRows() {
+
+        if (
+            !docsCanEdit() ||
+            !docsHasUnsavedChanges
+        ) {
+            return;
+        }
+
+        const button =
+            document.getElementById(
+                "docs-save-all-btn"
+            );
+
+        const rowElements =
+            [
+                ...document.querySelectorAll(
+                    "[data-docs-row]"
+                )
+            ];
+
+        button.disabled =
+            true;
+
+        docsSetMessage(
+            `Se salvează ${rowElements.length} rânduri...`
+        );
+
+        try {
+
+            const rows =
+                rowElements.map(
+                    rowElement => ({
+                        id:
+                            rowElement.dataset.docsRow,
+
+                        ...collectDocsRow(
+                            rowElement
+                        )
+                    })
+                );
+
+            const response =
+                await fetch(
+                    "/api/admin/docs/bulk",
+                    {
+                        method:
+                            "PATCH",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        credentials:
+                            "include",
+
+                        body:
+                            JSON.stringify({
+                                rows
+                            })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    "Modificările nu au putut fi salvate."
+                );
+            }
+
+            if (
+                Array.isArray(
+                    data.rows
+                )
+            ) {
+                docsRows =
+                    data.rows;
+            }
+
+            setDocsDirty(false);
+
+            renderDocs();
+
+            docsSetMessage(
+                `Toate modificările au fost salvate (${Number(data.updated || rows.length)} rânduri).`,
+                "success"
+            );
+
+        }
+
+        catch (error) {
+
+            docsSetMessage(
+                error.message ||
+                "Modificările nu au putut fi salvate.",
+                "error"
+            );
+
+        }
+
+        finally {
+
+            button.disabled =
+                false;
+        }
+    }
+
+
     function bindDocsRowEvents() {
 
         if (!docsCanEdit()) {
@@ -10533,109 +10735,25 @@
 
         document
             .querySelectorAll(
-                "[data-docs-save]"
+                "[data-docs-row] input, [data-docs-row] textarea, [data-docs-row] select"
             )
             .forEach(
-                button => {
+                element => {
 
-                    button.addEventListener(
-                        "click",
-                        async () => {
+                    element.addEventListener(
+                        "input",
+                        () =>
+                            setDocsDirty(
+                                true
+                            )
+                    );
 
-                            const id =
-                                button.dataset.docsSave;
-
-                            const rowElement =
-                                document.querySelector(
-                                    `[data-docs-row="${CSS.escape(id)}"]`
-                                );
-
-                            if (!rowElement) {
-                                return;
-                            }
-
-                            button.disabled =
-                                true;
-
-                            docsSetMessage(
-                                "Se salvează..."
-                            );
-
-                            try {
-
-                                const response =
-                                    await fetch(
-                                        `/api/admin/docs/${encodeURIComponent(id)}`,
-                                        {
-                                            method:
-                                                "PATCH",
-
-                                            headers: {
-                                                "Content-Type":
-                                                    "application/json"
-                                            },
-
-                                            credentials:
-                                                "include",
-
-                                            body:
-                                                JSON.stringify(
-                                                    collectDocsRow(
-                                                        rowElement
-                                                    )
-                                                )
-                                        }
-                                    );
-
-                                const data =
-                                    await response.json();
-
-                                if (!response.ok) {
-                                    throw new Error(
-                                        data.error ||
-                                        "Înregistrarea nu a putut fi salvată."
-                                    );
-                                }
-
-                                const index =
-                                    docsRows.findIndex(
-                                        row =>
-                                            row.id === id
-                                    );
-
-                                if (
-                                    index !== -1 &&
-                                    data.row
-                                ) {
-                                    docsRows[index] =
-                                        data.row;
-                                }
-
-                                docsSetMessage(
-                                    "Înregistrarea a fost salvată.",
-                                    "success"
-                                );
-
-                                renderDocs();
-
-                            }
-
-                            catch (error) {
-
-                                docsSetMessage(
-                                    error.message ||
-                                    "A apărut o eroare.",
-                                    "error"
-                                );
-
-                            }
-
-                            finally {
-
-                                button.disabled =
-                                    false;
-                            }
-                        }
+                    element.addEventListener(
+                        "change",
+                        () =>
+                            setDocsDirty(
+                                true
+                            )
                     );
                 }
             );
@@ -10770,6 +10888,8 @@
                     ? data.rows
                     : [];
 
+            setDocsDirty(false);
+
             renderDocs();
 
         }
@@ -10787,6 +10907,16 @@
             );
         }
     }
+
+
+    document
+        .getElementById(
+            "docs-save-all-btn"
+        )
+        ?.addEventListener(
+            "click",
+            saveAllDocsRows
+        );
 
 
     document
@@ -10917,7 +11047,7 @@
                     }
 
                     docsSetMessage(
-                        `Sincronizare finalizată: D-01 până la D-99 sunt în registru, ${Number(data.assigned || 0)} membri asociați și ${Number(data.created || 0)} sloturi noi create.`,
+                        `Sincronizare finalizată: schema D-01 — D-99 și gradele aferente au fost actualizate. ${Number(data.assigned || 0)} membri au fost asociați pe callsign.`,
                         "success"
                     );
 
