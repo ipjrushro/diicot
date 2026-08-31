@@ -7715,6 +7715,104 @@
             }
         }
 
+
+        /* =========================================================
+           TEST MANAGEMENT — DRAG & DROP REORDER
+        ========================================================== */
+
+        .test-category-block {
+            position: relative;
+        }
+
+        .test-category-block.tm-dragging {
+            opacity: .45;
+            transform: scale(.995);
+        }
+
+        .test-category-block.tm-drag-over {
+            outline: 1px solid rgba(95,159,255,.42);
+            outline-offset: 3px;
+            border-radius: 12px;
+        }
+
+        .tm-drag-handle {
+            width: 30px;
+            height: 30px;
+            display: inline-grid;
+            place-items: center;
+            border: 1px solid rgba(255,255,255,.07);
+            border-radius: 8px;
+            color: #6f8299;
+            background: rgba(255,255,255,.018);
+            cursor: grab;
+            user-select: none;
+            font-size: 14px;
+            line-height: 1;
+        }
+
+        .tm-drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .test-question-row {
+            position: relative;
+        }
+
+        .test-question-row.tm-dragging {
+            opacity: .42;
+        }
+
+        .test-question-row.tm-drag-over {
+            border-color: rgba(95,159,255,.35);
+            box-shadow: inset 0 0 0 1px rgba(95,159,255,.12);
+        }
+
+        .tm-question-main {
+            display: grid;
+            grid-template-columns: 30px minmax(0,1fr);
+            gap: 10px;
+            align-items: start;
+        }
+
+        .tm-category-title-wrap {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .tm-drop-zone {
+            min-height: 42px;
+            margin-top: 9px;
+            border: 1px dashed rgba(95,159,255,.12);
+            border-radius: 10px;
+            display: grid;
+            place-items: center;
+            color: #53677f;
+            font-size: 6.5px;
+            transition: .15s ease;
+        }
+
+        .tm-drop-zone.active {
+            border-color: rgba(95,159,255,.42);
+            background: rgba(95,159,255,.045);
+            color: #7daeff;
+        }
+
+        .tm-order-status {
+            min-height: 18px;
+            margin-top: 7px;
+            color: #61758d;
+            font-size: 6.5px;
+        }
+
+        .tm-order-status.success {
+            color: #63ddb0;
+        }
+
+        .tm-order-status.error {
+            color: #ff7b7b;
+        }
+
 </style>
 
 </head>
@@ -8455,7 +8553,12 @@
 
                     <div class="test-manager-tab active" id="test-manager-questions">
                         <div class="test-manager-toolbar">
-                            <div class="test-manager-dept">DEPARTAMENT: DIICOT</div>
+                            <div>
+                                <div class="test-manager-dept">DEPARTAMENT: DIICOT</div>
+                                <div class="tm-order-status" id="tm-order-status">
+                                    COORDONATOR+: trage categoriile sau întrebările pentru a le reordona.
+                                </div>
+                            </div>
 
                             <div class="test-manager-actions admin-only">
                                 <button type="button" class="primary-btn" id="tm-add-category">+ ADAUGĂ CATEGORIE</button>
@@ -14725,11 +14828,28 @@ const query =
                 const questionHTML =
                     questions.length
                         ? questions.map(question => `
-                            <div class="test-question-row">
-                                <div>
-                                    <strong>${escapeHTML(question.question)}</strong>
-                                    <div class="test-question-answer">
-                                        <b>RĂSPUNS:</b> ${escapeHTML(question.answer)}
+                            <div
+                                class="test-question-row"
+                                data-tm-question-row="${escapeHTML(question.id)}"
+                                data-tm-question-category="${escapeHTML(category.id)}"
+                                draggable="${canEdit ? "true" : "false"}"
+                            >
+                                <div class="tm-question-main">
+                                    ${canEdit ? `
+                                        <div
+                                            class="tm-drag-handle"
+                                            title="Trage întrebarea"
+                                            aria-label="Trage întrebarea"
+                                        >
+                                            ☰
+                                        </div>
+                                    ` : ""}
+
+                                    <div>
+                                        <strong>${escapeHTML(question.question)}</strong>
+                                        <div class="test-question-answer">
+                                            <b>RĂSPUNS:</b> ${escapeHTML(question.answer)}
+                                        </div>
                                     </div>
                                 </div>
 
@@ -14741,14 +14861,37 @@ const query =
                                 ` : ""}
                             </div>
                         `).join("")
-                        : '<div class="empty-state">Categoria nu are întrebări.</div>';
+                        : `
+                            <div
+                                class="tm-drop-zone"
+                                data-tm-empty-category="${escapeHTML(category.id)}"
+                            >
+                                Trage o întrebare aici
+                            </div>
+                        `;
 
                 return `
-                    <div class="test-category-block">
+                    <div
+                        class="test-category-block"
+                        data-tm-category-block="${escapeHTML(category.id)}"
+                        draggable="${canEdit ? "true" : "false"}"
+                    >
                         <div class="test-category-heading">
-                            <div>
-                                <h3>${escapeHTML(category.name)}</h3>
-                                <small>${questions.length} întrebări</small>
+                            <div class="tm-category-title-wrap">
+                                ${canEdit ? `
+                                    <div
+                                        class="tm-drag-handle"
+                                        title="Trage categoria"
+                                        aria-label="Trage categoria"
+                                    >
+                                        ☰
+                                    </div>
+                                ` : ""}
+
+                                <div>
+                                    <h3>${escapeHTML(category.name)}</h3>
+                                    <small>${questions.length} întrebări</small>
+                                </div>
                             </div>
 
                             ${canEdit ? `
@@ -14759,12 +14902,659 @@ const query =
                             ` : ""}
                         </div>
 
-                        ${questionHTML}
+                        <div
+                            class="tm-question-list"
+                            data-tm-question-list="${escapeHTML(category.id)}"
+                        >
+                            ${questionHTML}
+                        </div>
                     </div>
                 `;
             }).join("");
 
         tmBindCrud();
+
+        if (canEdit) {
+            tmBindOrdering();
+        }
+    }
+
+
+
+    let tmDraggedCategoryId =
+        null;
+
+    let tmDraggedQuestionId =
+        null;
+
+
+    function tmSetOrderStatus(
+        text,
+        type = ""
+    ) {
+
+        const status =
+            document.getElementById(
+                "tm-order-status"
+            );
+
+        if (!status) {
+            return;
+        }
+
+        status.className =
+            `tm-order-status ${type}`.trim();
+
+        status.textContent =
+            text;
+    }
+
+
+    function tmGetCategoryOrderFromDOM() {
+
+        return [
+            ...document.querySelectorAll(
+                "[data-tm-category-block]"
+            )
+        ].map(
+            element =>
+                element.dataset.tmCategoryBlock
+        );
+    }
+
+
+    function tmGetQuestionOrderFromDOM() {
+
+        const groups =
+            [];
+
+        document
+            .querySelectorAll(
+                "[data-tm-question-list]"
+            )
+            .forEach(
+                list => {
+
+                    groups.push({
+                        categoryId:
+                            list.dataset.tmQuestionList,
+
+                        questionIds:
+                            [
+                                ...list.querySelectorAll(
+                                    ":scope > [data-tm-question-row]"
+                                )
+                            ].map(
+                                row =>
+                                    row.dataset.tmQuestionRow
+                            )
+                    });
+                }
+            );
+
+        return groups;
+    }
+
+
+    async function tmSaveCategoryOrder() {
+
+        tmSetOrderStatus(
+            "Se salvează ordinea categoriilor..."
+        );
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/admin/test-categories/order",
+                    {
+                        method:
+                            "PATCH",
+
+                        credentials:
+                            "include",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                ids:
+                                    tmGetCategoryOrderFromDOM()
+                            })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    "Ordinea categoriilor nu a putut fi salvată."
+                );
+            }
+
+            tmSetOrderStatus(
+                "✓ Ordinea categoriilor a fost salvată.",
+                "success"
+            );
+
+            await loadTestManagement();
+
+        }
+        catch (error) {
+
+            tmSetOrderStatus(
+                error.message ||
+                "Ordinea nu a putut fi salvată.",
+                "error"
+            );
+        }
+    }
+
+
+    async function tmSaveQuestionOrder() {
+
+        tmSetOrderStatus(
+            "Se salvează ordinea întrebărilor..."
+        );
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/admin/test-questions/order",
+                    {
+                        method:
+                            "PATCH",
+
+                        credentials:
+                            "include",
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify({
+                                groups:
+                                    tmGetQuestionOrderFromDOM()
+                            })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    "Ordinea întrebărilor nu a putut fi salvată."
+                );
+            }
+
+            tmSetOrderStatus(
+                "✓ Ordinea întrebărilor a fost salvată.",
+                "success"
+            );
+
+            await loadTestManagement();
+
+        }
+        catch (error) {
+
+            tmSetOrderStatus(
+                error.message ||
+                "Ordinea nu a putut fi salvată.",
+                "error"
+            );
+        }
+    }
+
+
+    function tmBindOrdering() {
+
+        document
+            .querySelectorAll(
+                "[data-tm-category-block]"
+            )
+            .forEach(
+                block => {
+
+                    block.addEventListener(
+                        "dragstart",
+                        event => {
+
+                            if (
+                                event.target.closest(
+                                    "[data-tm-question-row]"
+                                )
+                            ) {
+                                return;
+                            }
+
+                            tmDraggedCategoryId =
+                                block.dataset.tmCategoryBlock;
+
+                            tmDraggedQuestionId =
+                                null;
+
+                            block.classList.add(
+                                "tm-dragging"
+                            );
+
+                            event.dataTransfer.effectAllowed =
+                                "move";
+
+                            event.dataTransfer.setData(
+                                "text/plain",
+                                `category:${tmDraggedCategoryId}`
+                            );
+                        }
+                    );
+
+                    block.addEventListener(
+                        "dragend",
+                        () => {
+
+                            block.classList.remove(
+                                "tm-dragging"
+                            );
+
+                            document
+                                .querySelectorAll(
+                                    ".tm-drag-over"
+                                )
+                                .forEach(
+                                    element =>
+                                        element.classList.remove(
+                                            "tm-drag-over"
+                                        )
+                                );
+
+                            tmDraggedCategoryId =
+                                null;
+                        }
+                    );
+
+                    block.addEventListener(
+                        "dragover",
+                        event => {
+
+                            if (!tmDraggedCategoryId) {
+                                return;
+                            }
+
+                            event.preventDefault();
+
+                            block.classList.add(
+                                "tm-drag-over"
+                            );
+
+                            event.dataTransfer.dropEffect =
+                                "move";
+                        }
+                    );
+
+                    block.addEventListener(
+                        "dragleave",
+                        () =>
+                            block.classList.remove(
+                                "tm-drag-over"
+                            )
+                    );
+
+                    block.addEventListener(
+                        "drop",
+                        async event => {
+
+                            if (!tmDraggedCategoryId) {
+                                return;
+                            }
+
+                            event.preventDefault();
+
+                            block.classList.remove(
+                                "tm-drag-over"
+                            );
+
+                            const dragged =
+                                document.querySelector(
+                                    `[data-tm-category-block="${CSS.escape(tmDraggedCategoryId)}"]`
+                                );
+
+                            if (
+                                !dragged ||
+                                dragged ===
+                                    block
+                            ) {
+                                return;
+                            }
+
+                            const container =
+                                block.parentElement;
+
+                            const rect =
+                                block.getBoundingClientRect();
+
+                            const after =
+                                event.clientY >
+                                rect.top +
+                                rect.height / 2;
+
+                            container.insertBefore(
+                                dragged,
+                                after
+                                    ? block.nextSibling
+                                    : block
+                            );
+
+                            await tmSaveCategoryOrder();
+                        }
+                    );
+                }
+            );
+
+
+        document
+            .querySelectorAll(
+                "[data-tm-question-row]"
+            )
+            .forEach(
+                row => {
+
+                    row.addEventListener(
+                        "dragstart",
+                        event => {
+
+                            event.stopPropagation();
+
+                            tmDraggedQuestionId =
+                                row.dataset.tmQuestionRow;
+
+                            tmDraggedCategoryId =
+                                null;
+
+                            row.classList.add(
+                                "tm-dragging"
+                            );
+
+                            event.dataTransfer.effectAllowed =
+                                "move";
+
+                            event.dataTransfer.setData(
+                                "text/plain",
+                                `question:${tmDraggedQuestionId}`
+                            );
+                        }
+                    );
+
+                    row.addEventListener(
+                        "dragend",
+                        () => {
+
+                            row.classList.remove(
+                                "tm-dragging"
+                            );
+
+                            document
+                                .querySelectorAll(
+                                    ".tm-drag-over, .tm-drop-zone.active"
+                                )
+                                .forEach(
+                                    element => {
+
+                                        element.classList.remove(
+                                            "tm-drag-over"
+                                        );
+
+                                        element.classList.remove(
+                                            "active"
+                                        );
+                                    }
+                                );
+
+                            tmDraggedQuestionId =
+                                null;
+                        }
+                    );
+
+                    row.addEventListener(
+                        "dragover",
+                        event => {
+
+                            if (!tmDraggedQuestionId) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            row.classList.add(
+                                "tm-drag-over"
+                            );
+
+                            event.dataTransfer.dropEffect =
+                                "move";
+                        }
+                    );
+
+                    row.addEventListener(
+                        "dragleave",
+                        () =>
+                            row.classList.remove(
+                                "tm-drag-over"
+                            )
+                    );
+
+                    row.addEventListener(
+                        "drop",
+                        async event => {
+
+                            if (!tmDraggedQuestionId) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            row.classList.remove(
+                                "tm-drag-over"
+                            );
+
+                            const dragged =
+                                document.querySelector(
+                                    `[data-tm-question-row="${CSS.escape(tmDraggedQuestionId)}"]`
+                                );
+
+                            if (
+                                !dragged ||
+                                dragged ===
+                                    row
+                            ) {
+                                return;
+                            }
+
+                            const targetList =
+                                row.closest(
+                                    "[data-tm-question-list]"
+                                );
+
+                            const rect =
+                                row.getBoundingClientRect();
+
+                            const after =
+                                event.clientY >
+                                rect.top +
+                                rect.height / 2;
+
+                            targetList.insertBefore(
+                                dragged,
+                                after
+                                    ? row.nextSibling
+                                    : row
+                            );
+
+                            dragged.dataset.tmQuestionCategory =
+                                targetList.dataset.tmQuestionList;
+
+                            await tmSaveQuestionOrder();
+                        }
+                    );
+                }
+            );
+
+
+        document
+            .querySelectorAll(
+                "[data-tm-empty-category]"
+            )
+            .forEach(
+                zone => {
+
+                    zone.addEventListener(
+                        "dragover",
+                        event => {
+
+                            if (!tmDraggedQuestionId) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            zone.classList.add(
+                                "active"
+                            );
+                        }
+                    );
+
+                    zone.addEventListener(
+                        "dragleave",
+                        () =>
+                            zone.classList.remove(
+                                "active"
+                            )
+                    );
+
+                    zone.addEventListener(
+                        "drop",
+                        async event => {
+
+                            if (!tmDraggedQuestionId) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            zone.classList.remove(
+                                "active"
+                            );
+
+                            const dragged =
+                                document.querySelector(
+                                    `[data-tm-question-row="${CSS.escape(tmDraggedQuestionId)}"]`
+                                );
+
+                            const targetList =
+                                zone.closest(
+                                    "[data-tm-question-list]"
+                                );
+
+                            if (
+                                !dragged ||
+                                !targetList
+                            ) {
+                                return;
+                            }
+
+                            targetList.innerHTML =
+                                "";
+
+                            targetList.appendChild(
+                                dragged
+                            );
+
+                            dragged.dataset.tmQuestionCategory =
+                                targetList.dataset.tmQuestionList;
+
+                            await tmSaveQuestionOrder();
+                        }
+                    );
+                }
+            );
+
+
+        document
+            .querySelectorAll(
+                "[data-tm-question-list]"
+            )
+            .forEach(
+                list => {
+
+                    list.addEventListener(
+                        "dragover",
+                        event => {
+
+                            if (
+                                !tmDraggedQuestionId ||
+                                event.target.closest(
+                                    "[data-tm-question-row]"
+                                )
+                            ) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                    );
+
+                    list.addEventListener(
+                        "drop",
+                        async event => {
+
+                            if (
+                                !tmDraggedQuestionId ||
+                                event.target.closest(
+                                    "[data-tm-question-row]"
+                                ) ||
+                                event.target.closest(
+                                    "[data-tm-empty-category]"
+                                )
+                            ) {
+                                return;
+                            }
+
+                            event.preventDefault();
+                            event.stopPropagation();
+
+                            const dragged =
+                                document.querySelector(
+                                    `[data-tm-question-row="${CSS.escape(tmDraggedQuestionId)}"]`
+                                );
+
+                            if (!dragged) {
+                                return;
+                            }
+
+                            list.appendChild(
+                                dragged
+                            );
+
+                            dragged.dataset.tmQuestionCategory =
+                                list.dataset.tmQuestionList;
+
+                            await tmSaveQuestionOrder();
+                        }
+                    );
+                }
+            );
     }
 
 
