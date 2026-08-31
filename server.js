@@ -9540,7 +9540,7 @@ app.post(
 
 app.get(
     "/api/test-management",
-    requireTester,
+    requireAuth,
     async (req, res) => {
 
         if (!ensureSupabase(res)) {
@@ -9588,6 +9588,13 @@ app.get(
                 settingsResult.data || {};
 
             return res.json({
+                permissions: {
+                    leadership:
+                        Number(req.session.user?.rankLevel || 0) >= 10,
+                    tester:
+                        hasTesterAccess(req.session.user)
+                },
+
                 categories:
                     (categoriesResult.data || []).map(mapTestCategory),
 
