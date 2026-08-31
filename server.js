@@ -9716,6 +9716,75 @@ app.delete(
 
 
 // ======================================================
+// TEST CATEGORIES — ORDER COORDONATOR+
+// ======================================================
+
+app.patch(
+    "/api/admin/test-categories/order",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        const ids =
+            Array.isArray(req.body?.ids)
+                ? req.body.ids
+                    .map(id => String(id || "").trim())
+                    .filter(Boolean)
+                : [];
+
+        if (!ids.length) {
+            return res.status(400).json({
+                error:
+                    "Ordinea categoriilor este goală."
+            });
+        }
+
+        try {
+
+            for (let index = 0; index < ids.length; index++) {
+
+                const {
+                    error
+                } = await supabase
+                    .from("test_categories")
+                    .update({
+                        position:
+                            index + 1,
+                        updated_at:
+                            new Date().toISOString()
+                    })
+                    .eq(
+                        "id",
+                        ids[index]
+                    );
+
+                if (error) {
+                    throw error;
+                }
+            }
+
+            return res.json({
+                success: true
+            });
+        }
+        catch (error) {
+
+            console.error(
+                "Test Category Order Error:",
+                error
+            );
+
+            return res.status(500).json({
+                error:
+                    "Ordinea categoriilor nu a putut fi salvată."
+            });
+        }
+    }
+);
+
+
+// ======================================================
 // TEST QUESTIONS — COORDONATOR+
 // ======================================================
 
@@ -9876,6 +9945,100 @@ app.delete(
             return res.status(500).json({
                 error:
                     "Întrebarea nu a putut fi ștearsă."
+            });
+        }
+    }
+);
+
+
+// ======================================================
+// TEST QUESTIONS — ORDER / MOVE COORDONATOR+
+// Permite reordonarea și mutarea între categorii.
+// ======================================================
+
+app.patch(
+    "/api/admin/test-questions/order",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        const groups =
+            Array.isArray(req.body?.groups)
+                ? req.body.groups
+                : [];
+
+        if (!groups.length) {
+            return res.status(400).json({
+                error:
+                    "Ordinea întrebărilor este goală."
+            });
+        }
+
+        try {
+
+            for (const group of groups) {
+
+                const categoryId =
+                    String(
+                        group?.categoryId ||
+                        ""
+                    ).trim();
+
+                const questionIds =
+                    Array.isArray(group?.questionIds)
+                        ? group.questionIds
+                            .map(id => String(id || "").trim())
+                            .filter(Boolean)
+                        : [];
+
+                if (!categoryId) {
+                    continue;
+                }
+
+                for (
+                    let index = 0;
+                    index < questionIds.length;
+                    index++
+                ) {
+
+                    const {
+                        error
+                    } = await supabase
+                        .from("test_questions")
+                        .update({
+                            category_id:
+                                categoryId,
+                            position:
+                                index + 1,
+                            updated_at:
+                                new Date().toISOString()
+                        })
+                        .eq(
+                            "id",
+                            questionIds[index]
+                        );
+
+                    if (error) {
+                        throw error;
+                    }
+                }
+            }
+
+            return res.json({
+                success: true
+            });
+        }
+        catch (error) {
+
+            console.error(
+                "Test Question Order Error:",
+                error
+            );
+
+            return res.status(500).json({
+                error:
+                    "Ordinea întrebărilor nu a putut fi salvată."
             });
         }
     }
