@@ -25,6 +25,7 @@ const ANNOUNCEMENT_CHANNEL_ID = "1528758228450672803";
 
 const VACATION_DAYS_LIMIT = 14;
 const MEETING_EXCUSES_LIMIT = 2;
+const TESTER_DIICOT_ROLE_ID = "1543701312359759973";
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
     console.warn(
@@ -1354,6 +1355,70 @@ function requireAdmin(
 
     next();
 }
+
+
+function hasTesterAccess(
+    user
+) {
+
+    if (!user) {
+        return false;
+    }
+
+    const roles =
+        Array.isArray(
+            user.roles
+        )
+            ? user.roles.map(String)
+            : [];
+
+    return (
+        Number(
+            user.rankLevel ||
+            0
+        ) >= 10 ||
+        roles.includes(
+            TESTER_DIICOT_ROLE_ID
+        )
+    );
+}
+
+
+function requireTester(
+    req,
+    res,
+    next
+) {
+
+    if (
+        !req.session?.user
+    ) {
+
+        return res
+            .status(401)
+            .json({
+                error:
+                    "Trebuie să fii autentificat."
+            });
+    }
+
+    if (
+        !hasTesterAccess(
+            req.session.user
+        )
+    ) {
+
+        return res
+            .status(403)
+            .json({
+                error:
+                    "Doar Tester DIICOT sau Conducerea poate accesa testele."
+            });
+    }
+
+    next();
+}
+
 
 
 // ======================================================
@@ -9475,7 +9540,7 @@ app.post(
 
 app.get(
     "/api/test-management",
-    requireAuth,
+    requireTester,
     async (req, res) => {
 
         if (!ensureSupabase(res)) {
@@ -10143,96 +10208,340 @@ app.patch(
 
 app.post(
     "/api/candidate-tests/complete",
-    requireAuth,
+    requireTester,
     async (req, res) => {
 
-        if (!ensureSupabase(res)) return;
+        if (!ensureSupabase(res)) {
+            return;
+        }
 
         const candidateName =
-            String(req.body?.candidateName || "")
+            String(
+                req.body?.candidateName ||
+                ""
+            )
                 .trim()
                 .slice(0, 120);
 
         const candidateDiscord =
-            String(req.body?.candidateDiscord || "")
-                .trim()
-                .slice(0, 120);
+            String(
+                req.body?.candidateDiscord ||
+                ""
+            )
+                .trim();
 
         const mistakes =
             Math.max(
                 0,
-                Number(req.body?.mistakes || 0) || 0
+                Number(
+                    req.body?.mistakes ||
+                    0
+                ) ||
+                0
             );
-
-        const threshold =
-            Math.max(
-                1,
-                Number(req.body?.threshold || 3) || 3
-            );
-
-        const verdict =
-            req.body?.verdict === "PASSED"
-                ? "PASSED"
-                : "FAILED";
 
         const questions =
-            Array.isArray(req.body?.questions)
+            Array.isArray(
+                req.body?.questions
+            )
                 ? req.body.questions
                 : [];
 
-        if (!candidateName || !candidateDiscord) {
-            return res.status(400).json({
-                error:
-                    "Numele și Discord ID-ul candidatului sunt obligatorii."
-            });
+        if (
+            !candidateName ||
+            !/^\d{17,20}$/.test(
+                candidateDiscord
+            )
+        ) {
+
+            return res
+                .status(400)
+                .json({
+                    error:
+                        "Numele candidatului sau Discord ID-ul este invalid."
+                });
         }
 
         try {
 
+            /*
+             * Pragul și rolurile sunt citite DIRECT din Supabase.
+             * Nu avem încredere în verdictul/pragul trimis de browser.
+             */
             const {
-                error
-            } = await supabase
-                .from("test_history")
-                .insert({
-                    id:
-                        crypto.randomUUID(),
-                    department:
-                        "DIICOT",
-                    candidate_name:
-                        candidateName,
-                    candidate_discord:
-                        candidateDiscord,
-                    tester_id:
-                        String(req.session.user.id),
-                    tester_name:
-                        req.session.user.displayName ||
-                        req.session.user.username,
-                    tester_rank:
-                        req.session.user.rank || "",
-                    mistakes,
-                    threshold,
+                data:
+                    settingsRow,
+
+                error:
+                    settingsError
+            } =
+                await supabase
+                    .from(
+                        "test_settings"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "department",
+                        "DIICOT"
+                    )
+                    .maybeSingle();
+
+            if (settingsError) {
+                throw settingsError;
+            }
+
+            const threshold =
+                Math.max(
+                    1,
+                    Number(
+                        settingsRow?.rejection_threshold ||
+                        3
+                    ) ||
+                    3
+                );
+
+            const verdict =
+                mistakes <
+                    threshold
+                    ? "PASSED"
+                    : "FAILED";
+
+            let assignedRoleIds =
+                [];
+
+            /*
+             * Dacă este ADMIS:
+             * - citim rolurile configurate în SETĂRI
+             * - verificăm candidatul în guild
+             * - adăugăm fiecare rol cu endpoint-ul Discord dedicat
+             */
+            if (
+                verdict ===
+                "PASSED"
+            ) {
+
+                if (!BOT_TOKEN) {
+
+                    return res
+                        .status(500)
+                        .json({
+                            error:
+                                "Botul Discord nu este configurat. Testul nu a fost finalizat."
+                        });
+                }
+
+                const admittedRoleIds =
+                    String(
+                        settingsRow?.admitted_role_ids ||
+                        ""
+                    )
+                        .split(
+                            /[\s,;]+/
+                        )
+                        .map(
+                            roleId =>
+                                roleId.trim()
+                        )
+                        .filter(
+                            roleId =>
+                                /^\d{17,20}$/.test(
+                                    roleId
+                                )
+                        );
+
+                if (
+                    !admittedRoleIds.length
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                "Candidatul este ADMIS, dar nu ai configurat niciun ID de rol în SETĂRI → ID-URI ROLURI DISCORD (ADMIS)."
+                        });
+                }
+
+                /*
+                 * Verificăm că membrul există pe server.
+                 */
+                try {
+
+                    await axios.get(
+                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${candidateDiscord}`,
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bot ${BOT_TOKEN}`
+                            }
+                        }
+                    );
+
+                }
+                catch (discordMemberError) {
+
+                    if (
+                        discordMemberError.response?.status ===
+                        404
+                    ) {
+
+                        return res
+                            .status(404)
+                            .json({
+                                error:
+                                    "Candidatul nu a fost găsit pe serverul Discord."
+                            });
+                    }
+
+                    throw discordMemberError;
+                }
+
+                for (
+                    const roleId
+                    of admittedRoleIds
+                ) {
+
+                    try {
+
+                        await axios.put(
+                            `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${candidateDiscord}/roles/${roleId}`,
+                            null,
+                            {
+                                headers: {
+                                    Authorization:
+                                        `Bot ${BOT_TOKEN}`
+                                }
+                            }
+                        );
+
+                        assignedRoleIds.push(
+                            roleId
+                        );
+
+                    }
+                    catch (roleError) {
+
+                        console.error(
+                            "Discord Assign Test Role Error:",
+                            roleError.response?.data ||
+                            roleError.message
+                        );
+
+                        if (
+                            roleError.response?.status ===
+                            403
+                        ) {
+
+                            return res
+                                .status(403)
+                                .json({
+                                    error:
+                                        "Discord a refuzat acordarea rolului. Pune rolul botului deasupra rolurilor acordate candidatului."
+                                });
+                        }
+
+                        if (
+                            roleError.response?.status ===
+                            404
+                        ) {
+
+                            return res
+                                .status(404)
+                                .json({
+                                    error:
+                                        `Rolul Discord ${roleId} sau candidatul nu a fost găsit.`
+                                });
+                        }
+
+                        return res
+                            .status(500)
+                            .json({
+                                error:
+                                    `Rolul Discord ${roleId} nu a putut fi acordat.`
+                            });
+                    }
+                }
+            }
+
+            const {
+                error:
+                    historyError
+            } =
+                await supabase
+                    .from(
+                        "test_history"
+                    )
+                    .insert({
+                        id:
+                            crypto.randomUUID(),
+
+                        department:
+                            "DIICOT",
+
+                        candidate_name:
+                            candidateName,
+
+                        candidate_discord:
+                            candidateDiscord,
+
+                        tester_id:
+                            String(
+                                req.session.user.id
+                            ),
+
+                        tester_name:
+                            req.session.user.displayName ||
+                            req.session.user.username,
+
+                        tester_rank:
+                            req.session.user.rank ||
+                            "",
+
+                        mistakes,
+
+                        threshold,
+
+                        verdict,
+
+                        question_results:
+                            questions
+                    });
+
+            if (historyError) {
+                throw historyError;
+            }
+
+            return res
+                .status(201)
+                .json({
+                    success:
+                        true,
+
                     verdict,
-                    question_results:
-                        questions
+
+                    threshold,
+
+                    mistakes,
+
+                    assignedRoleIds
                 });
 
-            if (error) throw error;
-
-            return res.status(201).json({
-                success: true
-            });
         }
         catch (error) {
 
             console.error(
                 "Complete Test Error:",
+                error.response?.data ||
                 error
             );
 
-            return res.status(500).json({
-                error:
-                    "Testul nu a putut fi salvat în istoric."
-            });
+            return res
+                .status(500)
+                .json({
+                    error:
+                        "Testul nu a putut fi finalizat."
+                });
         }
     }
 );
