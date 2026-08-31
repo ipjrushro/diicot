@@ -524,6 +524,50 @@ function ensureSupabase(
 }
 
 
+
+function mapTestCategory(row) {
+    if (!row) return null;
+
+    return {
+        id: row.id,
+        name: row.name,
+        position: Number(row.position || 0)
+    };
+}
+
+
+function mapTestQuestion(row) {
+    if (!row) return null;
+
+    return {
+        id: row.id,
+        categoryId: row.category_id,
+        question: row.question,
+        answer: row.answer,
+        position: Number(row.position || 0)
+    };
+}
+
+
+function mapTestHistory(row) {
+    if (!row) return null;
+
+    return {
+        id: row.id,
+        candidateName: row.candidate_name,
+        candidateDiscord: row.candidate_discord,
+        department: row.department,
+        testerId: row.tester_id,
+        testerName: row.tester_name,
+        testerRank: row.tester_rank,
+        mistakes: Number(row.mistakes || 0),
+        threshold: Number(row.threshold || 0),
+        verdict: row.verdict,
+        createdAt: row.created_at
+    };
+}
+
+
 function mapReport(row) {
 
     if (!row) {
@@ -9419,6 +9463,607 @@ app.post(
                     error:
                         "Sancțiunea nu a putut fi aplicată."
                 });
+        }
+    }
+);
+
+
+
+// ======================================================
+// TEST MANAGEMENT — LOAD
+// ======================================================
+
+app.get(
+    "/api/test-management",
+    requireAuth,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) {
+            return;
+        }
+
+        try {
+
+            const [
+                categoriesResult,
+                questionsResult,
+                settingsResult,
+                historyResult
+            ] = await Promise.all([
+                supabase
+                    .from("test_categories")
+                    .select("*")
+                    .order("position", { ascending: true })
+                    .order("name", { ascending: true }),
+
+                supabase
+                    .from("test_questions")
+                    .select("*")
+                    .order("position", { ascending: true }),
+
+                supabase
+                    .from("test_settings")
+                    .select("*")
+                    .eq("department", "DIICOT")
+                    .maybeSingle(),
+
+                supabase
+                    .from("test_history")
+                    .select("*")
+                    .order("created_at", { ascending: false })
+                    .limit(500)
+            ]);
+
+            if (categoriesResult.error) throw categoriesResult.error;
+            if (questionsResult.error) throw questionsResult.error;
+            if (settingsResult.error) throw settingsResult.error;
+            if (historyResult.error) throw historyResult.error;
+
+            const settingsRow =
+                settingsResult.data || {};
+
+            return res.json({
+                categories:
+                    (categoriesResult.data || []).map(mapTestCategory),
+
+                questions:
+                    (questionsResult.data || []).map(mapTestQuestion),
+
+                settings: {
+                    rejectionThreshold:
+                        Number(settingsRow.rejection_threshold || 3),
+
+                    admittedRoleIds:
+                        settingsRow.admitted_role_ids || "",
+
+                    dmPassed:
+                        settingsRow.dm_passed || "",
+
+                    dmFailed:
+                        settingsRow.dm_failed || "",
+
+                    extraction:
+                        settingsRow.extraction &&
+                        typeof settingsRow.extraction === "object"
+                            ? settingsRow.extraction
+                            : {}
+                },
+
+                history:
+                    (historyResult.data || []).map(mapTestHistory)
+            });
+
+        }
+        catch (error) {
+
+            console.error(
+                "Test Management Load Error:",
+                error
+            );
+
+            return res.status(500).json({
+                error:
+                    "Gestionarea testelor nu a putut fi încărcată."
+            });
+        }
+    }
+);
+
+
+// ======================================================
+// TEST CATEGORIES — COORDONATOR+
+// ======================================================
+
+app.post(
+    "/api/admin/test-categories",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        const name =
+            String(req.body?.name || "")
+                .trim()
+                .slice(0, 100);
+
+        if (!name) {
+            return res.status(400).json({
+                error:
+                    "Numele categoriei este obligatoriu."
+            });
+        }
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabase
+                .from("test_categories")
+                .insert({
+                    id:
+                        crypto.randomUUID(),
+                    name
+                })
+                .select("*")
+                .single();
+
+            if (error) throw error;
+
+            return res.status(201).json({
+                success: true,
+                category:
+                    mapTestCategory(data)
+            });
+        }
+        catch (error) {
+
+            return res.status(500).json({
+                error:
+                    "Categoria nu a putut fi creată."
+            });
+        }
+    }
+);
+
+
+app.patch(
+    "/api/admin/test-categories/:id",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        const name =
+            String(req.body?.name || "")
+                .trim()
+                .slice(0, 100);
+
+        if (!name) {
+            return res.status(400).json({
+                error:
+                    "Numele categoriei este obligatoriu."
+            });
+        }
+
+        try {
+
+            const {
+                error
+            } = await supabase
+                .from("test_categories")
+                .update({
+                    name,
+                    updated_at:
+                        new Date().toISOString()
+                })
+                .eq(
+                    "id",
+                    String(req.params.id)
+                );
+
+            if (error) throw error;
+
+            return res.json({
+                success: true
+            });
+        }
+        catch (error) {
+
+            return res.status(500).json({
+                error:
+                    "Categoria nu a putut fi actualizată."
+            });
+        }
+    }
+);
+
+
+app.delete(
+    "/api/admin/test-categories/:id",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        try {
+
+            const {
+                error
+            } = await supabase
+                .from("test_categories")
+                .delete()
+                .eq(
+                    "id",
+                    String(req.params.id)
+                );
+
+            if (error) throw error;
+
+            return res.json({
+                success: true
+            });
+        }
+        catch (error) {
+
+            return res.status(500).json({
+                error:
+                    "Categoria nu a putut fi ștearsă."
+            });
+        }
+    }
+);
+
+
+// ======================================================
+// TEST QUESTIONS — COORDONATOR+
+// ======================================================
+
+app.post(
+    "/api/admin/test-questions",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        const categoryId =
+            String(req.body?.categoryId || "").trim();
+
+        const question =
+            String(req.body?.question || "")
+                .trim()
+                .slice(0, 1000);
+
+        const answer =
+            String(req.body?.answer || "")
+                .trim()
+                .slice(0, 2000);
+
+        if (!categoryId || !question || !answer) {
+            return res.status(400).json({
+                error:
+                    "Categoria, întrebarea și răspunsul sunt obligatorii."
+            });
+        }
+
+        try {
+
+            const {
+                data,
+                error
+            } = await supabase
+                .from("test_questions")
+                .insert({
+                    id:
+                        crypto.randomUUID(),
+                    category_id:
+                        categoryId,
+                    question,
+                    answer
+                })
+                .select("*")
+                .single();
+
+            if (error) throw error;
+
+            return res.status(201).json({
+                success: true,
+                question:
+                    mapTestQuestion(data)
+            });
+        }
+        catch (error) {
+
+            return res.status(500).json({
+                error:
+                    "Întrebarea nu a putut fi creată."
+            });
+        }
+    }
+);
+
+
+app.patch(
+    "/api/admin/test-questions/:id",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        const categoryId =
+            String(req.body?.categoryId || "").trim();
+
+        const question =
+            String(req.body?.question || "")
+                .trim()
+                .slice(0, 1000);
+
+        const answer =
+            String(req.body?.answer || "")
+                .trim()
+                .slice(0, 2000);
+
+        if (!categoryId || !question || !answer) {
+            return res.status(400).json({
+                error:
+                    "Categoria, întrebarea și răspunsul sunt obligatorii."
+            });
+        }
+
+        try {
+
+            const {
+                error
+            } = await supabase
+                .from("test_questions")
+                .update({
+                    category_id:
+                        categoryId,
+                    question,
+                    answer,
+                    updated_at:
+                        new Date().toISOString()
+                })
+                .eq(
+                    "id",
+                    String(req.params.id)
+                );
+
+            if (error) throw error;
+
+            return res.json({
+                success: true
+            });
+        }
+        catch (error) {
+
+            return res.status(500).json({
+                error:
+                    "Întrebarea nu a putut fi actualizată."
+            });
+        }
+    }
+);
+
+
+app.delete(
+    "/api/admin/test-questions/:id",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        try {
+
+            const {
+                error
+            } = await supabase
+                .from("test_questions")
+                .delete()
+                .eq(
+                    "id",
+                    String(req.params.id)
+                );
+
+            if (error) throw error;
+
+            return res.json({
+                success: true
+            });
+        }
+        catch (error) {
+
+            return res.status(500).json({
+                error:
+                    "Întrebarea nu a putut fi ștearsă."
+            });
+        }
+    }
+);
+
+
+// ======================================================
+// TEST SETTINGS — COORDONATOR+
+// ======================================================
+
+app.patch(
+    "/api/admin/test-settings",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        const rejectionThreshold =
+            Math.max(
+                1,
+                Math.min(
+                    100,
+                    Number(req.body?.rejectionThreshold || 3) || 3
+                )
+            );
+
+        const admittedRoleIds =
+            String(req.body?.admittedRoleIds || "")
+                .trim()
+                .slice(0, 1000);
+
+        const dmPassed =
+            String(req.body?.dmPassed || "")
+                .slice(0, 4000);
+
+        const dmFailed =
+            String(req.body?.dmFailed || "")
+                .slice(0, 4000);
+
+        const extraction =
+            req.body?.extraction &&
+            typeof req.body.extraction === "object"
+                ? req.body.extraction
+                : {};
+
+        try {
+
+            const {
+                error
+            } = await supabase
+                .from("test_settings")
+                .upsert({
+                    department:
+                        "DIICOT",
+                    rejection_threshold:
+                        rejectionThreshold,
+                    admitted_role_ids:
+                        admittedRoleIds,
+                    dm_passed:
+                        dmPassed,
+                    dm_failed:
+                        dmFailed,
+                    extraction,
+                    updated_at:
+                        new Date().toISOString(),
+                    updated_by_id:
+                        String(req.session.user.id),
+                    updated_by_name:
+                        req.session.user.displayName ||
+                        req.session.user.username
+                }, {
+                    onConflict:
+                        "department"
+                });
+
+            if (error) throw error;
+
+            return res.json({
+                success: true
+            });
+        }
+        catch (error) {
+
+            return res.status(500).json({
+                error:
+                    "Setările nu au putut fi salvate."
+            });
+        }
+    }
+);
+
+
+// ======================================================
+// COMPLETE TEST
+// ======================================================
+
+app.post(
+    "/api/candidate-tests/complete",
+    requireAuth,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) return;
+
+        const candidateName =
+            String(req.body?.candidateName || "")
+                .trim()
+                .slice(0, 120);
+
+        const candidateDiscord =
+            String(req.body?.candidateDiscord || "")
+                .trim()
+                .slice(0, 120);
+
+        const mistakes =
+            Math.max(
+                0,
+                Number(req.body?.mistakes || 0) || 0
+            );
+
+        const threshold =
+            Math.max(
+                1,
+                Number(req.body?.threshold || 3) || 3
+            );
+
+        const verdict =
+            req.body?.verdict === "PASSED"
+                ? "PASSED"
+                : "FAILED";
+
+        const questions =
+            Array.isArray(req.body?.questions)
+                ? req.body.questions
+                : [];
+
+        if (!candidateName || !candidateDiscord) {
+            return res.status(400).json({
+                error:
+                    "Numele și Discord ID-ul candidatului sunt obligatorii."
+            });
+        }
+
+        try {
+
+            const {
+                error
+            } = await supabase
+                .from("test_history")
+                .insert({
+                    id:
+                        crypto.randomUUID(),
+                    department:
+                        "DIICOT",
+                    candidate_name:
+                        candidateName,
+                    candidate_discord:
+                        candidateDiscord,
+                    tester_id:
+                        String(req.session.user.id),
+                    tester_name:
+                        req.session.user.displayName ||
+                        req.session.user.username,
+                    tester_rank:
+                        req.session.user.rank || "",
+                    mistakes,
+                    threshold,
+                    verdict,
+                    question_results:
+                        questions
+                });
+
+            if (error) throw error;
+
+            return res.status(201).json({
+                success: true
+            });
+        }
+        catch (error) {
+
+            console.error(
+                "Complete Test Error:",
+                error
+            );
+
+            return res.status(500).json({
+                error:
+                    "Testul nu a putut fi salvat în istoric."
+            });
         }
     }
 );
