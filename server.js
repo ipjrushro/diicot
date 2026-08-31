@@ -781,6 +781,117 @@ function mapLeaveRequest(row) {
 
 
 
+
+function getDocsRankForSlot(number) {
+
+    const slot =
+        Number(number);
+
+    if (slot === 1) {
+        return {
+            name: "PROCUROR ȘEF",
+            level: 13
+        };
+    }
+
+    if (slot === 2) {
+        return {
+            name: "PROCUROR ȘEF ADJUNCT",
+            level: 12
+        };
+    }
+
+    if (slot === 3) {
+        return {
+            name: "PROCUROR ADJUNCT",
+            level: 11
+        };
+    }
+
+    if (slot >= 4 && slot <= 5) {
+        return {
+            name: "PROCUROR",
+            level: 11
+        };
+    }
+
+    if (slot >= 6 && slot <= 7) {
+        return {
+            name: "COORDONATOR",
+            level: 10
+        };
+    }
+
+    if (slot >= 8 && slot <= 10) {
+        return {
+            name: "COMISAR ȘEF",
+            level: 9
+        };
+    }
+
+    if (slot >= 11 && slot <= 14) {
+        return {
+            name: "COMISAR",
+            level: 8
+        };
+    }
+
+    if (slot >= 15 && slot <= 19) {
+        return {
+            name: "SUB-COMISAR",
+            level: 7
+        };
+    }
+
+    if (slot >= 20 && slot <= 24) {
+        return {
+            name: "INSPECTOR PRINCIPAL",
+            level: 6
+        };
+    }
+
+    if (slot >= 25 && slot <= 28) {
+        return {
+            name: "INSPECTOR",
+            level: 5
+        };
+    }
+
+    if (slot >= 29 && slot <= 34) {
+        return {
+            name: "SUB INSPECTOR",
+            level: 4
+        };
+    }
+
+    if (slot >= 35 && slot <= 44) {
+        return {
+            name: "AGENT PRINCIPAL",
+            level: 3
+        };
+    }
+
+    if (slot >= 45 && slot <= 62) {
+        return {
+            name: "AGENT OPERATIV",
+            level: 2
+        };
+    }
+
+    if (slot >= 63 && slot <= 99) {
+        return {
+            name: "AGENT STAGIAR",
+            level: 1
+        };
+    }
+
+    return {
+        name: "",
+        level: 0
+    };
+}
+
+
 function mapDocsRow(row) {
 
     if (!row) {
@@ -7307,6 +7418,296 @@ app.post(
 
 
 // ======================================================
+// DOCS — SALVARE TOATE MODIFICĂRILE
+// ======================================================
+
+app.patch(
+    "/api/admin/docs/bulk",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const rows =
+                Array.isArray(
+                    req.body?.rows
+                )
+                    ? req.body.rows
+                    : [];
+
+            if (!rows.length) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Nu există modificări de salvat."
+                    });
+            }
+
+            if (
+                rows.length > 150
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Prea multe rânduri într-o singură salvare."
+                    });
+            }
+
+            const now =
+                new Date()
+                    .toISOString();
+
+            let updated =
+                0;
+
+            for (
+                const item
+                of rows
+            ) {
+
+                const id =
+                    String(
+                        item.id ||
+                        ""
+                    ).trim();
+
+                if (!id) {
+                    continue;
+                }
+
+                const update = {
+                    full_name:
+                        String(
+                            item.fullName ||
+                            ""
+                        )
+                            .trim()
+                            .slice(
+                                0,
+                                120
+                            ),
+
+                    internal_id:
+                        String(
+                            item.internalId ||
+                            ""
+                        )
+                            .trim()
+                            .slice(
+                                0,
+                                40
+                            ),
+
+                    callsign:
+                        String(
+                            item.callsign ||
+                            ""
+                        )
+                            .trim()
+                            .slice(
+                                0,
+                                20
+                            ),
+
+                    active:
+                        Boolean(
+                            item.active
+                        ),
+
+                    last_promotion:
+                        item.lastPromotion ||
+                        null,
+
+                    joined_at:
+                        item.joinedAt ||
+                        null,
+
+                    cert_ftp:
+                        Boolean(
+                            item.certFtp
+                        ),
+
+                    cert_radio:
+                        Boolean(
+                            item.certRadio
+                        ),
+
+                    cert_air:
+                        Boolean(
+                            item.certAir
+                        ),
+
+                    cert_dcco:
+                        Boolean(
+                            item.certDcco
+                        ),
+
+                    roles:
+                        String(
+                            item.roles ||
+                            ""
+                        )
+                            .trim()
+                            .slice(
+                                0,
+                                160
+                            ),
+
+                    notes:
+                        String(
+                            item.notes ||
+                            ""
+                        )
+                            .trim()
+                            .slice(
+                                0,
+                                1500
+                            ),
+
+                    penalty_points:
+                        Math.max(
+                            0,
+                            Math.min(
+                                999,
+                                Number(
+                                    item.penaltyPoints ||
+                                    0
+                                ) ||
+                                0
+                            )
+                        ),
+
+                    discord:
+                        String(
+                            item.discord ||
+                            ""
+                        )
+                            .trim()
+                            .slice(
+                                0,
+                                120
+                            ),
+
+                    updated_at:
+                        now,
+
+                    updated_by_id:
+                        String(
+                            req.session.user.id
+                        ),
+
+                    updated_by_name:
+                        req.session.user.displayName ||
+                        req.session.user.username
+                };
+
+                const {
+                    error
+                } =
+                    await supabase
+                        .from(
+                            "docs_personnel"
+                        )
+                        .update(
+                            update
+                        )
+                        .eq(
+                            "id",
+                            id
+                        );
+
+                if (error) {
+                    throw error;
+                }
+
+                updated++;
+            }
+
+            const {
+                data:
+                    refreshedRows,
+
+                error:
+                    refreshError
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .order(
+                        "position",
+                        {
+                            ascending:
+                                true
+                        }
+                    )
+                    .order(
+                        "rank_level",
+                        {
+                            ascending:
+                                false
+                        }
+                    );
+
+            if (refreshError) {
+                throw refreshError;
+            }
+
+            res.json({
+                success:
+                    true,
+
+                updated,
+
+                rows:
+                    (
+                        refreshedRows ||
+                        []
+                    )
+                        .map(
+                            mapDocsRow
+                        )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "DOCS Bulk Update Error:",
+                error
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Modificările DOCS nu au putut fi salvate."
+                });
+        }
+    }
+);
+
+
+// ======================================================
 // DOCS — SALVARE RÂND
 // ======================================================
 
@@ -7808,6 +8209,11 @@ app.post(
                     continue;
                 }
 
+                const slotRank =
+                    getDocsRankForSlot(
+                        number
+                    );
+
                 slotsToInsert.push({
                     id:
                         crypto.randomUUID(),
@@ -7816,10 +8222,10 @@ app.post(
                         null,
 
                     rank:
-                        "",
+                        slotRank.name,
 
                     rank_level:
-                        0,
+                        slotRank.level,
 
                     full_name:
                         "",
@@ -7959,6 +8365,81 @@ app.post(
                         "id",
                         row.id
                     );
+            }
+
+
+            // --------------------------------------------------
+            // 2.1 Actualizăm gradul fiecărui slot D-01 ... D-99
+            // după schema fixă DOCS.
+            // --------------------------------------------------
+
+            const {
+                data:
+                    allSlotRows,
+
+                error:
+                    allSlotRowsError
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .select(
+                        "id, callsign"
+                    );
+
+            if (allSlotRowsError) {
+                throw allSlotRowsError;
+            }
+
+            for (
+                const row
+                of allSlotRows || []
+            ) {
+
+                const slot =
+                    slotFromCallsign(
+                        row.callsign
+                    );
+
+                if (!slot) {
+                    continue;
+                }
+
+                const docsRank =
+                    getDocsRankForSlot(
+                        slot.number
+                    );
+
+                const {
+                    error:
+                        rankUpdateError
+                } =
+                    await supabase
+                        .from(
+                            "docs_personnel"
+                        )
+                        .update({
+                            rank:
+                                docsRank.name,
+
+                            rank_level:
+                                docsRank.level,
+
+                            position:
+                                slot.number,
+
+                            updated_at:
+                                now
+                        })
+                        .eq(
+                            "id",
+                            row.id
+                        );
+
+                if (rankUpdateError) {
+                    throw rankUpdateError;
+                }
             }
 
 
@@ -8177,6 +8658,11 @@ app.post(
                 }
 
 
+                const docsSlotRank =
+                    getDocsRankForSlot(
+                        slot.number
+                    );
+
                 const {
                     error:
                         assignError
@@ -8190,10 +8676,10 @@ app.post(
                                 discordId,
 
                             rank:
-                                rank.name,
+                                docsSlotRank.name,
 
                             rank_level:
-                                rank.level,
+                                docsSlotRank.level,
 
                             full_name:
                                 removeExistingCallsign(
