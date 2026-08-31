@@ -25,7 +25,7 @@ const ANNOUNCEMENT_CHANNEL_ID = "1528758228450672803";
 
 const VACATION_DAYS_LIMIT = 14;
 const MEETING_EXCUSES_LIMIT = 2;
-const TESTER_DIICOT_ROLE_ID = "1543701312359759973";
+const TESTER_DIICOT_ROLE_ID = "1528758226407919637";
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
     console.warn(
@@ -1888,7 +1888,7 @@ app.get(
 
         const isTester =
             roles.includes(
-                "1543701312359759973"
+                "1528758226407919637"
             );
 
         res.json({
