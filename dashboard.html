@@ -7815,7 +7815,7 @@
 
 
         .tester-home-card {
-            display: none;
+            display: block;
         }
 
 </style>
@@ -14149,13 +14149,6 @@ const query =
                         return;
                     }
 
-                    if (
-                        section ===
-                            "test-management" &&
-                        !isTesterDIICOT()
-                    ) {
-                        return;
-                    }
 
                     const sidebarButton =
                         document.querySelector(
@@ -14862,6 +14855,9 @@ const query =
     ) {
 
         const isLeadership =
+            Boolean(
+                tmData?.permissions?.leadership
+            ) ||
             Number(
                 currentUser?.rankLevel ||
                 0
@@ -14896,12 +14892,18 @@ const query =
     function tmApplyTabPermissions() {
 
         const isLeadership =
+            Boolean(
+                tmData?.permissions?.leadership
+            ) ||
             Number(
                 currentUser?.rankLevel ||
                 0
             ) >= 10;
 
         const testerAccess =
+            Boolean(
+                tmData?.permissions?.tester
+            ) ||
             isTesterDIICOT();
 
         document
@@ -14969,6 +14971,9 @@ const query =
         tmApplyTabPermissions();
 
         const isLeadership =
+            Boolean(
+                tmData?.permissions?.leadership
+            ) ||
             Number(
                 currentUser?.rankLevel ||
                 0
@@ -14984,11 +14989,46 @@ const query =
         }
 
         if (
+            Boolean(
+                tmData?.permissions?.tester
+            ) ||
             isTesterDIICOT()
         ) {
             tmOpenTab(
                 "history"
             );
+            return;
+        }
+
+        document
+            .querySelectorAll(".test-manager-tab")
+            .forEach(tab => {
+                tab.classList.remove("active");
+            });
+
+        const shell =
+            document.querySelector(
+                "#test-management .test-manager-shell"
+            );
+
+        if (shell) {
+            const existing =
+                shell.querySelector(
+                    ".tm-access-denied"
+                );
+
+            if (!existing) {
+                const denied =
+                    document.createElement("div");
+
+                denied.className =
+                    "empty-state tm-access-denied";
+
+                denied.textContent =
+                    "Nu ai acces la gestionarea testelor.";
+
+                shell.appendChild(denied);
+            }
         }
     }
 
