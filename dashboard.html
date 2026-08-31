@@ -6412,7 +6412,506 @@
 
         }
 
-    </style>
+    
+        /* =========================================================
+           PREMIUM UI V2 — SOFT GLASS / COMMAND CENTER
+           Override vizual; nu schimbă funcționalitatea.
+        ========================================================== */
+
+        :root {
+            --premium-bg: #050910;
+            --premium-bg-2: #08111d;
+            --premium-panel: rgba(12, 23, 38, .78);
+            --premium-panel-strong: rgba(13, 27, 45, .92);
+            --premium-line: rgba(132, 160, 196, .13);
+            --premium-line-hover: rgba(233, 185, 73, .24);
+            --premium-gold-soft: rgba(233, 185, 73, .09);
+            --premium-blue-soft: rgba(49, 131, 255, .09);
+        }
+
+        html,
+        body {
+            background:
+                radial-gradient(circle at 82% -5%, rgba(50, 117, 214, .12), transparent 30%),
+                radial-gradient(circle at 9% 82%, rgba(233, 185, 73, .07), transparent 26%),
+                linear-gradient(180deg, #040811 0%, #07111d 48%, #050a12 100%) !important;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: -2;
+            opacity: .18;
+            background-image:
+                linear-gradient(rgba(255,255,255,.018) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,.018) 1px, transparent 1px);
+            background-size: 44px 44px;
+            mask-image: linear-gradient(to bottom, black 0 72%, transparent 100%);
+        }
+
+        .command-app {
+            grid-template-columns: 252px minmax(0, 1fr) !important;
+        }
+
+        .command-sidebar {
+            width: 252px !important;
+            padding: 0 12px 16px !important;
+            background:
+                linear-gradient(180deg, rgba(5, 12, 21, .985), rgba(5, 11, 19, .965)) !important;
+            border-right: 1px solid rgba(116, 146, 184, .11) !important;
+            box-shadow: 20px 0 70px rgba(0,0,0,.26) !important;
+        }
+
+        .sidebar-brand {
+            min-height: 186px !important;
+            margin: 0 -12px 12px !important;
+            padding: 22px 14px 17px !important;
+            background:
+                radial-gradient(circle at 50% 18%, rgba(233,185,73,.09), transparent 42%);
+        }
+
+        .diicot-logo {
+            width: 110px !important;
+            height: 88px !important;
+            margin-bottom: 4px !important;
+            filter:
+                drop-shadow(0 16px 28px rgba(0,0,0,.34))
+                drop-shadow(0 0 16px rgba(233,185,73,.12)) !important;
+        }
+
+        .sidebar-brand strong {
+            font-size: 20px !important;
+            letter-spacing: 2.4px !important;
+        }
+
+        .sidebar-brand .command-name {
+            margin-top: 3px !important;
+            font-size: 10px !important;
+            color: #8ab8ff !important;
+        }
+
+        .sidebar-brand .department-name {
+            max-width: 205px !important;
+            margin-top: 7px !important;
+            color: #50647d !important;
+            font-size: 6.5px !important;
+        }
+
+        .sidebar-group-title {
+            padding: 14px 9px 7px !important;
+            color: #455a73 !important;
+            font-size: 6.5px !important;
+            letter-spacing: 1.9px !important;
+        }
+
+        .sidebar-nav {
+            gap: 5px !important;
+        }
+
+        .sidebar-link {
+            min-height: 43px !important;
+            padding: 0 12px !important;
+            gap: 10px !important;
+            border-radius: 10px !important;
+            color: #93a5ba !important;
+            font-size: 9px !important;
+            font-weight: 760 !important;
+            transition:
+                background .18s ease,
+                border-color .18s ease,
+                color .18s ease,
+                transform .18s ease !important;
+        }
+
+        .sidebar-link::before {
+            width: 22px !important;
+            flex-basis: 22px !important;
+            font-size: 14px !important;
+        }
+
+        .sidebar-link:hover {
+            transform: translateX(2px);
+            color: #f2f6fb !important;
+            background: rgba(255,255,255,.028) !important;
+            border-color: rgba(255,255,255,.052) !important;
+        }
+
+        .sidebar-link.active {
+            color: #fff !important;
+            background:
+                linear-gradient(90deg, rgba(49,131,255,.16), rgba(49,131,255,.045)) !important;
+            border-color: rgba(76, 147, 242, .25) !important;
+            box-shadow:
+                inset 3px 0 0 #4e97ff,
+                0 10px 28px rgba(0,0,0,.12) !important;
+        }
+
+        .command-main {
+            grid-column: 2 !important;
+        }
+
+        .command-topbar {
+            height: 70px !important;
+            padding: 0 28px !important;
+            background: rgba(5, 11, 20, .74) !important;
+            border-bottom: 1px solid rgba(111, 143, 181, .095) !important;
+            backdrop-filter: blur(24px) saturate(120%) !important;
+        }
+
+        .topbar-status-dot {
+            width: 6px !important;
+            height: 6px !important;
+        }
+
+        .topbar-left strong {
+            font-size: 10px !important;
+            letter-spacing: .2px;
+        }
+
+        .topbar-left span {
+            color: #53677f !important;
+            font-size: 7px !important;
+        }
+
+        .user-menu {
+            padding: 6px 8px !important;
+            border-radius: 12px !important;
+            border-color: rgba(255,255,255,.065) !important;
+            background: rgba(255,255,255,.025) !important;
+            box-shadow: 0 12px 34px rgba(0,0,0,.15);
+        }
+
+        .user-avatar {
+            width: 36px !important;
+            height: 36px !important;
+            box-shadow:
+                0 0 0 3px rgba(233,185,73,.045),
+                0 10px 24px rgba(0,0,0,.25) !important;
+        }
+
+        .dashboard-content {
+            max-width: 1700px !important;
+            padding: 28px 30px 52px !important;
+        }
+
+        .command-hero {
+            min-height: 220px !important;
+            padding: 31px 32px !important;
+            margin-bottom: 18px !important;
+            border-radius: 17px !important;
+            border: 1px solid rgba(112, 150, 197, .15) !important;
+            background:
+                radial-gradient(circle at 82% 48%, rgba(49,131,255,.13), transparent 30%),
+                radial-gradient(circle at 12% 8%, rgba(233,185,73,.055), transparent 28%),
+                linear-gradient(115deg, rgba(12,25,42,.97), rgba(7,17,30,.92) 55%, rgba(8,20,34,.82)) !important;
+            box-shadow:
+                0 28px 70px rgba(0,0,0,.27),
+                inset 0 1px 0 rgba(255,255,255,.025) !important;
+        }
+
+        .command-hero::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 20%;
+            width: 3px;
+            height: 60%;
+            border-radius: 0 4px 4px 0;
+            background:
+                linear-gradient(180deg, transparent, var(--gold), transparent);
+            opacity: .8;
+        }
+
+        .hero-info h1 {
+            font-size: clamp(30px, 3vw, 41px) !important;
+            letter-spacing: -.7px !important;
+        }
+
+        .hero-kicker {
+            color: #88a4c6 !important;
+            font-size: 8px !important;
+        }
+
+        .hero-rank {
+            border-radius: 8px !important;
+            padding: 7px 11px !important;
+            background:
+                linear-gradient(135deg, rgba(233,185,73,.09), rgba(233,185,73,.035)) !important;
+            box-shadow: inset 0 0 18px rgba(233,185,73,.025);
+        }
+
+        .hero-quote {
+            color: #6d829a !important;
+        }
+
+        .hero-clock {
+            min-width: 218px !important;
+            padding: 18px 20px !important;
+            border-radius: 14px !important;
+            border-color: rgba(84, 143, 220, .17) !important;
+            background: rgba(10, 24, 41, .62) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.025);
+        }
+
+        .stats-grid {
+            gap: 12px !important;
+            margin-bottom: 18px !important;
+        }
+
+        .stat-card {
+            min-height: 108px !important;
+            padding: 17px 17px 15px 64px !important;
+            border-radius: 14px !important;
+            border: 1px solid rgba(117, 147, 184, .115) !important;
+            background:
+                linear-gradient(145deg, rgba(13,25,42,.91), rgba(8,17,29,.87)) !important;
+            box-shadow:
+                0 16px 38px rgba(0,0,0,.16),
+                inset 0 1px 0 rgba(255,255,255,.02) !important;
+        }
+
+        .stat-card::before {
+            left: 15px !important;
+            top: 17px !important;
+            width: 38px !important;
+            height: 38px !important;
+            border-radius: 11px !important;
+            border: 1px solid rgba(255,255,255,.035);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px) !important;
+            border-color: rgba(90, 149, 226, .24) !important;
+            box-shadow: 0 22px 50px rgba(0,0,0,.2) !important;
+        }
+
+        .stat-card span {
+            color: #6f849c !important;
+            font-size: 6.5px !important;
+        }
+
+        .stat-card strong {
+            font-size: 22px !important;
+        }
+
+        .overview-grid {
+            grid-template-columns: minmax(0, 1.4fr) minmax(340px, .78fr) !important;
+            gap: 14px !important;
+        }
+
+        .dashboard-panel {
+            border-radius: 15px !important;
+            border-color: rgba(113, 144, 182, .105) !important;
+            background:
+                linear-gradient(145deg, rgba(12,24,40,.88), rgba(7,16,28,.89)) !important;
+            box-shadow:
+                0 20px 48px rgba(0,0,0,.17),
+                inset 0 1px 0 rgba(255,255,255,.018) !important;
+        }
+
+        .panel-heading {
+            min-height: 54px !important;
+            padding: 0 17px !important;
+            color: #e9eff7 !important;
+            font-size: 8.5px !important;
+            letter-spacing: .85px !important;
+        }
+
+        .panel-heading::before {
+            width: 5px !important;
+            height: 5px !important;
+        }
+
+        .recent-activity-wrap {
+            min-height: 250px !important;
+            padding: 16px !important;
+        }
+
+        .system-box {
+            padding: 16px 18px !important;
+        }
+
+        .system-row {
+            padding: 13px 0 !important;
+            border-bottom-color: rgba(255,255,255,.045) !important;
+        }
+
+        .system-row span {
+            color: #71859d !important;
+        }
+
+        .events-overview-panel {
+            margin-top: 14px !important;
+            border-color: rgba(233,185,73,.11) !important;
+            background:
+                radial-gradient(circle at 95% 0%, rgba(233,185,73,.055), transparent 26%),
+                linear-gradient(145deg, rgba(12,24,40,.9), rgba(7,16,28,.9)) !important;
+        }
+
+        .events-panel-head {
+            min-height: 60px !important;
+            padding: 0 18px !important;
+        }
+
+        .events-panel-title {
+            font-size: 8.5px !important;
+            letter-spacing: 1px !important;
+        }
+
+        .events-add-btn {
+            min-height: 36px !important;
+            border-radius: 9px !important;
+            box-shadow: 0 10px 26px rgba(205,148,23,.12);
+        }
+
+        .events-list {
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 10px !important;
+            padding: 14px !important;
+        }
+
+        .event-card {
+            grid-template-columns: 66px minmax(0,1fr) auto !important;
+            min-height: 84px !important;
+            padding: 13px 14px !important;
+            border-radius: 12px !important;
+            border-color: rgba(111,143,181,.115) !important;
+            background:
+                linear-gradient(135deg, rgba(17,31,51,.86), rgba(10,20,34,.83)) !important;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,.018),
+                0 12px 28px rgba(0,0,0,.12);
+        }
+
+        .event-card:hover {
+            border-color: rgba(233,185,73,.22) !important;
+            box-shadow: 0 16px 34px rgba(0,0,0,.16);
+        }
+
+        .event-time {
+            position: relative;
+            font-size: 15px !important;
+            color: #d6e1ee !important;
+        }
+
+        .event-time::after {
+            content: "";
+            position: absolute;
+            right: -7px;
+            top: 50%;
+            width: 1px;
+            height: 34px;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,.055);
+        }
+
+        .event-title {
+            color: #f1f5fa !important;
+            font-size: 10px !important;
+        }
+
+        .event-meta {
+            color: #61758d !important;
+        }
+
+        .event-description {
+            color: #8596aa !important;
+        }
+
+        .event-delete {
+            border-radius: 8px !important;
+        }
+
+        .form-card,
+        .profile-card,
+        .admin-card,
+        .blacklist-card,
+        .leave-card {
+            border-radius: 15px !important;
+            border-color: rgba(116,147,185,.11) !important;
+            box-shadow:
+                0 18px 46px rgba(0,0,0,.16),
+                inset 0 1px 0 rgba(255,255,255,.018) !important;
+        }
+
+        input,
+        textarea,
+        select {
+            border-radius: 9px !important;
+            border-color: rgba(123, 153, 190, .14) !important;
+            background: rgba(5, 13, 23, .74) !important;
+            transition:
+                border-color .18s ease,
+                box-shadow .18s ease,
+                background .18s ease !important;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            border-color: rgba(73, 141, 230, .48) !important;
+            box-shadow:
+                0 0 0 3px rgba(49,131,255,.07),
+                0 10px 24px rgba(0,0,0,.12) !important;
+            background: rgba(7, 17, 29, .9) !important;
+        }
+
+        .primary-btn,
+        .gold-btn {
+            border-radius: 9px !important;
+            letter-spacing: .55px !important;
+            transition:
+                transform .18s ease,
+                filter .18s ease,
+                box-shadow .18s ease !important;
+        }
+
+        .primary-btn:hover,
+        .gold-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .modal {
+            backdrop-filter: blur(10px) !important;
+            background: rgba(1, 5, 10, .72) !important;
+        }
+
+        .modal-card {
+            border-radius: 17px !important;
+            border: 1px solid rgba(122,151,188,.15) !important;
+            background:
+                radial-gradient(circle at 90% 0%, rgba(49,131,255,.07), transparent 25%),
+                linear-gradient(145deg, rgba(12,25,42,.985), rgba(6,15,26,.985)) !important;
+            box-shadow: 0 34px 100px rgba(0,0,0,.48) !important;
+        }
+
+        @media (max-width: 1180px) {
+            .events-list {
+                grid-template-columns: 1fr;
+            }
+
+            .overview-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
+        @media (max-width: 860px) {
+            .command-app {
+                grid-template-columns: 1fr !important;
+            }
+
+            .command-sidebar {
+                width: 100% !important;
+            }
+
+            .event-card {
+                grid-template-columns: 58px minmax(0,1fr) !important;
+            }
+        }
+
+</style>
 
 </head>
 
@@ -6679,11 +7178,11 @@
                 <div>
 
                     <strong>
-                        CENTRU DE COMANDĂ DIICOT
+                        CENTRU OPERAȚIONAL DIICOT
                     </strong>
 
                     <span>
-                        Sistem intern • acces autorizat
+                        Sistem intern securizat • acces pe grade
                     </span>
 
                 </div>
