@@ -13898,7 +13898,24 @@ const query =
                 "active"
             );
 
-    }
+    
+
+        // TEST-MANAGEMENT AUTOLOAD
+        if (
+            sectionName ===
+            "test-management"
+        ) {
+            loadTestManagement()
+                .catch(
+                    error => {
+                        console.error(
+                            "Test Management Auto Load Error:",
+                            error
+                        );
+                    }
+                );
+        }
+}
 
 
 
@@ -14091,6 +14108,10 @@ const query =
                     if (section === "penal-code") renderPenalCode();
                     if (section === "blacklist") await loadBlacklist();
                     if (section === "admin") await loadAdminReports();
+
+                    if (section === "test-management") {
+                        await loadTestManagement();
+                    }
                 });
             });
     }
@@ -15684,6 +15705,16 @@ const query =
 
 
     async function loadTestManagement() {
+
+        const questionsContainer =
+            document.getElementById(
+                "tm-questions-list"
+            );
+
+        if (questionsContainer) {
+            questionsContainer.innerHTML =
+                '<div class="empty-state">Se încarcă întrebările...</div>';
+        }
 
         const response =
             await fetch(
