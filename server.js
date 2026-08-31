@@ -780,6 +780,99 @@ function mapLeaveRequest(row) {
 }
 
 
+
+function mapDocsRow(row) {
+
+    if (!row) {
+        return null;
+    }
+
+    return {
+        id:
+            row.id,
+
+        discordId:
+            row.discord_id,
+
+        rank:
+            row.rank,
+
+        rankLevel:
+            Number(
+                row.rank_level ||
+                0
+            ),
+
+        fullName:
+            row.full_name,
+
+        internalId:
+            row.internal_id,
+
+        callsign:
+            row.callsign,
+
+        active:
+            Boolean(
+                row.active
+            ),
+
+        lastPromotion:
+            row.last_promotion,
+
+        joinedAt:
+            row.joined_at,
+
+        certFtp:
+            Boolean(
+                row.cert_ftp
+            ),
+
+        certRadio:
+            Boolean(
+                row.cert_radio
+            ),
+
+        certAir:
+            Boolean(
+                row.cert_air
+            ),
+
+        certDcco:
+            Boolean(
+                row.cert_dcco
+            ),
+
+        roles:
+            row.roles,
+
+        notes:
+            row.notes,
+
+        penaltyPoints:
+            Number(
+                row.penalty_points ||
+                0
+            ),
+
+        discord:
+            row.discord,
+
+        position:
+            Number(
+                row.position ||
+                0
+            ),
+
+        updatedAt:
+            row.updated_at,
+
+        updatedByName:
+            row.updated_by_name
+    };
+}
+
+
 // ======================================================
 // CONCEDII HELPERS
 // ======================================================
@@ -6944,6 +7037,897 @@ app.patch(
                 .json({
                     error:
                         "Callsign-ul nu a putut fi modificat."
+                });
+        }
+    }
+);
+
+
+
+// ======================================================
+// DOCS — REGISTRU PERSONAL
+// Vizibil tuturor membrilor autentificați.
+// Editare: COORDONATOR+
+// ======================================================
+
+app.get(
+    "/api/docs",
+
+    requireAuth,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .order(
+                        "rank_level",
+                        {
+                            ascending:
+                                false
+                        }
+                    )
+                    .order(
+                        "position",
+                        {
+                            ascending:
+                                true
+                        }
+                    )
+                    .order(
+                        "full_name",
+                        {
+                            ascending:
+                                true
+                        }
+                    );
+
+            if (error) {
+                throw error;
+            }
+
+            res.json({
+                success:
+                    true,
+
+                canEdit:
+                    Number(
+                        req.session.user.rankLevel ||
+                        0
+                    ) >= 10,
+
+                rows:
+                    (
+                        data ||
+                        []
+                    )
+                        .map(
+                            mapDocsRow
+                        )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "DOCS List Error:",
+                error
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Registrul DOCS nu a putut fi încărcat."
+                });
+        }
+    }
+);
+
+
+// ======================================================
+// DOCS — ADAUGĂ RÂND
+// ======================================================
+
+app.post(
+    "/api/admin/docs",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const now =
+                new Date()
+                    .toISOString();
+
+            const row = {
+                id:
+                    crypto.randomUUID(),
+
+                discord_id:
+                    null,
+
+                rank:
+                    "AGENT STAGIAR DIICOT",
+
+                rank_level:
+                    1,
+
+                full_name:
+                    String(
+                        req.body.fullName ||
+                        "Membru nou"
+                    )
+                        .trim()
+                        .slice(
+                            0,
+                            120
+                        ),
+
+                internal_id:
+                    "",
+
+                callsign:
+                    "",
+
+                active:
+                    true,
+
+                last_promotion:
+                    null,
+
+                joined_at:
+                    null,
+
+                cert_ftp:
+                    false,
+
+                cert_radio:
+                    false,
+
+                cert_air:
+                    false,
+
+                cert_dcco:
+                    false,
+
+                roles:
+                    "",
+
+                notes:
+                    "",
+
+                penalty_points:
+                    0,
+
+                discord:
+                    "",
+
+                position:
+                    0,
+
+                created_at:
+                    now,
+
+                updated_at:
+                    now,
+
+                updated_by_id:
+                    String(
+                        req.session.user.id
+                    ),
+
+                updated_by_name:
+                    req.session.user.displayName ||
+                    req.session.user.username
+            };
+
+            const {
+                data:
+                    inserted,
+
+                error:
+                    insertError
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .insert(
+                        row
+                    )
+                    .select()
+                    .single();
+
+            if (insertError) {
+                throw insertError;
+            }
+
+            res
+                .status(201)
+                .json({
+                    success:
+                        true,
+
+                    row:
+                        mapDocsRow(
+                            inserted
+                        )
+                });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "DOCS Create Error:",
+                error
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Rândul DOCS nu a putut fi creat."
+                });
+        }
+    }
+);
+
+
+// ======================================================
+// DOCS — SALVARE RÂND
+// ======================================================
+
+app.patch(
+    "/api/admin/docs/:id",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const id =
+                String(
+                    req.params.id ||
+                    ""
+                ).trim();
+
+            const {
+                data:
+                    existing,
+
+                error:
+                    findError
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .eq(
+                        "id",
+                        id
+                    )
+                    .maybeSingle();
+
+            if (findError) {
+                throw findError;
+            }
+
+            if (!existing) {
+
+                return res
+                    .status(404)
+                    .json({
+                        error:
+                            "Înregistrarea DOCS nu a fost găsită."
+                    });
+            }
+
+            const payload =
+                req.body ||
+                {};
+
+            const update = {
+                full_name:
+                    String(
+                        payload.fullName ??
+                        existing.full_name ??
+                        ""
+                    )
+                        .trim()
+                        .slice(
+                            0,
+                            120
+                        ),
+
+                internal_id:
+                    String(
+                        payload.internalId ??
+                        existing.internal_id ??
+                        ""
+                    )
+                        .trim()
+                        .slice(
+                            0,
+                            40
+                        ),
+
+                callsign:
+                    String(
+                        payload.callsign ??
+                        existing.callsign ??
+                        ""
+                    )
+                        .trim()
+                        .slice(
+                            0,
+                            20
+                        ),
+
+                active:
+                    payload.active ===
+                    undefined
+                        ? Boolean(
+                            existing.active
+                        )
+                        : Boolean(
+                            payload.active
+                        ),
+
+                last_promotion:
+                    payload.lastPromotion ||
+                    null,
+
+                joined_at:
+                    payload.joinedAt ||
+                    null,
+
+                cert_ftp:
+                    payload.certFtp ===
+                    undefined
+                        ? Boolean(
+                            existing.cert_ftp
+                        )
+                        : Boolean(
+                            payload.certFtp
+                        ),
+
+                cert_radio:
+                    payload.certRadio ===
+                    undefined
+                        ? Boolean(
+                            existing.cert_radio
+                        )
+                        : Boolean(
+                            payload.certRadio
+                        ),
+
+                cert_air:
+                    payload.certAir ===
+                    undefined
+                        ? Boolean(
+                            existing.cert_air
+                        )
+                        : Boolean(
+                            payload.certAir
+                        ),
+
+                cert_dcco:
+                    payload.certDcco ===
+                    undefined
+                        ? Boolean(
+                            existing.cert_dcco
+                        )
+                        : Boolean(
+                            payload.certDcco
+                        ),
+
+                roles:
+                    String(
+                        payload.roles ??
+                        existing.roles ??
+                        ""
+                    )
+                        .trim()
+                        .slice(
+                            0,
+                            160
+                        ),
+
+                notes:
+                    String(
+                        payload.notes ??
+                        existing.notes ??
+                        ""
+                    )
+                        .trim()
+                        .slice(
+                            0,
+                            1500
+                        ),
+
+                penalty_points:
+                    Math.max(
+                        0,
+                        Math.min(
+                            999,
+                            Number(
+                                payload.penaltyPoints ??
+                                existing.penalty_points ??
+                                0
+                            ) ||
+                            0
+                        )
+                    ),
+
+                discord:
+                    String(
+                        payload.discord ??
+                        existing.discord ??
+                        ""
+                    )
+                        .trim()
+                        .slice(
+                            0,
+                            120
+                        ),
+
+                updated_at:
+                    new Date()
+                        .toISOString(),
+
+                updated_by_id:
+                    String(
+                        req.session.user.id
+                    ),
+
+                updated_by_name:
+                    req.session.user.displayName ||
+                    req.session.user.username
+            };
+
+            const {
+                data:
+                    updated,
+
+                error:
+                    updateError
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .update(
+                        update
+                    )
+                    .eq(
+                        "id",
+                        id
+                    )
+                    .select()
+                    .single();
+
+            if (updateError) {
+                throw updateError;
+            }
+
+            res.json({
+                success:
+                    true,
+
+                row:
+                    mapDocsRow(
+                        updated
+                    )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "DOCS Update Error:",
+                error
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Înregistrarea DOCS nu a putut fi salvată."
+                });
+        }
+    }
+);
+
+
+// ======================================================
+// DOCS — ȘTERGERE
+// ======================================================
+
+app.delete(
+    "/api/admin/docs/:id",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const id =
+                String(
+                    req.params.id ||
+                    ""
+                ).trim();
+
+            const {
+                error
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .delete()
+                    .eq(
+                        "id",
+                        id
+                    );
+
+            if (error) {
+                throw error;
+            }
+
+            res.json({
+                success:
+                    true
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "DOCS Delete Error:",
+                error
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Înregistrarea DOCS nu a putut fi ștearsă."
+                });
+        }
+    }
+);
+
+
+// ======================================================
+// DOCS — SINCRONIZARE CU PERSONALUL DISCORD
+// Creează doar membrii DIICOT care lipsesc.
+// Nu suprascrie câmpurile editate manual.
+// ======================================================
+
+app.post(
+    "/api/admin/docs/sync",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        if (!BOT_TOKEN) {
+
+            return res
+                .status(500)
+                .json({
+                    error:
+                        "Botul Discord nu este configurat."
+                });
+        }
+
+        try {
+
+            const memberResponse =
+                await axios.get(
+
+                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members?limit=1000`,
+
+                    {
+                        headers: {
+                            Authorization:
+                                `Bot ${BOT_TOKEN}`
+                        }
+                    }
+                );
+
+            const members =
+                Array.isArray(
+                    memberResponse.data
+                )
+                    ? memberResponse.data
+                    : [];
+
+            const {
+                data:
+                    existingRows,
+
+                error:
+                    existingError
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .select(
+                        "discord_id"
+                    );
+
+            if (existingError) {
+                throw existingError;
+            }
+
+            const existingDiscordIds =
+                new Set(
+                    (
+                        existingRows ||
+                        []
+                    )
+                        .map(
+                            row =>
+                                String(
+                                    row.discord_id ||
+                                    ""
+                                )
+                        )
+                        .filter(Boolean)
+                );
+
+            const now =
+                new Date()
+                    .toISOString();
+
+            const rowsToInsert =
+                members
+                    .map(
+                        member => {
+
+                            const roles =
+                                Array.isArray(
+                                    member.roles
+                                )
+                                    ? member.roles
+                                        .map(String)
+                                    : [];
+
+                            const rank =
+                                getHighestDIICOTRole(
+                                    roles
+                                );
+
+                            if (!rank) {
+                                return null;
+                            }
+
+                            const discordId =
+                                String(
+                                    member.user?.id ||
+                                    ""
+                                );
+
+                            if (
+                                !discordId ||
+                                existingDiscordIds.has(
+                                    discordId
+                                )
+                            ) {
+                                return null;
+                            }
+
+                            const displayName =
+                                member.nick ||
+                                member.user?.global_name ||
+                                member.user?.username ||
+                                "Membru DIICOT";
+
+                            const callsignMatch =
+                                displayName.match(
+                                    /\[(D-\d{1,2})\]/i
+                                );
+
+                            const cleanName =
+                                removeExistingCallsign(
+                                    displayName
+                                );
+
+                            return {
+                                id:
+                                    crypto.randomUUID(),
+
+                                discord_id:
+                                    discordId,
+
+                                rank:
+                                    rank.name,
+
+                                rank_level:
+                                    rank.level,
+
+                                full_name:
+                                    cleanName,
+
+                                internal_id:
+                                    "",
+
+                                callsign:
+                                    callsignMatch
+                                        ? callsignMatch[1]
+                                            .toUpperCase()
+                                        : "",
+
+                                active:
+                                    true,
+
+                                last_promotion:
+                                    null,
+
+                                joined_at:
+                                    null,
+
+                                cert_ftp:
+                                    false,
+
+                                cert_radio:
+                                    false,
+
+                                cert_air:
+                                    false,
+
+                                cert_dcco:
+                                    false,
+
+                                roles:
+                                    "",
+
+                                notes:
+                                    "",
+
+                                penalty_points:
+                                    0,
+
+                                discord:
+                                    member.user?.username
+                                        ? `@${member.user.username}`
+                                        : discordId,
+
+                                position:
+                                    0,
+
+                                created_at:
+                                    now,
+
+                                updated_at:
+                                    now,
+
+                                updated_by_id:
+                                    String(
+                                        req.session.user.id
+                                    ),
+
+                                updated_by_name:
+                                    req.session.user.displayName ||
+                                    req.session.user.username
+                            };
+                        }
+                    )
+                    .filter(Boolean);
+
+            if (
+                rowsToInsert.length
+            ) {
+
+                const {
+                    error:
+                        insertError
+                } =
+                    await supabase
+                        .from(
+                            "docs_personnel"
+                        )
+                        .insert(
+                            rowsToInsert
+                        );
+
+                if (insertError) {
+                    throw insertError;
+                }
+            }
+
+            res.json({
+                success:
+                    true,
+
+                created:
+                    rowsToInsert.length
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "DOCS Sync Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Personalul DOCS nu a putut fi sincronizat."
                 });
         }
     }
