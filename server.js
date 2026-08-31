@@ -7568,30 +7568,6 @@ app.patch(
                                 160
                             ),
 
-                    notes:
-                        String(
-                            item.notes ||
-                            ""
-                        )
-                            .trim()
-                            .slice(
-                                0,
-                                1500
-                            ),
-
-                    penalty_points:
-                        Math.max(
-                            0,
-                            Math.min(
-                                999,
-                                Number(
-                                    item.penaltyPoints ||
-                                    0
-                                ) ||
-                                0
-                            )
-                        ),
-
                     discord:
                         String(
                             item.discord ||
