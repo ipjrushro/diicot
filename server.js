@@ -524,47 +524,6 @@ function ensureSupabase(
 }
 
 
-
-function mapEvent(
-    row
-) {
-
-    if (!row) {
-        return null;
-    }
-
-    return {
-        id:
-            row.id,
-
-        title:
-            row.title,
-
-        description:
-            row.description ||
-            "",
-
-        type:
-            row.type,
-
-        eventAt:
-            row.event_at,
-
-        createdAt:
-            row.created_at,
-
-        createdById:
-            row.created_by_id,
-
-        createdByName:
-            row.created_by_name,
-
-        createdByRank:
-            row.created_by_rank
-    };
-}
-
-
 function mapReport(row) {
 
     if (!row) {
@@ -2802,122 +2761,6 @@ app.get(
                     error:
                         "Rapoartele nu au putut fi încărcate."
                 });
-        }
-    }
-);
-
-
-
-// ======================================================
-// ȘTERGERE GLOBALĂ RAPOARTE — COORDONATOR+
-// IMPORTANT: această rută operează EXCLUSIV pe tabela "reports"
-// și bucket-ul "report-images". Nu modifică docs_personnel.
-// ======================================================
-
-app.delete(
-    "/api/admin/reports/all",
-    requireAdmin,
-    async (req, res) => {
-
-        if (!ensureSupabase(res)) {
-            return;
-        }
-
-        if (
-            String(req.body?.confirmation || "") !==
-            "STERGE RAPOARTELE"
-        ) {
-            return res.status(400).json({
-                error: "Confirmarea pentru ștergere este invalidă."
-            });
-        }
-
-        try {
-            const {
-                data: reports,
-                error: selectError
-            } = await supabase
-                .from("reports")
-                .select("id, images");
-
-            if (selectError) {
-                throw selectError;
-            }
-
-            const allReports = reports || [];
-            const storagePaths = [];
-
-            for (const report of allReports) {
-                const images = Array.isArray(report.images)
-                    ? report.images
-                    : [];
-
-                for (const image of images) {
-                    if (
-                        image &&
-                        typeof image === "object" &&
-                        image.path
-                    ) {
-                        storagePaths.push(String(image.path));
-                    }
-                }
-            }
-
-            // Ștergem mai întâi imaginile rapoartelor.
-            for (let i = 0; i < storagePaths.length; i += 100) {
-                const batch = storagePaths.slice(i, i + 100);
-
-                const { error: storageError } = await supabase
-                    .storage
-                    .from(SUPABASE_BUCKET)
-                    .remove(batch);
-
-                if (storageError) {
-                    return res.status(500).json({
-                        error:
-                            "Imaginile nu au putut fi șterse. Rapoartele au rămas în sistem."
-                    });
-                }
-            }
-
-            // Ștergem EXCLUSIV rândurile din tabela reports.
-            const ids = allReports
-                .map(report => report.id)
-                .filter(Boolean);
-
-            for (let i = 0; i < ids.length; i += 100) {
-                const batch = ids.slice(i, i + 100);
-
-                const { error: deleteError } = await supabase
-                    .from("reports")
-                    .delete()
-                    .in("id", batch);
-
-                if (deleteError) {
-                    throw deleteError;
-                }
-            }
-
-            console.log(
-                `[ADMIN] ${req.session.user.displayName || req.session.user.username} a șters ${allReports.length} rapoarte. DOCS nu a fost modificat.`
-            );
-
-            return res.json({
-                success: true,
-                deletedReports: allReports.length,
-                deletedImages: storagePaths.length
-            });
-        }
-        catch (error) {
-            console.error(
-                "Global Reports Delete Error:",
-                error
-            );
-
-            return res.status(500).json({
-                error:
-                    "Rapoartele nu au putut fi șterse definitiv."
-            });
         }
     }
 );
@@ -8936,12 +8779,13 @@ app.post(
     }
 );
 
+
 // ======================================================
-// EVENIMENTE — VIZIBILE TUTUROR MEMBRILOR
+// ACTIVITĂȚI — RECLAMAȚII
 // ======================================================
 
-app.get(
-    "/api/events",
+app.post(
+    "/api/complaints",
 
     requireAuth,
 
@@ -8958,53 +8802,140 @@ app.get(
 
         try {
 
+            const targetId =
+                String(
+                    req.body?.targetId ||
+                    ""
+                ).trim();
+
+            const targetName =
+                String(
+                    req.body?.targetName ||
+                    ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        120
+                    );
+
+            const reason =
+                String(
+                    req.body?.reason ||
+                    ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        1500
+                    );
+
+            const evidence =
+                String(
+                    req.body?.evidence ||
+                    ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        500
+                    );
+
+            if (
+                !targetId ||
+                !reason
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Selectează colegul și completează motivul."
+                    });
+            }
+
+            if (
+                String(
+                    req.session.user.id
+                ) ===
+                targetId
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Nu poți trimite o reclamație împotriva ta."
+                    });
+            }
+
+            const row = {
+                id:
+                    crypto.randomUUID(),
+
+                author_id:
+                    String(
+                        req.session.user.id
+                    ),
+
+                author_name:
+                    req.session.user.displayName ||
+                    req.session.user.username,
+
+                author_rank:
+                    req.session.user.rank ||
+                    "",
+
+                target_id:
+                    targetId,
+
+                target_name:
+                    targetName,
+
+                reason,
+
+                evidence,
+
+                status:
+                    "PENDING"
+            };
+
             const {
-                data,
                 error
             } =
                 await supabase
                     .from(
-                        "events"
+                        "complaints"
                     )
-                    .select(
-                        "*"
-                    )
-                    .order(
-                        "event_at",
-                        {
-                            ascending:
-                                true
-                        }
+                    .insert(
+                        row
                     );
 
             if (error) {
                 throw error;
             }
 
-            res.json({
-                events:
-                    (
-                        data ||
-                        []
-                    ).map(
-                        mapEvent
-                    )
-            });
+            res
+                .status(201)
+                .json({
+                    success:
+                        true
+                });
 
         }
 
         catch (error) {
 
             console.error(
-                "Events Read Error:",
-                error.message
+                "Complaint Create Error:",
+                error
             );
 
             res
                 .status(500)
                 .json({
                     error:
-                        "Evenimentele nu au putut fi încărcate."
+                        "Reclamația nu a putut fi trimisă."
                 });
         }
     }
@@ -9012,11 +8943,197 @@ app.get(
 
 
 // ======================================================
-// EVENIMENTE — POSTARE COORDONATOR+
+// ACTIVITĂȚI — TESTARE CANDIDAȚI
 // ======================================================
 
 app.post(
-    "/api/admin/events",
+    "/api/candidate-tests",
+
+    requireAuth,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const candidateName =
+                String(
+                    req.body?.candidateName ||
+                    ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        100
+                    );
+
+            const candidateDiscord =
+                String(
+                    req.body?.candidateDiscord ||
+                    ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        100
+                    );
+
+            const result =
+                String(
+                    req.body?.result ||
+                    ""
+                )
+                    .trim()
+                    .toUpperCase();
+
+            const notes =
+                String(
+                    req.body?.notes ||
+                    ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        1500
+                    );
+
+            const rawScore =
+                req.body?.score;
+
+            const score =
+                rawScore ===
+                "" ||
+                rawScore ===
+                null ||
+                rawScore ===
+                undefined
+
+                    ? null
+
+                    : Math.max(
+                        0,
+                        Math.min(
+                            100,
+                            Number(
+                                rawScore
+                            ) ||
+                            0
+                        )
+                    );
+
+            if (!candidateName) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Numele candidatului este obligatoriu."
+                    });
+            }
+
+            if (
+                ![
+                    "PASSED",
+                    "FAILED"
+                ].includes(
+                    result
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Rezultatul testului este invalid."
+                    });
+            }
+
+            const row = {
+                id:
+                    crypto.randomUUID(),
+
+                tester_id:
+                    String(
+                        req.session.user.id
+                    ),
+
+                tester_name:
+                    req.session.user.displayName ||
+                    req.session.user.username,
+
+                tester_rank:
+                    req.session.user.rank ||
+                    "",
+
+                candidate_name:
+                    candidateName,
+
+                candidate_discord:
+                    candidateDiscord,
+
+                result,
+
+                score,
+
+                notes
+            };
+
+            const {
+                error
+            } =
+                await supabase
+                    .from(
+                        "candidate_tests"
+                    )
+                    .insert(
+                        row
+                    );
+
+            if (error) {
+                throw error;
+            }
+
+            res
+                .status(201)
+                .json({
+                    success:
+                        true
+                });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Candidate Test Create Error:",
+                error
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Testul candidatului nu a putut fi salvat."
+                });
+        }
+    }
+);
+
+
+// ======================================================
+// ACTIVITĂȚI — SANCȚIUNI COORDONATOR+
+// ======================================================
+
+app.post(
+    "/api/admin/sanctions",
 
     requireAdmin,
 
@@ -9033,62 +9150,60 @@ app.post(
 
         try {
 
-            const title =
+            const targetId =
                 String(
-                    req.body?.title ||
+                    req.body?.targetId ||
                     ""
-                )
-                    .trim()
-                    .slice(
-                        0,
-                        100
-                    );
+                ).trim();
 
-            const description =
+            const targetName =
                 String(
-                    req.body?.description ||
+                    req.body?.targetName ||
                     ""
                 )
                     .trim()
                     .slice(
                         0,
-                        500
+                        120
                     );
 
             const type =
                 String(
                     req.body?.type ||
-                    "ALTUL"
+                    ""
                 )
                     .trim()
                     .toUpperCase();
 
-            const allowedTypes =
-                new Set([
-                    "SEDINTA",
-                    "BRIEFING",
-                    "RAZIE",
-                    "ANTRENAMENT",
-                    "ALTUL"
-                ]);
+            const reason =
+                String(
+                    req.body?.reason ||
+                    ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        1500
+                    );
 
-            const eventAt =
-                new Date(
-                    req.body?.eventAt
-                );
-
-            if (!title) {
+            if (
+                !targetId ||
+                !reason
+            ) {
 
                 return res
                     .status(400)
                     .json({
                         error:
-                            "Titlul evenimentului este obligatoriu."
+                            "Selectează membrul și completează motivul."
                     });
             }
 
             if (
-                !allowedTypes.has(
+                ![
+                    "FW",
+                    "OUT"
+                ].includes(
                     type
                 )
             ) {
@@ -9097,67 +9212,184 @@ app.post(
                     .status(400)
                     .json({
                         error:
-                            "Tipul evenimentului este invalid."
+                            "Tipul sancțiunii este invalid."
                     });
             }
 
+            let fwCount =
+                type ===
+                    "FW"
+
+                    ? Math.max(
+                        1,
+                        Math.min(
+                            5,
+                            Number(
+                                req.body?.fwCount ||
+                                1
+                            ) ||
+                            1
+                        )
+                    )
+
+                    : 0;
+
+            let activeFw =
+                0;
+
             if (
-                Number.isNaN(
-                    eventAt.getTime()
-                )
+                type ===
+                "FW"
             ) {
 
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "Data evenimentului este invalidă."
-                    });
+                const {
+                    data:
+                        existing,
+
+                    error:
+                        existingError
+                } =
+                    await supabase
+                        .from(
+                            "sanctions"
+                        )
+                        .select(
+                            "fw_count"
+                        )
+                        .eq(
+                            "target_id",
+                            targetId
+                        )
+                        .eq(
+                            "type",
+                            "FW"
+                        )
+                        .eq(
+                            "active",
+                            true
+                        );
+
+                if (existingError) {
+                    throw existingError;
+                }
+
+                const currentFw =
+                    (
+                        existing ||
+                        []
+                    ).reduce(
+                        (
+                            total,
+                            row
+                        ) =>
+                            total +
+                            Number(
+                                row.fw_count ||
+                                0
+                            ),
+
+                        0
+                    );
+
+                if (
+                    currentFw +
+                    fwCount >
+                    5
+                ) {
+
+                    return res
+                        .status(400)
+                        .json({
+                            error:
+                                `Membrul are deja ${currentFw}/5 FW active. Nu poți depăși limita de 5.`
+                        });
+                }
+
+                activeFw =
+                    currentFw +
+                    fwCount;
+            }
+
+            if (
+                type ===
+                "OUT"
+            ) {
+
+                // Un OUT închide FW-urile active ale membrului.
+                const {
+                    error:
+                        deactivateError
+                } =
+                    await supabase
+                        .from(
+                            "sanctions"
+                        )
+                        .update({
+                            active:
+                                false
+                        })
+                        .eq(
+                            "target_id",
+                            targetId
+                        )
+                        .eq(
+                            "type",
+                            "FW"
+                        )
+                        .eq(
+                            "active",
+                            true
+                        );
+
+                if (deactivateError) {
+                    throw deactivateError;
+                }
             }
 
             const row = {
                 id:
                     crypto.randomUUID(),
 
-                title,
+                target_id:
+                    targetId,
 
-                description,
+                target_name:
+                    targetName,
 
                 type,
 
-                event_at:
-                    eventAt.toISOString(),
+                fw_count:
+                    fwCount,
 
-                created_by_id:
+                reason,
+
+                active:
+                    true,
+
+                applied_by_id:
                     String(
                         req.session.user.id
                     ),
 
-                created_by_name:
+                applied_by_name:
                     req.session.user.displayName ||
-                    req.session.user.username ||
-                    "Conducere",
+                    req.session.user.username,
 
-                created_by_rank:
+                applied_by_rank:
                     req.session.user.rank ||
-                    "COORDONATOR+"
+                    ""
             };
 
             const {
-                data,
                 error
             } =
                 await supabase
                     .from(
-                        "events"
+                        "sanctions"
                     )
                     .insert(
                         row
-                    )
-                    .select(
-                        "*"
-                    )
-                    .single();
+                    );
 
             if (error) {
                 throw error;
@@ -9169,10 +9401,7 @@ app.post(
                     success:
                         true,
 
-                    event:
-                        mapEvent(
-                            data
-                        )
+                    activeFw
                 });
 
         }
@@ -9180,95 +9409,15 @@ app.post(
         catch (error) {
 
             console.error(
-                "Events Create Error:",
-                error.message
-            );
-
-            res
-                .status(500)
-                .json({
-                    error:
-                        "Evenimentul nu a putut fi postat."
-                });
-        }
-    }
-);
-
-
-// ======================================================
-// EVENIMENTE — ȘTERGERE COORDONATOR+
-// ======================================================
-
-app.delete(
-    "/api/admin/events/:id",
-
-    requireAdmin,
-
-    async (
-        req,
-        res
-    ) => {
-
-        if (
-            !ensureSupabase(res)
-        ) {
-            return;
-        }
-
-        try {
-
-            const id =
-                String(
-                    req.params.id ||
-                    ""
-                ).trim();
-
-            if (!id) {
-
-                return res
-                    .status(400)
-                    .json({
-                        error:
-                            "ID eveniment invalid."
-                    });
-            }
-
-            const {
+                "Sanction Create Error:",
                 error
-            } =
-                await supabase
-                    .from(
-                        "events"
-                    )
-                    .delete()
-                    .eq(
-                        "id",
-                        id
-                    );
-
-            if (error) {
-                throw error;
-            }
-
-            res.json({
-                success:
-                    true
-            });
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "Events Delete Error:",
-                error.message
             );
 
             res
                 .status(500)
                 .json({
                     error:
-                        "Evenimentul nu a putut fi șters."
+                        "Sancțiunea nu a putut fi aplicată."
                 });
         }
     }
