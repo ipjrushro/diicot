@@ -524,6 +524,47 @@ function ensureSupabase(
 }
 
 
+
+function mapEvent(
+    row
+) {
+
+    if (!row) {
+        return null;
+    }
+
+    return {
+        id:
+            row.id,
+
+        title:
+            row.title,
+
+        description:
+            row.description ||
+            "",
+
+        type:
+            row.type,
+
+        eventAt:
+            row.event_at,
+
+        createdAt:
+            row.created_at,
+
+        createdById:
+            row.created_by_id,
+
+        createdByName:
+            row.created_by_name,
+
+        createdByRank:
+            row.created_by_rank
+    };
+}
+
+
 function mapReport(row) {
 
     if (!row) {
@@ -8894,6 +8935,345 @@ app.post(
         }
     }
 );
+
+// ======================================================
+// EVENIMENTE — VIZIBILE TUTUROR MEMBRILOR
+// ======================================================
+
+app.get(
+    "/api/events",
+
+    requireAuth,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "events"
+                    )
+                    .select(
+                        "*"
+                    )
+                    .order(
+                        "event_at",
+                        {
+                            ascending:
+                                true
+                        }
+                    );
+
+            if (error) {
+                throw error;
+            }
+
+            res.json({
+                events:
+                    (
+                        data ||
+                        []
+                    ).map(
+                        mapEvent
+                    )
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Events Read Error:",
+                error.message
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Evenimentele nu au putut fi încărcate."
+                });
+        }
+    }
+);
+
+
+// ======================================================
+// EVENIMENTE — POSTARE COORDONATOR+
+// ======================================================
+
+app.post(
+    "/api/admin/events",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const title =
+                String(
+                    req.body?.title ||
+                    ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        100
+                    );
+
+            const description =
+                String(
+                    req.body?.description ||
+                    ""
+                )
+                    .trim()
+                    .slice(
+                        0,
+                        500
+                    );
+
+            const type =
+                String(
+                    req.body?.type ||
+                    "ALTUL"
+                )
+                    .trim()
+                    .toUpperCase();
+
+            const allowedTypes =
+                new Set([
+                    "SEDINTA",
+                    "BRIEFING",
+                    "RAZIE",
+                    "ANTRENAMENT",
+                    "ALTUL"
+                ]);
+
+            const eventAt =
+                new Date(
+                    req.body?.eventAt
+                );
+
+            if (!title) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Titlul evenimentului este obligatoriu."
+                    });
+            }
+
+            if (
+                !allowedTypes.has(
+                    type
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Tipul evenimentului este invalid."
+                    });
+            }
+
+            if (
+                Number.isNaN(
+                    eventAt.getTime()
+                )
+            ) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "Data evenimentului este invalidă."
+                    });
+            }
+
+            const row = {
+                id:
+                    crypto.randomUUID(),
+
+                title,
+
+                description,
+
+                type,
+
+                event_at:
+                    eventAt.toISOString(),
+
+                created_by_id:
+                    String(
+                        req.session.user.id
+                    ),
+
+                created_by_name:
+                    req.session.user.displayName ||
+                    req.session.user.username ||
+                    "Conducere",
+
+                created_by_rank:
+                    req.session.user.rank ||
+                    "COORDONATOR+"
+            };
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "events"
+                    )
+                    .insert(
+                        row
+                    )
+                    .select(
+                        "*"
+                    )
+                    .single();
+
+            if (error) {
+                throw error;
+            }
+
+            res
+                .status(201)
+                .json({
+                    success:
+                        true,
+
+                    event:
+                        mapEvent(
+                            data
+                        )
+                });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Events Create Error:",
+                error.message
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Evenimentul nu a putut fi postat."
+                });
+        }
+    }
+);
+
+
+// ======================================================
+// EVENIMENTE — ȘTERGERE COORDONATOR+
+// ======================================================
+
+app.delete(
+    "/api/admin/events/:id",
+
+    requireAdmin,
+
+    async (
+        req,
+        res
+    ) => {
+
+        if (
+            !ensureSupabase(res)
+        ) {
+            return;
+        }
+
+        try {
+
+            const id =
+                String(
+                    req.params.id ||
+                    ""
+                ).trim();
+
+            if (!id) {
+
+                return res
+                    .status(400)
+                    .json({
+                        error:
+                            "ID eveniment invalid."
+                    });
+            }
+
+            const {
+                error
+            } =
+                await supabase
+                    .from(
+                        "events"
+                    )
+                    .delete()
+                    .eq(
+                        "id",
+                        id
+                    );
+
+            if (error) {
+                throw error;
+            }
+
+            res.json({
+                success:
+                    true
+            });
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Events Delete Error:",
+                error.message
+            );
+
+            res
+                .status(500)
+                .json({
+                    error:
+                        "Evenimentul nu a putut fi șters."
+                });
+        }
+    }
+);
+
 
 // ======================================================
 // LOGOUT
