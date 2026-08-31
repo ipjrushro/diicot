@@ -7813,6 +7813,15 @@
             color: #ff7b7b;
         }
 
+
+        .tester-home-card {
+            display: none;
+        }
+
+        body.can-test-diicot .tester-home-card {
+            display: block;
+        }
+
 </style>
 
 </head>
@@ -8495,7 +8504,7 @@
 
                         <button
                             type="button"
-                            class="home-action-card purple"
+                            class="home-action-card purple tester-home-card"
                             data-home-section="test-management"
                         >
                             <div class="home-action-icon">✓</div>
@@ -8545,10 +8554,10 @@
                     </div>
 
                     <div class="test-manager-tabs">
-                        <button type="button" class="test-manager-tab-btn active" data-test-manager-tab="questions">ÎNTREBĂRI</button>
-                        <button type="button" class="test-manager-tab-btn" data-test-manager-tab="settings">SETĂRI</button>
-                        <button type="button" class="test-manager-tab-btn" data-test-manager-tab="history">ISTORIC</button>
-                        <button type="button" class="test-manager-tab-btn" data-test-manager-tab="run">TEST JUCĂTOR</button>
+                        <button type="button" class="test-manager-tab-btn active" data-test-manager-tab="questions" data-test-access="leadership">ÎNTREBĂRI</button>
+                        <button type="button" class="test-manager-tab-btn" data-test-manager-tab="settings" data-test-access="leadership">SETĂRI</button>
+                        <button type="button" class="test-manager-tab-btn" data-test-manager-tab="history" data-test-access="tester">ISTORIC</button>
+                        <button type="button" class="test-manager-tab-btn" data-test-manager-tab="run" data-test-access="tester">TEST JUCĂTOR</button>
                     </div>
 
                     <div class="test-manager-tab active" id="test-manager-questions">
@@ -14113,6 +14122,14 @@ const query =
                         return;
                     }
 
+                    if (
+                        section ===
+                            "test-management" &&
+                        !isTesterDIICOT()
+                    ) {
+                        return;
+                    }
+
                     const sidebarButton =
                         document.querySelector(
                             `.sidebar-link[data-section="${section}"]`
@@ -14778,6 +14795,31 @@ const query =
        TEST MANAGEMENT
     ========================================================== */
 
+    const TESTER_DIICOT_ROLE_ID =
+        "1543701312359759973";
+
+
+    function isTesterDIICOT() {
+
+        const roles =
+            Array.isArray(
+                currentUser?.roles
+            )
+                ? currentUser.roles.map(String)
+                : [];
+
+        return (
+            Number(
+                currentUser?.rankLevel ||
+                0
+            ) >= 10 ||
+            roles.includes(
+                TESTER_DIICOT_ROLE_ID
+            )
+        );
+    }
+
+
     let tmData = {
         categories: [],
         questions: [],
@@ -14788,7 +14830,92 @@ const query =
     let tmGenerated = [];
 
 
-    function tmOpenTab(name) {
+    function tmCanOpenTab(
+        name
+    ) {
+
+        const isLeadership =
+            Number(
+                currentUser?.rankLevel ||
+                0
+            ) >= 10;
+
+        if (
+            [
+                "questions",
+                "settings"
+            ].includes(
+                name
+            )
+        ) {
+            return isLeadership;
+        }
+
+        if (
+            [
+                "history",
+                "run"
+            ].includes(
+                name
+            )
+        ) {
+            return isTesterDIICOT();
+        }
+
+        return false;
+    }
+
+
+    function tmApplyTabPermissions() {
+
+        const isLeadership =
+            Number(
+                currentUser?.rankLevel ||
+                0
+            ) >= 10;
+
+        const testerAccess =
+            isTesterDIICOT();
+
+        document
+            .querySelectorAll(
+                '[data-test-access="leadership"]'
+            )
+            .forEach(
+                button => {
+                    button.style.display =
+                        isLeadership
+                            ? ""
+                            : "none";
+                }
+            );
+
+        document
+            .querySelectorAll(
+                '[data-test-access="tester"]'
+            )
+            .forEach(
+                button => {
+                    button.style.display =
+                        testerAccess
+                            ? ""
+                            : "none";
+                }
+            );
+    }
+
+
+    function tmOpenTab(
+        name
+    ) {
+
+        if (
+            !tmCanOpenTab(
+                name
+            )
+        ) {
+            return;
+        }
 
         document
             .querySelectorAll("[data-test-manager-tab]")
@@ -14807,6 +14934,35 @@ const query =
                     tab.id === `test-manager-${name}`
                 );
             });
+    }
+
+
+    function tmOpenDefaultAllowedTab() {
+
+        tmApplyTabPermissions();
+
+        const isLeadership =
+            Number(
+                currentUser?.rankLevel ||
+                0
+            ) >= 10;
+
+        if (
+            isLeadership
+        ) {
+            tmOpenTab(
+                "questions"
+            );
+            return;
+        }
+
+        if (
+            isTesterDIICOT()
+        ) {
+            tmOpenTab(
+                "history"
+            );
+        }
     }
 
 
@@ -15761,6 +15917,7 @@ const query =
         tmRenderQuestions();
         tmRenderSettings();
         tmRenderHistory();
+        tmOpenDefaultAllowedTab();
     }
 
 
@@ -16275,9 +16432,20 @@ const query =
                 return;
             }
 
+            const finalVerdict =
+                data.verdict ||
+                verdict;
+
+            const rolesText =
+                finalVerdict === "PASSED" &&
+                Array.isArray(data.assignedRoleIds) &&
+                data.assignedRoleIds.length
+                    ? ` Roluri Discord acordate: ${data.assignedRoleIds.length}.`
+                    : "";
+
             alert(
-                verdict === "PASSED"
-                    ? `Candidatul este ADMIS cu ${mistakes} greșeli.`
+                finalVerdict === "PASSED"
+                    ? `Candidatul este ADMIS cu ${mistakes} greșeli.${rolesText}`
                     : `Candidatul este RESPINS cu ${mistakes} greșeli.`
             );
 
