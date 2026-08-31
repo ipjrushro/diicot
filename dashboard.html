@@ -7366,6 +7366,355 @@
             }
         }
 
+
+        /* =========================================================
+           TESTARE CANDIDAȚI — PREMIUM MANAGEMENT
+        ========================================================== */
+
+        .test-manager-shell {
+            display: grid;
+            gap: 15px;
+        }
+
+        .test-manager-header {
+            padding: 22px 24px;
+            border: 1px solid rgba(89,141,223,.14);
+            border-radius: 17px;
+            background:
+                radial-gradient(circle at 88% 18%, rgba(49,131,255,.09), transparent 28%),
+                linear-gradient(145deg, rgba(13,25,42,.92), rgba(7,15,26,.92));
+            box-shadow: 0 20px 55px rgba(0,0,0,.16);
+        }
+
+        .test-manager-header span {
+            display: block;
+            color: #5f9fff;
+            font-size: 7px;
+            font-weight: 950;
+            letter-spacing: 1.8px;
+        }
+
+        .test-manager-header h2 {
+            margin: 7px 0 6px;
+            font-size: 29px;
+        }
+
+        .test-manager-header p {
+            margin: 0;
+            color: #71839a;
+            font-size: 9px;
+        }
+
+        .test-manager-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            padding: 5px;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 12px;
+            background: rgba(255,255,255,.018);
+        }
+
+        .test-manager-tab-btn {
+            min-height: 36px;
+            padding: 0 16px;
+            border: 0;
+            border-radius: 8px;
+            color: #8192a8;
+            background: transparent;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: .7px;
+            cursor: pointer;
+        }
+
+        .test-manager-tab-btn.active {
+            color: #fff;
+            background: rgba(49,131,255,.18);
+            box-shadow: inset 0 -2px 0 #4e95ff;
+        }
+
+        .test-manager-tab {
+            display: none;
+        }
+
+        .test-manager-tab.active {
+            display: block;
+        }
+
+        .test-manager-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 15px;
+            margin-bottom: 13px;
+            border: 1px solid rgba(255,255,255,.06);
+            border-radius: 14px;
+            background: rgba(12,22,36,.76);
+        }
+
+        .test-manager-dept {
+            padding: 9px 13px;
+            border: 1px solid rgba(233,185,73,.22);
+            border-radius: 9px;
+            color: #ffd35e;
+            background: rgba(233,185,73,.055);
+            font-size: 8px;
+            font-weight: 900;
+        }
+
+        .test-manager-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .test-category-block {
+            margin-bottom: 14px;
+        }
+
+        .test-category-heading {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 0 2px 9px;
+            border-bottom: 1px solid rgba(255,255,255,.06);
+        }
+
+        .test-category-heading h3 {
+            margin: 0;
+            color: #5f9fff;
+            font-size: 12px;
+            letter-spacing: .75px;
+        }
+
+        .test-category-heading small {
+            display: block;
+            margin-top: 4px;
+            color: #5b6e85;
+            font-size: 7px;
+        }
+
+        .test-question-row {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) auto;
+            gap: 12px;
+            padding: 15px;
+            margin-top: 10px;
+            border: 1px solid rgba(128,155,190,.11);
+            border-radius: 13px;
+            background: linear-gradient(145deg, rgba(14,26,43,.86), rgba(8,16,28,.88));
+        }
+
+        .test-question-row strong {
+            color: #edf2f8;
+            font-size: 9px;
+        }
+
+        .test-question-answer {
+            margin-top: 8px;
+            padding: 9px 10px;
+            border-radius: 8px;
+            color: #7f92a8;
+            background: rgba(4,11,19,.55);
+            font-size: 7.5px;
+            line-height: 1.55;
+        }
+
+        .test-question-answer b {
+            color: #a1b4cd;
+        }
+
+        .test-small-actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .test-square-btn {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 8px;
+            background: rgba(255,255,255,.02);
+            color: #91a4ba;
+            cursor: pointer;
+        }
+
+        .test-square-btn.danger {
+            color: #ff7474;
+            border-color: rgba(255,90,90,.14);
+        }
+
+        .test-settings-grid {
+            display: grid;
+            grid-template-columns: .95fr 1.05fr;
+            gap: 14px;
+        }
+
+        .test-settings-card {
+            padding: 18px;
+            border: 1px solid rgba(126,153,188,.11);
+            border-radius: 15px;
+            background: linear-gradient(145deg, rgba(13,24,40,.88), rgba(8,16,27,.9));
+        }
+
+        .test-settings-card h3 {
+            margin: 0 0 5px;
+            font-size: 12px;
+        }
+
+        .test-settings-card > p {
+            margin: 0 0 16px;
+            color: #677a91;
+            font-size: 8px;
+        }
+
+        .test-extract-row {
+            display: grid;
+            grid-template-columns: minmax(0,1fr) 90px 65px;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            margin-bottom: 9px;
+            border: 1px solid rgba(255,255,255,.055);
+            border-radius: 10px;
+            background: rgba(255,255,255,.015);
+        }
+
+        .test-extract-row strong {
+            color: #5f9fff;
+            font-size: 8px;
+        }
+
+        .test-extract-row span {
+            display: block;
+            margin-top: 3px;
+            color: #56697f;
+            font-size: 7px;
+        }
+
+        .test-history-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+        }
+
+        .test-history-table th {
+            padding: 0 10px 7px;
+            text-align: left;
+            color: #566a82;
+            font-size: 6.5px;
+            letter-spacing: .7px;
+        }
+
+        .test-history-table td {
+            padding: 12px 10px;
+            background: rgba(14,25,41,.72);
+            border-top: 1px solid rgba(255,255,255,.045);
+            border-bottom: 1px solid rgba(255,255,255,.045);
+            color: #a2b0c2;
+            font-size: 7.5px;
+        }
+
+        .test-history-table td:first-child {
+            border-left: 1px solid rgba(255,255,255,.045);
+            border-radius: 10px 0 0 10px;
+        }
+
+        .test-history-table td:last-child {
+            border-right: 1px solid rgba(255,255,255,.045);
+            border-radius: 0 10px 10px 0;
+        }
+
+        .test-verdict {
+            display: inline-flex;
+            padding: 5px 8px;
+            border-radius: 999px;
+            font-size: 6px;
+            font-weight: 900;
+        }
+
+        .test-verdict.passed {
+            color: #71e3b3;
+            background: rgba(68,215,160,.07);
+            border: 1px solid rgba(68,215,160,.15);
+        }
+
+        .test-verdict.failed {
+            color: #ff8686;
+            background: rgba(255,107,107,.07);
+            border: 1px solid rgba(255,107,107,.15);
+        }
+
+        .test-run-card {
+            padding: 18px;
+            border: 1px solid rgba(128,155,190,.12);
+            border-radius: 15px;
+            background: linear-gradient(145deg, rgba(14,25,42,.91), rgba(8,16,28,.92));
+        }
+
+        .generated-question {
+            margin-top: 11px;
+            padding: 14px;
+            border: 1px solid rgba(255,255,255,.055);
+            border-radius: 11px;
+            background: rgba(255,255,255,.015);
+        }
+
+        .generated-question strong {
+            display: block;
+            color: #eef3f9;
+            font-size: 9px;
+        }
+
+        .generated-answer {
+            margin-top: 8px;
+            color: #75889f;
+            font-size: 7px;
+            line-height: 1.55;
+        }
+
+        .generated-mark {
+            display: flex;
+            gap: 7px;
+            margin-top: 10px;
+        }
+
+        .generated-mark button {
+            min-height: 31px;
+            padding: 0 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 6px;
+            font-weight: 900;
+        }
+
+        .mark-correct {
+            color: #6fe1b1;
+            border: 1px solid rgba(68,215,160,.15);
+            background: rgba(68,215,160,.055);
+        }
+
+        .mark-wrong {
+            color: #ff8181;
+            border: 1px solid rgba(255,107,107,.15);
+            background: rgba(255,107,107,.055);
+        }
+
+        .generated-mark button.selected {
+            box-shadow: inset 0 0 0 1px currentColor;
+        }
+
+        @media (max-width: 1000px) {
+            .test-settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
 </style>
 
 </head>
@@ -8049,7 +8398,7 @@
                         <button
                             type="button"
                             class="home-action-card purple"
-                            id="open-candidate-test-modal"
+                            data-home-section="test-management"
                         >
                             <div class="home-action-icon">✓</div>
                             <h3>TESTARE CANDIDAȚI</h3>
@@ -8078,6 +8427,144 @@
 
                 </section>
 </section>
+            </section>
+
+
+
+            <!-- =====================================================
+                 TESTARE CANDIDAȚI
+            ====================================================== -->
+            <section
+                id="test-management"
+                class="dashboard-section"
+            >
+                <div class="test-manager-shell">
+
+                    <div class="test-manager-header">
+                        <span>RECRUTARE DIICOT</span>
+                        <h2>Gestionare teste</h2>
+                        <p>Întrebări, setări, istoric și susținerea testelor.</p>
+                    </div>
+
+                    <div class="test-manager-tabs">
+                        <button type="button" class="test-manager-tab-btn active" data-test-manager-tab="questions">ÎNTREBĂRI</button>
+                        <button type="button" class="test-manager-tab-btn" data-test-manager-tab="settings">SETĂRI</button>
+                        <button type="button" class="test-manager-tab-btn" data-test-manager-tab="history">ISTORIC</button>
+                        <button type="button" class="test-manager-tab-btn" data-test-manager-tab="run">TEST JUCĂTOR</button>
+                    </div>
+
+                    <div class="test-manager-tab active" id="test-manager-questions">
+                        <div class="test-manager-toolbar">
+                            <div class="test-manager-dept">DEPARTAMENT: DIICOT</div>
+
+                            <div class="test-manager-actions admin-only">
+                                <button type="button" class="primary-btn" id="tm-add-category">+ ADAUGĂ CATEGORIE</button>
+                                <button type="button" class="primary-btn gold-btn" id="tm-add-question">+ ADAUGĂ ÎNTREBARE</button>
+                            </div>
+                        </div>
+
+                        <div id="tm-questions-list"></div>
+                    </div>
+
+                    <div class="test-manager-tab" id="test-manager-settings">
+                        <div class="test-settings-grid">
+
+                            <div class="test-settings-card">
+                                <h3>Setări generale & Discord</h3>
+                                <p>Prag de respingere, roluri și mesaje automate.</p>
+
+                                <div class="form-group">
+                                    <label for="tm-threshold">PRAG RESPINGERE (GREȘELI PONDERATE MAXIME)</label>
+                                    <input id="tm-threshold" type="number" min="1" max="100" value="3">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="tm-role-ids">ID-URI ROLURI DISCORD (ADMIS)</label>
+                                    <input id="tm-role-ids" type="text" placeholder="111...,222...">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="tm-dm-passed">MESAJ DM — ADMIS</label>
+                                    <textarea id="tm-dm-passed"></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="tm-dm-failed">MESAJ DM — RESPINS</label>
+                                    <textarea id="tm-dm-failed"></textarea>
+                                </div>
+
+                                <button type="button" class="primary-btn gold-btn admin-only" id="tm-save-settings">
+                                    SALVEAZĂ SETĂRILE GENERALE
+                                </button>
+                            </div>
+
+                            <div class="test-settings-card">
+                                <h3>Extrageri întrebări</h3>
+                                <p>Câte întrebări se extrag din fiecare categorie.</p>
+                                <div id="tm-extractions"></div>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="test-manager-tab" id="test-manager-history">
+                        <div class="test-settings-card">
+                            <h3>Istoric teste</h3>
+                            <p>Data, candidat, Discord, departament, tester, greșeli, prag și verdict.</p>
+
+                            <div style="overflow:auto;">
+                                <table class="test-history-table">
+                                    <thead>
+                                        <tr>
+                                            <th>DATA</th>
+                                            <th>CANDIDAT</th>
+                                            <th>DISCORD</th>
+                                            <th>DEPARTAMENT</th>
+                                            <th>TESTER</th>
+                                            <th>GREȘELI</th>
+                                            <th>PRAG</th>
+                                            <th>VERDICT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tm-history-body"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="test-manager-tab" id="test-manager-run">
+                        <div class="test-run-card">
+                            <div class="activity-modal-grid">
+
+                                <div class="form-group">
+                                    <label for="tm-candidate-name">NUME CANDIDAT (NUME ÎN JOC)</label>
+                                    <input id="tm-candidate-name" type="text" placeholder="ex. Ion Popescu">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="tm-candidate-discord">ID DISCORD CANDIDAT</label>
+                                    <input id="tm-candidate-discord" type="text" placeholder="123456789012345678">
+                                </div>
+
+                            </div>
+
+                            <button type="button" class="primary-btn gold-btn" id="tm-generate-test">
+                                GENEREAZĂ TESTUL
+                            </button>
+
+                            <div id="tm-generated-wrap" style="display:none;margin-top:15px;">
+                                <div id="tm-generated-list"></div>
+
+                                <button type="button" class="primary-btn gold-btn" id="tm-finish-test" style="margin-top:14px;">
+                                    FINALIZEAZĂ TESTUL
+                                </button>
+                            </div>
+
+                            <div id="tm-run-message" class="form-message"></div>
+                        </div>
+                    </div>
+
+                </div>
             </section>
 
 
@@ -11102,6 +11589,63 @@
     </div>
 
 
+
+    <div class="modal" id="tm-category-modal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div>
+                    <span>GESTIONARE TESTE</span>
+                    <h3>Categorie</h3>
+                </div>
+                <button type="button" class="modal-close" data-close-modal="tm-category-modal">×</button>
+            </div>
+
+            <form id="tm-category-form">
+                <input type="hidden" id="tm-category-id">
+
+                <div class="form-group">
+                    <label for="tm-category-name">NUME CATEGORIE</label>
+                    <input id="tm-category-name" type="text" maxlength="100" required>
+                </div>
+
+                <button type="submit" class="primary-btn gold-btn">SALVEAZĂ</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal" id="tm-question-modal">
+        <div class="modal-card">
+            <div class="modal-head">
+                <div>
+                    <span>GESTIONARE TESTE</span>
+                    <h3>Întrebare</h3>
+                </div>
+                <button type="button" class="modal-close" data-close-modal="tm-question-modal">×</button>
+            </div>
+
+            <form id="tm-question-form">
+                <input type="hidden" id="tm-question-id">
+
+                <div class="form-group">
+                    <label for="tm-question-category">CATEGORIE</label>
+                    <select id="tm-question-category" required></select>
+                </div>
+
+                <div class="form-group">
+                    <label for="tm-question-text">ÎNTREBARE</label>
+                    <textarea id="tm-question-text" maxlength="1000" required></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="tm-question-answer">RĂSPUNS CORECT</label>
+                    <textarea id="tm-question-answer" maxlength="2000" required></textarea>
+                </div>
+
+                <button type="submit" class="primary-btn gold-btn">SALVEAZĂ</button>
+            </form>
+        </div>
+    </div>
+
 <script>
 
     let currentUser = null;
@@ -14083,6 +14627,828 @@ const query =
                 }
             }
         );
+
+
+
+    /* =========================================================
+       TEST MANAGEMENT
+    ========================================================== */
+
+    let tmData = {
+        categories: [],
+        questions: [],
+        settings: {},
+        history: []
+    };
+
+    let tmGenerated = [];
+
+
+    function tmOpenTab(name) {
+
+        document
+            .querySelectorAll("[data-test-manager-tab]")
+            .forEach(button => {
+                button.classList.toggle(
+                    "active",
+                    button.dataset.testManagerTab === name
+                );
+            });
+
+        document
+            .querySelectorAll(".test-manager-tab")
+            .forEach(tab => {
+                tab.classList.toggle(
+                    "active",
+                    tab.id === `test-manager-${name}`
+                );
+            });
+    }
+
+
+    document
+        .querySelectorAll("[data-test-manager-tab]")
+        .forEach(button => {
+            button.addEventListener(
+                "click",
+                () => tmOpenTab(button.dataset.testManagerTab)
+            );
+        });
+
+
+    function tmQuestionsFor(categoryId) {
+        return (tmData.questions || []).filter(
+            question =>
+                String(question.categoryId) === String(categoryId)
+        );
+    }
+
+
+    function tmFillCategorySelect() {
+
+        const select =
+            document.getElementById("tm-question-category");
+
+        if (!select) return;
+
+        select.innerHTML =
+            (tmData.categories || [])
+                .map(category =>
+                    `<option value="${escapeHTML(category.id)}">${escapeHTML(category.name)}</option>`
+                )
+                .join("");
+    }
+
+
+    function tmRenderQuestions() {
+
+        const container =
+            document.getElementById("tm-questions-list");
+
+        if (!container) return;
+
+        const canEdit =
+            Number(currentUser?.rankLevel || 0) >= 10;
+
+        if (!(tmData.categories || []).length) {
+            container.innerHTML =
+                '<div class="empty-state">Nu există categorii de întrebări.</div>';
+            return;
+        }
+
+        container.innerHTML =
+            tmData.categories.map(category => {
+
+                const questions =
+                    tmQuestionsFor(category.id);
+
+                const questionHTML =
+                    questions.length
+                        ? questions.map(question => `
+                            <div class="test-question-row">
+                                <div>
+                                    <strong>${escapeHTML(question.question)}</strong>
+                                    <div class="test-question-answer">
+                                        <b>RĂSPUNS:</b> ${escapeHTML(question.answer)}
+                                    </div>
+                                </div>
+
+                                ${canEdit ? `
+                                    <div class="test-small-actions">
+                                        <button type="button" class="test-square-btn" data-tm-edit-question="${escapeHTML(question.id)}">✎</button>
+                                        <button type="button" class="test-square-btn danger" data-tm-delete-question="${escapeHTML(question.id)}">×</button>
+                                    </div>
+                                ` : ""}
+                            </div>
+                        `).join("")
+                        : '<div class="empty-state">Categoria nu are întrebări.</div>';
+
+                return `
+                    <div class="test-category-block">
+                        <div class="test-category-heading">
+                            <div>
+                                <h3>${escapeHTML(category.name)}</h3>
+                                <small>${questions.length} întrebări</small>
+                            </div>
+
+                            ${canEdit ? `
+                                <div class="test-small-actions">
+                                    <button type="button" class="test-square-btn" data-tm-edit-category="${escapeHTML(category.id)}">✎</button>
+                                    <button type="button" class="test-square-btn danger" data-tm-delete-category="${escapeHTML(category.id)}">×</button>
+                                </div>
+                            ` : ""}
+                        </div>
+
+                        ${questionHTML}
+                    </div>
+                `;
+            }).join("");
+
+        tmBindCrud();
+    }
+
+
+    function tmRenderSettings() {
+
+        const settings =
+            tmData.settings || {};
+
+        const threshold =
+            document.getElementById("tm-threshold");
+
+        const roles =
+            document.getElementById("tm-role-ids");
+
+        const dmPassed =
+            document.getElementById("tm-dm-passed");
+
+        const dmFailed =
+            document.getElementById("tm-dm-failed");
+
+        if (threshold) {
+            threshold.value =
+                Number(settings.rejectionThreshold || 3);
+        }
+
+        if (roles) {
+            roles.value =
+                settings.admittedRoleIds || "";
+        }
+
+        if (dmPassed) {
+            dmPassed.value =
+                settings.dmPassed || "";
+        }
+
+        if (dmFailed) {
+            dmFailed.value =
+                settings.dmFailed || "";
+        }
+
+        const extraction =
+            document.getElementById("tm-extractions");
+
+        if (!extraction) return;
+
+        extraction.innerHTML =
+            (tmData.categories || []).map(category => {
+
+                const available =
+                    tmQuestionsFor(category.id).length;
+
+                const saved =
+                    Number(
+                        settings.extraction?.[category.id] ??
+                        Math.min(1, available)
+                    );
+
+                return `
+                    <div class="test-extract-row">
+                        <div>
+                            <strong>${escapeHTML(category.name)}</strong>
+                            <span>${available} disponibile</span>
+                        </div>
+
+                        <input
+                            type="number"
+                            min="0"
+                            max="${available}"
+                            value="${Math.min(saved, available)}"
+                            data-tm-extract="${escapeHTML(category.id)}"
+                        >
+
+                        <div style="color:#63768e;font-size:7px;">
+                            extrase
+                        </div>
+                    </div>
+                `;
+            }).join("");
+    }
+
+
+    function tmRenderHistory() {
+
+        const tbody =
+            document.getElementById("tm-history-body");
+
+        if (!tbody) return;
+
+        if (!(tmData.history || []).length) {
+            tbody.innerHTML =
+                '<tr><td colspan="8" style="text-align:center;">Nu există teste în istoric.</td></tr>';
+            return;
+        }
+
+        tbody.innerHTML =
+            tmData.history.map(item => {
+
+                const date =
+                    new Date(item.createdAt);
+
+                const dateText =
+                    Number.isNaN(date.getTime())
+                        ? "-"
+                        : date.toLocaleString("ro-RO");
+
+                const passed =
+                    item.verdict === "PASSED";
+
+                return `
+                    <tr>
+                        <td>${escapeHTML(dateText)}</td>
+                        <td>${escapeHTML(item.candidateName || "-")}</td>
+                        <td>${escapeHTML(item.candidateDiscord || "-")}</td>
+                        <td>${escapeHTML(item.department || "DIICOT")}</td>
+                        <td>${escapeHTML(item.testerName || "-")}</td>
+                        <td>${Number(item.mistakes || 0)}</td>
+                        <td>${Number(item.threshold || 0)}</td>
+                        <td>
+                            <span class="test-verdict ${passed ? "passed" : "failed"}">
+                                ${passed ? "ADMIS" : "RESPINS"}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join("");
+    }
+
+
+    async function loadTestManagement() {
+
+        const response =
+            await fetch(
+                "/api/test-management",
+                {
+                    credentials: "include",
+                    cache: "no-store"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                "Gestionarea testelor nu a putut fi încărcată."
+            );
+        }
+
+        tmData =
+            data;
+
+        tmRenderQuestions();
+        tmRenderSettings();
+        tmRenderHistory();
+    }
+
+
+    function tmBindCrud() {
+
+        document
+            .querySelectorAll("[data-tm-edit-category]")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+
+                    const category =
+                        tmData.categories.find(
+                            item =>
+                                String(item.id) ===
+                                String(button.dataset.tmEditCategory)
+                        );
+
+                    if (!category) return;
+
+                    document.getElementById("tm-category-id").value =
+                        category.id;
+
+                    document.getElementById("tm-category-name").value =
+                        category.name;
+
+                    openModal("tm-category-modal");
+                });
+            });
+
+        document
+            .querySelectorAll("[data-tm-delete-category]")
+            .forEach(button => {
+                button.addEventListener("click", async () => {
+
+                    if (!confirm("Ștergi categoria și întrebările din ea?")) {
+                        return;
+                    }
+
+                    const response =
+                        await fetch(
+                            `/api/admin/test-categories/${encodeURIComponent(button.dataset.tmDeleteCategory)}`,
+                            {
+                                method: "DELETE",
+                                credentials: "include"
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        alert(data.error || "Categoria nu a putut fi ștearsă.");
+                        return;
+                    }
+
+                    await loadTestManagement();
+                });
+            });
+
+        document
+            .querySelectorAll("[data-tm-edit-question]")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+
+                    const question =
+                        tmData.questions.find(
+                            item =>
+                                String(item.id) ===
+                                String(button.dataset.tmEditQuestion)
+                        );
+
+                    if (!question) return;
+
+                    tmFillCategorySelect();
+
+                    document.getElementById("tm-question-id").value =
+                        question.id;
+
+                    document.getElementById("tm-question-category").value =
+                        question.categoryId;
+
+                    document.getElementById("tm-question-text").value =
+                        question.question;
+
+                    document.getElementById("tm-question-answer").value =
+                        question.answer;
+
+                    openModal("tm-question-modal");
+                });
+            });
+
+        document
+            .querySelectorAll("[data-tm-delete-question]")
+            .forEach(button => {
+                button.addEventListener("click", async () => {
+
+                    if (!confirm("Ștergi această întrebare?")) {
+                        return;
+                    }
+
+                    const response =
+                        await fetch(
+                            `/api/admin/test-questions/${encodeURIComponent(button.dataset.tmDeleteQuestion)}`,
+                            {
+                                method: "DELETE",
+                                credentials: "include"
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        alert(data.error || "Întrebarea nu a putut fi ștearsă.");
+                        return;
+                    }
+
+                    await loadTestManagement();
+                });
+            });
+    }
+
+
+    document
+        .getElementById("tm-add-category")
+        ?.addEventListener("click", () => {
+
+            document.getElementById("tm-category-id").value = "";
+            document.getElementById("tm-category-name").value = "";
+            openModal("tm-category-modal");
+        });
+
+
+    document
+        .getElementById("tm-add-question")
+        ?.addEventListener("click", () => {
+
+            tmFillCategorySelect();
+
+            document.getElementById("tm-question-id").value = "";
+            document.getElementById("tm-question-text").value = "";
+            document.getElementById("tm-question-answer").value = "";
+
+            openModal("tm-question-modal");
+        });
+
+
+    document
+        .getElementById("tm-category-form")
+        ?.addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const id =
+                document.getElementById("tm-category-id").value;
+
+            const response =
+                await fetch(
+                    id
+                        ? `/api/admin/test-categories/${encodeURIComponent(id)}`
+                        : "/api/admin/test-categories",
+                    {
+                        method: id ? "PATCH" : "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            name:
+                                document.getElementById("tm-category-name").value.trim()
+                        })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                alert(data.error || "Categoria nu a putut fi salvată.");
+                return;
+            }
+
+            closeModal("tm-category-modal");
+            await loadTestManagement();
+        });
+
+
+    document
+        .getElementById("tm-question-form")
+        ?.addEventListener("submit", async event => {
+
+            event.preventDefault();
+
+            const id =
+                document.getElementById("tm-question-id").value;
+
+            const response =
+                await fetch(
+                    id
+                        ? `/api/admin/test-questions/${encodeURIComponent(id)}`
+                        : "/api/admin/test-questions",
+                    {
+                        method: id ? "PATCH" : "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            categoryId:
+                                document.getElementById("tm-question-category").value,
+                            question:
+                                document.getElementById("tm-question-text").value.trim(),
+                            answer:
+                                document.getElementById("tm-question-answer").value.trim()
+                        })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                alert(data.error || "Întrebarea nu a putut fi salvată.");
+                return;
+            }
+
+            closeModal("tm-question-modal");
+            await loadTestManagement();
+        });
+
+
+    document
+        .getElementById("tm-save-settings")
+        ?.addEventListener("click", async () => {
+
+            const extraction =
+                {};
+
+            document
+                .querySelectorAll("[data-tm-extract]")
+                .forEach(input => {
+                    extraction[input.dataset.tmExtract] =
+                        Number(input.value || 0);
+                });
+
+            const response =
+                await fetch(
+                    "/api/admin/test-settings",
+                    {
+                        method: "PATCH",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            rejectionThreshold:
+                                Number(document.getElementById("tm-threshold").value || 3),
+                            admittedRoleIds:
+                                document.getElementById("tm-role-ids").value.trim(),
+                            dmPassed:
+                                document.getElementById("tm-dm-passed").value,
+                            dmFailed:
+                                document.getElementById("tm-dm-failed").value,
+                            extraction
+                        })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                alert(data.error || "Setările nu au putut fi salvate.");
+                return;
+            }
+
+            await loadTestManagement();
+            alert("Setările au fost salvate.");
+        });
+
+
+    function tmRandomPick(array, count) {
+
+        const copy =
+            [...array];
+
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j =
+                Math.floor(
+                    Math.random() *
+                    (i + 1)
+                );
+
+            const temp =
+                copy[i];
+
+            copy[i] =
+                copy[j];
+
+            copy[j] =
+                temp;
+        }
+
+        return copy.slice(0, count);
+    }
+
+
+    function tmRenderGenerated() {
+
+        const container =
+            document.getElementById("tm-generated-list");
+
+        if (!container) return;
+
+        container.innerHTML =
+            tmGenerated.map((item, index) => `
+                <div class="generated-question">
+                    <strong>
+                        ${index + 1}. ${escapeHTML(item.question)}
+                    </strong>
+
+                    <div class="generated-answer">
+                        <b>${escapeHTML(item.categoryName)}</b><br>
+                        Răspuns corect: ${escapeHTML(item.answer)}
+                    </div>
+
+                    <div class="generated-mark">
+                        <button
+                            type="button"
+                            class="mark-correct ${item.mark === "correct" ? "selected" : ""}"
+                            data-tm-mark-index="${index}"
+                            data-tm-mark-value="correct"
+                        >
+                            CORECT
+                        </button>
+
+                        <button
+                            type="button"
+                            class="mark-wrong ${item.mark === "wrong" ? "selected" : ""}"
+                            data-tm-mark-index="${index}"
+                            data-tm-mark-value="wrong"
+                        >
+                            GREȘIT
+                        </button>
+                    </div>
+                </div>
+            `).join("");
+
+        document
+            .querySelectorAll("[data-tm-mark-index]")
+            .forEach(button => {
+                button.addEventListener("click", () => {
+
+                    const index =
+                        Number(button.dataset.tmMarkIndex);
+
+                    tmGenerated[index].mark =
+                        button.dataset.tmMarkValue;
+
+                    tmRenderGenerated();
+                });
+            });
+    }
+
+
+    document
+        .getElementById("tm-generate-test")
+        ?.addEventListener("click", () => {
+
+            const candidateName =
+                document.getElementById("tm-candidate-name").value.trim();
+
+            const candidateDiscord =
+                document.getElementById("tm-candidate-discord").value.trim();
+
+            const message =
+                document.getElementById("tm-run-message");
+
+            if (!candidateName || !candidateDiscord) {
+                message.className =
+                    "form-message error";
+                message.textContent =
+                    "Completează numele și ID-ul Discord al candidatului.";
+                return;
+            }
+
+            tmGenerated =
+                [];
+
+            const extraction =
+                tmData.settings?.extraction || {};
+
+            for (const category of tmData.categories) {
+
+                const available =
+                    tmQuestionsFor(category.id);
+
+                const requested =
+                    Number(
+                        extraction[category.id] ??
+                        1
+                    );
+
+                const count =
+                    Math.max(
+                        0,
+                        Math.min(
+                            available.length,
+                            requested
+                        )
+                    );
+
+                const picked =
+                    tmRandomPick(
+                        available,
+                        count
+                    );
+
+                for (const question of picked) {
+                    tmGenerated.push({
+                        ...question,
+                        categoryName:
+                            category.name,
+                        mark:
+                            null
+                    });
+                }
+            }
+
+            if (!tmGenerated.length) {
+                message.className =
+                    "form-message error";
+                message.textContent =
+                    "Nu există întrebări configurate pentru extragere.";
+                return;
+            }
+
+            document.getElementById("tm-generated-wrap").style.display =
+                "block";
+
+            message.textContent =
+                "";
+
+            tmRenderGenerated();
+        });
+
+
+    document
+        .getElementById("tm-finish-test")
+        ?.addEventListener("click", async () => {
+
+            if (
+                tmGenerated.some(
+                    item =>
+                        !item.mark
+                )
+            ) {
+                alert("Marchează fiecare întrebare ca CORECT sau GREȘIT.");
+                return;
+            }
+
+            const mistakes =
+                tmGenerated.filter(
+                    item =>
+                        item.mark === "wrong"
+                ).length;
+
+            const threshold =
+                Number(
+                    tmData.settings?.rejectionThreshold ||
+                    3
+                );
+
+            const verdict =
+                mistakes < threshold
+                    ? "PASSED"
+                    : "FAILED";
+
+            const response =
+                await fetch(
+                    "/api/candidate-tests/complete",
+                    {
+                        method: "POST",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            candidateName:
+                                document.getElementById("tm-candidate-name").value.trim(),
+                            candidateDiscord:
+                                document.getElementById("tm-candidate-discord").value.trim(),
+                            mistakes,
+                            threshold,
+                            verdict,
+                            questions:
+                                tmGenerated.map(item => ({
+                                    id:
+                                        item.id,
+                                    mark:
+                                        item.mark
+                                }))
+                        })
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                alert(data.error || "Testul nu a putut fi finalizat.");
+                return;
+            }
+
+            alert(
+                verdict === "PASSED"
+                    ? `Candidatul este ADMIS cu ${mistakes} greșeli.`
+                    : `Candidatul este RESPINS cu ${mistakes} greșeli.`
+            );
+
+            tmGenerated =
+                [];
+
+            document.getElementById("tm-generated-wrap").style.display =
+                "none";
+
+            await loadTestManagement();
+            tmOpenTab("history");
+        });
 
 
     /* =========================================================
