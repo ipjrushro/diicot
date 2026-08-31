@@ -19864,10 +19864,79 @@ const query =
     updateAnnouncementPreview();
 
 
-    loadUser();
+
+    async function openSectionFromURL() {
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const requestedSection =
+            params.get(
+                "section"
+            );
+
+        if (!requestedSection) {
+            return;
+        }
+
+        const allowedSections =
+            new Set([
+                "overview",
+                "new-report",
+                "my-reports",
+                "personnel",
+                "leave",
+                "docs",
+                "penal-code",
+                "leadership",
+                "blacklist",
+                "admin",
+                "profile"
+            ]);
+
+        if (
+            !allowedSections.has(
+                requestedSection
+            )
+        ) {
+            return;
+        }
+
+        const button =
+            document.querySelector(
+                `.sidebar-link[data-section="${requestedSection}"]`
+            );
+
+        if (
+            !button ||
+            button.classList.contains(
+                "hidden"
+            ) ||
+            getComputedStyle(button).display ===
+                "none"
+        ) {
+            return;
+        }
+
+        button.click();
+    }
 
 
+    loadUser()
 
+
+        .then(openSectionFromURL)
+
+
+        .catch(error => {
+
+
+            console.error("Dashboard startup error:", error);
+
+
+        });
     document
         .getElementById("admin-delete-all-reports")
         ?.addEventListener("click", async () => {
