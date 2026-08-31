@@ -7110,6 +7110,262 @@
             }
         }
 
+
+        /* HOME HUB */
+        .sidebar-link[data-section="new-report"],
+        .sidebar-link[data-section="my-reports"] {
+            display: flex !important;
+        }
+
+        .home-launcher {
+            margin-bottom: 14px;
+        }
+
+        .home-launcher-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 20px;
+            margin-bottom: 14px;
+        }
+
+        .home-launcher-kicker {
+            color: var(--u-gold);
+            font-size: 6px;
+            font-weight: 950;
+            letter-spacing: 1.8px;
+        }
+
+        .home-launcher-head h2 {
+            margin: 6px 0 0;
+            color: #f5f8fc;
+            font-size: 23px;
+        }
+
+        .home-launcher-head p {
+            max-width: 520px;
+            margin: 0;
+            color: #607289;
+            font-size: 8px;
+            line-height: 1.65;
+            text-align: right;
+        }
+
+        .home-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0,1fr));
+            gap: 11px;
+        }
+
+        .home-action-card {
+            position: relative;
+            min-height: 178px;
+            padding: 18px;
+            overflow: hidden;
+            text-align: left;
+            border: 1px solid rgba(139,162,194,.12);
+            border-radius: 18px;
+            color: inherit;
+            background:
+                radial-gradient(circle at 78% 14%, rgba(106,165,255,.055), transparent 28%),
+                linear-gradient(155deg, rgba(16,28,44,.88), rgba(8,16,27,.9));
+            box-shadow:
+                0 16px 38px rgba(0,0,0,.14),
+                inset 0 1px 0 rgba(255,255,255,.018);
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .home-action-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(232,181,66,.23);
+            box-shadow: 0 24px 52px rgba(0,0,0,.2);
+        }
+
+        .home-action-card::after {
+            content: "";
+            position: absolute;
+            width: 110px;
+            height: 110px;
+            right: -42px;
+            top: -42px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,.028);
+        }
+
+        .home-action-icon {
+            width: 48px;
+            height: 48px;
+            display: grid;
+            place-items: center;
+            margin-bottom: 24px;
+            border: 1px solid rgba(106,165,255,.12);
+            border-radius: 14px;
+            color: #79adff;
+            background: rgba(106,165,255,.075);
+            font-size: 20px;
+        }
+
+        .home-action-card.gold .home-action-icon {
+            color: #ffd35f;
+            border-color: rgba(232,181,66,.15);
+            background: rgba(232,181,66,.075);
+        }
+
+        .home-action-card.green .home-action-icon {
+            color: #51ddb0;
+            border-color: rgba(68,215,160,.14);
+            background: rgba(68,215,160,.07);
+        }
+
+        .home-action-card.purple .home-action-icon {
+            color: #ba9aff;
+            border-color: rgba(169,140,255,.14);
+            background: rgba(169,140,255,.075);
+        }
+
+        .home-action-card.red .home-action-icon {
+            color: #ff8585;
+            border-color: rgba(255,107,107,.14);
+            background: rgba(255,107,107,.07);
+        }
+
+        .home-action-card h3 {
+            margin: 0 0 8px;
+            color: #f2f6fb;
+            font-size: 11px;
+            letter-spacing: .35px;
+        }
+
+        .home-action-card p {
+            margin: 0;
+            color: #6f8198;
+            font-size: 7.5px;
+            line-height: 1.65;
+        }
+
+        .home-action-arrow {
+            position: absolute;
+            right: 16px;
+            bottom: 15px;
+            color: rgba(232,181,66,.72);
+            font-size: 14px;
+        }
+
+        .home-action-card.admin-home-card {
+            display: none;
+        }
+
+        body.is-admin .home-action-card.admin-home-card {
+            display: block;
+        }
+
+        @media (max-width: 1350px) {
+            .home-actions-grid {
+                grid-template-columns: repeat(3, minmax(0,1fr));
+            }
+        }
+
+        @media (max-width: 1000px) {
+            .home-actions-grid {
+                grid-template-columns: repeat(2, minmax(0,1fr));
+            }
+
+            .home-launcher-head {
+                flex-direction: column;
+                align-items: start;
+            }
+
+            .home-launcher-head p {
+                text-align: left;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .home-actions-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+
+        .sidebar-link[data-section="activities"]::before {
+            content: "⌁";
+            color: #76aaff;
+        }
+
+        /* =========================================================
+           ACTIVITĂȚI — ACTION CENTER
+        ========================================================== */
+
+        .activities-actions-grid {
+            grid-template-columns:
+                repeat(5, minmax(0, 1fr)) !important;
+        }
+
+        .activities-actions-grid .home-action-card {
+            min-height: 205px;
+        }
+
+        .activity-modal-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(2, minmax(0,1fr));
+            gap: 12px;
+        }
+
+        .activity-modal-grid.one {
+            grid-template-columns: 1fr;
+        }
+
+        .activity-helper {
+            margin-top: 7px;
+            color: #5e7087;
+            font-size: 7px;
+            line-height: 1.5;
+        }
+
+        .activity-warning {
+            margin-bottom: 14px;
+            padding: 11px 12px;
+            border: 1px solid rgba(232,181,66,.14);
+            border-radius: 10px;
+            background: rgba(232,181,66,.045);
+            color: #b9a167;
+            font-size: 7px;
+            line-height: 1.55;
+        }
+
+        .fw-count-wrap {
+            display: none;
+        }
+
+        .fw-count-wrap.visible {
+            display: block;
+        }
+
+        @media (max-width: 1500px) {
+            .activities-actions-grid {
+                grid-template-columns:
+                    repeat(3, minmax(0,1fr)) !important;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .activities-actions-grid,
+            .activity-modal-grid {
+                grid-template-columns:
+                    1fr 1fr !important;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .activities-actions-grid,
+            .activity-modal-grid {
+                grid-template-columns:
+                    1fr !important;
+            }
+        }
+
 </style>
 
 </head>
@@ -7175,6 +7431,15 @@
             >
                 PREZENTARE GENERALĂ
             </button>
+
+                <button
+                    class="sidebar-link"
+                    data-section="activities"
+                    type="button"
+                >
+                    ACTIVITĂȚI
+                </button>
+
 
 
 
@@ -7573,10 +7838,7 @@
 
 
                 </div>
-
-
-
-                <div class="overview-grid">
+<div class="overview-grid">
 
 
                     <div class="dashboard-panel">
@@ -7710,6 +7972,113 @@
 
             </section>
 
+
+
+
+            <!-- =================================================
+                 ACTIVITĂȚI
+            ================================================== -->
+
+            <section
+                id="activities"
+                class="dashboard-section"
+            >
+                <section class="home-launcher">
+
+                    <div class="home-launcher-head">
+                        <div>
+                            <div class="home-launcher-kicker">
+                                CENTRU OPERAȚIONAL
+                            </div>
+
+                            <h2>
+                                Activități
+                            </h2>
+                        </div>
+
+                        <p>
+                            Rapoarte, reclamații, testări și acțiuni interne
+                            într-un singur loc.
+                        </p>
+                    </div>
+
+                    <div class="home-actions-grid activities-actions-grid">
+
+                        <button
+                            type="button"
+                            class="home-action-card green"
+                            data-home-section="new-report"
+                        >
+                            <div class="home-action-icon">▤</div>
+                            <h3>RAPORT NOU</h3>
+                            <p>
+                                Postează un raport de activitate cu descriere
+                                și imagini.
+                            </p>
+                            <span class="home-action-arrow">→</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="home-action-card"
+                            data-home-section="my-reports"
+                        >
+                            <div class="home-action-icon">▣</div>
+                            <h3>RAPOARTELE MELE</h3>
+                            <p>
+                                Vezi toate rapoartele tale și istoricul
+                                activității.
+                            </p>
+                            <span class="home-action-arrow">→</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="home-action-card red"
+                            id="open-complaint-modal"
+                        >
+                            <div class="home-action-icon">!</div>
+                            <h3>TRIMITE RECLAMAȚIE</h3>
+                            <p>
+                                Trimite o reclamație internă către un coleg,
+                                cu motiv și dovezi opționale.
+                            </p>
+                            <span class="home-action-arrow">→</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="home-action-card purple"
+                            id="open-candidate-test-modal"
+                        >
+                            <div class="home-action-icon">✓</div>
+                            <h3>TESTARE CANDIDAȚI</h3>
+                            <p>
+                                Înregistrează rezultatul unui test pentru
+                                recrutare.
+                            </p>
+                            <span class="home-action-arrow">→</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="home-action-card gold admin-home-card"
+                            id="open-sanction-modal"
+                        >
+                            <div class="home-action-icon">⚒</div>
+                            <h3>APLICĂ SANCȚIUNI</h3>
+                            <p>
+                                Aplică Faction Warn (maximum 5) sau OUT unui
+                                membru, cu motiv obligatoriu.
+                            </p>
+                            <span class="home-action-arrow">→</span>
+                        </button>
+
+                    </div>
+
+                </section>
+</section>
+            </section>
 
 
             <!-- =====================================================
@@ -10413,6 +10782,326 @@
     </div>
 
 
+
+    <!-- =========================================================
+         RECLAMAȚIE INTERNĂ
+    ========================================================== -->
+    <div class="modal" id="complaint-modal">
+        <div class="modal-card">
+
+            <div class="modal-head">
+                <div>
+                    <span>ACTIVITĂȚI</span>
+                    <h3>Trimite reclamație</h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="complaint-modal"
+                >
+                    ×
+                </button>
+            </div>
+
+            <form id="complaint-form">
+
+                <div class="activity-modal-grid one">
+
+                    <div class="form-group">
+                        <label for="complaint-target">
+                            COLEG RECLAMAT
+                        </label>
+
+                        <select
+                            id="complaint-target"
+                            required
+                        >
+                            <option value="">
+                                Selectează membrul
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="complaint-reason">
+                            MOTIV
+                        </label>
+
+                        <textarea
+                            id="complaint-reason"
+                            maxlength="1500"
+                            placeholder="Descrie clar motivul reclamației..."
+                            required
+                        ></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="complaint-evidence">
+                            DOVEZI / LINK (OPȚIONAL)
+                        </label>
+
+                        <input
+                            id="complaint-evidence"
+                            type="text"
+                            maxlength="500"
+                            placeholder="Link către filmare, poze sau alte dovezi"
+                        >
+                    </div>
+
+                </div>
+
+                <div
+                    id="complaint-message"
+                    class="form-message"
+                ></div>
+
+                <button
+                    type="submit"
+                    class="primary-btn gold-btn"
+                >
+                    TRIMITE RECLAMAȚIA
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         TESTARE CANDIDAȚI
+    ========================================================== -->
+    <div class="modal" id="candidate-test-modal">
+        <div class="modal-card">
+
+            <div class="modal-head">
+                <div>
+                    <span>RECRUTARE</span>
+                    <h3>Testare candidat</h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="candidate-test-modal"
+                >
+                    ×
+                </button>
+            </div>
+
+            <form id="candidate-test-form">
+
+                <div class="activity-modal-grid">
+
+                    <div class="form-group">
+                        <label for="candidate-name">
+                            NUME CANDIDAT
+                        </label>
+
+                        <input
+                            id="candidate-name"
+                            type="text"
+                            maxlength="100"
+                            placeholder="Numele candidatului"
+                            required
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="candidate-discord">
+                            DISCORD ID / USERNAME
+                        </label>
+
+                        <input
+                            id="candidate-discord"
+                            type="text"
+                            maxlength="100"
+                            placeholder="ID sau username"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label for="candidate-result">
+                            REZULTAT
+                        </label>
+
+                        <select
+                            id="candidate-result"
+                            required
+                        >
+                            <option value="PASSED">
+                                ADMIS
+                            </option>
+
+                            <option value="FAILED">
+                                RESPINS
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="candidate-score">
+                            PUNCTAJ (OPȚIONAL)
+                        </label>
+
+                        <input
+                            id="candidate-score"
+                            type="number"
+                            min="0"
+                            max="100"
+                            placeholder="0 - 100"
+                        >
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="candidate-notes">
+                        OBSERVAȚII
+                    </label>
+
+                    <textarea
+                        id="candidate-notes"
+                        maxlength="1500"
+                        placeholder="Observații despre test..."
+                    ></textarea>
+                </div>
+
+                <div
+                    id="candidate-test-message"
+                    class="form-message"
+                ></div>
+
+                <button
+                    type="submit"
+                    class="primary-btn gold-btn"
+                >
+                    SALVEAZĂ TESTUL
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         SANCȚIUNI — COORDONATOR+
+    ========================================================== -->
+    <div class="modal" id="sanction-modal">
+        <div class="modal-card">
+
+            <div class="modal-head">
+                <div>
+                    <span>CONDUCERE</span>
+                    <h3>Aplică sancțiune</h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="sanction-modal"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div class="activity-warning">
+                Sancțiunile sunt înregistrate în sistem. Faction Warn poate
+                avea maximum 5 puncte active pentru un membru.
+            </div>
+
+            <form id="sanction-form">
+
+                <div class="activity-modal-grid">
+
+                    <div class="form-group">
+                        <label for="sanction-target">
+                            MEMBRU
+                        </label>
+
+                        <select
+                            id="sanction-target"
+                            required
+                        >
+                            <option value="">
+                                Selectează membrul
+                            </option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sanction-type">
+                            TIP SANCȚIUNE
+                        </label>
+
+                        <select
+                            id="sanction-type"
+                            required
+                        >
+                            <option value="FW">
+                                FACTION WARN
+                            </option>
+
+                            <option value="OUT">
+                                OUT
+                            </option>
+                        </select>
+                    </div>
+
+                    <div
+                        class="form-group fw-count-wrap visible"
+                        id="fw-count-wrap"
+                    >
+                        <label for="sanction-fw-count">
+                            NUMĂR FW
+                        </label>
+
+                        <select
+                            id="sanction-fw-count"
+                        >
+                            <option value="1">1 FW</option>
+                            <option value="2">2 FW</option>
+                            <option value="3">3 FW</option>
+                            <option value="4">4 FW</option>
+                            <option value="5">5 FW</option>
+                        </select>
+                    </div>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="sanction-reason">
+                        MOTIV
+                    </label>
+
+                    <textarea
+                        id="sanction-reason"
+                        maxlength="1500"
+                        placeholder="Motivul sancțiunii..."
+                        required
+                    ></textarea>
+                </div>
+
+                <div
+                    id="sanction-message"
+                    class="form-message"
+                ></div>
+
+                <button
+                    type="submit"
+                    class="primary-btn gold-btn"
+                >
+                    APLICĂ SANCȚIUNEA
+                </button>
+
+            </form>
+
+        </div>
+    </div>
+
+
 <script>
 
     let currentUser = null;
@@ -12719,6 +13408,681 @@ const query =
             }
         );
 
+
+
+
+    function bindHomeActionCards() {
+        document
+            .querySelectorAll("[data-home-section]")
+            .forEach(card => {
+                card.addEventListener("click", async () => {
+                    const section = card.dataset.homeSection;
+
+                    if (
+                        (section === "admin" || section === "blacklist") &&
+                        Number(currentUser?.rankLevel || 0) < 10
+                    ) {
+                        return;
+                    }
+
+                    const sidebarButton =
+                        document.querySelector(
+                            `.sidebar-link[data-section="${section}"]`
+                        );
+
+                    if (sidebarButton) {
+                        sidebarButton.click();
+                        return;
+                    }
+
+                    openSection(section);
+
+                    if (section === "my-reports") await loadMyReports();
+                    if (section === "personnel") await loadPersonnel();
+                    if (section === "leave") await loadLeave();
+                    if (section === "docs") await loadDocs();
+                    if (section === "penal-code") renderPenalCode();
+                    if (section === "blacklist") await loadBlacklist();
+                    if (section === "admin") await loadAdminReports();
+                });
+            });
+    }
+
+    bindHomeActionCards();
+
+
+    /* =========================================================
+       ACTIVITĂȚI — RECLAMAȚII / TESTĂRI / SANCȚIUNI
+    ========================================================== */
+
+    let activityMembersCache = [];
+
+
+    function flattenPersonnelGroups(
+        data
+    ) {
+
+        if (
+            Array.isArray(
+                data?.members
+            )
+        ) {
+            return data.members;
+        }
+
+        if (
+            Array.isArray(
+                data?.personnel
+            )
+        ) {
+            return data.personnel;
+        }
+
+        const groups =
+            Array.isArray(
+                data?.groups
+            )
+                ? data.groups
+                : Array.isArray(data)
+                    ? data
+                    : [];
+
+        return groups.flatMap(
+            group =>
+                Array.isArray(group?.members)
+                    ? group.members
+                    : []
+        );
+    }
+
+
+    async function loadActivityMembers() {
+
+        if (
+            activityMembersCache.length
+        ) {
+            return activityMembersCache;
+        }
+
+        const response =
+            await fetch(
+                "/api/personnel",
+                {
+                    credentials:
+                        "include",
+
+                    cache:
+                        "no-store"
+                }
+            );
+
+        const data =
+            await response.json();
+
+        if (!response.ok) {
+            throw new Error(
+                data.error ||
+                "Personalul nu a putut fi încărcat."
+            );
+        }
+
+        activityMembersCache =
+            flattenPersonnelGroups(
+                data
+            );
+
+        return activityMembersCache;
+    }
+
+
+    function fillActivityMemberSelect(
+        select,
+        members
+    ) {
+
+        if (!select) {
+            return;
+        }
+
+        select.innerHTML = `
+            <option value="">
+                Selectează membrul
+            </option>
+        `;
+
+        members
+            .slice()
+            .sort(
+                (
+                    a,
+                    b
+                ) =>
+                    String(
+                        a.displayName ||
+                        a.name ||
+                        a.username ||
+                        ""
+                    ).localeCompare(
+                        String(
+                            b.displayName ||
+                            b.name ||
+                            b.username ||
+                            ""
+                        ),
+                        "ro"
+                    )
+            )
+            .forEach(
+                member => {
+
+                    const id =
+                        String(
+                            member.id ||
+                            member.userId ||
+                            member.discordId ||
+                            ""
+                        );
+
+                    if (!id) {
+                        return;
+                    }
+
+                    const name =
+                        member.displayName ||
+                        member.name ||
+                        member.username ||
+                        id;
+
+                    const rank =
+                        member.rank ||
+                        member.rankName ||
+                        "";
+
+                    const option =
+                        document.createElement(
+                            "option"
+                        );
+
+                    option.value =
+                        id;
+
+                    option.dataset.name =
+                        name;
+
+                    option.textContent =
+                        rank
+                            ? `${name} — ${rank}`
+                            : name;
+
+                    select.appendChild(
+                        option
+                    );
+                }
+            );
+    }
+
+
+    async function prepareActivityMemberSelects() {
+
+        const members =
+            await loadActivityMembers();
+
+        fillActivityMemberSelect(
+            document.getElementById(
+                "complaint-target"
+            ),
+            members
+        );
+
+        fillActivityMemberSelect(
+            document.getElementById(
+                "sanction-target"
+            ),
+            members
+        );
+    }
+
+
+    document
+        .getElementById(
+            "open-complaint-modal"
+        )
+        ?.addEventListener(
+            "click",
+            async () => {
+
+                try {
+                    await prepareActivityMemberSelects();
+                    openModal(
+                        "complaint-modal"
+                    );
+                }
+                catch (error) {
+                    alert(
+                        error.message ||
+                        "Personalul nu a putut fi încărcat."
+                    );
+                }
+            }
+        );
+
+
+    document
+        .getElementById(
+            "open-candidate-test-modal"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+                openModal(
+                    "candidate-test-modal"
+                );
+            }
+        );
+
+
+    document
+        .getElementById(
+            "open-sanction-modal"
+        )
+        ?.addEventListener(
+            "click",
+            async () => {
+
+                if (
+                    Number(
+                        currentUser?.rankLevel ||
+                        0
+                    ) < 10
+                ) {
+                    return;
+                }
+
+                try {
+                    await prepareActivityMemberSelects();
+                    openModal(
+                        "sanction-modal"
+                    );
+                }
+                catch (error) {
+                    alert(
+                        error.message ||
+                        "Personalul nu a putut fi încărcat."
+                    );
+                }
+            }
+        );
+
+
+    document
+        .getElementById(
+            "sanction-type"
+        )
+        ?.addEventListener(
+            "change",
+            event => {
+
+                document
+                    .getElementById(
+                        "fw-count-wrap"
+                    )
+                    ?.classList
+                    .toggle(
+                        "visible",
+                        event.target.value ===
+                            "FW"
+                    );
+            }
+        );
+
+
+    document
+        .getElementById(
+            "complaint-form"
+        )
+        ?.addEventListener(
+            "submit",
+
+            async function (
+                event
+            ) {
+
+                event.preventDefault();
+
+                const message =
+                    document.getElementById(
+                        "complaint-message"
+                    );
+
+                const target =
+                    document.getElementById(
+                        "complaint-target"
+                    );
+
+                const selected =
+                    target.options[
+                        target.selectedIndex
+                    ];
+
+                message.className =
+                    "form-message";
+
+                message.textContent =
+                    "";
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/complaints",
+                            {
+                                method:
+                                    "POST",
+
+                                credentials:
+                                    "include",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+                                        targetId:
+                                            target.value,
+
+                                        targetName:
+                                            selected?.dataset?.name ||
+                                            selected?.textContent ||
+                                            "",
+
+                                        reason:
+                                            document.getElementById(
+                                                "complaint-reason"
+                                            ).value.trim(),
+
+                                        evidence:
+                                            document.getElementById(
+                                                "complaint-evidence"
+                                            ).value.trim()
+                                    })
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error ||
+                            "Reclamația nu a putut fi trimisă."
+                        );
+                    }
+
+                    this.reset();
+
+                    message.className =
+                        "form-message success";
+
+                    message.textContent =
+                        "✓ Reclamația a fost trimisă.";
+
+                }
+
+                catch (error) {
+
+                    message.className =
+                        "form-message error";
+
+                    message.textContent =
+                        error.message ||
+                        "Reclamația nu a putut fi trimisă.";
+                }
+            }
+        );
+
+
+    document
+        .getElementById(
+            "candidate-test-form"
+        )
+        ?.addEventListener(
+            "submit",
+
+            async function (
+                event
+            ) {
+
+                event.preventDefault();
+
+                const message =
+                    document.getElementById(
+                        "candidate-test-message"
+                    );
+
+                message.className =
+                    "form-message";
+
+                message.textContent =
+                    "";
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/candidate-tests",
+                            {
+                                method:
+                                    "POST",
+
+                                credentials:
+                                    "include",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+                                        candidateName:
+                                            document.getElementById(
+                                                "candidate-name"
+                                            ).value.trim(),
+
+                                        candidateDiscord:
+                                            document.getElementById(
+                                                "candidate-discord"
+                                            ).value.trim(),
+
+                                        result:
+                                            document.getElementById(
+                                                "candidate-result"
+                                            ).value,
+
+                                        score:
+                                            document.getElementById(
+                                                "candidate-score"
+                                            ).value,
+
+                                        notes:
+                                            document.getElementById(
+                                                "candidate-notes"
+                                            ).value.trim()
+                                    })
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error ||
+                            "Testul nu a putut fi salvat."
+                        );
+                    }
+
+                    this.reset();
+
+                    message.className =
+                        "form-message success";
+
+                    message.textContent =
+                        "✓ Testul candidatului a fost salvat.";
+
+                }
+
+                catch (error) {
+
+                    message.className =
+                        "form-message error";
+
+                    message.textContent =
+                        error.message ||
+                        "Testul nu a putut fi salvat.";
+                }
+            }
+        );
+
+
+    document
+        .getElementById(
+            "sanction-form"
+        )
+        ?.addEventListener(
+            "submit",
+
+            async function (
+                event
+            ) {
+
+                event.preventDefault();
+
+                if (
+                    Number(
+                        currentUser?.rankLevel ||
+                        0
+                    ) < 10
+                ) {
+                    return;
+                }
+
+                const message =
+                    document.getElementById(
+                        "sanction-message"
+                    );
+
+                const target =
+                    document.getElementById(
+                        "sanction-target"
+                    );
+
+                const selected =
+                    target.options[
+                        target.selectedIndex
+                    ];
+
+                const type =
+                    document.getElementById(
+                        "sanction-type"
+                    ).value;
+
+                message.className =
+                    "form-message";
+
+                message.textContent =
+                    "";
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/admin/sanctions",
+                            {
+                                method:
+                                    "POST",
+
+                                credentials:
+                                    "include",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify({
+                                        targetId:
+                                            target.value,
+
+                                        targetName:
+                                            selected?.dataset?.name ||
+                                            selected?.textContent ||
+                                            "",
+
+                                        type,
+
+                                        fwCount:
+                                            type === "FW"
+                                                ? Number(
+                                                    document.getElementById(
+                                                        "sanction-fw-count"
+                                                    ).value
+                                                )
+                                                : 0,
+
+                                        reason:
+                                            document.getElementById(
+                                                "sanction-reason"
+                                            ).value.trim()
+                                    })
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error ||
+                            "Sancțiunea nu a putut fi aplicată."
+                        );
+                    }
+
+                    this.reset();
+
+                    document
+                        .getElementById(
+                            "fw-count-wrap"
+                        )
+                        ?.classList
+                        .add(
+                            "visible"
+                        );
+
+                    message.className =
+                        "form-message success";
+
+                    message.textContent =
+                        type === "OUT"
+                            ? "✓ OUT înregistrat."
+                            : `✓ ${Number(data.activeFw || 0)}/5 Faction Warn active.`;
+
+                }
+
+                catch (error) {
+
+                    message.className =
+                        "form-message error";
+
+                    message.textContent =
+                        error.message ||
+                        "Sancțiunea nu a putut fi aplicată.";
+                }
+            }
+        );
 
 
     /* =========================================================
