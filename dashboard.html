@@ -13900,22 +13900,46 @@ const query =
 
     
 
-        // TEST-MANAGEMENT AUTOLOAD
+        /* TEST MANAGEMENT — AUTO LOAD DIN SUPABASE */
         if (
-            sectionName ===
+            id ===
             "test-management"
         ) {
+
+            const questionsContainer =
+                document.getElementById(
+                    "tm-questions-list"
+                );
+
+            if (questionsContainer) {
+                questionsContainer.innerHTML =
+                    '<div class="empty-state">Se încarcă întrebările salvate...</div>';
+            }
+
             loadTestManagement()
                 .catch(
                     error => {
+
                         console.error(
-                            "Test Management Auto Load Error:",
+                            "Test Management Load Error:",
                             error
                         );
+
+                        if (questionsContainer) {
+                            questionsContainer.innerHTML = `
+                                <div class="empty-state">
+                                    ${escapeHTML(
+                                        error.message ||
+                                        "Întrebările nu au putut fi încărcate."
+                                    )}
+                                </div>
+                            `;
+                        }
                     }
                 );
         }
-}
+
+    }
 
 
 
@@ -14108,10 +14132,6 @@ const query =
                     if (section === "penal-code") renderPenalCode();
                     if (section === "blacklist") await loadBlacklist();
                     if (section === "admin") await loadAdminReports();
-
-                    if (section === "test-management") {
-                        await loadTestManagement();
-                    }
                 });
             });
     }
@@ -15713,7 +15733,7 @@ const query =
 
         if (questionsContainer) {
             questionsContainer.innerHTML =
-                '<div class="empty-state">Se încarcă întrebările...</div>';
+                '<div class="empty-state">Se încarcă întrebările salvate...</div>';
         }
 
         const response =
