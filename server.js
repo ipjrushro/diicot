@@ -7080,17 +7080,17 @@ app.get(
                         "*"
                     )
                     .order(
-                        "rank_level",
-                        {
-                            ascending:
-                                false
-                        }
-                    )
-                    .order(
                         "position",
                         {
                             ascending:
                                 true
+                        }
+                    )
+                    .order(
+                        "rank_level",
+                        {
+                            ascending:
+                                false
                         }
                     )
                     .order(
@@ -7235,7 +7235,7 @@ app.post(
                     "",
 
                 position:
-                    0,
+                    1000,
 
                 created_at:
                     now,
@@ -7690,6 +7690,282 @@ app.post(
 
         try {
 
+            const now =
+                new Date()
+                    .toISOString();
+
+            const editorId =
+                String(
+                    req.session.user.id
+                );
+
+            const editorName =
+                req.session.user.displayName ||
+                req.session.user.username;
+
+
+            // --------------------------------------------------
+            // 1. Citim registrul existent.
+            // --------------------------------------------------
+
+            const {
+                data:
+                    originalRows,
+
+                error:
+                    originalError
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .select(
+                        "*"
+                    );
+
+            if (originalError) {
+                throw originalError;
+            }
+
+            let rows =
+                originalRows ||
+                [];
+
+
+            function slotFromCallsign(
+                value
+            ) {
+
+                const match =
+                    String(
+                        value ||
+                        ""
+                    )
+                        .trim()
+                        .toUpperCase()
+                        .match(
+                            /^D-(\d{1,2})$/
+                        );
+
+                if (!match) {
+                    return null;
+                }
+
+                const number =
+                    Number(
+                        match[1]
+                    );
+
+                if (
+                    number < 1 ||
+                    number > 99
+                ) {
+                    return null;
+                }
+
+                return {
+                    number,
+
+                    callsign:
+                        `D-${String(number).padStart(2, "0")}`
+                };
+            }
+
+
+            // --------------------------------------------------
+            // 2. Creăm toate sloturile D-01 ... D-99 lipsă.
+            // --------------------------------------------------
+
+            const existingCallsigns =
+                new Set(
+                    rows
+                        .map(
+                            row =>
+                                slotFromCallsign(
+                                    row.callsign
+                                )?.callsign
+                        )
+                        .filter(Boolean)
+                );
+
+            const slotsToInsert =
+                [];
+
+            for (
+                let number = 1;
+                number <= 99;
+                number++
+            ) {
+
+                const callsign =
+                    `D-${String(number).padStart(2, "0")}`;
+
+                if (
+                    existingCallsigns.has(
+                        callsign
+                    )
+                ) {
+                    continue;
+                }
+
+                slotsToInsert.push({
+                    id:
+                        crypto.randomUUID(),
+
+                    discord_id:
+                        null,
+
+                    rank:
+                        "",
+
+                    rank_level:
+                        0,
+
+                    full_name:
+                        "",
+
+                    internal_id:
+                        "",
+
+                    callsign,
+
+                    active:
+                        false,
+
+                    last_promotion:
+                        null,
+
+                    joined_at:
+                        null,
+
+                    cert_ftp:
+                        false,
+
+                    cert_radio:
+                        false,
+
+                    cert_air:
+                        false,
+
+                    cert_dcco:
+                        false,
+
+                    roles:
+                        "",
+
+                    notes:
+                        "",
+
+                    penalty_points:
+                        0,
+
+                    discord:
+                        "",
+
+                    position:
+                        number,
+
+                    created_at:
+                        now,
+
+                    updated_at:
+                        now,
+
+                    updated_by_id:
+                        editorId,
+
+                    updated_by_name:
+                        editorName
+                });
+            }
+
+            if (
+                slotsToInsert.length
+            ) {
+
+                const {
+                    error:
+                        slotInsertError
+                } =
+                    await supabase
+                        .from(
+                            "docs_personnel"
+                        )
+                        .insert(
+                            slotsToInsert
+                        );
+
+                if (slotInsertError) {
+                    throw slotInsertError;
+                }
+            }
+
+
+            // Recitim după crearea sloturilor.
+            const {
+                data:
+                    refreshedRows,
+
+                error:
+                    refreshedError
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .select(
+                        "*"
+                    );
+
+            if (refreshedError) {
+                throw refreshedError;
+            }
+
+            rows =
+                refreshedRows ||
+                [];
+
+
+            // Orice rând fără callsign valid este pus după D-99.
+            const invalidPositionRows =
+                rows.filter(
+                    row =>
+                        !slotFromCallsign(
+                            row.callsign
+                        ) &&
+                        Number(
+                            row.position ||
+                            0
+                        ) < 1000
+                );
+
+            for (
+                const row
+                of invalidPositionRows
+            ) {
+
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .update({
+                        position:
+                            1000,
+
+                        updated_at:
+                            now
+                    })
+                    .eq(
+                        "id",
+                        row.id
+                    );
+            }
+
+
+            // --------------------------------------------------
+            // 3. Luăm membrii DIICOT din Discord.
+            // --------------------------------------------------
+
             const memberResponse =
                 await axios.get(
 
@@ -7710,207 +7986,315 @@ app.post(
                     ? memberResponse.data
                     : [];
 
-            const {
-                data:
-                    existingRows,
 
-                error:
-                    existingError
-            } =
-                await supabase
-                    .from(
-                        "docs_personnel"
+            let assigned =
+                0;
+
+            let merged =
+                0;
+
+
+            for (
+                const member
+                of members
+            ) {
+
+                const roles =
+                    Array.isArray(
+                        member.roles
                     )
-                    .select(
-                        "discord_id"
+                        ? member.roles
+                            .map(String)
+                        : [];
+
+                const rank =
+                    getHighestDIICOTRole(
+                        roles
                     );
 
-            if (existingError) {
-                throw existingError;
-            }
+                if (!rank) {
+                    continue;
+                }
 
-            const existingDiscordIds =
-                new Set(
+                const discordId =
+                    String(
+                        member.user?.id ||
+                        ""
+                    );
+
+                if (!discordId) {
+                    continue;
+                }
+
+                const displayName =
+                    member.nick ||
+                    member.user?.global_name ||
+                    member.user?.username ||
+                    "Membru DIICOT";
+
+                const callsignMatch =
+                    displayName.match(
+                        /\[(D-\d{1,2})\]/i
+                    );
+
+                if (!callsignMatch) {
+                    continue;
+                }
+
+                const slot =
+                    slotFromCallsign(
+                        callsignMatch[1]
+                    );
+
+                if (!slot) {
+                    continue;
+                }
+
+                rows =
                     (
-                        existingRows ||
-                        []
-                    )
-                        .map(
-                            row =>
-                                String(
-                                    row.discord_id ||
-                                    ""
-                                )
-                        )
-                        .filter(Boolean)
-                );
+                        await supabase
+                            .from(
+                                "docs_personnel"
+                            )
+                            .select(
+                                "*"
+                            )
+                    ).data ||
+                    rows;
 
-            const now =
-                new Date()
-                    .toISOString();
+                const target =
+                    rows.find(
+                        row =>
+                            slotFromCallsign(
+                                row.callsign
+                            )?.callsign ===
+                            slot.callsign
+                    );
 
-            const rowsToInsert =
-                members
-                    .map(
-                        member => {
+                if (!target) {
+                    continue;
+                }
 
-                            const roles =
-                                Array.isArray(
-                                    member.roles
-                                )
-                                    ? member.roles
-                                        .map(String)
-                                    : [];
+                const oldDiscordRow =
+                    rows.find(
+                        row =>
+                            String(
+                                row.discord_id ||
+                                ""
+                            ) ===
+                            discordId &&
+                            row.id !==
+                            target.id
+                    );
 
-                            const rank =
-                                getHighestDIICOTRole(
-                                    roles
-                                );
 
-                            if (!rank) {
-                                return null;
-                            }
+                // Dacă vechiul sync crease un rând separat pentru membru,
+                // mutăm datele manuale în slotul său și ștergem duplicatul.
+                let manualSource =
+                    target;
 
-                            const discordId =
-                                String(
-                                    member.user?.id ||
-                                    ""
-                                );
+                if (oldDiscordRow) {
 
-                            if (
-                                !discordId ||
-                                existingDiscordIds.has(
-                                    discordId
-                                )
-                            ) {
-                                return null;
-                            }
+                    manualSource = {
+                        ...target,
 
-                            const displayName =
-                                member.nick ||
-                                member.user?.global_name ||
-                                member.user?.username ||
-                                "Membru DIICOT";
+                        internal_id:
+                            target.internal_id ||
+                            oldDiscordRow.internal_id ||
+                            "",
 
-                            const callsignMatch =
-                                displayName.match(
-                                    /\[(D-\d{1,2})\]/i
-                                );
+                        last_promotion:
+                            target.last_promotion ||
+                            oldDiscordRow.last_promotion ||
+                            null,
 
-                            const cleanName =
-                                removeExistingCallsign(
-                                    displayName
-                                );
+                        joined_at:
+                            target.joined_at ||
+                            oldDiscordRow.joined_at ||
+                            null,
 
-                            return {
-                                id:
-                                    crypto.randomUUID(),
+                        cert_ftp:
+                            Boolean(
+                                target.cert_ftp ||
+                                oldDiscordRow.cert_ftp
+                            ),
 
-                                discord_id:
-                                    discordId,
+                        cert_radio:
+                            Boolean(
+                                target.cert_radio ||
+                                oldDiscordRow.cert_radio
+                            ),
 
-                                rank:
-                                    rank.name,
+                        cert_air:
+                            Boolean(
+                                target.cert_air ||
+                                oldDiscordRow.cert_air
+                            ),
 
-                                rank_level:
-                                    rank.level,
+                        cert_dcco:
+                            Boolean(
+                                target.cert_dcco ||
+                                oldDiscordRow.cert_dcco
+                            ),
 
-                                full_name:
-                                    cleanName,
+                        roles:
+                            target.roles ||
+                            oldDiscordRow.roles ||
+                            "",
 
-                                internal_id:
-                                    "",
+                        notes:
+                            target.notes ||
+                            oldDiscordRow.notes ||
+                            "",
 
-                                callsign:
-                                    callsignMatch
-                                        ? callsignMatch[1]
-                                            .toUpperCase()
-                                        : "",
+                        penalty_points:
+                            Number(
+                                target.penalty_points ||
+                                oldDiscordRow.penalty_points ||
+                                0
+                            )
+                    };
 
-                                active:
-                                    true,
+                    const {
+                        error:
+                            deleteDuplicateError
+                    } =
+                        await supabase
+                            .from(
+                                "docs_personnel"
+                            )
+                            .delete()
+                            .eq(
+                                "id",
+                                oldDiscordRow.id
+                            );
 
-                                last_promotion:
-                                    null,
+                    if (deleteDuplicateError) {
+                        throw deleteDuplicateError;
+                    }
 
-                                joined_at:
-                                    null,
+                    merged++;
+                }
 
-                                cert_ftp:
-                                    false,
-
-                                cert_radio:
-                                    false,
-
-                                cert_air:
-                                    false,
-
-                                cert_dcco:
-                                    false,
-
-                                roles:
-                                    "",
-
-                                notes:
-                                    "",
-
-                                penalty_points:
-                                    0,
-
-                                discord:
-                                    member.user?.username
-                                        ? `@${member.user.username}`
-                                        : discordId,
-
-                                position:
-                                    0,
-
-                                created_at:
-                                    now,
-
-                                updated_at:
-                                    now,
-
-                                updated_by_id:
-                                    String(
-                                        req.session.user.id
-                                    ),
-
-                                updated_by_name:
-                                    req.session.user.displayName ||
-                                    req.session.user.username
-                            };
-                        }
-                    )
-                    .filter(Boolean);
-
-            if (
-                rowsToInsert.length
-            ) {
 
                 const {
                     error:
-                        insertError
+                        assignError
                 } =
                     await supabase
                         .from(
                             "docs_personnel"
                         )
-                        .insert(
-                            rowsToInsert
+                        .update({
+                            discord_id:
+                                discordId,
+
+                            rank:
+                                rank.name,
+
+                            rank_level:
+                                rank.level,
+
+                            full_name:
+                                removeExistingCallsign(
+                                    displayName
+                                ),
+
+                            internal_id:
+                                manualSource.internal_id ||
+                                "",
+
+                            callsign:
+                                slot.callsign,
+
+                            active:
+                                true,
+
+                            last_promotion:
+                                manualSource.last_promotion ||
+                                null,
+
+                            joined_at:
+                                manualSource.joined_at ||
+                                null,
+
+                            cert_ftp:
+                                Boolean(
+                                    manualSource.cert_ftp
+                                ),
+
+                            cert_radio:
+                                Boolean(
+                                    manualSource.cert_radio
+                                ),
+
+                            cert_air:
+                                Boolean(
+                                    manualSource.cert_air
+                                ),
+
+                            cert_dcco:
+                                Boolean(
+                                    manualSource.cert_dcco
+                                ),
+
+                            roles:
+                                manualSource.roles ||
+                                "",
+
+                            notes:
+                                manualSource.notes ||
+                                "",
+
+                            penalty_points:
+                                Number(
+                                    manualSource.penalty_points ||
+                                    0
+                                ),
+
+                            discord:
+                                member.user?.username
+                                    ? `@${member.user.username}`
+                                    : discordId,
+
+                            position:
+                                slot.number,
+
+                            updated_at:
+                                now,
+
+                            updated_by_id:
+                                editorId,
+
+                            updated_by_name:
+                                editorName
+                        })
+                        .eq(
+                            "id",
+                            target.id
                         );
 
-                if (insertError) {
-                    throw insertError;
+                if (assignError) {
+                    throw assignError;
                 }
+
+                assigned++;
             }
+
 
             res.json({
                 success:
                     true,
 
                 created:
-                    rowsToInsert.length
+                    slotsToInsert.length,
+
+                assigned,
+
+                merged,
+
+                totalSlots:
+                    99
             });
 
         }
@@ -7932,7 +8316,6 @@ app.post(
         }
     }
 );
-
 
 // ======================================================
 // LOGOUT
