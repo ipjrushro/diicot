@@ -704,6 +704,17 @@
         }
 
 
+        .sidebar-link[data-section="docs"]::before {
+
+            content:
+                "▥";
+
+            color:
+                var(--gold);
+
+        }
+
+
         /* NOU — COD PENAL */
 
         .sidebar-link[data-section="penal-code"]::before {
@@ -3376,6 +3387,254 @@
                 var(--red);
         }
 
+
+
+
+        /* =========================================================
+           DOCS — REGISTRU PERSONAL
+        ========================================================== */
+
+        .docs-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .docs-toolbar-left,
+        .docs-toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .docs-search {
+            width: min(410px, 100%);
+            min-height: 40px;
+        }
+
+        .docs-admin-badge {
+            display: none;
+            min-height: 31px;
+            align-items: center;
+            padding: 0 10px;
+            border: 1px solid rgba(233,185,73,.24);
+            border-radius: 6px;
+            background: rgba(233,185,73,.05);
+            color: var(--gold);
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: .7px;
+        }
+
+        .docs-admin-badge.visible {
+            display: inline-flex;
+        }
+
+        .docs-table-panel {
+            overflow: hidden;
+        }
+
+        .docs-table-scroll {
+            width: 100%;
+            overflow-x: auto;
+            overflow-y: hidden;
+        }
+
+        .docs-table {
+            width: 100%;
+            min-width: 1580px;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+        }
+
+        .docs-table th {
+            position: sticky;
+            top: 0;
+            z-index: 4;
+            height: 54px;
+            padding: 8px 7px;
+            border-right: 1px solid rgba(255,255,255,.045);
+            border-bottom: 1px solid rgba(255,255,255,.075);
+            background: #091525;
+            color: #758aa4;
+            font-size: 7px;
+            font-weight: 950;
+            letter-spacing: .55px;
+            text-align: center;
+            white-space: normal;
+        }
+
+        .docs-table td {
+            height: 43px;
+            padding: 5px 6px;
+            border-right: 1px solid rgba(255,255,255,.035);
+            border-bottom: 1px solid rgba(255,255,255,.045);
+            background: rgba(7,16,28,.74);
+            color: #dce5ef;
+            font-size: 8px;
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .docs-table tbody tr:hover td {
+            background: rgba(16,30,49,.9);
+        }
+
+        .docs-table th:last-child,
+        .docs-table td:last-child {
+            border-right: 0;
+        }
+
+        .docs-rank-cell {
+            padding: 0 !important;
+        }
+
+        .docs-rank-badge {
+            width: 100%;
+            min-height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5px 7px;
+            color: white;
+            background: linear-gradient(135deg,#0c4fca,#16358d);
+            font-size: 6px;
+            font-weight: 950;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .docs-rank-badge[data-level="13"],
+        .docs-rank-badge[data-level="12"],
+        .docs-rank-badge[data-level="11"] {
+            background: linear-gradient(135deg,#bd861d,#7f5812);
+        }
+
+        .docs-rank-badge[data-level="10"] {
+            background: linear-gradient(135deg,#0e7b82,#07535c);
+        }
+
+        .docs-rank-badge[data-level="9"],
+        .docs-rank-badge[data-level="8"],
+        .docs-rank-badge[data-level="7"] {
+            background: linear-gradient(135deg,#1657aa,#10396e);
+        }
+
+        .docs-row-input,
+        .docs-row-select,
+        .docs-row-textarea {
+            width: 100%;
+            min-height: 31px;
+            padding: 6px 7px;
+            border: 1px solid rgba(126,153,184,.12);
+            border-radius: 5px;
+            background: rgba(3,10,18,.68);
+            color: #eef3f8;
+            font-size: 8px;
+        }
+
+        .docs-row-textarea {
+            min-height: 31px;
+            height: 31px;
+            resize: vertical;
+        }
+
+        .docs-row-input:disabled,
+        .docs-row-select:disabled,
+        .docs-row-textarea:disabled {
+            opacity: 1;
+            cursor: default;
+            border-color: transparent;
+            background: transparent;
+            color: #d7e0ea;
+        }
+
+        .docs-check {
+            width: 16px;
+            height: 16px;
+            accent-color: #3183ff;
+            cursor: pointer;
+        }
+
+        .docs-check:disabled {
+            cursor: default;
+            opacity: .92;
+        }
+
+        .docs-cert-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3px;
+            align-items: center;
+        }
+
+        .docs-cert-item {
+            display: grid;
+            place-items: center;
+        }
+
+        .docs-role-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 27px;
+            width: 100%;
+            padding: 4px 7px;
+            border-radius: 5px;
+            background: rgba(49,131,255,.11);
+            color: #94bdff;
+            font-size: 7px;
+            font-weight: 850;
+        }
+
+        .docs-actions {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .docs-mini-btn {
+            min-height: 29px;
+            padding: 0 8px;
+            border: 1px solid rgba(255,255,255,.08);
+            border-radius: 5px;
+            background: rgba(255,255,255,.025);
+            color: #b8c5d5;
+            font-size: 6px;
+            font-weight: 900;
+            cursor: pointer;
+        }
+
+        .docs-mini-btn.save {
+            border-color: rgba(49,216,135,.24);
+            color: var(--green);
+            background: rgba(49,216,135,.045);
+        }
+
+        .docs-mini-btn.delete {
+            border-color: rgba(255,83,83,.24);
+            color: #ff7777;
+            background: rgba(255,83,83,.04);
+        }
+
+        .docs-empty {
+            padding: 42px 20px !important;
+            color: #61748a !important;
+            text-align: center !important;
+        }
+
+        .docs-help {
+            margin-top: 10px;
+            color: #607287;
+            font-size: 8px;
+            line-height: 1.6;
+        }
 
 
         /* =========================================================
@@ -7154,6 +7413,137 @@
 
 
             <!-- =====================================================
+                 DOCS — REGISTRU PERSONAL
+            ====================================================== -->
+
+            <section
+                class="dashboard-section"
+                id="docs"
+            >
+
+                <div class="section-title">
+
+                    <span>
+                        REGISTRU OPERAȚIONAL
+                    </span>
+
+                    <h2>
+                        DOCS
+                    </h2>
+
+                </div>
+
+
+                <div class="docs-toolbar">
+
+                    <div class="docs-toolbar-left">
+
+                        <input
+                            type="search"
+                            id="docs-search"
+                            class="docs-search"
+                            placeholder="Caută după nume, callsign, grad, ID intern sau Discord..."
+                        >
+
+                        <span
+                            id="docs-count"
+                            class="personnel-summary"
+                            style="margin:0;"
+                        >
+                            <span>ÎNREGISTRĂRI</span>
+                            <strong>0</strong>
+                        </span>
+
+                    </div>
+
+
+                    <div class="docs-toolbar-right">
+
+                        <span
+                            id="docs-admin-badge"
+                            class="docs-admin-badge"
+                        >
+                            EDITARE ACTIVĂ • COORDONATOR+
+                        </span>
+
+                        <button
+                            type="button"
+                            id="docs-sync-btn"
+                            class="primary-btn gold-btn admin-only"
+                        >
+                            SINCRONIZEAZĂ PERSONAL
+                        </button>
+
+                        <button
+                            type="button"
+                            id="docs-add-btn"
+                            class="primary-btn admin-only"
+                        >
+                            + ADAUGĂ RÂND
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <div class="dashboard-panel docs-table-panel">
+
+                    <div class="docs-table-scroll">
+
+                        <table class="docs-table">
+
+                            <thead>
+
+                                <tr>
+                                    <th style="width:125px;">RANG</th>
+                                    <th style="width:155px;">NUME ȘI PRENUME</th>
+                                    <th style="width:95px;">ID INTERN</th>
+                                    <th style="width:88px;">CALLSIGN</th>
+                                    <th style="width:65px;">ACTIV</th>
+                                    <th style="width:112px;">ULTIMA PROMOVARE</th>
+                                    <th style="width:112px;">INTRARE DEPARTAMENT</th>
+                                    <th style="width:150px;">CERTIFICĂRI<br>FTP • RADIO • AIR • DCCO</th>
+                                    <th style="width:150px;">ROLURI</th>
+                                    <th style="width:190px;">NOTE</th>
+                                    <th style="width:95px;">PUNCTE</th>
+                                    <th style="width:155px;">DISCORD</th>
+                                    <th style="width:125px;">ACȚIUNI</th>
+                                </tr>
+
+                            </thead>
+
+                            <tbody id="docs-table-body">
+
+                                <tr>
+                                    <td colspan="13" class="docs-empty">
+                                        Se încarcă registrul DOCS...
+                                    </td>
+                                </tr>
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                </div>
+
+
+                <div class="docs-help">
+                    DOCS este vizibil tuturor membrilor autentificați. Modificarea, sincronizarea și ștergerea datelor sunt disponibile doar pentru COORDONATOR+.
+                </div>
+
+                <div
+                    id="docs-message"
+                    class="form-message"
+                ></div>
+
+            </section>
+
+
+
+            <!-- =====================================================
                  COD PENAL
             ====================================================== -->
 
@@ -9035,6 +9425,8 @@
 
     let adminLeaveRequests = [];
 
+    let docsRows = [];
+
 
     // Profilul care este afișat în acest moment.
     // null = profilul propriu.
@@ -9673,6 +10065,877 @@
 
 
 
+
+    /* =========================================================
+       DOCS — REGISTRU PERSONAL
+    ========================================================== */
+
+    function docsCanEdit() {
+        return Number(
+            currentUser?.rankLevel ||
+            0
+        ) >= 10;
+    }
+
+
+    function docsRankLevel(rankName) {
+
+        const normalized =
+            String(rankName || "")
+                .toUpperCase();
+
+        const found =
+            discordRoles.find(
+                role =>
+                    String(role.name || "")
+                        .toUpperCase() ===
+                    normalized
+            );
+
+        return Number(
+            found?.level ||
+            0
+        );
+    }
+
+
+    function docsValue(value) {
+        return value === null ||
+            value === undefined
+                ? ""
+                : String(value);
+    }
+
+
+    function docsDateValue(value) {
+        if (!value) {
+            return "";
+        }
+
+        return String(value)
+            .slice(0, 10);
+    }
+
+
+    function docsSetMessage(
+        text,
+        type = ""
+    ) {
+
+        const element =
+            document.getElementById(
+                "docs-message"
+            );
+
+        if (!element) {
+            return;
+        }
+
+        element.className =
+            `form-message ${type}`.trim();
+
+        element.textContent =
+            text || "";
+    }
+
+
+    function renderDocs() {
+
+        const body =
+            document.getElementById(
+                "docs-table-body"
+            );
+
+        const count =
+            document.querySelector(
+                "#docs-count strong"
+            );
+
+        const adminBadge =
+            document.getElementById(
+                "docs-admin-badge"
+            );
+
+        if (!body) {
+            return;
+        }
+
+        const canEdit =
+            docsCanEdit();
+
+        adminBadge
+            ?.classList
+            .toggle(
+                "visible",
+                canEdit
+            );
+
+        const query =
+            String(
+                document
+                    .getElementById(
+                        "docs-search"
+                    )
+                    ?.value ||
+                ""
+            )
+                .trim()
+                .toLowerCase();
+
+        const filtered =
+            docsRows.filter(
+                row => {
+
+                    if (!query) {
+                        return true;
+                    }
+
+                    return [
+                        row.rank,
+                        row.fullName,
+                        row.internalId,
+                        row.callsign,
+                        row.roles,
+                        row.discord
+                    ]
+                        .some(
+                            value =>
+                                String(
+                                    value || ""
+                                )
+                                    .toLowerCase()
+                                    .includes(
+                                        query
+                                    )
+                        );
+                }
+            );
+
+        if (count) {
+            count.textContent =
+                String(filtered.length);
+        }
+
+        if (!filtered.length) {
+
+            body.innerHTML = `
+                <tr>
+                    <td
+                        colspan="13"
+                        class="docs-empty"
+                    >
+                        Nu există înregistrări DOCS.
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        body.innerHTML =
+            filtered
+                .map(
+                    row => {
+
+                        const level =
+                            Number(
+                                row.rankLevel ||
+                                docsRankLevel(
+                                    row.rank
+                                ) ||
+                                0
+                            );
+
+                        const disabled =
+                            canEdit
+                                ? ""
+                                : "disabled";
+
+                        const checked =
+                            value =>
+                                value
+                                    ? "checked"
+                                    : "";
+
+                        const actions =
+                            canEdit
+                                ? `
+                                    <div class="docs-actions">
+                                        <button
+                                            type="button"
+                                            class="docs-mini-btn save"
+                                            data-docs-save="${escapeHTML(row.id)}"
+                                        >
+                                            SALVEAZĂ
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="docs-mini-btn delete"
+                                            data-docs-delete="${escapeHTML(row.id)}"
+                                        >
+                                            ȘTERGE
+                                        </button>
+                                    </div>
+                                `
+                                : `<span style="color:#526479;">DOAR CITIRE</span>`;
+
+                        return `
+                            <tr data-docs-row="${escapeHTML(row.id)}">
+
+                                <td class="docs-rank-cell">
+                                    <div
+                                        class="docs-rank-badge"
+                                        data-level="${level}"
+                                    >
+                                        ${escapeHTML(row.rank || "FĂRĂ GRAD")}
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <input
+                                        class="docs-row-input"
+                                        data-field="fullName"
+                                        value="${escapeHTML(docsValue(row.fullName))}"
+                                        ${disabled}
+                                    >
+                                </td>
+
+                                <td>
+                                    <input
+                                        class="docs-row-input"
+                                        data-field="internalId"
+                                        value="${escapeHTML(docsValue(row.internalId))}"
+                                        ${disabled}
+                                    >
+                                </td>
+
+                                <td>
+                                    <input
+                                        class="docs-row-input"
+                                        data-field="callsign"
+                                        value="${escapeHTML(docsValue(row.callsign))}"
+                                        placeholder="D-01"
+                                        ${disabled}
+                                    >
+                                </td>
+
+                                <td>
+                                    <input
+                                        type="checkbox"
+                                        class="docs-check"
+                                        data-field="active"
+                                        ${checked(row.active)}
+                                        ${disabled}
+                                    >
+                                </td>
+
+                                <td>
+                                    <input
+                                        type="date"
+                                        class="docs-row-input"
+                                        data-field="lastPromotion"
+                                        value="${escapeHTML(docsDateValue(row.lastPromotion))}"
+                                        ${disabled}
+                                    >
+                                </td>
+
+                                <td>
+                                    <input
+                                        type="date"
+                                        class="docs-row-input"
+                                        data-field="joinedAt"
+                                        value="${escapeHTML(docsDateValue(row.joinedAt))}"
+                                        ${disabled}
+                                    >
+                                </td>
+
+                                <td>
+                                    <div class="docs-cert-grid">
+
+                                        <label class="docs-cert-item" title="FTP">
+                                            <input
+                                                type="checkbox"
+                                                class="docs-check"
+                                                data-field="certFtp"
+                                                ${checked(row.certFtp)}
+                                                ${disabled}
+                                            >
+                                        </label>
+
+                                        <label class="docs-cert-item" title="RADIO">
+                                            <input
+                                                type="checkbox"
+                                                class="docs-check"
+                                                data-field="certRadio"
+                                                ${checked(row.certRadio)}
+                                                ${disabled}
+                                            >
+                                        </label>
+
+                                        <label class="docs-cert-item" title="AIR">
+                                            <input
+                                                type="checkbox"
+                                                class="docs-check"
+                                                data-field="certAir"
+                                                ${checked(row.certAir)}
+                                                ${disabled}
+                                            >
+                                        </label>
+
+                                        <label class="docs-cert-item" title="DCCO">
+                                            <input
+                                                type="checkbox"
+                                                class="docs-check"
+                                                data-field="certDcco"
+                                                ${checked(row.certDcco)}
+                                                ${disabled}
+                                            >
+                                        </label>
+
+                                    </div>
+                                </td>
+
+                                <td>
+                                    <input
+                                        class="docs-row-input"
+                                        data-field="roles"
+                                        value="${escapeHTML(docsValue(row.roles))}"
+                                        ${disabled}
+                                    >
+                                </td>
+
+                                <td>
+                                    <textarea
+                                        class="docs-row-textarea"
+                                        data-field="notes"
+                                        ${disabled}
+                                    >${escapeHTML(docsValue(row.notes))}</textarea>
+                                </td>
+
+                                <td>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        class="docs-row-input"
+                                        data-field="penaltyPoints"
+                                        value="${escapeHTML(docsValue(row.penaltyPoints ?? 0))}"
+                                        ${disabled}
+                                    >
+                                </td>
+
+                                <td>
+                                    <input
+                                        class="docs-row-input"
+                                        data-field="discord"
+                                        value="${escapeHTML(docsValue(row.discord))}"
+                                        ${disabled}
+                                    >
+                                </td>
+
+                                <td>
+                                    ${actions}
+                                </td>
+
+                            </tr>
+                        `;
+                    }
+                )
+                .join("");
+
+        bindDocsRowEvents();
+    }
+
+
+    function collectDocsRow(
+        rowElement
+    ) {
+
+        const get =
+            field =>
+                rowElement.querySelector(
+                    `[data-field="${field}"]`
+                );
+
+        return {
+            fullName:
+                get("fullName")?.value?.trim() || "",
+
+            internalId:
+                get("internalId")?.value?.trim() || "",
+
+            callsign:
+                get("callsign")?.value?.trim() || "",
+
+            active:
+                Boolean(
+                    get("active")?.checked
+                ),
+
+            lastPromotion:
+                get("lastPromotion")?.value || null,
+
+            joinedAt:
+                get("joinedAt")?.value || null,
+
+            certFtp:
+                Boolean(
+                    get("certFtp")?.checked
+                ),
+
+            certRadio:
+                Boolean(
+                    get("certRadio")?.checked
+                ),
+
+            certAir:
+                Boolean(
+                    get("certAir")?.checked
+                ),
+
+            certDcco:
+                Boolean(
+                    get("certDcco")?.checked
+                ),
+
+            roles:
+                get("roles")?.value?.trim() || "",
+
+            notes:
+                get("notes")?.value?.trim() || "",
+
+            penaltyPoints:
+                Number(
+                    get("penaltyPoints")?.value ||
+                    0
+                ),
+
+            discord:
+                get("discord")?.value?.trim() || ""
+        };
+    }
+
+
+    function bindDocsRowEvents() {
+
+        if (!docsCanEdit()) {
+            return;
+        }
+
+        document
+            .querySelectorAll(
+                "[data-docs-save]"
+            )
+            .forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+                        async () => {
+
+                            const id =
+                                button.dataset.docsSave;
+
+                            const rowElement =
+                                document.querySelector(
+                                    `[data-docs-row="${CSS.escape(id)}"]`
+                                );
+
+                            if (!rowElement) {
+                                return;
+                            }
+
+                            button.disabled =
+                                true;
+
+                            docsSetMessage(
+                                "Se salvează..."
+                            );
+
+                            try {
+
+                                const response =
+                                    await fetch(
+                                        `/api/admin/docs/${encodeURIComponent(id)}`,
+                                        {
+                                            method:
+                                                "PATCH",
+
+                                            headers: {
+                                                "Content-Type":
+                                                    "application/json"
+                                            },
+
+                                            credentials:
+                                                "include",
+
+                                            body:
+                                                JSON.stringify(
+                                                    collectDocsRow(
+                                                        rowElement
+                                                    )
+                                                )
+                                        }
+                                    );
+
+                                const data =
+                                    await response.json();
+
+                                if (!response.ok) {
+                                    throw new Error(
+                                        data.error ||
+                                        "Înregistrarea nu a putut fi salvată."
+                                    );
+                                }
+
+                                const index =
+                                    docsRows.findIndex(
+                                        row =>
+                                            row.id === id
+                                    );
+
+                                if (
+                                    index !== -1 &&
+                                    data.row
+                                ) {
+                                    docsRows[index] =
+                                        data.row;
+                                }
+
+                                docsSetMessage(
+                                    "Înregistrarea a fost salvată.",
+                                    "success"
+                                );
+
+                                renderDocs();
+
+                            }
+
+                            catch (error) {
+
+                                docsSetMessage(
+                                    error.message ||
+                                    "A apărut o eroare.",
+                                    "error"
+                                );
+
+                            }
+
+                            finally {
+
+                                button.disabled =
+                                    false;
+                            }
+                        }
+                    );
+                }
+            );
+
+
+        document
+            .querySelectorAll(
+                "[data-docs-delete]"
+            )
+            .forEach(
+                button => {
+
+                    button.addEventListener(
+                        "click",
+                        async () => {
+
+                            const id =
+                                button.dataset.docsDelete;
+
+                            if (
+                                !confirm(
+                                    "Ștergi definitiv această înregistrare din DOCS?"
+                                )
+                            ) {
+                                return;
+                            }
+
+                            try {
+
+                                const response =
+                                    await fetch(
+                                        `/api/admin/docs/${encodeURIComponent(id)}`,
+                                        {
+                                            method:
+                                                "DELETE",
+
+                                            credentials:
+                                                "include"
+                                        }
+                                    );
+
+                                const data =
+                                    await response.json();
+
+                                if (!response.ok) {
+                                    throw new Error(
+                                        data.error ||
+                                        "Înregistrarea nu a putut fi ștearsă."
+                                    );
+                                }
+
+                                docsRows =
+                                    docsRows.filter(
+                                        row =>
+                                            row.id !== id
+                                    );
+
+                                renderDocs();
+
+                                docsSetMessage(
+                                    "Înregistrarea a fost ștearsă.",
+                                    "success"
+                                );
+
+                            }
+
+                            catch (error) {
+
+                                docsSetMessage(
+                                    error.message ||
+                                    "A apărut o eroare.",
+                                    "error"
+                                );
+                            }
+                        }
+                    );
+                }
+            );
+    }
+
+
+    async function loadDocs() {
+
+        const body =
+            document.getElementById(
+                "docs-table-body"
+            );
+
+        if (body) {
+            body.innerHTML = `
+                <tr>
+                    <td
+                        colspan="13"
+                        class="docs-empty"
+                    >
+                        Se încarcă registrul DOCS...
+                    </td>
+                </tr>
+            `;
+        }
+
+        docsSetMessage("");
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/docs",
+                    {
+                        credentials:
+                            "include",
+
+                        cache:
+                            "no-store"
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    "DOCS nu a putut fi încărcat."
+                );
+            }
+
+            docsRows =
+                Array.isArray(
+                    data.rows
+                )
+                    ? data.rows
+                    : [];
+
+            renderDocs();
+
+        }
+
+        catch (error) {
+
+            docsRows = [];
+
+            renderDocs();
+
+            docsSetMessage(
+                error.message ||
+                "DOCS nu a putut fi încărcat.",
+                "error"
+            );
+        }
+    }
+
+
+    document
+        .getElementById(
+            "docs-search"
+        )
+        ?.addEventListener(
+            "input",
+            renderDocs
+        );
+
+
+    document
+        .getElementById(
+            "docs-add-btn"
+        )
+        ?.addEventListener(
+            "click",
+            async () => {
+
+                if (!docsCanEdit()) {
+                    return;
+                }
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/admin/docs",
+                            {
+                                method:
+                                    "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                credentials:
+                                    "include",
+
+                                body:
+                                    JSON.stringify({
+                                        fullName:
+                                            "Membru nou"
+                                    })
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error ||
+                            "Rândul nu a putut fi creat."
+                        );
+                    }
+
+                    if (data.row) {
+                        docsRows.push(
+                            data.row
+                        );
+                    }
+
+                    renderDocs();
+
+                    docsSetMessage(
+                        "Rând nou creat. Completează datele și apasă SALVEAZĂ.",
+                        "success"
+                    );
+
+                }
+
+                catch (error) {
+
+                    docsSetMessage(
+                        error.message ||
+                        "Rândul nu a putut fi creat.",
+                        "error"
+                    );
+                }
+            }
+        );
+
+
+    document
+        .getElementById(
+            "docs-sync-btn"
+        )
+        ?.addEventListener(
+            "click",
+            async function () {
+
+                if (!docsCanEdit()) {
+                    return;
+                }
+
+                this.disabled =
+                    true;
+
+                docsSetMessage(
+                    "Se sincronizează personalul DIICOT..."
+                );
+
+                try {
+
+                    const response =
+                        await fetch(
+                            "/api/admin/docs/sync",
+                            {
+                                method:
+                                    "POST",
+
+                                credentials:
+                                    "include"
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error ||
+                            "Sincronizarea nu a reușit."
+                        );
+                    }
+
+                    docsSetMessage(
+                        `Sincronizare finalizată. ${Number(data.created || 0)} înregistrări noi.`,
+                        "success"
+                    );
+
+                    await loadDocs();
+
+                }
+
+                catch (error) {
+
+                    docsSetMessage(
+                        error.message ||
+                        "Sincronizarea nu a reușit.",
+                        "error"
+                    );
+
+                }
+
+                finally {
+
+                    this.disabled =
+                        false;
+                }
+            }
+        );
+
+
+
     /* =========================================================
        NAVIGATION
     ========================================================== */
@@ -9845,6 +11108,15 @@
 
                                 await loadAdminLeave();
                             }
+                        }
+
+
+                        if (
+                            section ===
+                            "docs"
+                        ) {
+
+                            await loadDocs();
                         }
 
 
