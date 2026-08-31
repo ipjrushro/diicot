@@ -8274,6 +8274,21 @@
                             COORDONATOR+
                         </strong>
 
+                        <button
+                            type="button"
+                            id="admin-delete-all-reports"
+                            class="primary-btn"
+                            style="
+                                margin-top:14px;
+                                width:100%;
+                                border-color:rgba(220,70,70,.45);
+                                background:rgba(130,20,20,.18);
+                                color:#ff8b8b;
+                            "
+                        >
+                            ȘTERGERE RAPOARTE
+                        </button>
+
                     </div>
 
 
@@ -19850,6 +19865,90 @@ const query =
 
 
     loadUser();
+
+
+
+    document
+        .getElementById("admin-delete-all-reports")
+        ?.addEventListener("click", async () => {
+
+            if (Number(currentUser?.rankLevel || 0) < 10) {
+                return;
+            }
+
+            if (!confirm(
+                "ATENȚIE: Se vor șterge definitiv TOATE rapoartele tuturor membrilor și imaginile lor. Datele din DOCS NU vor fi atinse. Continui?"
+            )) {
+                return;
+            }
+
+            const confirmation = prompt(
+                'Pentru confirmare scrie exact: STERGE RAPOARTELE'
+            );
+
+            if (confirmation !== "STERGE RAPOARTELE") {
+                alert("Ștergerea a fost anulată.");
+                return;
+            }
+
+            const button = document.getElementById("admin-delete-all-reports");
+
+            try {
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = "SE ȘTERG...";
+                }
+
+                const response = await fetch(
+                    "/api/admin/reports/all",
+                    {
+                        method: "DELETE",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            confirmation: "STERGE RAPOARTELE"
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.error || "Rapoartele nu au putut fi șterse."
+                    );
+                }
+
+                if (typeof loadAdminReports === "function") {
+                    await loadAdminReports();
+                }
+
+                if (typeof loadMyReports === "function") {
+                    await loadMyReports();
+                }
+
+                if (typeof loadDashboard === "function") {
+                    await loadDashboard();
+                }
+
+                alert(
+                    `Gata. ${Number(data.deletedReports || 0)} rapoarte au fost șterse. DOCS a rămas neschimbat.`
+                );
+            }
+            catch (error) {
+                alert(
+                    error.message || "Rapoartele nu au putut fi șterse."
+                );
+            }
+            finally {
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = "ȘTERGERE RAPOARTE";
+                }
+            }
+        });
 
 </script>
 
