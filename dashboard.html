@@ -7459,8 +7459,8 @@
                             class="personnel-summary"
                             style="margin:0;"
                         >
-                            <span>ÎNREGISTRĂRI</span>
-                            <strong>0</strong>
+                            <span>SLOTURI D-01 — D-99</span>
+                            <strong>99</strong>
                         </span>
 
                     </div>
@@ -10297,7 +10297,7 @@
                                         class="docs-rank-badge"
                                         data-level="${level}"
                                     >
-                                        ${escapeHTML(row.rank || "FĂRĂ GRAD")}
+                                        ${escapeHTML(row.rank || "LOC LIBER")}
                                     </div>
                                 </td>
 
@@ -10917,7 +10917,7 @@
                     }
 
                     docsSetMessage(
-                        `Sincronizare finalizată. ${Number(data.created || 0)} înregistrări noi.`,
+                        `Sincronizare finalizată: D-01 până la D-99 sunt în registru, ${Number(data.assigned || 0)} membri asociați și ${Number(data.created || 0)} sloturi noi create.`,
                         "success"
                     );
 
