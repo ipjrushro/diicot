@@ -3636,50 +3636,6 @@
             line-height: 1.6;
         }
 
-        .docs-save-all-wrap {
-            position: fixed;
-            right: 28px;
-            bottom: 26px;
-            z-index: 160;
-            display: none;
-        }
-
-        .docs-save-all-wrap.visible {
-            display: block;
-        }
-
-        .docs-save-all-btn {
-            min-width: 180px;
-            min-height: 52px;
-            padding: 0 22px;
-            border: 1px solid rgba(233,185,73,.55);
-            border-radius: 9px;
-            background: linear-gradient(135deg,#ffd45f,#d99a13);
-            color: #101318;
-            box-shadow: 0 18px 48px rgba(0,0,0,.42), 0 0 24px rgba(233,185,73,.12);
-            font-size: 8px;
-            font-weight: 1000;
-            letter-spacing: .9px;
-            cursor: pointer;
-            transition: .18s ease;
-        }
-
-        .docs-save-all-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .docs-save-all-btn:disabled {
-            opacity: .55;
-            cursor: wait;
-            transform: none;
-        }
-
-        .docs-save-all-btn.dirty::before {
-            content: "●";
-            margin-right: 8px;
-            color: #8a5600;
-        }
-
 
         /* =========================================================
            COD PENAL — COMMAND CENTER
@@ -7529,6 +7485,14 @@
 
                         <button
                             type="button"
+                            id="docs-save-all-btn"
+                            class="primary-btn gold-btn admin-only"
+                        >
+                            SALVEAZĂ MODIFICĂRILE
+                        </button>
+
+                        <button
+                            type="button"
                             id="docs-add-btn"
                             class="primary-btn admin-only"
                         >
@@ -7558,8 +7522,6 @@
                                     <th style="width:112px;">INTRARE DEPARTAMENT</th>
                                     <th style="width:150px;">CERTIFICĂRI<br>FTP • RADIO • AIR • DCCO</th>
                                     <th style="width:150px;">ROLURI</th>
-                                    <th style="width:190px;">NOTE</th>
-                                    <th style="width:95px;">PUNCTE</th>
                                     <th style="width:155px;">DISCORD</th>
                                     <th style="width:125px;">ACȚIUNI</th>
                                 </tr>
@@ -7569,7 +7531,7 @@
                             <tbody id="docs-table-body">
 
                                 <tr>
-                                    <td colspan="13" class="docs-empty">
+                                    <td colspan="11" class="docs-empty">
                                         Se încarcă registrul DOCS...
                                     </td>
                                 </tr>
@@ -7591,19 +7553,6 @@
                     id="docs-message"
                     class="form-message"
                 ></div>
-
-                <div
-                    id="docs-save-all-wrap"
-                    class="docs-save-all-wrap"
-                >
-                    <button
-                        type="button"
-                        id="docs-save-all-btn"
-                        class="docs-save-all-btn"
-                    >
-                        SALVEAZĂ MODIFICĂRILE
-                    </button>
-                </div>
 
             </section>
 
@@ -10237,18 +10186,7 @@
                 "visible",
                 canEdit
             );
-
-        document
-            .getElementById(
-                "docs-save-all-wrap"
-            )
-            ?.classList
-            .toggle(
-                "visible",
-                canEdit
-            );
-
-        const query =
+const query =
             String(
                 document
                     .getElementById(
@@ -10474,27 +10412,7 @@
                                         ${disabled}
                                     >
                                 </td>
-
-                                <td>
-                                    <textarea
-                                        class="docs-row-textarea"
-                                        data-field="notes"
-                                        ${disabled}
-                                    >${escapeHTML(docsValue(row.notes))}</textarea>
-                                </td>
-
-                                <td>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        class="docs-row-input"
-                                        data-field="penaltyPoints"
-                                        value="${escapeHTML(docsValue(row.penaltyPoints ?? 0))}"
-                                        ${disabled}
-                                    >
-                                </td>
-
-                                <td>
+<td>
                                     <input
                                         class="docs-row-input"
                                         data-field="discord"
@@ -10570,15 +10488,6 @@
 
             roles:
                 get("roles")?.value?.trim() || "",
-
-            notes:
-                get("notes")?.value?.trim() || "",
-
-            penaltyPoints:
-                Number(
-                    get("penaltyPoints")?.value ||
-                    0
-                ),
 
             discord:
                 get("discord")?.value?.trim() || ""
