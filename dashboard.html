@@ -7818,6 +7818,11 @@
             display: block;
         }
 
+
+        .sidebar-link[data-section="activities"] {
+            display: flex !important;
+        }
+
 </style>
 
 </head>
@@ -12864,35 +12869,54 @@
 
 
             const isTester =
-                Array.isArray(
+                Boolean(
+                    data?.permissions?.tester
+                ) ||
+                (
+                    Array.isArray(
+                        currentUser.roles
+                    ) &&
                     currentUser.roles
-                ) &&
-                currentUser.roles
-                    .map(String)
-                    .includes(
-                        "1543701312359759973"
-                    );
+                        .map(String)
+                        .includes(
+                            "1543701312359759973"
+                        )
+                );
 
 
             const canUseTestManagement =
+                Boolean(
+                    data?.permissions?.testManagement
+                ) ||
                 isAdmin ||
                 isTester;
 
 
             document
                 .querySelectorAll(
-                    '.tester-home-card'
+                    ".tester-home-card"
                 )
                 .forEach(
                     element => {
 
                         element.style.display =
                             canUseTestManagement
-                                ? ""
+                                ? "block"
                                 : "none";
 
                     }
                 );
+
+
+            const activitiesButton =
+                document.querySelector(
+                    '.sidebar-link[data-section="activities"]'
+                );
+
+            if (activitiesButton) {
+                activitiesButton.style.display =
+                    "flex";
+            }
 
 
             document
