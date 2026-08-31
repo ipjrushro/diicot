@@ -2766,6 +2766,122 @@ app.get(
 );
 
 
+
+// ======================================================
+// ȘTERGERE GLOBALĂ RAPOARTE — COORDONATOR+
+// IMPORTANT: această rută operează EXCLUSIV pe tabela "reports"
+// și bucket-ul "report-images". Nu modifică docs_personnel.
+// ======================================================
+
+app.delete(
+    "/api/admin/reports/all",
+    requireAdmin,
+    async (req, res) => {
+
+        if (!ensureSupabase(res)) {
+            return;
+        }
+
+        if (
+            String(req.body?.confirmation || "") !==
+            "STERGE RAPOARTELE"
+        ) {
+            return res.status(400).json({
+                error: "Confirmarea pentru ștergere este invalidă."
+            });
+        }
+
+        try {
+            const {
+                data: reports,
+                error: selectError
+            } = await supabase
+                .from("reports")
+                .select("id, images");
+
+            if (selectError) {
+                throw selectError;
+            }
+
+            const allReports = reports || [];
+            const storagePaths = [];
+
+            for (const report of allReports) {
+                const images = Array.isArray(report.images)
+                    ? report.images
+                    : [];
+
+                for (const image of images) {
+                    if (
+                        image &&
+                        typeof image === "object" &&
+                        image.path
+                    ) {
+                        storagePaths.push(String(image.path));
+                    }
+                }
+            }
+
+            // Ștergem mai întâi imaginile rapoartelor.
+            for (let i = 0; i < storagePaths.length; i += 100) {
+                const batch = storagePaths.slice(i, i + 100);
+
+                const { error: storageError } = await supabase
+                    .storage
+                    .from(SUPABASE_BUCKET)
+                    .remove(batch);
+
+                if (storageError) {
+                    return res.status(500).json({
+                        error:
+                            "Imaginile nu au putut fi șterse. Rapoartele au rămas în sistem."
+                    });
+                }
+            }
+
+            // Ștergem EXCLUSIV rândurile din tabela reports.
+            const ids = allReports
+                .map(report => report.id)
+                .filter(Boolean);
+
+            for (let i = 0; i < ids.length; i += 100) {
+                const batch = ids.slice(i, i + 100);
+
+                const { error: deleteError } = await supabase
+                    .from("reports")
+                    .delete()
+                    .in("id", batch);
+
+                if (deleteError) {
+                    throw deleteError;
+                }
+            }
+
+            console.log(
+                `[ADMIN] ${req.session.user.displayName || req.session.user.username} a șters ${allReports.length} rapoarte. DOCS nu a fost modificat.`
+            );
+
+            return res.json({
+                success: true,
+                deletedReports: allReports.length,
+                deletedImages: storagePaths.length
+            });
+        }
+        catch (error) {
+            console.error(
+                "Global Reports Delete Error:",
+                error
+            );
+
+            return res.status(500).json({
+                error:
+                    "Rapoartele nu au putut fi șterse definitiv."
+            });
+        }
+    }
+);
+
+
 // ======================================================
 // CONDUCERE - ANUNȚURI DISCORD
 // ======================================================
