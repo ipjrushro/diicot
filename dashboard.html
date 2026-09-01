@@ -7823,7 +7823,623 @@
             display: flex !important;
         }
 
-</style>
+
+        /* =========================================================
+           CALLSIGN CENTER — PREMIUM
+        ========================================================== */
+
+        .callsign-modal {
+            padding: 34px;
+        }
+
+        .callsign-modal .modal-overlay {
+            background:
+                radial-gradient(
+                    circle at 50% 35%,
+                    rgba(31, 93, 175, .10),
+                    transparent 34%
+                ),
+                rgba(1, 5, 10, .86);
+            backdrop-filter: blur(14px);
+        }
+
+        .callsign-modal-box {
+            width: min(760px, calc(100vw - 44px)) !important;
+            max-height: calc(100vh - 68px) !important;
+            padding: 0 !important;
+            overflow-x: hidden !important;
+            border:
+                1px solid
+                rgba(90, 134, 190, .20) !important;
+            border-radius: 18px !important;
+            background:
+                radial-gradient(
+                    circle at 100% 0%,
+                    rgba(49, 131, 255, .10),
+                    transparent 27%
+                ),
+                linear-gradient(
+                    155deg,
+                    #0c1828,
+                    #07111d 58%,
+                    #060d17
+                ) !important;
+            box-shadow:
+                0 45px 130px rgba(0, 0, 0, .68),
+                0 0 0 1px rgba(255,255,255,.018) inset !important;
+        }
+
+        .callsign-admin-box {
+            width: min(980px, calc(100vw - 44px)) !important;
+        }
+
+        .callsign-modal-top {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 24px;
+            padding: 25px 27px 22px;
+            border-bottom:
+                1px solid
+                rgba(255, 255, 255, .055);
+        }
+
+        .callsign-modal-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-width: 0;
+        }
+
+        .callsign-modal-icon {
+            width: 50px;
+            height: 50px;
+            flex: 0 0 50px;
+            display: grid;
+            place-items: center;
+            border:
+                1px solid
+                rgba(74, 145, 244, .32);
+            border-radius: 13px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(49, 131, 255, .18),
+                    rgba(49, 131, 255, .05)
+                );
+            color: #76adff;
+            font-size: 20px;
+            font-weight: 950;
+            box-shadow:
+                0 10px 30px rgba(24, 93, 190, .12);
+        }
+
+        .callsign-modal-icon.gold {
+            border-color:
+                rgba(233, 185, 73, .32);
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(233, 185, 73, .16),
+                    rgba(233, 185, 73, .04)
+                );
+            color: var(--gold);
+        }
+
+        .callsign-modal-title span {
+            display: block;
+            margin-bottom: 5px;
+            color: #6380a3;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: 1.4px;
+        }
+
+        .callsign-modal-title h3 {
+            margin: 0;
+            color: #f7f9fc;
+            font-size: 19px;
+            letter-spacing: .35px;
+        }
+
+        .callsign-modal-title p {
+            max-width: 520px;
+            margin: 7px 0 0;
+            color: #6e8096;
+            font-size: 9px;
+            line-height: 1.6;
+        }
+
+        .callsign-modal .modal-close {
+            flex: 0 0 38px;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            transition: .18s ease;
+        }
+
+        .callsign-modal .modal-close:hover {
+            color: #fff;
+            border-color:
+                rgba(255, 255, 255, .14);
+            background:
+                rgba(255, 255, 255, .055);
+        }
+
+        .callsign-info-banner {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 20px 27px 0;
+            padding: 13px 15px;
+            border:
+                1px solid
+                rgba(233, 185, 73, .15);
+            border-radius: 11px;
+            background:
+                linear-gradient(
+                    90deg,
+                    rgba(233, 185, 73, .065),
+                    rgba(233, 185, 73, .018)
+                );
+        }
+
+        .callsign-info-symbol {
+            width: 30px;
+            height: 30px;
+            flex: 0 0 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            background:
+                rgba(233, 185, 73, .10);
+            color: var(--gold);
+            font-size: 12px;
+            font-weight: 950;
+        }
+
+        .callsign-info-banner strong,
+        .callsign-info-banner span {
+            display: block;
+        }
+
+        .callsign-info-banner strong {
+            margin-bottom: 3px;
+            color: #d8c28d;
+            font-size: 8px;
+            letter-spacing: .7px;
+        }
+
+        .callsign-info-banner span {
+            color: #8b826b;
+            font-size: 8px;
+            line-height: 1.5;
+        }
+
+        #callsign-request-form {
+            padding: 20px 27px 0;
+        }
+
+        .callsign-field label {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-bottom: 9px;
+            color: #94a7bd;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: .7px;
+        }
+
+        .callsign-field label small {
+            padding: 3px 6px;
+            border-radius: 5px;
+            background:
+                rgba(255,255,255,.04);
+            color: #56677b;
+            font-size: 6px;
+        }
+
+        .callsign-field textarea {
+            width: 100%;
+            min-height: 126px;
+            resize: vertical;
+            padding: 15px 16px;
+            outline: none;
+            border:
+                1px solid
+                rgba(93, 128, 171, .14);
+            border-radius: 11px;
+            background:
+                rgba(3, 10, 18, .58);
+            color: #e8eef6;
+            font-size: 10px;
+            line-height: 1.6;
+            transition: .18s ease;
+        }
+
+        .callsign-field textarea:focus {
+            border-color:
+                rgba(73, 143, 238, .38);
+            box-shadow:
+                0 0 0 3px
+                rgba(49, 131, 255, .055);
+        }
+
+        .callsign-field textarea::placeholder {
+            color: #45576c;
+        }
+
+        .callsign-field-bottom {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-top: 7px;
+            color: #4d5e72;
+            font-size: 7px;
+        }
+
+        .callsign-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 9px;
+            margin-top: 17px;
+        }
+
+        .callsign-secondary-btn,
+        .callsign-submit-btn,
+        .callsign-refresh-btn {
+            min-height: 39px;
+            padding: 0 15px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 8px;
+            font-weight: 900;
+            letter-spacing: .45px;
+            transition: .18s ease;
+        }
+
+        .callsign-secondary-btn {
+            border:
+                1px solid
+                rgba(255,255,255,.07);
+            background:
+                rgba(255,255,255,.025);
+            color: #74859a;
+        }
+
+        .callsign-submit-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border:
+                1px solid
+                rgba(233,185,73,.34);
+            background:
+                linear-gradient(
+                    135deg,
+                    #c89727,
+                    #9d7114
+                );
+            color: #fff8e7;
+            box-shadow:
+                0 10px 28px
+                rgba(181, 128, 22, .16);
+        }
+
+        .callsign-submit-btn:hover,
+        .callsign-secondary-btn:hover,
+        .callsign-refresh-btn:hover {
+            transform: translateY(-1px);
+            filter: brightness(1.08);
+        }
+
+        .callsign-history {
+            margin-top: 23px;
+            border-top:
+                1px solid
+                rgba(255,255,255,.05);
+            background:
+                rgba(2, 8, 15, .20);
+        }
+
+        .callsign-history-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 17px 27px 8px;
+        }
+
+        .callsign-history-head span,
+        .callsign-history-head strong {
+            display: block;
+        }
+
+        .callsign-history-head span {
+            margin-bottom: 3px;
+            color: #52667f;
+            font-size: 6px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+        }
+
+        .callsign-history-head strong {
+            color: #a9b8c9;
+            font-size: 9px;
+        }
+
+        .callsign-refresh-btn {
+            min-height: 32px;
+            border:
+                1px solid
+                rgba(75, 133, 210, .14);
+            background:
+                rgba(49, 131, 255, .045);
+            color: #6d91bf;
+        }
+
+        #my-callsign-requests {
+            padding: 0 27px 24px;
+        }
+
+        .callsign-request-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 9px;
+            padding: 13px 14px;
+            border:
+                1px solid
+                rgba(255,255,255,.055);
+            border-radius: 10px;
+            background:
+                rgba(255,255,255,.018);
+        }
+
+        .callsign-request-row strong {
+            color: #dfe7f1;
+            font-size: 9px;
+        }
+
+        .callsign-request-row p {
+            margin: 5px 0 0;
+            color: #687a90;
+            font-size: 8px;
+            line-height: 1.5;
+        }
+
+        .callsign-status {
+            flex: 0 0 auto;
+            padding: 6px 8px;
+            border-radius: 7px;
+            color: #e7bd58;
+            background:
+                rgba(233,185,73,.08);
+            font-size: 7px;
+            font-weight: 900;
+        }
+
+        .callsign-status.approved {
+            color: #53dc9a;
+            background:
+                rgba(49,216,135,.08);
+        }
+
+        .callsign-status.rejected {
+            color: #ff7777;
+            background:
+                rgba(255,83,83,.08);
+        }
+
+        .callsign-admin-stats {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin: 20px 27px 4px;
+            padding: 13px 15px;
+            border:
+                1px solid
+                rgba(74, 133, 208, .13);
+            border-radius: 10px;
+            background:
+                rgba(49, 131, 255, .035);
+        }
+
+        .callsign-admin-stats span,
+        .callsign-admin-stats strong {
+            display: block;
+        }
+
+        .callsign-admin-stats span {
+            margin-bottom: 3px;
+            color: #53677f;
+            font-size: 6px;
+            font-weight: 900;
+            letter-spacing: 1px;
+        }
+
+        .callsign-admin-stats strong {
+            color: #9cafc4;
+            font-size: 9px;
+        }
+
+        .callsign-live-dot {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #5e8e78;
+            font-size: 7px;
+            font-weight: 900;
+        }
+
+        .callsign-live-dot i {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow:
+                0 0 10px
+                rgba(49,216,135,.55);
+        }
+
+        #callsign-management-list {
+            padding: 14px 27px 27px;
+        }
+
+        .callsign-admin-request {
+            display: grid;
+            grid-template-columns:
+                minmax(0,1fr)
+                minmax(245px, .45fr);
+            gap: 18px;
+            padding: 17px;
+            margin-top: 10px;
+            border:
+                1px solid
+                rgba(255,255,255,.06);
+            border-radius: 12px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(255,255,255,.025),
+                    rgba(255,255,255,.012)
+                );
+        }
+
+        .callsign-admin-request h4 {
+            margin: 0;
+            color: #edf2f8;
+            font-size: 12px;
+        }
+
+        .callsign-admin-request .meta {
+            margin-top: 5px;
+            color: #61748a;
+            font-size: 8px;
+        }
+
+        .callsign-admin-request .note {
+            margin-top: 11px;
+            color: #8b9caf;
+            font-size: 9px;
+            line-height: 1.55;
+        }
+
+        .callsign-admin-controls input {
+            width: 100%;
+            height: 43px;
+            padding: 0 13px;
+            outline: none;
+            border:
+                1px solid
+                rgba(91, 134, 188, .16);
+            border-radius: 9px;
+            background:
+                rgba(2, 8, 15, .48);
+            color: #fff;
+            font-weight: 850;
+            letter-spacing: 1px;
+        }
+
+        .callsign-admin-controls input:focus {
+            border-color:
+                rgba(233,185,73,.35);
+        }
+
+        .callsign-admin-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .callsign-approve-btn,
+        .callsign-reject-btn {
+            min-height: 38px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 7px;
+            font-weight: 900;
+            letter-spacing: .5px;
+        }
+
+        .callsign-approve-btn {
+            border:
+                1px solid
+                rgba(49,216,135,.24);
+            background:
+                rgba(49,216,135,.08);
+            color: #61dfa3;
+        }
+
+        .callsign-reject-btn {
+            border:
+                1px solid
+                rgba(255,83,83,.20);
+            background:
+                rgba(255,83,83,.065);
+            color: #ff7b7b;
+        }
+
+        @media (max-width: 720px) {
+            .callsign-modal {
+                padding: 12px;
+            }
+
+            .callsign-modal-box,
+            .callsign-admin-box {
+                width: calc(100vw - 24px) !important;
+                max-height: calc(100vh - 24px) !important;
+            }
+
+            .callsign-modal-top,
+            .callsign-info-banner,
+            #callsign-request-form,
+            .callsign-history-head,
+            #my-callsign-requests,
+            .callsign-admin-stats,
+            #callsign-management-list {
+                margin-left: 0;
+                margin-right: 0;
+            }
+
+            .callsign-modal-top {
+                padding: 19px;
+            }
+
+            .callsign-info-banner {
+                margin: 15px 19px 0;
+            }
+
+            #callsign-request-form {
+                padding: 17px 19px 0;
+            }
+
+            .callsign-history-head {
+                padding: 16px 19px 8px;
+            }
+
+            #my-callsign-requests {
+                padding: 0 19px 20px;
+            }
+
+            .callsign-admin-stats {
+                margin: 15px 19px 3px;
+            }
+
+            #callsign-management-list {
+                padding: 12px 19px 20px;
+            }
+
+            .callsign-admin-request {
+                grid-template-columns: 1fr;
+            }
+        }
+
+    </style>
 
 </head>
 
@@ -11413,40 +12029,68 @@
     <!-- =========================================================
          CERERE CALLSIGN — TOȚI MEMBRII
     ========================================================== -->
-    <div class="modal" id="callsign-request-modal">
-        <div class="modal-card">
+    <div class="modal callsign-modal" id="callsign-request-modal">
+        <div
+            class="modal-overlay"
+            data-close-modal="callsign-request-modal"
+        ></div>
 
-            <div class="modal-head">
-                <div>
-                    <span>ACTIVITĂȚI</span>
-                    <h3>Cerere callsign</h3>
+        <div class="modal-box callsign-modal-box">
+            <div class="callsign-modal-top">
+                <div class="callsign-modal-title">
+                    <div class="callsign-modal-icon">D</div>
+
+                    <div>
+                        <span>ACTIVITĂȚI • DIICOT</span>
+                        <h3>CERERE CALLSIGN</h3>
+                        <p>
+                            Solicită conducerii acordarea unui identificativ
+                            operațional D-01 — D-99.
+                        </p>
+                    </div>
                 </div>
 
                 <button
                     type="button"
                     class="modal-close"
                     data-close-modal="callsign-request-modal"
+                    aria-label="Închide"
                 >
                     ×
                 </button>
             </div>
 
-            <div class="activity-warning">
-                Poți avea o singură cerere în așteptare. Callsign-ul este
-                stabilit și acordat de Conducere.
+            <div class="callsign-info-banner">
+                <div class="callsign-info-symbol">i</div>
+                <div>
+                    <strong>CUM FUNCȚIONEAZĂ?</strong>
+                    <span>
+                        Trimiți cererea, iar un membru COORDONATOR+ îți
+                        atribuie un callsign disponibil. Poți avea o singură
+                        cerere în așteptare.
+                    </span>
+                </div>
             </div>
 
             <form id="callsign-request-form">
-                <div class="form-group">
+                <div class="callsign-field">
                     <label for="callsign-request-note">
-                        MENȚIUNE (OPȚIONAL)
+                        MENȚIUNE PENTRU CONDUCERE
+                        <small>OPȚIONAL</small>
                     </label>
 
                     <textarea
                         id="callsign-request-note"
                         maxlength="700"
-                        placeholder="Poți lăsa o mențiune pentru conducere..."
+                        placeholder="Ex: Solicit acordarea unui callsign pentru activitatea DIICOT..."
                     ></textarea>
+
+                    <div class="callsign-field-bottom">
+                        <span>
+                            Callsign-ul final este ales de Conducere.
+                        </span>
+                        <span id="callsign-note-counter">0 / 700</span>
+                    </div>
                 </div>
 
                 <div
@@ -11454,19 +12098,47 @@
                     class="form-message"
                 ></div>
 
-                <button
-                    type="submit"
-                    class="primary-btn gold-btn"
-                >
-                    TRIMITE CEREREA
-                </button>
+                <div class="callsign-modal-actions">
+                    <button
+                        type="button"
+                        class="callsign-secondary-btn"
+                        data-close-modal="callsign-request-modal"
+                    >
+                        ANULEAZĂ
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="callsign-submit-btn"
+                    >
+                        <span>→</span>
+                        TRIMITE CEREREA
+                    </button>
+                </div>
             </form>
 
-            <div
-                id="my-callsign-requests"
-                style="margin-top:18px"
-            ></div>
+            <div class="callsign-history">
+                <div class="callsign-history-head">
+                    <div>
+                        <span>ISTORIC PERSONAL</span>
+                        <strong>CERERILE TALE</strong>
+                    </div>
 
+                    <button
+                        type="button"
+                        id="refresh-my-callsign-requests"
+                        class="callsign-refresh-btn"
+                    >
+                        ↻ ACTUALIZEAZĂ
+                    </button>
+                </div>
+
+                <div id="my-callsign-requests">
+                    <div class="empty-state">
+                        Se încarcă cererile...
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -11474,27 +12146,47 @@
     <!-- =========================================================
          GESTIONARE CERERI CALLSIGN — COORDONATOR+
     ========================================================== -->
-    <div class="modal" id="callsign-management-modal">
-        <div class="modal-card" style="max-width:900px">
+    <div class="modal callsign-modal" id="callsign-management-modal">
+        <div
+            class="modal-overlay"
+            data-close-modal="callsign-management-modal"
+        ></div>
 
-            <div class="modal-head">
-                <div>
-                    <span>CONDUCERE</span>
-                    <h3>Cereri callsign</h3>
+        <div class="modal-box callsign-modal-box callsign-admin-box">
+            <div class="callsign-modal-top">
+                <div class="callsign-modal-title">
+                    <div class="callsign-modal-icon gold">⌁</div>
+
+                    <div>
+                        <span>CONDUCERE • COORDONATOR+</span>
+                        <h3>GESTIONARE CERERI CALLSIGN</h3>
+                        <p>
+                            Verifică solicitările și acordă identificative
+                            operaționale disponibile.
+                        </p>
+                    </div>
                 </div>
 
                 <button
                     type="button"
                     class="modal-close"
                     data-close-modal="callsign-management-modal"
+                    aria-label="Închide"
                 >
                     ×
                 </button>
             </div>
 
-            <div class="activity-warning">
-                Doar COORDONATOR+ poate acorda sau respinge callsign-uri.
-                Sistemul verifică formatul D-01 — D-99.
+            <div class="callsign-admin-stats">
+                <div>
+                    <span>STATUS</span>
+                    <strong>CERERI ÎN AȘTEPTARE</strong>
+                </div>
+
+                <div class="callsign-live-dot">
+                    <i></i>
+                    SISTEM ACTIV
+                </div>
             </div>
 
             <div id="callsign-management-list">
@@ -11502,7 +12194,6 @@
                     Se încarcă cererile...
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -12991,6 +13682,23 @@
                     currentUser.rankLevel ||
                     0
                 ) >= 10;
+
+
+            document.body.classList.toggle(
+                "is-admin",
+                isAdmin
+            );
+
+            document
+                .querySelectorAll(
+                    ".admin-home-card"
+                )
+                .forEach(element => {
+                    element.style.display =
+                        isAdmin
+                            ? "block"
+                            : "none";
+                });
 
 
             const isTester =
@@ -14567,22 +15275,41 @@ const query =
             }
 
             container.innerHTML =
-                requests.map(item => `
-                    <div class="dashboard-panel" style="padding:14px;margin-top:10px">
-                        <strong>${escapeHTML(callsignRequestStatusLabel(item.status))}</strong>
-                        <div style="margin-top:7px;color:var(--text-2);font-size:10px">
-                            ${item.assignedCallsign
-                                ? `Callsign: <b>${escapeHTML(item.assignedCallsign)}</b><br>`
-                                : ""}
-                            ${item.note
-                                ? `Mențiune: ${escapeHTML(item.note)}<br>`
-                                : ""}
-                            ${item.decisionNote
-                                ? `Răspuns: ${escapeHTML(item.decisionNote)}`
-                                : ""}
+                requests.map(item => {
+
+                    const statusClass =
+                        item.status === "APPROVED"
+                            ? "approved"
+                            : item.status === "REJECTED"
+                                ? "rejected"
+                                : "";
+
+                    return `
+                        <div class="callsign-request-row">
+                            <div>
+                                <strong>
+                                    ${item.assignedCallsign
+                                        ? escapeHTML(item.assignedCallsign)
+                                        : "CERERE CALLSIGN"}
+                                </strong>
+
+                                <p>
+                                    ${item.note
+                                        ? escapeHTML(item.note)
+                                        : "Fără mențiune."}
+
+                                    ${item.decisionNote
+                                        ? `<br>Răspuns: ${escapeHTML(item.decisionNote)}`
+                                        : ""}
+                                </p>
+                            </div>
+
+                            <span class="callsign-status ${statusClass}">
+                                ${escapeHTML(callsignRequestStatusLabel(item.status))}
+                            </span>
                         </div>
-                    </div>
-                `).join("");
+                    `;
+                }).join("");
         }
         catch (error) {
             container.innerHTML = `
@@ -14639,54 +15366,54 @@ const query =
             container.innerHTML =
                 requests.map(item => `
                     <div
-                        class="dashboard-panel"
-                        style="padding:16px;margin-bottom:12px"
+                        class="callsign-admin-request"
                         data-callsign-request="${escapeHTML(item.id)}"
                     >
-                        <div style="display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap">
-                            <div>
-                                <strong style="font-size:13px">
-                                    ${escapeHTML(item.authorName || "Membru")}
-                                </strong>
-                                <div style="margin-top:5px;color:var(--text-2);font-size:9px">
-                                    ${escapeHTML(item.authorRank || "")}
-                                    ${item.authorUsername
-                                        ? ` · @${escapeHTML(item.authorUsername)}`
-                                        : ""}
-                                </div>
-                                ${item.note
-                                    ? `<div style="margin-top:10px;color:var(--text-2);font-size:10px">
-                                        ${escapeHTML(item.note)}
-                                       </div>`
+                        <div>
+                            <h4>
+                                ${escapeHTML(item.authorName || "Membru")}
+                            </h4>
+
+                            <div class="meta">
+                                ${escapeHTML(item.authorRank || "MEMBRU")}
+                                ${item.authorUsername
+                                    ? ` • @${escapeHTML(item.authorUsername)}`
                                     : ""}
+                                • ID ${escapeHTML(item.authorId || "-")}
                             </div>
 
-                            <div style="min-width:250px">
-                                <input
-                                    class="callsign-approve-input"
-                                    type="text"
-                                    maxlength="6"
-                                    placeholder="D-47"
-                                    style="width:100%;margin-bottom:8px"
+                            <div class="note">
+                                ${item.note
+                                    ? escapeHTML(item.note)
+                                    : "Membrul nu a lăsat nicio mențiune."}
+                            </div>
+                        </div>
+
+                        <div class="callsign-admin-controls">
+                            <input
+                                class="callsign-approve-input"
+                                type="text"
+                                maxlength="6"
+                                placeholder="Ex: D-47"
+                                autocomplete="off"
+                            >
+
+                            <div class="callsign-admin-buttons">
+                                <button
+                                    type="button"
+                                    class="callsign-approve-btn"
+                                    data-request-id="${escapeHTML(item.id)}"
                                 >
+                                    ACORDĂ CALLSIGN
+                                </button>
 
-                                <div style="display:flex;gap:8px">
-                                    <button
-                                        type="button"
-                                        class="primary-btn gold-btn callsign-approve-btn"
-                                        data-request-id="${escapeHTML(item.id)}"
-                                    >
-                                        ACORDĂ
-                                    </button>
-
-                                    <button
-                                        type="button"
-                                        class="primary-btn callsign-reject-btn"
-                                        data-request-id="${escapeHTML(item.id)}"
-                                    >
-                                        RESPINGE
-                                    </button>
-                                </div>
+                                <button
+                                    type="button"
+                                    class="callsign-reject-btn"
+                                    data-request-id="${escapeHTML(item.id)}"
+                                >
+                                    RESPINGE
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -14831,6 +15558,48 @@ const query =
     }
 
 
+
+    const callsignNoteInput =
+        document.getElementById(
+            "callsign-request-note"
+        );
+
+    const callsignNoteCounter =
+        document.getElementById(
+            "callsign-note-counter"
+        );
+
+    function updateCallsignNoteCounter() {
+        if (
+            !callsignNoteInput ||
+            !callsignNoteCounter
+        ) {
+            return;
+        }
+
+        callsignNoteCounter.textContent =
+            `${callsignNoteInput.value.length} / 700`;
+    }
+
+    callsignNoteInput
+        ?.addEventListener(
+            "input",
+            updateCallsignNoteCounter
+        );
+
+    updateCallsignNoteCounter();
+
+
+    document
+        .getElementById(
+            "refresh-my-callsign-requests"
+        )
+        ?.addEventListener(
+            "click",
+            loadMyCallsignRequests
+        );
+
+
     document
         .getElementById(
             "open-callsign-request-modal"
@@ -14929,6 +15698,7 @@ const query =
                         "Cererea de callsign a fost trimisă către conducere.";
 
                     this.reset();
+                    updateCallsignNoteCounter();
 
                     await loadMyCallsignRequests();
                 }
