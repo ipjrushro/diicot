@@ -8994,6 +8994,555 @@ app.post(
 );
 
 
+
+// ======================================================
+// ACTIVITĂȚI — CERERI CALLSIGN
+// ======================================================
+
+function mapCallsignRequest(row) {
+    if (!row) return null;
+
+    return {
+        id: row.id,
+        authorId: row.author_id,
+        authorName: row.author_name,
+        authorUsername: row.author_username,
+        authorRank: row.author_rank,
+        note: row.note || "",
+        status: row.status || "PENDING",
+        assignedCallsign: row.assigned_callsign || null,
+        decidedById: row.decided_by_id || null,
+        decidedByName: row.decided_by_name || null,
+        decidedByRank: row.decided_by_rank || null,
+        decisionNote: row.decision_note || "",
+        createdAt: row.created_at,
+        decidedAt: row.decided_at
+    };
+}
+
+
+async function sendDiscordDM(userId, content) {
+    if (!BOT_TOKEN) {
+        throw new Error("Botul Discord nu este configurat.");
+    }
+
+    const dmResponse = await axios.post(
+        "https://discord.com/api/v10/users/@me/channels",
+        {
+            recipient_id: String(userId)
+        },
+        {
+            headers: {
+                Authorization: `Bot ${BOT_TOKEN}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+
+    await axios.post(
+        `https://discord.com/api/v10/channels/${dmResponse.data.id}/messages`,
+        {
+            content: String(content).slice(0, 1900),
+            allowed_mentions: {
+                parse: []
+            }
+        },
+        {
+            headers: {
+                Authorization: `Bot ${BOT_TOKEN}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+}
+
+
+// Toți membrii autentificați își pot vedea cererile.
+app.get(
+    "/api/callsign-requests/me",
+    requireAuth,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        try {
+            const { data, error } =
+                await supabase
+                    .from("callsign_requests")
+                    .select("*")
+                    .eq("author_id", String(req.session.user.id))
+                    .order("created_at", { ascending: false })
+                    .limit(50);
+
+            if (error) throw error;
+
+            return res.json({
+                requests: (data || []).map(mapCallsignRequest)
+            });
+        }
+        catch (error) {
+            console.error("Callsign Requests Me Error:", error);
+            return res.status(500).json({
+                error: "Cererile de callsign nu au putut fi încărcate."
+            });
+        }
+    }
+);
+
+
+// Orice membru autentificat poate depune o cerere.
+// Maximum o cerere PENDING simultan.
+app.post(
+    "/api/callsign-requests",
+    requireAuth,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        try {
+            const note =
+                String(req.body?.note || "")
+                    .trim()
+                    .slice(0, 700);
+
+            const { data: pending, error: pendingError } =
+                await supabase
+                    .from("callsign_requests")
+                    .select("id")
+                    .eq("author_id", String(req.session.user.id))
+                    .eq("status", "PENDING")
+                    .limit(1);
+
+            if (pendingError) throw pendingError;
+
+            if ((pending || []).length) {
+                return res.status(409).json({
+                    error: "Ai deja o cerere de callsign în așteptare."
+                });
+            }
+
+            const row = {
+                id: crypto.randomUUID(),
+                author_id: String(req.session.user.id),
+                author_name:
+                    req.session.user.displayName ||
+                    req.session.user.username ||
+                    "Membru",
+                author_username:
+                    req.session.user.username || "",
+                author_rank:
+                    req.session.user.rank || "",
+                note,
+                status: "PENDING"
+            };
+
+            const { data, error } =
+                await supabase
+                    .from("callsign_requests")
+                    .insert(row)
+                    .select("*")
+                    .single();
+
+            if (error) throw error;
+
+            return res.status(201).json({
+                success: true,
+                request: mapCallsignRequest(data)
+            });
+        }
+        catch (error) {
+            console.error("Callsign Request Create Error:", error);
+            return res.status(500).json({
+                error: "Cererea de callsign nu a putut fi trimisă."
+            });
+        }
+    }
+);
+
+
+// COORDONATOR+ vede toate cererile.
+app.get(
+    "/api/admin/callsign-requests",
+    requireAdmin,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        try {
+            const { data, error } =
+                await supabase
+                    .from("callsign_requests")
+                    .select("*")
+                    .order("created_at", { ascending: false })
+                    .limit(300);
+
+            if (error) throw error;
+
+            return res.json({
+                requests: (data || []).map(mapCallsignRequest)
+            });
+        }
+        catch (error) {
+            console.error("Admin Callsign Requests Error:", error);
+            return res.status(500).json({
+                error: "Cererile de callsign nu au putut fi încărcate."
+            });
+        }
+    }
+);
+
+
+// COORDONATOR+ aprobă și acordă callsign-ul.
+// Se actualizează Discord nickname + profil + DOCS (dacă există rând pentru discord_id).
+app.patch(
+    "/api/admin/callsign-requests/:id/approve",
+    requireAdmin,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        const requestId = String(req.params.id || "").trim();
+        const callsign = normalizeCallsign(req.body?.callsign);
+
+        if (!requestId || !callsign) {
+            return res.status(400).json({
+                error: "Cererea sau callsign-ul este invalid. Folosește D-01 până la D-99."
+            });
+        }
+
+        try {
+            const { data: requestRow, error: requestError } =
+                await supabase
+                    .from("callsign_requests")
+                    .select("*")
+                    .eq("id", requestId)
+                    .maybeSingle();
+
+            if (requestError) throw requestError;
+
+            if (!requestRow) {
+                return res.status(404).json({
+                    error: "Cererea nu a fost găsită."
+                });
+            }
+
+            if (requestRow.status !== "PENDING") {
+                return res.status(409).json({
+                    error: "Această cerere a fost deja soluționată."
+                });
+            }
+
+            const targetId = String(requestRow.author_id);
+
+            // Verificăm dacă callsign-ul este deja ocupat în DOCS.
+            const { data: occupiedRows, error: occupiedError } =
+                await supabase
+                    .from("docs_personnel")
+                    .select("id, discord_id, callsign")
+                    .eq("callsign", callsign)
+                    .limit(5);
+
+            if (occupiedError) throw occupiedError;
+
+            const occupiedByOther =
+                (occupiedRows || []).find(
+                    row =>
+                        row.discord_id &&
+                        String(row.discord_id) !== targetId
+                );
+
+            if (occupiedByOther) {
+                return res.status(409).json({
+                    error: `${callsign} este deja ocupat în DOCS.`
+                });
+            }
+
+            if (!BOT_TOKEN) {
+                return res.status(500).json({
+                    error: "Botul Discord nu este configurat."
+                });
+            }
+
+            const memberResponse =
+                await axios.get(
+                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetId}`,
+                    {
+                        headers: {
+                            Authorization: `Bot ${BOT_TOKEN}`
+                        }
+                    }
+                );
+
+            const member = memberResponse.data;
+            const roles =
+                Array.isArray(member.roles)
+                    ? member.roles.map(String)
+                    : [];
+
+            const rank = getHighestDIICOTRole(roles);
+
+            if (!rank) {
+                return res.status(400).json({
+                    error: "Membrul nu mai face parte din structura DIICOT."
+                });
+            }
+
+            const discordUser = member.user || {};
+            const currentName =
+                member.nick ||
+                discordUser.global_name ||
+                discordUser.username ||
+                requestRow.author_name ||
+                "Membru";
+
+            const newNickname =
+                buildCallsignNickname(
+                    callsign,
+                    removeExistingCallsign(currentName)
+                );
+
+            if (newNickname.length > 32) {
+                return res.status(400).json({
+                    error: "Nickname-ul rezultat este prea lung pentru Discord."
+                });
+            }
+
+            try {
+                await axios.patch(
+                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${targetId}`,
+                    {
+                        nick: newNickname
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bot ${BOT_TOKEN}`,
+                            "Content-Type": "application/json"
+                        }
+                    }
+                );
+            }
+            catch (discordError) {
+                console.error(
+                    "Callsign Request Discord Nick Error:",
+                    discordError.response?.data || discordError.message
+                );
+
+                if (discordError.response?.status === 403) {
+                    return res.status(403).json({
+                        error: "Discord a refuzat schimbarea nickname-ului. Rolul botului trebuie să fie deasupra membrului."
+                    });
+                }
+
+                throw discordError;
+            }
+
+            // Profil site — păstrăm duties existente.
+            const { data: profile } =
+                await supabase
+                    .from("user_profiles")
+                    .select("*")
+                    .eq("user_id", targetId)
+                    .maybeSingle();
+
+            const duties =
+                Array.isArray(profile?.duties)
+                    ? profile.duties
+                    : [];
+
+            const { error: profileError } =
+                await supabase
+                    .from("user_profiles")
+                    .upsert(
+                        {
+                            user_id: targetId,
+                            display_name: newNickname,
+                            duties,
+                            updated_at: new Date().toISOString()
+                        },
+                        {
+                            onConflict: "user_id"
+                        }
+                    );
+
+            if (profileError) throw profileError;
+
+            // DOCS — actualizăm DOAR rândul membrului; nu resetăm și nu ștergem nimic.
+            const { data: docsRows, error: docsFindError } =
+                await supabase
+                    .from("docs_personnel")
+                    .select("*")
+                    .eq("discord_id", targetId)
+                    .limit(1);
+
+            if (docsFindError) throw docsFindError;
+
+            if ((docsRows || []).length) {
+                const docsRow = docsRows[0];
+
+                const { error: docsUpdateError } =
+                    await supabase
+                        .from("docs_personnel")
+                        .update({
+                            callsign,
+                            full_name:
+                                docsRow.full_name ||
+                                removeExistingCallsign(newNickname),
+                            updated_at: new Date().toISOString(),
+                            updated_by_id: String(req.session.user.id),
+                            updated_by_name:
+                                req.session.user.displayName ||
+                                req.session.user.username
+                        })
+                        .eq("id", docsRow.id);
+
+                if (docsUpdateError) throw docsUpdateError;
+            }
+
+            const now = new Date().toISOString();
+
+            const { error: decisionError } =
+                await supabase
+                    .from("callsign_requests")
+                    .update({
+                        status: "APPROVED",
+                        assigned_callsign: callsign,
+                        decided_by_id: String(req.session.user.id),
+                        decided_by_name:
+                            req.session.user.displayName ||
+                            req.session.user.username,
+                        decided_by_rank:
+                            req.session.user.rank || "",
+                        decision_note:
+                            String(req.body?.decisionNote || "")
+                                .trim()
+                                .slice(0, 500),
+                        decided_at: now,
+                        updated_at: now
+                    })
+                    .eq("id", requestId);
+
+            if (decisionError) throw decisionError;
+
+            let dmSent = true;
+
+            try {
+                await sendDiscordDM(
+                    targetId,
+                    `📟 CERERE CALLSIGN APROBATĂ\n\nAi primit callsign-ul **${callsign}**.\nAi la dispoziție **24 de ore** să îl folosești și să respecți formatul stabilit de conducerea DIICOT. Dacă nu respecți această obligație în termenul de 24 de ore, poți primi sancțiune conform regulamentului intern.\n\nAcordat de: **${req.session.user.displayName || req.session.user.username}**`
+                );
+            }
+            catch (dmError) {
+                dmSent = false;
+                console.error(
+                    "Callsign Request DM Error:",
+                    dmError.response?.data || dmError.message
+                );
+            }
+
+            return res.json({
+                success: true,
+                callsign,
+                displayName: newNickname,
+                dmSent
+            });
+        }
+        catch (error) {
+            console.error(
+                "Callsign Request Approve Error:",
+                error.response?.data || error
+            );
+
+            return res.status(500).json({
+                error: "Callsign-ul nu a putut fi acordat."
+            });
+        }
+    }
+);
+
+
+// COORDONATOR+ poate respinge cererea.
+app.patch(
+    "/api/admin/callsign-requests/:id/reject",
+    requireAdmin,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        try {
+            const requestId = String(req.params.id || "").trim();
+            const reason =
+                String(req.body?.reason || "")
+                    .trim()
+                    .slice(0, 500);
+
+            const { data: requestRow, error: findError } =
+                await supabase
+                    .from("callsign_requests")
+                    .select("*")
+                    .eq("id", requestId)
+                    .maybeSingle();
+
+            if (findError) throw findError;
+
+            if (!requestRow) {
+                return res.status(404).json({
+                    error: "Cererea nu a fost găsită."
+                });
+            }
+
+            if (requestRow.status !== "PENDING") {
+                return res.status(409).json({
+                    error: "Această cerere a fost deja soluționată."
+                });
+            }
+
+            const now = new Date().toISOString();
+
+            const { error } =
+                await supabase
+                    .from("callsign_requests")
+                    .update({
+                        status: "REJECTED",
+                        decided_by_id: String(req.session.user.id),
+                        decided_by_name:
+                            req.session.user.displayName ||
+                            req.session.user.username,
+                        decided_by_rank:
+                            req.session.user.rank || "",
+                        decision_note: reason,
+                        decided_at: now,
+                        updated_at: now
+                    })
+                    .eq("id", requestId);
+
+            if (error) throw error;
+
+            let dmSent = true;
+
+            try {
+                await sendDiscordDM(
+                    String(requestRow.author_id),
+                    `📟 CERERE CALLSIGN RESPINSĂ\n\nCererea ta de callsign a fost respinsă.${reason ? `\nMotiv: **${reason}**` : ""}\n\nDecizie luată de: **${req.session.user.displayName || req.session.user.username}**`
+                );
+            }
+            catch (dmError) {
+                dmSent = false;
+                console.error(
+                    "Callsign Reject DM Error:",
+                    dmError.response?.data || dmError.message
+                );
+            }
+
+            return res.json({
+                success: true,
+                dmSent
+            });
+        }
+        catch (error) {
+            console.error("Callsign Request Reject Error:", error);
+            return res.status(500).json({
+                error: "Cererea nu a putut fi respinsă."
+            });
+        }
+    }
+);
+
+
 // ======================================================
 // ACTIVITĂȚI — RECLAMAȚII
 // ======================================================
