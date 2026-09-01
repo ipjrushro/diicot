@@ -8505,6 +8505,34 @@
 
                         <button
                             type="button"
+                            class="home-action-card"
+                            id="open-callsign-request-modal"
+                        >
+                            <div class="home-action-icon">D</div>
+                            <h3>CERERE CALLSIGN</h3>
+                            <p>
+                                Trimite către conducere o cerere pentru acordarea
+                                unui callsign DIICOT.
+                            </p>
+                            <span class="home-action-arrow">→</span>
+                        </button>
+
+                        <button
+                            type="button"
+                            class="home-action-card gold admin-home-card"
+                            id="open-callsign-management-modal"
+                        >
+                            <div class="home-action-icon">⌁</div>
+                            <h3>CERERI CALLSIGN</h3>
+                            <p>
+                                COORDONATOR+ poate verifica cererile și acorda
+                                callsign-uri D-01 — D-99.
+                            </p>
+                            <span class="home-action-arrow">→</span>
+                        </button>
+
+                        <button
+                            type="button"
                             class="home-action-card purple tester-home-card"
                             data-home-section="test-management"
                         >
@@ -11380,6 +11408,103 @@
         </div>
     </div>
 
+
+
+    <!-- =========================================================
+         CERERE CALLSIGN — TOȚI MEMBRII
+    ========================================================== -->
+    <div class="modal" id="callsign-request-modal">
+        <div class="modal-card">
+
+            <div class="modal-head">
+                <div>
+                    <span>ACTIVITĂȚI</span>
+                    <h3>Cerere callsign</h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="callsign-request-modal"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div class="activity-warning">
+                Poți avea o singură cerere în așteptare. Callsign-ul este
+                stabilit și acordat de Conducere.
+            </div>
+
+            <form id="callsign-request-form">
+                <div class="form-group">
+                    <label for="callsign-request-note">
+                        MENȚIUNE (OPȚIONAL)
+                    </label>
+
+                    <textarea
+                        id="callsign-request-note"
+                        maxlength="700"
+                        placeholder="Poți lăsa o mențiune pentru conducere..."
+                    ></textarea>
+                </div>
+
+                <div
+                    id="callsign-request-message"
+                    class="form-message"
+                ></div>
+
+                <button
+                    type="submit"
+                    class="primary-btn gold-btn"
+                >
+                    TRIMITE CEREREA
+                </button>
+            </form>
+
+            <div
+                id="my-callsign-requests"
+                style="margin-top:18px"
+            ></div>
+
+        </div>
+    </div>
+
+
+    <!-- =========================================================
+         GESTIONARE CERERI CALLSIGN — COORDONATOR+
+    ========================================================== -->
+    <div class="modal" id="callsign-management-modal">
+        <div class="modal-card" style="max-width:900px">
+
+            <div class="modal-head">
+                <div>
+                    <span>CONDUCERE</span>
+                    <h3>Cereri callsign</h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="modal-close"
+                    data-close-modal="callsign-management-modal"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div class="activity-warning">
+                Doar COORDONATOR+ poate acorda sau respinge callsign-uri.
+                Sistemul verifică formatul D-01 — D-99.
+            </div>
+
+            <div id="callsign-management-list">
+                <div class="empty-state">
+                    Se încarcă cererile...
+                </div>
+            </div>
+
+        </div>
+    </div>
 
 
     <!-- =========================================================
@@ -14390,6 +14515,432 @@ const query =
             members
         );
     }
+
+
+
+    function callsignRequestStatusLabel(status) {
+        if (status === "APPROVED") return "APROBAT";
+        if (status === "REJECTED") return "RESPINS";
+        return "ÎN AȘTEPTARE";
+    }
+
+
+    async function loadMyCallsignRequests() {
+        const container =
+            document.getElementById(
+                "my-callsign-requests"
+            );
+
+        if (!container) return;
+
+        container.innerHTML =
+            '<div class="empty-state">Se încarcă istoricul...</div>';
+
+        try {
+            const response =
+                await fetch(
+                    "/api/callsign-requests/me",
+                    {
+                        credentials: "include",
+                        cache: "no-store"
+                    }
+                );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    "Cererile nu au putut fi încărcate."
+                );
+            }
+
+            const requests =
+                Array.isArray(data.requests)
+                    ? data.requests
+                    : [];
+
+            if (!requests.length) {
+                container.innerHTML =
+                    '<div class="empty-state">Nu ai trimis nicio cerere de callsign.</div>';
+                return;
+            }
+
+            container.innerHTML =
+                requests.map(item => `
+                    <div class="dashboard-panel" style="padding:14px;margin-top:10px">
+                        <strong>${escapeHTML(callsignRequestStatusLabel(item.status))}</strong>
+                        <div style="margin-top:7px;color:var(--text-2);font-size:10px">
+                            ${item.assignedCallsign
+                                ? `Callsign: <b>${escapeHTML(item.assignedCallsign)}</b><br>`
+                                : ""}
+                            ${item.note
+                                ? `Mențiune: ${escapeHTML(item.note)}<br>`
+                                : ""}
+                            ${item.decisionNote
+                                ? `Răspuns: ${escapeHTML(item.decisionNote)}`
+                                : ""}
+                        </div>
+                    </div>
+                `).join("");
+        }
+        catch (error) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    ${escapeHTML(error.message)}
+                </div>
+            `;
+        }
+    }
+
+
+    async function loadAdminCallsignRequests() {
+        const container =
+            document.getElementById(
+                "callsign-management-list"
+            );
+
+        if (!container) return;
+
+        container.innerHTML =
+            '<div class="empty-state">Se încarcă cererile...</div>';
+
+        try {
+            const response =
+                await fetch(
+                    "/api/admin/callsign-requests",
+                    {
+                        credentials: "include",
+                        cache: "no-store"
+                    }
+                );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    "Cererile nu au putut fi încărcate."
+                );
+            }
+
+            const requests =
+                (Array.isArray(data.requests)
+                    ? data.requests
+                    : [])
+                    .filter(item => item.status === "PENDING");
+
+            if (!requests.length) {
+                container.innerHTML =
+                    '<div class="empty-state">Nu există cereri de callsign în așteptare.</div>';
+                return;
+            }
+
+            container.innerHTML =
+                requests.map(item => `
+                    <div
+                        class="dashboard-panel"
+                        style="padding:16px;margin-bottom:12px"
+                        data-callsign-request="${escapeHTML(item.id)}"
+                    >
+                        <div style="display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap">
+                            <div>
+                                <strong style="font-size:13px">
+                                    ${escapeHTML(item.authorName || "Membru")}
+                                </strong>
+                                <div style="margin-top:5px;color:var(--text-2);font-size:9px">
+                                    ${escapeHTML(item.authorRank || "")}
+                                    ${item.authorUsername
+                                        ? ` · @${escapeHTML(item.authorUsername)}`
+                                        : ""}
+                                </div>
+                                ${item.note
+                                    ? `<div style="margin-top:10px;color:var(--text-2);font-size:10px">
+                                        ${escapeHTML(item.note)}
+                                       </div>`
+                                    : ""}
+                            </div>
+
+                            <div style="min-width:250px">
+                                <input
+                                    class="callsign-approve-input"
+                                    type="text"
+                                    maxlength="6"
+                                    placeholder="D-47"
+                                    style="width:100%;margin-bottom:8px"
+                                >
+
+                                <div style="display:flex;gap:8px">
+                                    <button
+                                        type="button"
+                                        class="primary-btn gold-btn callsign-approve-btn"
+                                        data-request-id="${escapeHTML(item.id)}"
+                                    >
+                                        ACORDĂ
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="primary-btn callsign-reject-btn"
+                                        data-request-id="${escapeHTML(item.id)}"
+                                    >
+                                        RESPINGE
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `).join("");
+
+            container
+                .querySelectorAll(
+                    ".callsign-approve-btn"
+                )
+                .forEach(button => {
+                    button.addEventListener(
+                        "click",
+                        async () => {
+                            const card =
+                                button.closest(
+                                    "[data-callsign-request]"
+                                );
+
+                            const input =
+                                card?.querySelector(
+                                    ".callsign-approve-input"
+                                );
+
+                            const callsign =
+                                String(input?.value || "")
+                                    .trim();
+
+                            if (!callsign) {
+                                alert("Introdu callsign-ul pe care vrei să îl acorzi.");
+                                return;
+                            }
+
+                            button.disabled = true;
+
+                            try {
+                                const response =
+                                    await fetch(
+                                        `/api/admin/callsign-requests/${button.dataset.requestId}/approve`,
+                                        {
+                                            method: "PATCH",
+                                            credentials: "include",
+                                            headers: {
+                                                "Content-Type": "application/json"
+                                            },
+                                            body: JSON.stringify({
+                                                callsign
+                                            })
+                                        }
+                                    );
+
+                                const data =
+                                    await response.json();
+
+                                if (!response.ok) {
+                                    throw new Error(
+                                        data.error ||
+                                        "Callsign-ul nu a putut fi acordat."
+                                    );
+                                }
+
+                                alert(
+                                    `Callsign ${data.callsign} acordat cu succes.` +
+                                    (data.dmSent
+                                        ? " Membrul a primit mesaj privat pe Discord."
+                                        : " Callsign-ul a fost acordat, dar DM-ul Discord nu a putut fi trimis.")
+                                );
+
+                                await loadAdminCallsignRequests();
+                            }
+                            catch (error) {
+                                alert(error.message);
+                            }
+                            finally {
+                                button.disabled = false;
+                            }
+                        }
+                    );
+                });
+
+            container
+                .querySelectorAll(
+                    ".callsign-reject-btn"
+                )
+                .forEach(button => {
+                    button.addEventListener(
+                        "click",
+                        async () => {
+                            const reason =
+                                prompt(
+                                    "Motivul respingerii (opțional):"
+                                );
+
+                            if (reason === null) return;
+
+                            button.disabled = true;
+
+                            try {
+                                const response =
+                                    await fetch(
+                                        `/api/admin/callsign-requests/${button.dataset.requestId}/reject`,
+                                        {
+                                            method: "PATCH",
+                                            credentials: "include",
+                                            headers: {
+                                                "Content-Type": "application/json"
+                                            },
+                                            body: JSON.stringify({
+                                                reason
+                                            })
+                                        }
+                                    );
+
+                                const data =
+                                    await response.json();
+
+                                if (!response.ok) {
+                                    throw new Error(
+                                        data.error ||
+                                        "Cererea nu a putut fi respinsă."
+                                    );
+                                }
+
+                                await loadAdminCallsignRequests();
+                            }
+                            catch (error) {
+                                alert(error.message);
+                            }
+                            finally {
+                                button.disabled = false;
+                            }
+                        }
+                    );
+                });
+        }
+        catch (error) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    ${escapeHTML(error.message)}
+                </div>
+            `;
+        }
+    }
+
+
+    document
+        .getElementById(
+            "open-callsign-request-modal"
+        )
+        ?.addEventListener(
+            "click",
+            async () => {
+                openModal(
+                    "callsign-request-modal"
+                );
+
+                await loadMyCallsignRequests();
+            }
+        );
+
+
+    document
+        .getElementById(
+            "open-callsign-management-modal"
+        )
+        ?.addEventListener(
+            "click",
+            async () => {
+                if (
+                    Number(
+                        currentUser?.rankLevel ||
+                        0
+                    ) < 10
+                ) {
+                    return;
+                }
+
+                openModal(
+                    "callsign-management-modal"
+                );
+
+                await loadAdminCallsignRequests();
+            }
+        );
+
+
+    document
+        .getElementById(
+            "callsign-request-form"
+        )
+        ?.addEventListener(
+            "submit",
+            async function(event) {
+                event.preventDefault();
+
+                const message =
+                    document.getElementById(
+                        "callsign-request-message"
+                    );
+
+                message.className =
+                    "form-message";
+
+                message.textContent =
+                    "";
+
+                try {
+                    const response =
+                        await fetch(
+                            "/api/callsign-requests",
+                            {
+                                method: "POST",
+                                credentials: "include",
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+                                body: JSON.stringify({
+                                    note:
+                                        document.getElementById(
+                                            "callsign-request-note"
+                                        ).value.trim()
+                                })
+                            }
+                        );
+
+                    const data =
+                        await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(
+                            data.error ||
+                            "Cererea nu a putut fi trimisă."
+                        );
+                    }
+
+                    message.className =
+                        "form-message success";
+
+                    message.textContent =
+                        "Cererea de callsign a fost trimisă către conducere.";
+
+                    this.reset();
+
+                    await loadMyCallsignRequests();
+                }
+                catch (error) {
+                    message.className =
+                        "form-message error";
+
+                    message.textContent =
+                        error.message;
+                }
+            }
+        );
 
 
     document
