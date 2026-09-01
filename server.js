@@ -10,6 +10,7 @@ const {
     PutObjectCommand,
     GetObjectCommand,
     ListObjectsV2Command,
+    ListObjectVersionsCommand,
     DeleteObjectsCommand
 } = require("@aws-sdk/client-s3");
 
@@ -757,33 +758,89 @@ async function listB2Reports(authorId = null) {
     return reports;
 }
 
-async function deleteB2Keys(keys) {
-    const validKeys = Array.from(
-        new Set(
-            (keys || [])
-                .map(String)
-                .filter(Boolean)
-        )
-    );
+async function listB2ObjectVersions(prefix) {
+    const objects = [];
+    let keyMarker;
+    let versionIdMarker;
 
-    for (let index = 0; index < validKeys.length; index += 1000) {
-        const batch = validKeys.slice(index, index + 1000);
-
-        if (!batch.length) {
-            continue;
-        }
-
-        await b2.send(
-            new DeleteObjectsCommand({
+    do {
+        const response = await b2.send(
+            new ListObjectVersionsCommand({
                 Bucket: B2_BUCKET,
-                Delete: {
-                    Objects:
-                        batch.map(Key => ({ Key })),
-                    Quiet: true
-                }
+                Prefix: prefix,
+                KeyMarker: keyMarker,
+                VersionIdMarker: versionIdMarker
             })
         );
+
+        for (const version of response.Versions || []) {
+            if (version.Key && version.VersionId) {
+                objects.push({
+                    Key: version.Key,
+                    VersionId: version.VersionId
+                });
+            }
+        }
+
+        for (const marker of response.DeleteMarkers || []) {
+            if (marker.Key && marker.VersionId) {
+                objects.push({
+                    Key: marker.Key,
+                    VersionId: marker.VersionId
+                });
+            }
+        }
+
+        if (response.IsTruncated) {
+            keyMarker = response.NextKeyMarker;
+            versionIdMarker = response.NextVersionIdMarker;
+        } else {
+            keyMarker = undefined;
+            versionIdMarker = undefined;
+        }
+    } while (keyMarker);
+
+    return objects;
+}
+
+async function deleteB2Objects(objects) {
+    const unique = [];
+    const seen = new Set();
+
+    for (const object of objects || []) {
+        if (!object || !object.Key) continue;
+        const item = { Key: String(object.Key) };
+        if (object.VersionId) item.VersionId = String(object.VersionId);
+        const signature = `${item.Key}::${item.VersionId || ""}`;
+        if (seen.has(signature)) continue;
+        seen.add(signature);
+        unique.push(item);
     }
+
+    for (let index = 0; index < unique.length; index += 1000) {
+        const batch = unique.slice(index, index + 1000);
+        if (!batch.length) continue;
+
+        const response = await b2.send(
+            new DeleteObjectsCommand({
+                Bucket: B2_BUCKET,
+                Delete: { Objects: batch, Quiet: false }
+            })
+        );
+
+        if (response.Errors && response.Errors.length) {
+            throw new Error(
+                `B2 delete error: ${response.Errors.map(e => `${e.Key || "?"}: ${e.Code || "Error"} ${e.Message || ""}`).join(" | ")}`
+            );
+        }
+    }
+}
+
+async function deleteB2Keys(keys) {
+    await deleteB2Objects(
+        Array.from(new Set((keys || []).map(String).filter(Boolean)))
+            .map(Key => ({ Key }))
+    );
 }
 
 
@@ -3056,32 +3113,39 @@ app.delete(
         }
 
         try {
-            const reportKeys =
-                await listB2ObjectKeys(
-                    "reports/"
-                );
+            // B2 păstrează versiuni. Le enumerăm și le ștergem explicit
+            // cu VersionId, inclusiv eventualele delete markers.
+            const reportVersions = await listB2ObjectVersions("reports/");
+            const imageVersions = await listB2ObjectVersions("images/");
 
-            const imageKeys =
-                await listB2ObjectKeys(
-                    "images/"
-                );
-
-            await deleteB2Keys([
-                ...imageKeys,
-                ...reportKeys
+            await deleteB2Objects([
+                ...imageVersions,
+                ...reportVersions
             ]);
+
+            // Verificare finală: ruta nu raportează succes dacă au rămas
+            // versiuni/markere sub prefixele de rapoarte.
+            const remainingReports = await listB2ObjectVersions("reports/");
+            const remainingImages = await listB2ObjectVersions("images/");
+
+            if (remainingReports.length || remainingImages.length) {
+                throw new Error(
+                    `Au rămas obiecte în B2: reports=${remainingReports.length}, images=${remainingImages.length}`
+                );
+            }
+
+            console.log(
+                `[B2] Ștergere globală completă: ${reportVersions.length} versiuni rapoarte, ${imageVersions.length} versiuni imagini.`
+            );
 
             return res.json({
                 success: true,
-                deletedReports:
-                    reportKeys.filter(
-                        key =>
-                            key.endsWith(".json")
-                    ).length,
-                deletedImages:
-                    imageKeys.length,
+                deletedReports: reportVersions.filter(
+                    item => item.Key.endsWith(".json")
+                ).length,
+                deletedImages: imageVersions.length,
                 message:
-                    "Toate rapoartele și imaginile lor au fost șterse din Backblaze B2."
+                    "Toate rapoartele și toate versiunile imaginilor au fost șterse definitiv din Backblaze B2."
             });
         }
         catch (error) {
