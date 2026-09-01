@@ -5,6 +5,13 @@ const path = require("path");
 const crypto = require("crypto");
 const multer = require("multer");
 const { createClient } = require("@supabase/supabase-js");
+const {
+    S3Client,
+    PutObjectCommand,
+    GetObjectCommand,
+    ListObjectsV2Command,
+    DeleteObjectsCommand
+} = require("@aws-sdk/client-s3");
 
 require("dotenv").config();
 
@@ -19,7 +26,33 @@ const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
-const SUPABASE_BUCKET = "report-images";
+
+const B2_BUCKET = process.env.B2_BUCKET;
+const B2_REGION = process.env.B2_REGION;
+const B2_ENDPOINT = process.env.B2_ENDPOINT;
+const B2_KEY_ID = process.env.B2_KEY_ID;
+const B2_APPLICATION_KEY = process.env.B2_APPLICATION_KEY;
+
+const b2 = new S3Client({
+    endpoint: B2_ENDPOINT,
+    region: B2_REGION,
+    credentials: {
+        accessKeyId: B2_KEY_ID || "missing-key-id",
+        secretAccessKey: B2_APPLICATION_KEY || "missing-application-key"
+    }
+});
+
+if (
+    !B2_BUCKET ||
+    !B2_REGION ||
+    !B2_ENDPOINT ||
+    !B2_KEY_ID ||
+    !B2_APPLICATION_KEY
+) {
+    console.warn(
+        "[BACKBLAZE B2] Lipsesc una sau mai multe variabile B2_* din Environment."
+    );
+}
 
 const ANNOUNCEMENT_CHANNEL_ID = "1528758228450672803";
 
@@ -274,7 +307,7 @@ app.use(
 // ======================================================
 // FIȘIERE STATICE
 // Logo-ul DIICOT poate rămâne în /uploads
-// Pozele rapoartelor merg în Supabase Storage.
+// Rapoartele și pozele rapoartelor merg în Backblaze B2.
 // ======================================================
 
 const uploadsDirectory =
@@ -525,6 +558,232 @@ function ensureSupabase(
 }
 
 
+// ======================================================
+// BACKBLAZE B2 - RAPOARTE
+// Rapoartele sunt fișiere JSON în B2, iar dovezile foto
+// sunt obiecte separate în același bucket privat.
+// ======================================================
+
+function ensureB2(res) {
+    if (
+        !B2_BUCKET ||
+        !B2_REGION ||
+        !B2_ENDPOINT ||
+        !B2_KEY_ID ||
+        !B2_APPLICATION_KEY
+    ) {
+        res.status(503).json({
+            error:
+                "Backblaze B2 nu este configurat complet pe server."
+        });
+
+        return false;
+    }
+
+    return true;
+}
+
+function encodeB2KeyForURL(key) {
+    return String(key || "")
+        .split("/")
+        .map(encodeURIComponent)
+        .join("/");
+}
+
+function mapB2Report(report) {
+    if (!report) {
+        return null;
+    }
+
+    const createdAt =
+        report.createdAt ||
+        report.created_at ||
+        new Date().toISOString();
+
+    return {
+        id:
+            report.id,
+
+        authorId:
+            report.authorId ||
+            report.author_id,
+
+        authorName:
+            report.authorName ||
+            report.author_name,
+
+        authorUsername:
+            report.authorUsername ||
+            report.author_username,
+
+        authorRank:
+            report.authorRank ||
+            report.author_rank,
+
+        authorRankLevel:
+            Number(
+                report.authorRankLevel ??
+                report.author_rank_level ??
+                0
+            ),
+
+        type:
+            report.type,
+
+        title:
+            report.title,
+
+        description:
+            report.description,
+
+        images:
+            Array.isArray(report.images)
+                ? report.images
+                : [],
+
+        createdAt,
+
+        createdAtFormatted:
+            formatRomanianDate(createdAt)
+    };
+}
+
+async function b2BodyToString(body) {
+    if (!body) {
+        return "";
+    }
+
+    if (typeof body.transformToString === "function") {
+        return body.transformToString("utf-8");
+    }
+
+    const chunks = [];
+
+    for await (const chunk of body) {
+        chunks.push(Buffer.from(chunk));
+    }
+
+    return Buffer.concat(chunks).toString("utf-8");
+}
+
+async function listB2ObjectKeys(prefix) {
+    const keys = [];
+    let continuationToken;
+
+    do {
+        const response = await b2.send(
+            new ListObjectsV2Command({
+                Bucket: B2_BUCKET,
+                Prefix: prefix,
+                ContinuationToken: continuationToken
+            })
+        );
+
+        for (const object of response.Contents || []) {
+            if (object.Key) {
+                keys.push(object.Key);
+            }
+        }
+
+        continuationToken =
+            response.IsTruncated
+                ? response.NextContinuationToken
+                : undefined;
+
+    } while (continuationToken);
+
+    return keys;
+}
+
+async function readB2JSON(key) {
+    const response = await b2.send(
+        new GetObjectCommand({
+            Bucket: B2_BUCKET,
+            Key: key
+        })
+    );
+
+    const text = await b2BodyToString(response.Body);
+    return JSON.parse(text);
+}
+
+async function listB2Reports(authorId = null) {
+    const prefix = authorId
+        ? `reports/${String(authorId)}/`
+        : "reports/";
+
+    const keys = (await listB2ObjectKeys(prefix))
+        .filter(key => key.endsWith(".json"));
+
+    const reports = [];
+
+    // Citim pe loturi mici, ca să nu deschidem sute/mii de request-uri simultan.
+    const batchSize = 12;
+
+    for (let index = 0; index < keys.length; index += batchSize) {
+        const batch = keys.slice(index, index + batchSize);
+
+        const rows = await Promise.all(
+            batch.map(async key => {
+                try {
+                    return mapB2Report(
+                        await readB2JSON(key)
+                    );
+                }
+                catch (error) {
+                    console.error(
+                        "B2 report read error:",
+                        key,
+                        error.message
+                    );
+
+                    return null;
+                }
+            })
+        );
+
+        reports.push(...rows.filter(Boolean));
+    }
+
+    reports.sort(
+        (a, b) =>
+            new Date(b.createdAt).getTime() -
+            new Date(a.createdAt).getTime()
+    );
+
+    return reports;
+}
+
+async function deleteB2Keys(keys) {
+    const validKeys = Array.from(
+        new Set(
+            (keys || [])
+                .map(String)
+                .filter(Boolean)
+        )
+    );
+
+    for (let index = 0; index < validKeys.length; index += 1000) {
+        const batch = validKeys.slice(index, index + 1000);
+
+        if (!batch.length) {
+            continue;
+        }
+
+        await b2.send(
+            new DeleteObjectsCommand({
+                Bucket: B2_BUCKET,
+                Delete: {
+                    Objects:
+                        batch.map(Key => ({ Key })),
+                    Quiet: true
+                }
+            })
+        );
+    }
+}
+
+
 
 function mapTestCategory(row) {
     if (!row) return null;
@@ -565,58 +824,6 @@ function mapTestHistory(row) {
         threshold: Number(row.threshold || 0),
         verdict: row.verdict,
         createdAt: row.created_at
-    };
-}
-
-
-function mapReport(row) {
-
-    if (!row) {
-        return null;
-    }
-
-    return {
-        id:
-            row.id,
-
-        authorId:
-            row.author_id,
-
-        authorName:
-            row.author_name,
-
-        authorUsername:
-            row.author_username,
-
-        authorRank:
-            row.author_rank,
-
-        authorRankLevel:
-            row.author_rank_level,
-
-        type:
-            row.type,
-
-        title:
-            row.title,
-
-        description:
-            row.description,
-
-        images:
-            Array.isArray(
-                row.images
-            )
-                ? row.images
-                : [],
-
-        createdAt:
-            row.created_at,
-
-        createdAtFormatted:
-            formatRomanianDate(
-                row.created_at
-            )
     };
 }
 
@@ -2085,48 +2292,10 @@ app.get(
             req.session.user.avatar =
                 avatar;
 
-
-            const {
-                data:
-                    reportRows,
-
-                error:
-                    reportsError
-            } =
-                await supabase
-                    .from(
-                        "reports"
-                    )
-                    .select(
-                        "*"
-                    )
-                    .eq(
-                        "author_id",
-                        userId
-                    )
-                    .order(
-                        "created_at",
-                        {
-                            ascending:
-                                false
-                        }
-                    );
-
-
-            if (reportsError) {
-
-                throw reportsError;
-            }
-
-
             const myReports =
-                (
-                    reportRows ||
-                    []
-                )
-                    .map(
-                        mapReport
-                    );
+                await listB2Reports(
+                    userId
+                );
 
 
             const reportsWithImages =
@@ -2451,99 +2620,148 @@ app.patch(
 
 
 // ======================================================
-// RAPOARTE - UPLOAD SUPABASE STORAGE
+// RAPOARTE - BACKBLAZE B2
+// Metadata: reports/<discordId>/<reportId>.json
+// Imagini:  images/<reportId>/<fisier>
 // ======================================================
 
-async function uploadReportImages(
+async function uploadReportImagesToB2(
     files,
-    userId
+    reportId
 ) {
+    const uploadedImages = [];
 
-    const uploadedImages =
-        [];
-
-    for (
-        const file
-        of files
-    ) {
-
+    for (const file of files) {
         const extension =
             getExtensionFromMime(
                 file.mimetype
             );
-
 
         const filename =
             `${Date.now()}-${crypto
                 .randomBytes(8)
                 .toString("hex")}.${extension}`;
 
+        const key =
+            `images/${reportId}/${filename}`;
 
-        const storagePath =
-            `${userId}/${filename}`;
-
-
-        const {
-            error:
-                uploadError
-        } =
-            await supabase
-                .storage
-                .from(
-                    SUPABASE_BUCKET
-                )
-                .upload(
-                    storagePath,
-                    file.buffer,
-                    {
-                        contentType:
-                            file.mimetype,
-
-                        cacheControl:
-                            "3600",
-
-                        upsert:
-                            false
-                    }
-                );
-
-
-        if (uploadError) {
-
-            throw uploadError;
-        }
-
-
-        const {
-            data:
-                publicURLData
-        } =
-            supabase
-                .storage
-                .from(
-                    SUPABASE_BUCKET
-                )
-                .getPublicUrl(
-                    storagePath
-                );
-
+        await b2.send(
+            new PutObjectCommand({
+                Bucket: B2_BUCKET,
+                Key: key,
+                Body: file.buffer,
+                ContentType: file.mimetype,
+                CacheControl: "private, max-age=3600"
+            })
+        );
 
         uploadedImages.push({
-
             filename,
-
-            path:
-                storagePath,
-
+            key,
+            path: key,
+            provider: "b2",
             url:
-                publicURLData
-                    .publicUrl
+                `/api/report-files/${encodeB2KeyForURL(key)}`
         });
     }
 
-
     return uploadedImages;
 }
+
+
+// ======================================================
+// RAPOARTE - SERVIRE IMAGINI DIN BUCKET-UL PRIVAT B2
+// ======================================================
+
+app.get(
+    "/api/report-files/*",
+    requireAuth,
+    async (req, res) => {
+        if (!ensureB2(res)) {
+            return;
+        }
+
+        const key =
+            decodeURIComponent(
+                String(req.params[0] || "")
+            );
+
+        if (
+            !key.startsWith("images/") ||
+            key.includes("..")
+        ) {
+            return res.status(400).json({
+                error:
+                    "Calea fișierului nu este validă."
+            });
+        }
+
+        try {
+            const object = await b2.send(
+                new GetObjectCommand({
+                    Bucket: B2_BUCKET,
+                    Key: key
+                })
+            );
+
+            if (object.ContentType) {
+                res.setHeader(
+                    "Content-Type",
+                    object.ContentType
+                );
+            }
+
+            res.setHeader(
+                "Cache-Control",
+                "private, max-age=3600"
+            );
+
+            if (
+                object.ContentLength !== undefined
+            ) {
+                res.setHeader(
+                    "Content-Length",
+                    String(object.ContentLength)
+                );
+            }
+
+            if (
+                object.Body &&
+                typeof object.Body.pipe === "function"
+            ) {
+                object.Body.pipe(res);
+                return;
+            }
+
+            const chunks = [];
+
+            for await (const chunk of object.Body || []) {
+                chunks.push(Buffer.from(chunk));
+            }
+
+            res.end(Buffer.concat(chunks));
+        }
+        catch (error) {
+            const status =
+                error?.$metadata?.httpStatusCode === 404 ||
+                error?.name === "NoSuchKey"
+                    ? 404
+                    : 500;
+
+            console.error(
+                "B2 report file error:",
+                error.message
+            );
+
+            res.status(status).json({
+                error:
+                    status === 404
+                        ? "Imaginea nu a fost găsită."
+                        : "Imaginea nu a putut fi încărcată."
+            });
+        }
+    }
+);
 
 
 // ======================================================
@@ -2552,25 +2770,15 @@ async function uploadReportImages(
 
 app.post(
     "/api/reports",
-
     requireAuth,
-
     upload.array(
         "images",
         5
     ),
-
-    async (
-        req,
-        res
-    ) => {
-
-        if (
-            !ensureSupabase(res)
-        ) {
+    async (req, res) => {
+        if (!ensureB2(res)) {
             return;
         }
-
 
         const type =
             String(
@@ -2578,20 +2786,17 @@ app.post(
                 ""
             ).trim();
 
-
         const title =
             String(
                 req.body.title ||
                 ""
             ).trim();
 
-
         const description =
             String(
                 req.body.description ||
                 ""
             ).trim();
-
 
         const allowedTypes = [
             "RAZIE",
@@ -2603,199 +2808,143 @@ app.post(
             "FOCURI DE ARMA"
         ];
 
-
-        if (
-            !allowedTypes.includes(
-                type
-            )
-        ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Tipul raportului nu este valid."
-                });
+        if (!allowedTypes.includes(type)) {
+            return res.status(400).json({
+                error:
+                    "Tipul raportului nu este valid."
+            });
         }
-
 
         if (
             title.length < 2 ||
             title.length > 120
         ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Titlul trebuie să aibă între 2 și 120 de caractere."
-                });
+            return res.status(400).json({
+                error:
+                    "Titlul trebuie să aibă între 2 și 120 de caractere."
+            });
         }
-
 
         if (
             description.length < 2 ||
             description.length > 5000
         ) {
-
-            return res
-                .status(400)
-                .json({
-                    error:
-                        "Descrierea trebuie să aibă între 2 și 5000 de caractere."
-                });
+            return res.status(400).json({
+                error:
+                    "Descrierea trebuie să aibă între 2 și 5000 de caractere."
+            });
         }
 
+        const reportId =
+            crypto.randomUUID();
 
-        let uploadedImages =
-            [];
+        const authorId =
+            String(
+                req.session.user.id
+            );
 
+        const metadataKey =
+            `reports/${authorId}/${reportId}.json`;
+
+        let uploadedImages = [];
 
         try {
-
             uploadedImages =
-                await uploadReportImages(
-                    req.files ||
-                    [],
-                    req.session.user.id
+                await uploadReportImagesToB2(
+                    req.files || [],
+                    reportId
                 );
 
-            const reportId =
-                crypto.randomUUID();
-
-
             const now =
-                new Date();
+                new Date().toISOString();
 
-
-            const row = {
-
+            const report = {
                 id:
                     reportId,
 
-                author_id:
-                    String(
-                        req.session.user.id
-                    ),
+                authorId,
 
-                author_name:
+                authorName:
                     req.session.user.displayName ||
                     req.session.user.username,
 
-                author_username:
+                authorUsername:
                     req.session.user.username,
 
-                author_rank:
+                authorRank:
                     req.session.user.rank,
 
-                author_rank_level:
+                authorRankLevel:
                     Number(
                         req.session.user.rankLevel ||
                         0
                     ),
 
                 type,
-
                 title,
-
                 description,
-
                 images:
                     uploadedImages,
-
-                created_at:
-                    now.toISOString()
+                createdAt:
+                    now
             };
 
+            await b2.send(
+                new PutObjectCommand({
+                    Bucket: B2_BUCKET,
+                    Key: metadataKey,
+                    Body:
+                        JSON.stringify(
+                            report,
+                            null,
+                            2
+                        ),
+                    ContentType:
+                        "application/json; charset=utf-8",
+                    CacheControl:
+                        "no-store"
+                })
+            );
 
-            const {
-                data:
-                    inserted,
-
-                error:
-                    insertError
-            } =
-                await supabase
-                    .from(
-                        "reports"
-                    )
-                    .insert(
-                        row
-                    )
-                    .select()
-                    .single();
-
-
-            if (insertError) {
-
-                throw insertError;
-            }
-
-
-            const report =
-                mapReport(
-                    inserted
-                );
-
-
-            res
-                .status(201)
-                .json({
-
-                    success:
-                        true,
-
-                    message:
-                        "Raportul a fost postat.",
-
-                    report
-                });
-
+            return res.status(201).json({
+                success: true,
+                message:
+                    "Raportul a fost postat în Backblaze B2.",
+                report:
+                    mapB2Report(report)
+            });
         }
-
         catch (error) {
-
             console.error(
-                "Report Supabase Error:",
+                "Report Backblaze B2 Error:",
                 error
             );
 
+            const cleanupKeys = [
+                ...uploadedImages.map(
+                    image =>
+                        image.key ||
+                        image.path
+                ),
+                metadataKey
+            ].filter(Boolean);
 
-            if (
-                uploadedImages.length
-            ) {
-
-                const paths =
-                    uploadedImages
-                        .map(
-                            image =>
-                                image.path
-                        )
-                        .filter(Boolean);
-
-
-                if (
-                    paths.length
-                ) {
-
-                    await supabase
-                        .storage
-                        .from(
-                            SUPABASE_BUCKET
-                        )
-                        .remove(
-                            paths
-                        );
-                }
+            try {
+                await deleteB2Keys(
+                    cleanupKeys
+                );
+            }
+            catch (cleanupError) {
+                console.error(
+                    "B2 report cleanup error:",
+                    cleanupError.message
+                );
             }
 
-
-            res
-                .status(500)
-                .json({
-                    error:
-                        "Raportul nu a putut fi salvat în Supabase."
-                });
+            return res.status(500).json({
+                error:
+                    "Raportul nu a putut fi salvat în Backblaze B2."
+            });
         }
     }
 );
@@ -2807,83 +2956,32 @@ app.post(
 
 app.get(
     "/api/reports/my",
-
     requireAuth,
-
-    async (
-        req,
-        res
-    ) => {
-
-        if (
-            !ensureSupabase(res)
-        ) {
+    async (req, res) => {
+        if (!ensureB2(res)) {
             return;
         }
 
-
         try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from(
-                        "reports"
-                    )
-                    .select(
-                        "*"
-                    )
-                    .eq(
-                        "author_id",
-                        String(
-                            req.session.user.id
-                        )
-                    )
-                    .order(
-                        "created_at",
-                        {
-                            ascending:
-                                false
-                        }
-                    );
-
-
-            if (error) {
-
-                throw error;
-            }
-
+            const reports =
+                await listB2Reports(
+                    req.session.user.id
+                );
 
             res.json({
-
-                reports:
-                    (
-                        data ||
-                        []
-                    )
-                        .map(
-                            mapReport
-                        )
+                reports
             });
-
         }
-
         catch (error) {
-
             console.error(
-                "My Reports Supabase Error:",
+                "My Reports Backblaze B2 Error:",
                 error
             );
 
-
-            res
-                .status(500)
-                .json({
-                    error:
-                        "Rapoartele nu au putut fi încărcate."
-                });
+            res.status(500).json({
+                error:
+                    "Rapoartele nu au putut fi încărcate."
+            });
         }
     }
 );
@@ -2895,86 +2993,103 @@ app.get(
 
 app.get(
     "/api/admin/reports",
-
     requireAdmin,
-
-    async (
-        req,
-        res
-    ) => {
-
-        if (
-            !ensureSupabase(res)
-        ) {
+    async (req, res) => {
+        if (!ensureB2(res)) {
             return;
         }
 
-
         try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from(
-                        "reports"
-                    )
-                    .select(
-                        "*"
-                    )
-                    .order(
-                        "created_at",
-                        {
-                            ascending:
-                                false
-                        }
-                    );
-
-
-            if (error) {
-
-                throw error;
-            }
-
-
             const reports =
-                (
-                    data ||
-                    []
-                )
-                    .map(
-                        mapReport
-                    );
-
+                await listB2Reports();
 
             res.json({
-
-                success:
-                    true,
-
+                success: true,
                 total:
                     reports.length,
-
                 reports
             });
-
         }
-
         catch (error) {
-
             console.error(
-                "Admin Reports Supabase Error:",
+                "Admin Reports Backblaze B2 Error:",
                 error
             );
 
+            res.status(500).json({
+                error:
+                    "Rapoartele nu au putut fi încărcate."
+            });
+        }
+    }
+);
 
-            res
-                .status(500)
-                .json({
-                    error:
-                        "Rapoartele nu au putut fi încărcate."
-                });
+
+// ======================================================
+// ȘTERGERE GLOBALĂ RAPOARTE - ADMIN
+// Șterge atât JSON-urile rapoartelor, cât și imaginile B2.
+// Restul datelor din Supabase nu este atins.
+// ======================================================
+
+app.delete(
+    "/api/admin/reports/all",
+    requireAdmin,
+    async (req, res) => {
+        if (!ensureB2(res)) {
+            return;
+        }
+
+        if (
+            String(
+                req.body?.confirmation ||
+                ""
+            ) !== "STERGE RAPOARTELE"
+        ) {
+            return res.status(400).json({
+                error:
+                    "Confirmarea pentru ștergere este invalidă."
+            });
+        }
+
+        try {
+            const reportKeys =
+                await listB2ObjectKeys(
+                    "reports/"
+                );
+
+            const imageKeys =
+                await listB2ObjectKeys(
+                    "images/"
+                );
+
+            await deleteB2Keys([
+                ...imageKeys,
+                ...reportKeys
+            ]);
+
+            return res.json({
+                success: true,
+                deletedReports:
+                    reportKeys.filter(
+                        key =>
+                            key.endsWith(".json")
+                    ).length,
+                deletedImages:
+                    imageKeys.length,
+                message:
+                    "Toate rapoartele și imaginile lor au fost șterse din Backblaze B2."
+            });
+        }
+        catch (error) {
+            console.error(
+                "Delete All Reports B2 Error:",
+                error
+            );
+
+            return res.status(500).json({
+                error:
+                    "Rapoartele nu au putut fi șterse complet din Backblaze B2."
+            });
         }
     }
 );
@@ -6197,47 +6312,10 @@ app.get(
 
                     : [];
 
-
-            const {
-                data:
-                    reportRows,
-
-                error:
-                    reportsError
-            } =
-                await supabase
-                    .from(
-                        "reports"
-                    )
-                    .select(
-                        "*"
-                    )
-                    .eq(
-                        "author_id",
-                        userId
-                    )
-                    .order(
-                        "created_at",
-                        {
-                            ascending:
-                                false
-                        }
-                    );
-
-
-            if (reportsError) {
-                throw reportsError;
-            }
-
-
             const reports =
-                (
-                    reportRows ||
-                    []
-                )
-                    .map(
-                        mapReport
-                    );
+                await listB2Reports(
+                    userId
+                );
 
 
             const reportsWithImages =
