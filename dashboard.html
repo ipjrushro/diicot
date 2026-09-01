@@ -8441,6 +8441,47 @@
 
     </style>
 
+<style id="sanction-premium-styles">
+#sanction-modal{--sg:#f4b92f;--sr:#ff5c68;--sgn:#36d399;--sb:#53a7ff}
+#sanction-modal .sanction-shell{width:min(1180px,calc(100vw - 42px));max-height:min(900px,calc(100vh - 42px));overflow:auto;border-radius:24px;border:1px solid rgba(255,255,255,.09);background:radial-gradient(circle at 78% 10%,rgba(244,185,47,.09),transparent 34%),linear-gradient(145deg,rgba(13,25,40,.98),rgba(5,13,23,.99));box-shadow:0 36px 100px rgba(0,0,0,.62),inset 0 1px 0 rgba(255,255,255,.035);position:relative}
+#sanction-modal .sanction-topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:30px 32px 22px;border-bottom:1px solid rgba(255,255,255,.07)}
+#sanction-modal .sanction-kicker{color:var(--sg);font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
+#sanction-modal .sanction-title{margin:0;font-size:clamp(26px,3vw,40px);line-height:1;letter-spacing:-.03em;color:#f7f9fc}
+#sanction-modal .sanction-subtitle{margin:11px 0 0;color:#8d9caf;max-width:670px;font-size:13px}
+#sanction-modal .sanction-close{width:42px;height:42px;border-radius:13px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.035);color:#a9b5c4;font-size:22px;cursor:pointer;transition:.18s ease}
+#sanction-modal .sanction-close:hover{color:#fff;border-color:rgba(244,185,47,.38);background:rgba(244,185,47,.08);transform:translateY(-1px)}
+#sanction-modal .sanction-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:22px;padding:24px 32px 32px}
+#sanction-modal .sanction-main,#sanction-modal .sanction-side-card,#sanction-modal .sanction-summary{border:1px solid rgba(255,255,255,.075);background:rgba(7,17,29,.7);border-radius:18px}
+#sanction-modal .sanction-main{padding:20px}
+#sanction-modal .sanction-alert{display:flex;align-items:center;gap:12px;min-height:48px;padding:12px 14px;border-radius:14px;border:1px solid rgba(244,185,47,.18);background:linear-gradient(90deg,rgba(244,185,47,.10),rgba(244,185,47,.025));color:#e5bf61;font-size:12px;margin-bottom:18px}
+#sanction-modal .sanction-alert-icon{display:grid;place-items:center;flex:0 0 32px;height:32px;border-radius:10px;background:rgba(244,185,47,.10);color:var(--sg);font-size:16px}
+#sanction-modal .sanction-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+#sanction-modal .sanction-field{margin-bottom:16px}
+#sanction-modal .sanction-field label{display:block;margin:0 0 8px;color:#8190a4;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+#sanction-modal .sanction-field select,#sanction-modal .sanction-field textarea{width:100%;border:1px solid rgba(255,255,255,.08);background:rgba(2,10,18,.78);color:#edf2f8;border-radius:14px;outline:none;transition:.18s ease;box-sizing:border-box}
+#sanction-modal .sanction-field select{min-height:52px;padding:0 14px}
+#sanction-modal .sanction-field textarea{min-height:128px;resize:vertical;padding:15px;line-height:1.5}
+#sanction-modal .sanction-field select:focus,#sanction-modal .sanction-field textarea:focus{border-color:rgba(244,185,47,.55);box-shadow:0 0 0 3px rgba(244,185,47,.08)}
+#sanction-modal #fw-count-wrap{display:none}#sanction-modal #fw-count-wrap.visible{display:block}
+#sanction-modal .sanction-summary{padding:15px 16px;margin-top:3px;border-style:dashed}
+#sanction-modal .sanction-summary-head{display:flex;align-items:center;gap:10px;color:#dce4ef;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;margin-bottom:13px}
+#sanction-modal .sanction-summary-icon{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;background:rgba(244,185,47,.11);color:var(--sg)}
+#sanction-modal .sanction-summary-grid{display:grid;grid-template-columns:1.2fr .8fr .55fr 1.45fr;gap:12px}
+#sanction-modal .sanction-summary-item small{display:block;color:#607085;font-size:9px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px}
+#sanction-modal .sanction-summary-item strong{display:block;color:#d9e1eb;font-size:12px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#sanction-modal .sanction-actions{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:18px}
+#sanction-modal .sanction-submit{display:inline-flex;align-items:center;gap:10px;min-height:48px;padding:0 20px;border:1px solid rgba(244,185,47,.55);border-radius:13px;background:linear-gradient(135deg,#daa21e,#9d6905);color:#fff;font-size:11px;font-weight:900;letter-spacing:.035em;cursor:pointer;box-shadow:0 12px 26px rgba(180,119,4,.18),inset 0 1px 0 rgba(255,255,255,.17);transition:.18s ease}
+#sanction-modal .sanction-submit:hover{transform:translateY(-1px);filter:brightness(1.08)}#sanction-modal .sanction-submit:disabled{opacity:.55;cursor:wait;transform:none}
+#sanction-modal .sanction-message{flex:1;min-height:20px;font-size:11px}#sanction-modal .sanction-message.success{color:var(--sgn)}#sanction-modal .sanction-message.error{color:var(--sr)}
+#sanction-modal .sanction-side{display:grid;align-content:start;gap:16px}#sanction-modal .sanction-side-card{padding:17px}
+#sanction-modal .sanction-side-title{display:flex;align-items:center;gap:9px;color:#cbd5e1;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;margin-bottom:14px}
+#sanction-modal .sanction-rule{display:flex;justify-content:space-between;gap:12px;padding:13px 0;border-top:1px solid rgba(255,255,255,.055)}#sanction-modal .sanction-rule:first-of-type{border-top:0;padding-top:0}#sanction-modal .sanction-rule:last-child{padding-bottom:0}
+#sanction-modal .sanction-rule strong{color:#dce4ed;font-size:12px}#sanction-modal .sanction-rule p{margin:4px 0 0;color:#77879a;font-size:10px;line-height:1.45}
+#sanction-modal .sanction-badge{align-self:start;flex:0 0 auto;padding:5px 7px;border-radius:7px;font-size:9px;font-weight:900;border:1px solid rgba(244,185,47,.18);color:var(--sg);background:rgba(244,185,47,.08)}#sanction-modal .sanction-badge.red{border-color:rgba(255,92,104,.18);color:var(--sr);background:rgba(255,92,104,.08)}
+#sanction-modal .sanction-dm-note{display:flex;gap:11px;color:#8190a4;font-size:10px;line-height:1.55}#sanction-modal .sanction-dm-note b{color:#dce4ed}#sanction-modal .sanction-dm-note-icon{flex:0 0 32px;height:32px;display:grid;place-items:center;border-radius:10px;background:rgba(83,167,255,.09);color:var(--sb)}
+@media(max-width:900px){#sanction-modal .sanction-layout{grid-template-columns:1fr;padding:18px}#sanction-modal .sanction-topbar{padding:24px 20px 18px}#sanction-modal .sanction-side{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){#sanction-modal .sanction-shell{width:calc(100vw - 18px);max-height:calc(100vh - 18px);border-radius:18px}#sanction-modal .sanction-grid,#sanction-modal .sanction-side{grid-template-columns:1fr}#sanction-modal .sanction-summary-grid{grid-template-columns:1fr 1fr}#sanction-modal .sanction-actions{align-items:stretch;flex-direction:column-reverse}#sanction-modal .sanction-submit{justify-content:center;width:100%}}
+</style>
 </head>
 
 
@@ -12402,121 +12443,35 @@
 
 
     <!-- =========================================================
-         SANCȚIUNI — COORDONATOR+
+         SANCȚIUNI PREMIUM — COORDONATOR+
     ========================================================== -->
     <div class="modal" id="sanction-modal">
-        <div class="modal-card">
-
-            <div class="modal-head">
-                <div>
-                    <span>CONDUCERE</span>
-                    <h3>Aplică sancțiune</h3>
-                </div>
-
-                <button
-                    type="button"
-                    class="modal-close"
-                    data-close-modal="sanction-modal"
-                >
-                    ×
-                </button>
+        <div class="sanction-shell">
+            <div class="sanction-topbar">
+                <div><div class="sanction-kicker">CONDUCERE DIICOT / SANCȚIUNI</div><h3 class="sanction-title">Aplică sancțiune</h3><p class="sanction-subtitle">Selectează membrul, tipul sancțiunii și motivul. După aplicare, botul DIICOT încearcă automat să trimită membrului un mesaj privat pe Discord.</p></div>
+                <button type="button" class="sanction-close" data-close-modal="sanction-modal" aria-label="Închide">×</button>
             </div>
-
-            <div class="activity-warning">
-                Sancțiunile sunt înregistrate în sistem. Faction Warn poate
-                avea maximum 5 puncte active pentru un membru.
+            <div class="sanction-layout">
+                <div class="sanction-main">
+                    <div class="sanction-alert"><div class="sanction-alert-icon">⚠</div><div><b>Sancțiunile sunt înregistrate în sistem.</b> Un membru poate avea maximum 5 Faction Warn active.</div></div>
+                    <form id="sanction-form">
+                        <div class="sanction-grid">
+                            <div class="sanction-field"><label for="sanction-target">Membru</label><select id="sanction-target" required><option value="">Selectează membrul...</option></select></div>
+                            <div class="sanction-field"><label for="sanction-type">Tip sancțiune</label><select id="sanction-type" required><option value="FW">FACTION WARN</option><option value="OUT">OUT</option></select></div>
+                            <div class="sanction-field fw-count-wrap visible" id="fw-count-wrap"><label for="sanction-fw-count">Număr FW</label><select id="sanction-fw-count"><option value="1">1 FW</option><option value="2">2 FW</option><option value="3">3 FW</option><option value="4">4 FW</option><option value="5">5 FW</option></select></div>
+                        </div>
+                        <div class="sanction-field"><label for="sanction-reason">Motiv</label><textarea id="sanction-reason" maxlength="1500" placeholder="Scrie motivul sancțiunii..." required></textarea></div>
+                        <div class="sanction-summary"><div class="sanction-summary-head"><span class="sanction-summary-icon">⚖</span> Rezumat sancțiune</div><div class="sanction-summary-grid"><div class="sanction-summary-item"><small>Membru</small><strong id="sanction-summary-member">—</strong></div><div class="sanction-summary-item"><small>Tip</small><strong id="sanction-summary-type">Faction Warn</strong></div><div class="sanction-summary-item"><small>FW</small><strong id="sanction-summary-fw">1 FW</strong></div><div class="sanction-summary-item"><small>Motiv</small><strong id="sanction-summary-reason">—</strong></div></div></div>
+                        <div class="sanction-actions"><div id="sanction-message" class="sanction-message"></div><button type="submit" class="sanction-submit" id="sanction-submit-btn"><span>➤</span> APLICĂ SANCȚIUNEA</button></div>
+                    </form>
+                </div>
+                <aside class="sanction-side">
+                    <div class="sanction-side-card"><div class="sanction-side-title">ⓘ Informații sancțiuni</div><div class="sanction-rule"><div><strong>Faction Warn</strong><p>Avertisment oficial. Punctele active sunt urmărite în sistem.</p></div><span class="sanction-badge">MAX. 5 FW</span></div><div class="sanction-rule"><div><strong>OUT</strong><p>Ieșire din structură. FW-urile active ale membrului sunt închise automat.</p></div><span class="sanction-badge red">FINAL</span></div></div>
+                    <div class="sanction-side-card"><div class="sanction-side-title">✉ Notificare Discord</div><div class="sanction-dm-note"><div class="sanction-dm-note-icon">✉</div><div><b>Mesaj privat automat</b><br>Botul trimite tipul sancțiunii, motivul, cine a aplicat-o și situația FW. Dacă membrul are DM-urile blocate, sancțiunea rămâne salvată și vei fi informat pe ecran.</div></div></div>
+                </aside>
             </div>
-
-            <form id="sanction-form">
-
-                <div class="activity-modal-grid">
-
-                    <div class="form-group">
-                        <label for="sanction-target">
-                            MEMBRU
-                        </label>
-
-                        <select
-                            id="sanction-target"
-                            required
-                        >
-                            <option value="">
-                                Selectează membrul
-                            </option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="sanction-type">
-                            TIP SANCȚIUNE
-                        </label>
-
-                        <select
-                            id="sanction-type"
-                            required
-                        >
-                            <option value="FW">
-                                FACTION WARN
-                            </option>
-
-                            <option value="OUT">
-                                OUT
-                            </option>
-                        </select>
-                    </div>
-
-                    <div
-                        class="form-group fw-count-wrap visible"
-                        id="fw-count-wrap"
-                    >
-                        <label for="sanction-fw-count">
-                            NUMĂR FW
-                        </label>
-
-                        <select
-                            id="sanction-fw-count"
-                        >
-                            <option value="1">1 FW</option>
-                            <option value="2">2 FW</option>
-                            <option value="3">3 FW</option>
-                            <option value="4">4 FW</option>
-                            <option value="5">5 FW</option>
-                        </select>
-                    </div>
-
-                </div>
-
-                <div class="form-group">
-                    <label for="sanction-reason">
-                        MOTIV
-                    </label>
-
-                    <textarea
-                        id="sanction-reason"
-                        maxlength="1500"
-                        placeholder="Motivul sancțiunii..."
-                        required
-                    ></textarea>
-                </div>
-
-                <div
-                    id="sanction-message"
-                    class="form-message"
-                ></div>
-
-                <button
-                    type="submit"
-                    class="primary-btn gold-btn"
-                >
-                    APLICĂ SANCȚIUNEA
-                </button>
-
-            </form>
-
         </div>
     </div>
-
-
 
     <div class="modal" id="tm-category-modal">
         <div class="modal-card">
@@ -15784,6 +15739,21 @@ const query =
         );
 
 
+    function updateSanctionSummary() {
+        const target=document.getElementById("sanction-target");
+        const typeEl=document.getElementById("sanction-type");
+        const fwEl=document.getElementById("sanction-fw-count");
+        const reasonEl=document.getElementById("sanction-reason");
+        const selected=target?.options?.[target.selectedIndex];
+        const type=typeEl?.value||"FW";
+        const setText=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};
+        setText("sanction-summary-member",selected?.value?(selected.dataset?.name||selected.textContent||"—").trim():"—");
+        setText("sanction-summary-type",type==="OUT"?"OUT":"Faction Warn");
+        setText("sanction-summary-fw",type==="OUT"?"—":`${Number(fwEl?.value||1)} FW`);
+        setText("sanction-summary-reason",reasonEl?.value?.trim()||"—");
+    }
+    ["sanction-target","sanction-type","sanction-fw-count","sanction-reason"].forEach(id=>{const el=document.getElementById(id);el?.addEventListener(id==="sanction-reason"?"input":"change",updateSanctionSummary);});
+
     document
         .getElementById(
             "sanction-type"
@@ -16059,6 +16029,11 @@ const query =
                         "sanction-type"
                     ).value;
 
+                const submitButton =
+                    document.getElementById(
+                        "sanction-submit-btn"
+                    );
+
                 message.className =
                     "form-message";
 
@@ -16066,6 +16041,8 @@ const query =
                     "";
 
                 try {
+
+                    if (submitButton) { submitButton.disabled = true; submitButton.innerHTML = "<span>⏳</span> SE APLICĂ..."; }
 
                     const response =
                         await fetch(
@@ -16132,24 +16109,25 @@ const query =
                             "visible"
                         );
 
-                    message.className =
-                        "form-message success";
-
-                    message.textContent =
-                        type === "OUT"
-                            ? "✓ OUT înregistrat."
-                            : `✓ ${Number(data.activeFw || 0)}/5 Faction Warn active.`;
+                    message.className = "sanction-message success";
+                    const sanctionResult = type === "OUT" ? "OUT înregistrat" : `${Number(data.activeFw || 0)}/5 Faction Warn active`;
+                    message.textContent = data.dmSent === false
+                        ? `✓ ${sanctionResult}. ⚠ Mesajul privat Discord nu a putut fi livrat.`
+                        : `✓ ${sanctionResult}. ✉ Membrul a fost notificat în privat.`;
+                    updateSanctionSummary();
 
                 }
 
                 catch (error) {
 
-                    message.className =
-                        "form-message error";
+                    message.className = "sanction-message error";
 
                     message.textContent =
                         error.message ||
                         "Sancțiunea nu a putut fi aplicată.";
+                }
+                finally {
+                    if (submitButton) { submitButton.disabled = false; submitButton.innerHTML = "<span>➤</span> APLICĂ SANCȚIUNEA"; }
                 }
             }
         );
