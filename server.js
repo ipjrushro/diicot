@@ -10304,13 +10304,31 @@ app.post(
                 throw error;
             }
 
+            let dmSent = false;
+            let dmError = null;
+            try {
+                const appliedByName = req.session.user.displayName || req.session.user.username || "Conducerea DIICOT";
+                const appliedByRank = req.session.user.rank || "CONDUCERE DIICOT";
+                const dmLines = type === "OUT"
+                    ? ["📋 **NOTIFICARE SANCȚIUNE — DIICOT**", "", "Ai primit sancțiunea **OUT**.", `**Motiv:** ${reason}`, `**Aplicată de:** ${appliedByName} — ${appliedByRank}`, "", "Această sancțiune a fost înregistrată în sistemul DIICOT."]
+                    : ["⚠️ **NOTIFICARE SANCȚIUNE — DIICOT**", "", `Ai primit **${fwCount} Faction Warn**.`, `**Situație activă:** ${activeFw}/5 FW`, `**Motiv:** ${reason}`, `**Aplicată de:** ${appliedByName} — ${appliedByRank}`, "", "Această sancțiune a fost înregistrată în sistemul DIICOT."];
+                await sendDiscordDM(targetId, dmLines.join("\n"));
+                dmSent = true;
+            }
+            catch (discordError) {
+                dmError = discordError?.response?.data?.message || discordError?.message || "Mesajul privat nu a putut fi livrat.";
+                console.warn("Sanction Discord DM Warning:", targetId, dmError);
+            }
+
             res
                 .status(201)
                 .json({
                     success:
                         true,
 
-                    activeFw
+                    activeFw,
+                    dmSent,
+                    dmError
                 });
 
         }
