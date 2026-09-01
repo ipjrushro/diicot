@@ -36,6 +36,9 @@ const B2_APPLICATION_KEY = process.env.B2_APPLICATION_KEY;
 const b2 = new S3Client({
     endpoint: B2_ENDPOINT,
     region: B2_REGION,
+    forcePathStyle: true,
+    requestChecksumCalculation: "WHEN_REQUIRED",
+    responseChecksumValidation: "WHEN_REQUIRED",
     credentials: {
         accessKeyId: B2_KEY_ID || "missing-key-id",
         secretAccessKey: B2_APPLICATION_KEY || "missing-application-key"
@@ -2650,6 +2653,7 @@ async function uploadReportImagesToB2(
                 Bucket: B2_BUCKET,
                 Key: key,
                 Body: file.buffer,
+                ContentLength: file.buffer.length,
                 ContentType: file.mimetype,
                 CacheControl: "private, max-age=3600"
             })
