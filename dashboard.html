@@ -8439,7 +8439,47 @@
             }
         }
 
-    </style>
+    
+/* =========================================================
+   RAPORT NOU — PREMIUM
+========================================================= */
+#new-report{position:relative;}
+.report-premium-shell{position:relative;overflow:hidden;border:1px solid rgba(62,82,108,.46);border-radius:24px;background:linear-gradient(145deg,rgba(8,18,31,.98),rgba(5,13,23,.98));box-shadow:0 24px 70px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.025);padding:30px;}
+.report-premium-shell:before{content:"";position:absolute;right:-140px;top:-170px;width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(229,166,39,.17),rgba(229,166,39,.045) 45%,transparent 70%);pointer-events:none;}
+.report-premium-hero{position:relative;display:flex;justify-content:space-between;align-items:center;gap:28px;padding:8px 4px 26px;min-height:145px;}
+.report-premium-hero h2{margin:7px 0 7px;font-size:38px;line-height:1;color:#f5f8fc;letter-spacing:-1.1px;}
+.report-premium-hero p{margin:0;color:#9dacbf;font-size:14px;}
+.report-kicker{font-size:11px;font-weight:900;letter-spacing:1.6px;color:#e6ad32;}
+.report-hero-art{position:relative;width:180px;height:110px;display:grid;place-items:center;opacity:.9;}
+.report-hero-art:before{content:"";position:absolute;width:210px;height:210px;border-radius:50%;background:radial-gradient(circle,rgba(232,169,45,.2),transparent 64%);filter:blur(2px);}
+.report-hero-doc{position:relative;font-size:72px;color:#e5ac35;text-shadow:0 0 25px rgba(229,172,53,.28);transform:scaleX(.9);}
+.report-hero-plus{position:absolute;right:26px;bottom:5px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#f3bd47,#9d6810);color:#fff;font-size:26px;border:1px solid rgba(255,214,118,.5);box-shadow:0 0 25px rgba(232,169,45,.35);}
+.report-premium-form{display:grid;gap:16px;position:relative;}
+.report-field-card{display:grid;grid-template-columns:54px 1fr;gap:18px;align-items:center;padding:18px;border:1px solid rgba(61,82,106,.42);border-radius:16px;background:linear-gradient(180deg,rgba(13,27,44,.8),rgba(8,20,34,.82));transition:.2s ease;}
+.report-field-card:focus-within{border-color:rgba(228,169,48,.55);box-shadow:0 0 0 3px rgba(228,169,48,.055),0 12px 30px rgba(0,0,0,.14);}
+.report-field-icon{width:48px;height:48px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(145deg,rgba(231,170,42,.16),rgba(231,170,42,.055));border:1px solid rgba(231,170,42,.22);color:#e6ad32;font-size:23px;font-weight:900;}
+.report-title-icon{font-family:Georgia,serif;font-size:27px;}
+.report-field-body{min-width:0;}
+.report-field-body label{display:block;margin:0 0 8px;font-size:10px;font-weight:900;letter-spacing:.7px;color:#aebdce;}
+.report-field-body input[type="text"],.report-field-body select{width:100%;height:50px;border-radius:11px;border:1px solid rgba(54,74,97,.55)!important;background:rgba(3,12,22,.58)!important;color:#f2f6fa!important;padding:0 15px!important;font-size:14px!important;outline:none;}
+.report-field-body input::placeholder{color:#647489;}
+.report-upload-card{align-items:start;}
+.report-dropzone{position:relative;min-height:175px;border:1px dashed rgba(86,111,141,.72);border-radius:13px;background:rgba(4,14,25,.38);display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:24px;cursor:pointer;transition:.2s ease;}
+.report-dropzone:hover,.report-dropzone.dragging{border-color:#dda62f;background:rgba(221,166,47,.055);box-shadow:inset 0 0 34px rgba(221,166,47,.025);}
+.report-dropzone input[type="file"]{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.report-upload-symbol{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;margin-bottom:12px;color:#f0b641;font-size:26px;border:1px solid rgba(231,170,42,.3);background:rgba(231,170,42,.08);box-shadow:0 0 22px rgba(231,170,42,.1);}
+.report-dropzone strong{font-size:14px;color:#e8edf4;margin-bottom:7px;}
+.report-dropzone>span{font-size:10px;color:#75869a;}
+.report-file-summary{margin-top:11px;max-width:100%;font-size:10px;color:#d7a83e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.report-form-footer{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:18px 2px 0;border-top:1px solid rgba(64,83,105,.3);}
+.report-form-note{font-size:11px;color:#8292a5;}
+.report-submit-btn{min-width:190px!important;height:50px!important;border-radius:12px!important;background:linear-gradient(135deg,#dda62e,#95620f)!important;border:1px solid rgba(255,203,92,.43)!important;box-shadow:0 10px 25px rgba(167,111,13,.15)!important;color:#fff!important;font-weight:900!important;letter-spacing:.25px!important;}
+.report-submit-btn:hover{transform:translateY(-1px);filter:brightness(1.07);box-shadow:0 14px 32px rgba(167,111,13,.23)!important;}
+.report-premium-message{margin-top:2px;border-radius:10px;}
+.report-premium-message.success{padding:11px 13px;background:rgba(29,180,110,.08);border:1px solid rgba(29,180,110,.22);color:#57d99d;}
+.report-premium-message.error{padding:11px 13px;background:rgba(235,76,76,.08);border:1px solid rgba(235,76,76,.22);color:#ff7373;}
+@media(max-width:800px){.report-premium-shell{padding:18px}.report-premium-hero{min-height:auto}.report-hero-art{display:none}.report-premium-hero h2{font-size:31px}.report-field-card{grid-template-columns:1fr}.report-field-icon{display:none}.report-form-footer{align-items:stretch;flex-direction:column}.report-submit-btn{width:100%}}
+</style>
 
 <style id="sanction-premium-styles">
 #sanction-modal{--sg:#f4b92f;--sr:#ff5c68;--sgn:#36d399;--sb:#53a7ff}
@@ -9369,172 +9409,68 @@
                  RAPORT NOU
             ====================================================== -->
 
-            <section
-                class="dashboard-section"
-                id="new-report"
-            >
-
-
-                <div class="section-title">
-
-                    <span>
-                        RAPORTARE OPERAȚIONALĂ
-                    </span>
-
-                    <h2>
-                        Raport nou
-                    </h2>
-
-                </div>
-
-
-
-                <div class="dashboard-panel form-panel">
-
-
-                    <form
-                        id="report-form"
-                        enctype="multipart/form-data"
-                    >
-
-
-                        <div class="form-group">
-
-                            <label for="report-type">
-                                TIP RAPORT
-                            </label>
-
-                            <select
-                                id="report-type"
-                                name="type"
-                                required
-                            >
-
-                                <option value="">
-                                    Selectează tipul raportului
-                                </option>
-
-                                <option value="RAZIE">
-                                    RAZIE
-                                </option>
-
-                                <option value="ANTRENAMENT">
-                                    ANTRENAMENT
-                                </option>
-
-                                <option value="JAFURI">
-                                    JAFURI
-                                </option>
-
-                                <option value="PATRULA">
-                                    PATRULĂ
-                                </option>
-
-                                <option value="PERCHEZITIE">
-                                    PERCHEZIȚIE
-                                </option>
-
-                                <option value="VERIFICARE ZONA">
-                                    VERIFICARE ZONĂ
-                                </option>
-
-                                <option value="FOCURI DE ARMA">
-                                    FOCURI DE ARMĂ
-                                </option>
-
-                            </select>
-
+            <section class="dashboard-section" id="new-report">
+                <div class="report-premium-shell">
+                    <div class="report-premium-hero">
+                        <div>
+                            <span class="report-kicker">RAPORTARE OPERAȚIONALĂ</span>
+                            <h2>Raport nou</h2>
+                            <p>Completează datele de mai jos pentru a crea un raport operațional.</p>
                         </div>
-
-
-
-                        <div class="form-group">
-
-                            <label for="report-title">
-                                TITLU
-                            </label>
-
-                            <input
-                                type="text"
-                                id="report-title"
-                                name="title"
-                                maxlength="120"
-                                placeholder="Ex: Razie organizație..."
-                                required
-                            >
-
+                        <div class="report-hero-art" aria-hidden="true">
+                            <div class="report-hero-doc">▤</div>
+                            <div class="report-hero-plus">+</div>
                         </div>
+                    </div>
 
-
-
-                        <div class="form-group">
-
-                            <label for="report-description">
-                                DESCRIERE
-                            </label>
-
-                            <textarea
-                                id="report-description"
-                                name="description"
-                                maxlength="4000"
-                                placeholder="Descrie activitatea desfășurată..."
-                                required
-                            ></textarea>
-
-                        </div>
-
-
-
-                        <div class="form-group">
-
-                            <label for="report-images">
-                                DOVEZI FOTO
-                            </label>
-
-                            <input
-                                type="file"
-                                id="report-images"
-                                name="images"
-                                accept="image/jpeg,image/png,image/webp"
-                                multiple
-                            >
-
-                            <div
-                                style="
-                                    margin-top:7px;
-                                    color:#596b80;
-                                    font-size:8px;
-                                "
-                            >
-                                Maximum 5 imagini • JPG / PNG / WEBP
-                                • maximum 8 MB / imagine
+                    <form id="report-form" enctype="multipart/form-data" class="report-premium-form">
+                        <div class="report-field-card">
+                            <div class="report-field-icon">▤</div>
+                            <div class="report-field-body">
+                                <label for="report-type">TIP RAPORT</label>
+                                <select id="report-type" name="type" required>
+                                    <option value="">Selectează tipul raportului</option>
+                                    <option value="RAZIE">RAZIE</option>
+                                    <option value="ANTRENAMENT">ANTRENAMENT</option>
+                                    <option value="JAFURI">JAFURI</option>
+                                    <option value="PATRULA">PATRULĂ</option>
+                                    <option value="PERCHEZITIE">PERCHEZIȚIE</option>
+                                    <option value="VERIFICARE ZONA">VERIFICARE ZONĂ</option>
+                                    <option value="FOCURI DE ARMA">FOCURI DE ARMĂ</option>
+                                </select>
                             </div>
-
                         </div>
 
+                        <div class="report-field-card">
+                            <div class="report-field-icon report-title-icon">T</div>
+                            <div class="report-field-body">
+                                <label for="report-title">TITLU</label>
+                                <input type="text" id="report-title" name="title" maxlength="120" placeholder="Ex: Razie organizație..." required>
+                            </div>
+                        </div>
 
+                        <div class="report-field-card report-upload-card">
+                            <div class="report-field-icon">▧</div>
+                            <div class="report-field-body">
+                                <label for="report-images">DOVEZI FOTO</label>
+                                <div class="report-dropzone" id="report-dropzone">
+                                    <input type="file" id="report-images" name="images" accept="image/jpeg,image/png,image/webp" multiple>
+                                    <div class="report-upload-symbol">⇧</div>
+                                    <strong>Trage fișierele aici sau apasă pentru a selecta</strong>
+                                    <span>Maxim 5 imagini • JPG, PNG, WEBP • Maxim 8MB/fișier</span>
+                                    <div id="report-file-summary" class="report-file-summary">Nicio imagine selectată</div>
+                                </div>
+                            </div>
+                        </div>
 
-                        <button
-                            type="submit"
-                            class="primary-btn"
-                        >
-                            POSTEAZĂ RAPORT
-                        </button>
+                        <div class="report-form-footer">
+                            <div class="report-form-note">ⓘ Asigură-te că informațiile transmise sunt corecte și verificate.</div>
+                            <button type="submit" class="primary-btn report-submit-btn"><span>➤</span> POSTEAZĂ RAPORT</button>
+                        </div>
 
-
-
-                        <div
-                            id="report-message"
-                            class="form-message"
-                        ></div>
-
-
+                        <div id="report-message" class="form-message report-premium-message"></div>
                     </form>
-
-
                 </div>
-
-
             </section>
 
 
@@ -17850,6 +17786,23 @@ const query =
         });
 
 
+    /* RAPORT NOU — upload premium */
+    const reportImagesInput = document.getElementById("report-images");
+    const reportDropzone = document.getElementById("report-dropzone");
+    const reportFileSummary = document.getElementById("report-file-summary");
+
+    function refreshReportFileSummary() {
+        if (!reportFileSummary || !reportImagesInput) return;
+        const files = Array.from(reportImagesInput.files || []);
+        reportFileSummary.textContent = files.length
+            ? `${files.length} ${files.length === 1 ? "imagine selectată" : "imagini selectate"}: ${files.map(file => file.name).join(", ")}`
+            : "Nicio imagine selectată";
+    }
+
+    reportImagesInput?.addEventListener("change", refreshReportFileSummary);
+    ["dragenter", "dragover"].forEach(evt => reportDropzone?.addEventListener(evt, () => reportDropzone.classList.add("dragging")));
+    ["dragleave", "drop"].forEach(evt => reportDropzone?.addEventListener(evt, () => reportDropzone.classList.remove("dragging")));
+
     /* =========================================================
        REPORT FORM
     ========================================================== */
@@ -17952,14 +17905,6 @@ const query =
                 );
 
 
-                formData.append(
-                    "description",
-                    document.getElementById(
-                        "report-description"
-                    ).value.trim()
-                );
-
-
                 for (
                     const file
                     of files
@@ -18020,14 +17965,11 @@ const query =
 
 
                     this.reset();
+                    refreshReportFileSummary();
 
 
+                    // Actualizează arhiva în fundal, dar rămâne pe „Raport nou”.
                     await loadMyReports();
-
-
-                    openSection(
-                        "my-reports"
-                    );
 
                 }
                 catch (error) {
