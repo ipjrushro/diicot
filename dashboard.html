@@ -8769,6 +8769,60 @@
         }
 
 </style>
+
+<style>
+/* ===== SANCTIUNI V2 — premium gold/glass ===== */
+#sanction-modal .modal-card{
+    max-width:1180px!important;
+    border:1px solid rgba(244,185,39,.20)!important;
+    background:
+        radial-gradient(circle at 82% 4%,rgba(245,179,37,.11),transparent 27%),
+        linear-gradient(145deg,rgba(12,24,38,.985),rgba(4,12,22,.995))!important;
+    box-shadow:0 34px 95px rgba(0,0,0,.62),0 0 0 1px rgba(255,255,255,.018) inset!important;
+}
+#sanction-modal .modal-head{
+    padding:28px 30px 24px!important;
+    background:linear-gradient(90deg,rgba(246,181,34,.055),transparent 44%)!important;
+}
+#sanction-modal .modal-head h3{font-size:36px!important;letter-spacing:-1.1px!important}
+#sanction-modal .modal-head span{color:#f3bb39!important;letter-spacing:2.2px!important;font-weight:900!important}
+#sanction-modal .sanction-main-panel,
+#sanction-modal .sanction-info-card{
+    border-color:rgba(255,255,255,.075)!important;
+    background:linear-gradient(155deg,rgba(10,23,37,.9),rgba(5,15,26,.93))!important;
+    box-shadow:0 18px 45px rgba(0,0,0,.18)!important;
+}
+#sanction-modal select,#sanction-modal textarea{
+    border-color:rgba(108,137,170,.24)!important;
+    background:#06101b!important;
+    box-shadow:0 0 0 1px rgba(255,255,255,.012) inset!important;
+}
+#sanction-modal select:focus,#sanction-modal textarea:focus{
+    border-color:rgba(244,183,39,.68)!important;
+    box-shadow:0 0 0 3px rgba(244,183,39,.08)!important;
+}
+#sanction-modal .sanction-submit{
+    background:linear-gradient(135deg,#f0b62d,#bd7e0d)!important;
+    box-shadow:0 12px 34px rgba(226,159,20,.25),0 0 0 1px rgba(255,220,118,.25) inset!important;
+    transition:.2s ease!important;
+}
+#sanction-modal .sanction-submit:hover{transform:translateY(-2px);filter:brightness(1.07)}
+#sanction-modal .sanction-summary{
+    background:linear-gradient(135deg,rgba(5,15,25,.94),rgba(8,20,32,.92))!important;
+    border:1px dashed rgba(241,183,47,.18)!important;
+}
+#sanction-modal .activity-warning{
+    background:linear-gradient(90deg,rgba(226,163,31,.12),rgba(226,163,31,.025))!important;
+    border-color:rgba(226,163,31,.24)!important;
+}
+#sanction-modal .sanction-message.success{
+    padding:11px 14px;border-radius:10px;background:rgba(31,191,117,.08);border:1px solid rgba(31,191,117,.18)
+}
+#sanction-modal .sanction-message.error{
+    padding:11px 14px;border-radius:10px;background:rgba(239,75,75,.08);border:1px solid rgba(239,75,75,.18)
+}
+</style>
+
 </head>
 
 
@@ -16350,9 +16404,13 @@ const query =
 
                     message.className = "sanction-message success";
                     const sanctionResult = type === "OUT" ? "OUT înregistrat" : `${Number(data.activeFw || 0)}/5 Faction Warn active`;
-                    message.textContent = data.dmSent === false
-                        ? `✓ ${sanctionResult}. ⚠ Mesajul privat Discord nu a putut fi livrat.`
-                        : `✓ ${sanctionResult}. ✉ Membrul a fost notificat în privat.`;
+                    const syncParts = [
+                        `✓ ${sanctionResult}`,
+                        data.roleSynced ? "🎖 rol Discord actualizat" : "⚠ rolul Discord nu s-a putut actualiza",
+                        data.dmSent ? "✉ DM trimis" : "⚠ DM nelivrat",
+                        data.channelSent ? "📢 postat în #info-sanctiuni" : "⚠ mesajul din #info-sanctiuni nu a fost trimis"
+                    ];
+                    message.textContent = syncParts.join(" • ");
                     updateSanctionSummary();
 
                 }
