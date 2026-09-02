@@ -8479,6 +8479,60 @@
 .report-premium-message.success{padding:11px 13px;background:rgba(29,180,110,.08);border:1px solid rgba(29,180,110,.22);color:#57d99d;}
 .report-premium-message.error{padding:11px 13px;background:rgba(235,76,76,.08);border:1px solid rgba(235,76,76,.22);color:#ff7373;}
 @media(max-width:800px){.report-premium-shell{padding:18px}.report-premium-hero{min-height:auto}.report-hero-art{display:none}.report-premium-hero h2{font-size:31px}.report-field-card{grid-template-columns:1fr}.report-field-icon{display:none}.report-form-footer{align-items:stretch;flex-direction:column}.report-submit-btn{width:100%}}
+/* =========================================================
+   RAPORT NOU — MODERN V2
+========================================================= */
+#new-report{--rp-gold:#f0b532;--rp-gold2:#b87912;--rp-line:rgba(95,118,145,.22);--rp-card:rgba(8,20,34,.76);}
+#new-report .report-premium-shell{padding:0;border-radius:26px;background:radial-gradient(circle at 88% 5%,rgba(240,181,50,.14),transparent 28%),linear-gradient(145deg,#071321 0%,#06101b 58%,#040b13 100%);border:1px solid rgba(91,116,146,.30);overflow:visible;box-shadow:0 28px 90px rgba(0,0,0,.40);}
+#new-report .report-premium-shell:before{display:none}
+#new-report .report-premium-hero{min-height:150px;padding:30px 34px 24px;border-bottom:1px solid rgba(255,255,255,.05);overflow:hidden}
+#new-report .report-premium-hero:after{content:"";position:absolute;right:40px;top:-105px;width:330px;height:330px;border-radius:50%;border:1px solid rgba(240,181,50,.08);box-shadow:0 0 85px rgba(240,181,50,.07),inset 0 0 60px rgba(240,181,50,.03);pointer-events:none}
+#new-report .report-kicker{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:2px;color:#f0b532}
+#new-report .report-kicker:before{content:"";width:22px;height:2px;border-radius:9px;background:linear-gradient(90deg,#f0b532,transparent)}
+#new-report .report-premium-hero h2{font-size:42px;margin:10px 0 8px;letter-spacing:-1.5px}
+#new-report .report-premium-hero p{font-size:13px;color:#8190a4}
+#new-report .report-hero-art{width:170px;height:105px}
+#new-report .report-hero-doc{font-size:62px;opacity:.92}
+#new-report .report-hero-plus{width:34px;height:34px;font-size:22px;right:30px}
+#new-report .report-premium-form{padding:24px 30px 28px;gap:14px}
+#new-report .report-field-card{grid-template-columns:52px 1fr;gap:16px;padding:15px 16px;border-radius:16px;background:linear-gradient(180deg,rgba(12,27,44,.78),rgba(6,17,29,.82));border:1px solid var(--rp-line);box-shadow:none}
+#new-report .report-field-card:hover{border-color:rgba(125,148,175,.32);background:linear-gradient(180deg,rgba(14,31,50,.84),rgba(7,19,32,.88))}
+#new-report .report-field-card:focus-within{border-color:rgba(240,181,50,.48);box-shadow:0 0 0 3px rgba(240,181,50,.05)}
+#new-report .report-field-icon{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,rgba(240,181,50,.13),rgba(240,181,50,.035));border:1px solid rgba(240,181,50,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
+#new-report .report-field-body label{margin-bottom:9px;color:#7f91a7;font-size:9px;letter-spacing:1.35px}
+#new-report .report-field-body input[type="text"]{height:52px!important;border-radius:13px!important;background:rgba(2,9,16,.64)!important;border:1px solid rgba(94,117,143,.24)!important;padding:0 16px!important;transition:.18s ease}
+#new-report .report-field-body input[type="text"]:focus{border-color:rgba(240,181,50,.50)!important;box-shadow:0 0 0 3px rgba(240,181,50,.055)!important}
+#new-report .report-native-select{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
+#new-report .report-type-picker{position:relative;z-index:30}
+#new-report .report-type-trigger{width:100%;height:52px;border-radius:13px;border:1px solid rgba(94,117,143,.24);background:rgba(2,9,16,.64);color:#eaf0f7;display:flex;align-items:center;justify-content:space-between;padding:0 15px;cursor:pointer;font:inherit;transition:.18s ease}
+#new-report .report-type-trigger:hover,#new-report .report-type-picker.open .report-type-trigger{border-color:rgba(240,181,50,.48);background:rgba(6,15,25,.94);box-shadow:0 0 0 3px rgba(240,181,50,.045)}
+#new-report .report-type-trigger-left{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700}
+#new-report .report-type-mini-icon{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(240,181,50,.10);color:var(--rp-gold);font-size:13px}
+#new-report .report-type-chevron{font-size:20px;color:#7890a9;transition:.18s ease;transform:translateY(-2px)}
+#new-report .report-type-picker.open .report-type-chevron{transform:rotate(180deg) translateY(2px);color:var(--rp-gold)}
+#new-report .report-type-menu{position:absolute;left:0;right:0;top:calc(100% + 8px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:10px;border:1px solid rgba(108,132,159,.27);border-radius:15px;background:rgba(4,12,21,.985);box-shadow:0 24px 65px rgba(0,0,0,.62);opacity:0;visibility:hidden;transform:translateY(-7px) scale(.99);transition:.16s ease;backdrop-filter:blur(18px)}
+#new-report .report-type-picker.open .report-type-menu{opacity:1;visibility:visible;transform:none}
+#new-report .report-type-option{min-height:56px;border:1px solid rgba(96,119,145,.16);border-radius:11px;background:rgba(12,25,40,.65);color:#e8eef6;display:grid;grid-template-columns:30px 1fr;grid-template-rows:auto auto;text-align:left;column-gap:8px;padding:9px 11px;cursor:pointer;transition:.15s ease}
+#new-report .report-type-option>span{grid-row:1/3;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;align-self:center;background:rgba(240,181,50,.08);color:var(--rp-gold)}
+#new-report .report-type-option b{font-size:11px;align-self:end;letter-spacing:.2px}
+#new-report .report-type-option small{font-size:9px;color:#6f8196;align-self:start;margin-top:2px}
+#new-report .report-type-option:hover,#new-report .report-type-option.selected{border-color:rgba(240,181,50,.34);background:linear-gradient(90deg,rgba(240,181,50,.11),rgba(14,28,44,.76));transform:translateY(-1px)}
+#new-report .report-type-option.selected:after{content:"✓";position:absolute}
+#new-report .report-upload-card{padding:15px 16px}
+#new-report .report-dropzone{min-height:155px;border-radius:14px;border:1px dashed rgba(104,129,158,.42);background:radial-gradient(circle at 50% 100%,rgba(240,181,50,.035),transparent 40%),rgba(2,9,16,.38)}
+#new-report .report-dropzone:hover,#new-report .report-dropzone.dragging{border-color:rgba(240,181,50,.65);background:rgba(240,181,50,.035);transform:translateY(-1px)}
+#new-report .report-upload-symbol{width:46px;height:46px;font-size:22px;border:none;background:linear-gradient(145deg,rgba(240,181,50,.16),rgba(240,181,50,.045));box-shadow:0 0 0 1px rgba(240,181,50,.18),0 10px 25px rgba(0,0,0,.16)}
+#new-report .report-dropzone strong{font-size:13px}
+#new-report .report-file-summary{padding:5px 10px;border-radius:999px;background:rgba(240,181,50,.055);border:1px solid rgba(240,181,50,.12)}
+#new-report .report-form-footer{margin-top:3px;padding:19px 3px 0}
+#new-report .report-form-note{display:flex;align-items:center;gap:8px;color:#6f8196;font-size:10px}
+#new-report .report-form-note:before{content:"i";width:18px;height:18px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(240,181,50,.28);color:var(--rp-gold);font-weight:900}
+#new-report .report-submit-btn{min-width:215px!important;height:52px!important;border-radius:13px!important;background:linear-gradient(135deg,#efb532,#ae7010)!important;box-shadow:0 12px 30px rgba(181,119,13,.18),inset 0 1px 0 rgba(255,255,255,.16)!important;position:relative;overflow:hidden}
+#new-report .report-submit-btn:after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.16),transparent 65%);transform:translateX(-120%);transition:.45s ease}
+#new-report .report-submit-btn:hover:after{transform:translateX(120%)}
+@media(max-width:900px){#new-report .report-type-menu{grid-template-columns:1fr}}
+@media(max-width:800px){#new-report .report-premium-form{padding:18px}#new-report .report-premium-hero{padding:22px 20px 18px}#new-report .report-premium-hero h2{font-size:32px}}
+
 </style>
 
 <style id="sanction-premium-styles">
@@ -9729,7 +9783,7 @@
                             <div class="report-field-icon">▤</div>
                             <div class="report-field-body">
                                 <label for="report-type">TIP RAPORT</label>
-                                <select id="report-type" name="type" required>
+                                <select id="report-type" name="type" required class="report-native-select" aria-hidden="true" tabindex="-1">
                                     <option value="">Selectează tipul raportului</option>
                                     <option value="RAZIE">RAZIE</option>
                                     <option value="ANTRENAMENT">ANTRENAMENT</option>
@@ -9739,6 +9793,21 @@
                                     <option value="VERIFICARE ZONA">VERIFICARE ZONĂ</option>
                                     <option value="FOCURI DE ARMA">FOCURI DE ARMĂ</option>
                                 </select>
+                                <div class="report-type-picker" id="report-type-picker">
+                                    <button type="button" class="report-type-trigger" id="report-type-trigger" aria-expanded="false">
+                                        <span class="report-type-trigger-left"><span class="report-type-mini-icon">▤</span><span id="report-type-label">Selectează tipul raportului</span></span>
+                                        <span class="report-type-chevron">⌄</span>
+                                    </button>
+                                    <div class="report-type-menu" id="report-type-menu">
+                                        <button type="button" class="report-type-option" data-value="RAZIE"><span>◈</span><b>RAZIE</b><small>Operațiune coordonată</small></button>
+                                        <button type="button" class="report-type-option" data-value="ANTRENAMENT"><span>◇</span><b>ANTRENAMENT</b><small>Pregătire operațională</small></button>
+                                        <button type="button" class="report-type-option" data-value="JAFURI"><span>◆</span><b>JAFURI</b><small>Intervenție la jaf</small></button>
+                                        <button type="button" class="report-type-option" data-value="PATRULA"><span>◉</span><b>PATRULĂ</b><small>Activitate de patrulare</small></button>
+                                        <button type="button" class="report-type-option" data-value="PERCHEZITIE"><span>⌕</span><b>PERCHEZIȚIE</b><small>Acțiune de percheziție</small></button>
+                                        <button type="button" class="report-type-option" data-value="VERIFICARE ZONA"><span>▧</span><b>VERIFICARE ZONĂ</b><small>Control și verificare</small></button>
+                                        <button type="button" class="report-type-option" data-value="FOCURI DE ARMA"><span>✦</span><b>FOCURI DE ARMĂ</b><small>Incident armat</small></button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -18164,6 +18233,46 @@ const query =
     ["dragenter", "dragover"].forEach(evt => reportDropzone?.addEventListener(evt, () => reportDropzone.classList.add("dragging")));
     ["dragleave", "drop"].forEach(evt => reportDropzone?.addEventListener(evt, () => reportDropzone.classList.remove("dragging")));
 
+
+    /* RAPORT NOU — selector modern */
+    const reportTypeSelect = document.getElementById("report-type");
+    const reportTypePicker = document.getElementById("report-type-picker");
+    const reportTypeTrigger = document.getElementById("report-type-trigger");
+    const reportTypeLabel = document.getElementById("report-type-label");
+    const reportTypeOptions = Array.from(document.querySelectorAll(".report-type-option"));
+
+    function closeReportTypePicker() {
+        reportTypePicker?.classList.remove("open");
+        reportTypeTrigger?.setAttribute("aria-expanded", "false");
+    }
+
+    function syncReportTypePicker() {
+        if (!reportTypeSelect || !reportTypeLabel) return;
+        const current = reportTypeOptions.find(item => item.dataset.value === reportTypeSelect.value);
+        reportTypeLabel.textContent = current?.querySelector("b")?.textContent || "Selectează tipul raportului";
+        reportTypeOptions.forEach(item => item.classList.toggle("selected", item.dataset.value === reportTypeSelect.value));
+    }
+
+    reportTypeTrigger?.addEventListener("click", () => {
+        const opening = !reportTypePicker.classList.contains("open");
+        reportTypePicker.classList.toggle("open", opening);
+        reportTypeTrigger.setAttribute("aria-expanded", String(opening));
+    });
+
+    reportTypeOptions.forEach(item => item.addEventListener("click", () => {
+        reportTypeSelect.value = item.dataset.value || "";
+        reportTypeSelect.dispatchEvent(new Event("change", { bubbles: true }));
+        syncReportTypePicker();
+        closeReportTypePicker();
+    }));
+
+    document.addEventListener("click", event => {
+        if (reportTypePicker && !reportTypePicker.contains(event.target)) closeReportTypePicker();
+    });
+
+    document.addEventListener("keydown", event => { if (event.key === "Escape") closeReportTypePicker(); });
+    syncReportTypePicker();
+
     /* =========================================================
        REPORT FORM
     ========================================================== */
@@ -18327,6 +18436,7 @@ const query =
 
                     this.reset();
                     refreshReportFileSummary();
+                    syncReportTypePicker();
 
 
                     // Actualizează arhiva în fundal, dar rămâne pe „Raport nou”.
