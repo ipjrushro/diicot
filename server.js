@@ -2853,11 +2853,9 @@ app.post(
                 ""
             ).trim();
 
-        const description =
-            String(
-                req.body.description ||
-                ""
-            ).trim();
+        // Descrierea a fost eliminată din formular. Păstrăm câmpul gol
+        // în JSON pentru compatibilitate cu rapoartele mai vechi.
+        const description = "";
 
         const allowedTypes = [
             "RAZIE",
@@ -2883,16 +2881,6 @@ app.post(
             return res.status(400).json({
                 error:
                     "Titlul trebuie să aibă între 2 și 120 de caractere."
-            });
-        }
-
-        if (
-            description.length < 2 ||
-            description.length > 5000
-        ) {
-            return res.status(400).json({
-                error:
-                    "Descrierea trebuie să aibă între 2 și 5000 de caractere."
             });
         }
 
