@@ -9193,6 +9193,148 @@ async function sendDiscordDM(userId, content) {
 }
 
 
+// ======================================================
+// SANCȚIUNI — ROLURI FW + CANAL INFO-SANCTIUNI
+// ======================================================
+
+const FACTION_WARN_ROLE_IDS = {
+    1: "1528758226319966342",
+    2: "1528758226319966343",
+    3: "1528758226319966344",
+    4: "1528758226319966345",
+    5: "1528758226319966346"
+};
+
+const INFO_SANCTIONS_CHANNEL_ID = "1544679685030682664";
+
+async function syncFactionWarnDiscordRole(userId, level) {
+    if (!BOT_TOKEN || !GUILD_ID) {
+        throw new Error("Botul Discord sau serverul Discord nu este configurat.");
+    }
+
+    const desiredLevel = Math.max(0, Math.min(5, Number(level) || 0));
+    const desiredRoleId = desiredLevel > 0 ? FACTION_WARN_ROLE_IDS[desiredLevel] : null;
+
+    const memberResponse = await axios.get(
+        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
+        {
+            headers: {
+                Authorization: `Bot ${BOT_TOKEN}`
+            }
+        }
+    );
+
+    const currentRoles = new Set((memberResponse.data?.roles || []).map(String));
+    const allFwRoleIds = Object.values(FACTION_WARN_ROLE_IDS);
+
+    // Scoate orice rol FW vechi, cu excepția celui care trebuie păstrat.
+    for (const roleId of allFwRoleIds) {
+        if (currentRoles.has(roleId) && roleId !== desiredRoleId) {
+            await axios.delete(
+                `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}/roles/${roleId}`,
+                {
+                    headers: {
+                        Authorization: `Bot ${BOT_TOKEN}`
+                    }
+                }
+            );
+        }
+    }
+
+    // Aplică rolul corespunzător nivelului curent.
+    if (desiredRoleId && !currentRoles.has(desiredRoleId)) {
+        await axios.put(
+            `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}/roles/${desiredRoleId}`,
+            {},
+            {
+                headers: {
+                    Authorization: `Bot ${BOT_TOKEN}`,
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+    }
+
+    return {
+        level: desiredLevel,
+        roleId: desiredRoleId
+    };
+}
+
+async function sendSanctionInfoMessage({
+    targetId,
+    targetName,
+    type,
+    fwCount,
+    activeFw,
+    reason,
+    appliedByName,
+    appliedByRank
+}) {
+    if (!BOT_TOKEN || !INFO_SANCTIONS_CHANNEL_ID) {
+        throw new Error("Canalul info-sanctiuni sau botul Discord nu este configurat.");
+    }
+
+    const isOut = type === "OUT";
+    const displayedLevel = isOut ? 5 : activeFw;
+    const title = isOut
+        ? "🔴 Sancțiune aplicată — OUT"
+        : `🟡 Sancțiune aplicată — Faction Warn ${displayedLevel}/5`;
+
+    const embed = {
+        title,
+        color: isOut ? 0xED4245 : 0xF0B232,
+        fields: [
+            {
+                name: "Membru",
+                value: `${targetName || "Necunoscut"}\n<@${targetId}>`,
+                inline: true
+            },
+            {
+                name: "Tip sancțiune",
+                value: isOut ? "OUT" : `FACTION WARN (+${fwCount})`,
+                inline: true
+            },
+            {
+                name: "Situație FW",
+                value: isOut ? "5/5 — OUT" : `${activeFw}/5 FW`,
+                inline: true
+            },
+            {
+                name: "Motiv",
+                value: String(reason || "-" ).slice(0, 1000),
+                inline: false
+            },
+            {
+                name: "Aplicată de",
+                value: `${appliedByName || "Conducerea DIICOT"}\n${appliedByRank || "CONDUCERE DIICOT"}`,
+                inline: true
+            }
+        ],
+        footer: {
+            text: "DIICOT • Sistem sancțiuni"
+        },
+        timestamp: new Date().toISOString()
+    };
+
+    await axios.post(
+        `https://discord.com/api/v10/channels/${INFO_SANCTIONS_CHANNEL_ID}/messages`,
+        {
+            embeds: [embed],
+            allowed_mentions: {
+                parse: []
+            }
+        },
+        {
+            headers: {
+                Authorization: `Bot ${BOT_TOKEN}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+}
+
+
 // Toți membrii autentificați își pot vedea cererile.
 app.get(
     "/api/callsign-requests/me",
@@ -10318,11 +10460,47 @@ app.post(
                 throw error;
             }
 
+            const appliedByName = req.session.user.displayName || req.session.user.username || "Conducerea DIICOT";
+            const appliedByRank = req.session.user.rank || "CONDUCERE DIICOT";
+
+            // Sincronizează automat rolul de Faction Warn pe Discord.
+            // OUT folosește rolul 5/5 (OUT).
+            let roleSynced = false;
+            let roleSyncError = null;
+            try {
+                const roleLevel = type === "OUT" ? 5 : activeFw;
+                await syncFactionWarnDiscordRole(targetId, roleLevel);
+                roleSynced = true;
+            }
+            catch (discordRoleError) {
+                roleSyncError = discordRoleError?.response?.data?.message || discordRoleError?.message || "Rolul FW nu a putut fi sincronizat.";
+                console.warn("Sanction Discord Role Warning:", targetId, roleSyncError);
+            }
+
+            // Postează automat sancțiunea în canalul info-sanctiuni.
+            let channelSent = false;
+            let channelError = null;
+            try {
+                await sendSanctionInfoMessage({
+                    targetId,
+                    targetName,
+                    type,
+                    fwCount,
+                    activeFw,
+                    reason,
+                    appliedByName,
+                    appliedByRank
+                });
+                channelSent = true;
+            }
+            catch (channelPostError) {
+                channelError = channelPostError?.response?.data?.message || channelPostError?.message || "Mesajul din info-sanctiuni nu a putut fi trimis.";
+                console.warn("Sanction Info Channel Warning:", channelError);
+            }
+
             let dmSent = false;
             let dmError = null;
             try {
-                const appliedByName = req.session.user.displayName || req.session.user.username || "Conducerea DIICOT";
-                const appliedByRank = req.session.user.rank || "CONDUCERE DIICOT";
                 const dmLines = type === "OUT"
                     ? ["📋 **NOTIFICARE SANCȚIUNE — DIICOT**", "", "Ai primit sancțiunea **OUT**.", `**Motiv:** ${reason}`, `**Aplicată de:** ${appliedByName} — ${appliedByRank}`, "", "Această sancțiune a fost înregistrată în sistemul DIICOT."]
                     : ["⚠️ **NOTIFICARE SANCȚIUNE — DIICOT**", "", `Ai primit **${fwCount} Faction Warn**.`, `**Situație activă:** ${activeFw}/5 FW`, `**Motiv:** ${reason}`, `**Aplicată de:** ${appliedByName} — ${appliedByRank}`, "", "Această sancțiune a fost înregistrată în sistemul DIICOT."];
@@ -10342,7 +10520,11 @@ app.post(
 
                     activeFw,
                     dmSent,
-                    dmError
+                    dmError,
+                    roleSynced,
+                    roleSyncError,
+                    channelSent,
+                    channelError
                 });
 
         }
