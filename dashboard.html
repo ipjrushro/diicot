@@ -8521,6 +8521,253 @@
 #sanction-modal .sanction-dm-note{display:flex;gap:11px;color:#8190a4;font-size:10px;line-height:1.55}#sanction-modal .sanction-dm-note b{color:#dce4ed}#sanction-modal .sanction-dm-note-icon{flex:0 0 32px;height:32px;display:grid;place-items:center;border-radius:10px;background:rgba(83,167,255,.09);color:var(--sb)}
 @media(max-width:900px){#sanction-modal .sanction-layout{grid-template-columns:1fr;padding:18px}#sanction-modal .sanction-topbar{padding:24px 20px 18px}#sanction-modal .sanction-side{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){#sanction-modal .sanction-shell{width:calc(100vw - 18px);max-height:calc(100vh - 18px);border-radius:18px}#sanction-modal .sanction-grid,#sanction-modal .sanction-side{grid-template-columns:1fr}#sanction-modal .sanction-summary-grid{grid-template-columns:1fr 1fr}#sanction-modal .sanction-actions{align-items:stretch;flex-direction:column-reverse}#sanction-modal .sanction-submit{justify-content:center;width:100%}}
+
+
+        /* =========================================================
+           CALLSIGN REQUEST — PREMIUM V2
+        ========================================================== */
+        #callsign-request-modal .callsign-modal-box {
+            width: min(880px, calc(100vw - 34px));
+            max-height: min(88vh, 900px);
+            overflow-y: auto;
+            border: 1px solid rgba(69, 119, 177, .28);
+            border-radius: 22px;
+            background:
+                radial-gradient(circle at 90% 5%, rgba(35, 111, 255, .12), transparent 28%),
+                linear-gradient(180deg, rgba(11, 26, 43, .985), rgba(5, 16, 29, .995));
+            box-shadow:
+                0 34px 100px rgba(0, 0, 0, .62),
+                inset 0 1px 0 rgba(255, 255, 255, .025);
+        }
+
+        #callsign-request-modal .callsign-modal-top {
+            padding: 25px 27px 21px;
+            border-bottom: 1px solid rgba(105, 145, 190, .13);
+            background: linear-gradient(90deg, rgba(24, 67, 115, .08), transparent 60%);
+        }
+
+        #callsign-request-modal .callsign-modal-icon {
+            width: 55px;
+            height: 55px;
+            border-radius: 16px;
+            font-size: 22px;
+            color: #82baff;
+            border: 1px solid rgba(60, 139, 255, .34);
+            background: linear-gradient(145deg, rgba(26, 102, 206, .25), rgba(10, 38, 73, .38));
+            box-shadow: inset 0 0 26px rgba(35, 117, 255, .08), 0 0 24px rgba(31, 111, 255, .07);
+        }
+
+        #callsign-request-modal .callsign-modal-title h3 {
+            margin-top: 4px;
+            font-size: 22px;
+            letter-spacing: .02em;
+        }
+
+        #callsign-request-modal .callsign-modal-title p {
+            max-width: 590px;
+            margin-top: 7px;
+            color: #7f91a7;
+            line-height: 1.55;
+        }
+
+        #callsign-request-modal .callsign-info-banner {
+            margin: 21px 27px 0;
+            padding: 14px 16px;
+            border-radius: 14px;
+            border: 1px solid rgba(224, 170, 47, .19);
+            background: linear-gradient(90deg, rgba(192, 137, 21, .075), rgba(10, 24, 39, .58));
+        }
+
+        #callsign-request-form {
+            padding: 22px 27px 25px;
+        }
+
+        .callsign-request-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 15px;
+        }
+
+        .callsign-input-card {
+            position: relative;
+            border-radius: 15px;
+            padding: 13px 14px 14px;
+            border: 1px solid rgba(101, 140, 184, .15);
+            background: linear-gradient(180deg, rgba(12, 28, 47, .9), rgba(7, 19, 33, .92));
+            transition: border-color .18s ease, transform .18s ease, box-shadow .18s ease;
+        }
+
+        .callsign-input-card:focus-within {
+            border-color: rgba(53, 133, 255, .44);
+            box-shadow: 0 0 0 3px rgba(36, 113, 255, .07);
+            transform: translateY(-1px);
+        }
+
+        .callsign-input-card .callsign-input-label,
+        #callsign-request-modal .callsign-field > label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 9px;
+            color: #9aabc0;
+            font-size: 9px;
+            font-weight: 900;
+            letter-spacing: .1em;
+        }
+
+        .callsign-input-card .field-icon {
+            display: grid;
+            place-items: center;
+            width: 23px;
+            height: 23px;
+            border-radius: 8px;
+            color: #6daaff;
+            border: 1px solid rgba(67, 137, 255, .2);
+            background: rgba(29, 94, 188, .09);
+            font-size: 11px;
+            letter-spacing: 0;
+        }
+
+        .callsign-input-card input {
+            width: 100%;
+            height: 46px;
+            padding: 0 14px;
+            border-radius: 11px;
+            border: 1px solid rgba(110, 147, 188, .15);
+            outline: none;
+            color: #ecf4ff;
+            background: rgba(3, 12, 22, .72);
+            font: inherit;
+            font-size: 13px;
+            transition: border-color .18s ease, background .18s ease;
+        }
+
+        .callsign-input-card input:focus {
+            border-color: rgba(61, 137, 255, .42);
+            background: rgba(5, 17, 31, .94);
+        }
+
+        .callsign-input-card input::placeholder,
+        #callsign-request-modal textarea::placeholder {
+            color: #53667d;
+        }
+
+        #callsign-request-modal .callsign-field {
+            padding: 14px;
+            border-radius: 15px;
+            border: 1px solid rgba(101, 140, 184, .15);
+            background: linear-gradient(180deg, rgba(12, 28, 47, .9), rgba(7, 19, 33, .92));
+        }
+
+        #callsign-request-modal .callsign-field textarea {
+            min-height: 120px;
+            padding: 14px;
+            border-radius: 11px;
+            border: 1px solid rgba(110, 147, 188, .15);
+            background: rgba(3, 12, 22, .72);
+        }
+
+        #callsign-request-modal .callsign-field textarea:focus {
+            border-color: rgba(61, 137, 255, .42);
+            box-shadow: 0 0 0 3px rgba(36, 113, 255, .06);
+        }
+
+        .callsign-required-tag,
+        .callsign-optional-tag {
+            margin-left: auto;
+            padding: 3px 7px;
+            border-radius: 999px;
+            font-size: 7px;
+            letter-spacing: .08em;
+        }
+
+        .callsign-required-tag {
+            color: #9dc7ff;
+            background: rgba(34, 111, 218, .11);
+            border: 1px solid rgba(59, 130, 227, .15);
+        }
+
+        .callsign-optional-tag {
+            color: #9ba9ba;
+            background: rgba(255,255,255,.035);
+            border: 1px solid rgba(255,255,255,.055);
+        }
+
+        #callsign-request-modal .callsign-modal-actions {
+            margin-top: 17px;
+            padding-top: 17px;
+            border-top: 1px solid rgba(105, 145, 190, .11);
+        }
+
+        #callsign-request-modal .callsign-submit-btn {
+            min-width: 180px;
+            height: 46px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 205, 84, .58);
+            color: #fff7dd;
+            background: linear-gradient(135deg, #d79f21, #a86e0b);
+            box-shadow: 0 10px 30px rgba(181, 119, 8, .16), inset 0 1px 0 rgba(255,255,255,.18);
+        }
+
+        #callsign-request-modal .callsign-history {
+            background: rgba(2, 12, 22, .35);
+        }
+
+        .callsign-personal-details,
+        .callsign-admin-game-details {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 7px;
+            margin-top: 7px;
+        }
+
+        .callsign-detail-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 8px;
+            border-radius: 8px;
+            border: 1px solid rgba(87, 137, 194, .13);
+            background: rgba(39, 90, 145, .06);
+            color: #8fa4bc;
+            font-size: 8px;
+            font-weight: 800;
+            letter-spacing: .04em;
+        }
+
+        .callsign-admin-request .game-identity {
+            margin: 11px 0 4px;
+            padding: 11px 12px;
+            border-radius: 11px;
+            border: 1px solid rgba(61, 129, 211, .13);
+            background: rgba(25, 72, 127, .055);
+        }
+
+        .callsign-admin-request .game-identity strong {
+            display: block;
+            color: #dceaff;
+            font-size: 10px;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 700px) {
+            .callsign-request-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #callsign-request-modal .callsign-modal-top,
+            #callsign-request-form {
+                padding-left: 18px;
+                padding-right: 18px;
+            }
+
+            #callsign-request-modal .callsign-info-banner {
+                margin-left: 18px;
+                margin-right: 18px;
+            }
+        }
+
 </style>
 </head>
 
@@ -12050,21 +12297,57 @@
             </div>
 
             <form id="callsign-request-form">
+                <div class="callsign-request-grid">
+                    <div class="callsign-input-card">
+                        <label class="callsign-input-label" for="callsign-game-id">
+                            <span class="field-icon">#</span>
+                            ID-UL DIN JOC
+                            <span class="callsign-required-tag">OBLIGATORIU</span>
+                        </label>
+                        <input
+                            id="callsign-game-id"
+                            type="text"
+                            maxlength="20"
+                            inputmode="numeric"
+                            autocomplete="off"
+                            placeholder="Ex: 19385"
+                            required
+                        >
+                    </div>
+
+                    <div class="callsign-input-card">
+                        <label class="callsign-input-label" for="callsign-game-name">
+                            <span class="field-icon">A</span>
+                            NUMELE DUPĂ JOC
+                            <span class="callsign-required-tag">OBLIGATORIU</span>
+                        </label>
+                        <input
+                            id="callsign-game-name"
+                            type="text"
+                            maxlength="80"
+                            autocomplete="off"
+                            placeholder="Ex: Andrei Mario"
+                            required
+                        >
+                    </div>
+                </div>
+
                 <div class="callsign-field">
                     <label for="callsign-request-note">
+                        <span class="field-icon">i</span>
                         MENȚIUNE PENTRU CONDUCERE
-                        <small>OPȚIONAL</small>
+                        <span class="callsign-optional-tag">OPȚIONAL</span>
                     </label>
 
                     <textarea
                         id="callsign-request-note"
                         maxlength="700"
-                        placeholder="Ex: Solicit acordarea unui callsign pentru activitatea DIICOT..."
+                        placeholder="Ex: Mențiuni suplimentare pentru conducere..."
                     ></textarea>
 
                     <div class="callsign-field-bottom">
                         <span>
-                            Callsign-ul final este ales de Conducere.
+                            Conducerea verifică datele și îți atribuie un callsign disponibil.
                         </span>
                         <span id="callsign-note-counter">0 / 700</span>
                     </div>
@@ -15184,10 +15467,14 @@ const query =
                                         : "CERERE CALLSIGN"}
                                 </strong>
 
+                                <div class="callsign-personal-details">
+                                    <span class="callsign-detail-chip">ID JOC: ${escapeHTML(item.gameId || "-")}</span>
+                                    <span class="callsign-detail-chip">NUME JOC: ${escapeHTML(item.gameName || "-")}</span>
+                                </div>
                                 <p>
                                     ${item.note
                                         ? escapeHTML(item.note)
-                                        : "Fără mențiune."}
+                                        : "Fără mențiune pentru conducere."}
 
                                     ${item.decisionNote
                                         ? `<br>Răspuns: ${escapeHTML(item.decisionNote)}`
@@ -15271,6 +15558,14 @@ const query =
                                     ? ` • @${escapeHTML(item.authorUsername)}`
                                     : ""}
                                 • ID ${escapeHTML(item.authorId || "-")}
+                            </div>
+
+                            <div class="game-identity">
+                                <strong>DATE DIN JOC</strong>
+                                <div class="callsign-admin-game-details">
+                                    <span class="callsign-detail-chip">ID: ${escapeHTML(item.gameId || "-")}</span>
+                                    <span class="callsign-detail-chip">NUME: ${escapeHTML(item.gameName || "-")}</span>
+                                </div>
                             </div>
 
                             <div class="note">
@@ -15564,6 +15859,14 @@ const query =
                                         "application/json"
                                 },
                                 body: JSON.stringify({
+                                    gameId:
+                                        document.getElementById(
+                                            "callsign-game-id"
+                                        ).value.trim(),
+                                    gameName:
+                                        document.getElementById(
+                                            "callsign-game-name"
+                                        ).value.trim(),
                                     note:
                                         document.getElementById(
                                             "callsign-request-note"
