@@ -9142,6 +9142,8 @@ function mapCallsignRequest(row) {
         authorName: row.author_name,
         authorUsername: row.author_username,
         authorRank: row.author_rank,
+        gameId: row.game_id || "",
+        gameName: row.game_name || "",
         note: row.note || "",
         status: row.status || "PENDING",
         assignedCallsign: row.assigned_callsign || null,
@@ -9232,10 +9234,32 @@ app.post(
         if (!ensureSupabase(res)) return;
 
         try {
+            const gameId =
+                String(req.body?.gameId || "")
+                    .trim()
+                    .slice(0, 20);
+
+            const gameName =
+                String(req.body?.gameName || "")
+                    .trim()
+                    .slice(0, 80);
+
             const note =
                 String(req.body?.note || "")
                     .trim()
                     .slice(0, 700);
+
+            if (!gameId || !gameName) {
+                return res.status(400).json({
+                    error: "Completează ID-ul din joc și numele după joc."
+                });
+            }
+
+            if (!/^\d{1,20}$/.test(gameId)) {
+                return res.status(400).json({
+                    error: "ID-ul din joc trebuie să conțină doar cifre."
+                });
+            }
 
             const { data: pending, error: pendingError } =
                 await supabase
@@ -9264,6 +9288,8 @@ app.post(
                     req.session.user.username || "",
                 author_rank:
                     req.session.user.rank || "",
+                game_id: gameId,
+                game_name: gameName,
                 note,
                 status: "PENDING"
             };
