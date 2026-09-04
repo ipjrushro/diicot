@@ -3007,9 +3007,14 @@ app.get(
 // DISCORD - NOTIFICARE RAZIE / ANTRENAMENT
 // ======================================================
 
-async function sendOperationalReportToDiscord(report) {
+async function sendOperationalReportToDiscord(
+    report,
+    sourceFiles = []
+) {
     if (!BOT_TOKEN) {
-        throw new Error("DISCORD_BOT_TOKEN nu este configurat.");
+        throw new Error(
+            "DISCORD_BOT_TOKEN nu este configurat."
+        );
     }
 
     const channelId =
@@ -3039,28 +3044,53 @@ async function sendOperationalReportToDiscord(report) {
     const authorMention =
         report.authorId
             ? `<@${report.authorId}>`
-            : (report.authorName || "Necunoscut");
+            : (
+                report.authorName ||
+                "Necunoscut"
+            );
 
-    const coOrganizer = report.coOrganizer || null;
+    const coOrganizer =
+        report.coOrganizer ||
+        null;
 
     const secondOrganizer =
         coOrganizer?.id
             ? `<@${coOrganizer.id}>\n${coOrganizer.rank || "-"} • ${coOrganizer.department || "-"}`
             : "Neselectat";
 
-    const imageCount =
-        Array.isArray(report.images)
-            ? report.images.length
-            : 0;
+    const validSourceFiles =
+        Array.isArray(sourceFiles)
+            ? sourceFiles
+                .filter(
+                    file =>
+                        file &&
+                        Buffer.isBuffer(file.buffer) &&
+                        file.buffer.length > 0 &&
+                        String(file.mimetype || "")
+                            .startsWith("image/")
+                )
+                .slice(0, 5)
+            : [];
 
-    const embed = {
+    const imageCount =
+        validSourceFiles.length ||
+        (
+            Array.isArray(report.images)
+                ? report.images.length
+                : 0
+        );
+
+    const mainEmbed = {
         title:
             report.type === "RAZIE"
                 ? "📋 RAZIE POSTATĂ"
                 : "🎯 ANTRENAMENT POSTAT",
 
         description:
-            `**${String(report.title || "Raport operațional").slice(0, 200)}**`,
+            `**${String(
+                report.title ||
+                "Raport operațional"
+            ).slice(0, 200)}**`,
 
         color,
 
@@ -3072,13 +3102,21 @@ async function sendOperationalReportToDiscord(report) {
             },
             {
                 name: "DOVEZI",
-                value: `${imageCount} ${imageCount === 1 ? "imagine" : "imagini"}`,
+                value:
+                    `${imageCount} ${
+                        imageCount === 1
+                            ? "imagine"
+                            : "imagini"
+                    }`,
                 inline: true
             },
             {
                 name: "ORGANIZATOR 1",
                 value:
-                    `${authorMention}\n${report.authorRank || "Membru DIICOT"}`,
+                    `${authorMention}\n${
+                        report.authorRank ||
+                        "Membru DIICOT"
+                    }`,
                 inline: false
             },
             {
@@ -3089,7 +3127,8 @@ async function sendOperationalReportToDiscord(report) {
         ],
 
         footer: {
-            text: "DIICOT • Centru de Comandă • Rush România"
+            text:
+                "DIICOT • Centru de Comandă • Rush România"
         },
 
         timestamp:
@@ -3097,38 +3136,145 @@ async function sendOperationalReportToDiscord(report) {
             new Date().toISOString()
     };
 
-    const response =
-        await axios.post(
-            `https://discord.com/api/v10/channels/${channelId}/messages`,
-            {
-                embeds: [embed],
+    // Dacă există poze în raport, le trimitem chiar în același mesaj Discord.
+    // Folosim attachment:// pentru că bucket-ul Backblaze este privat.
+    const attachmentData =
+        validSourceFiles.map(
+            (file, index) => {
+                const extension =
+                    getExtensionFromMime(
+                        file.mimetype
+                    );
 
-                // Mențiunile sunt afișate în embed, dar botul nu dă ping.
-                allowed_mentions: {
-                    parse: []
-                }
-            },
-            {
-                headers: {
-                    Authorization:
-                        `Bot ${BOT_TOKEN}`,
-
-                    "Content-Type":
-                        "application/json"
-                }
+                return {
+                    file,
+                    filename:
+                        `dovada-${index + 1}.${extension}`
+                };
             }
         );
+
+    const imageEmbeds =
+        attachmentData.map(
+            item => ({
+                color,
+
+                image: {
+                    url:
+                        `attachment://${item.filename}`
+                }
+            })
+        );
+
+    const payload = {
+        embeds: [
+            mainEmbed,
+            ...imageEmbeds
+        ],
+
+        // Mențiunile apar vizual, fără ping.
+        allowed_mentions: {
+            parse: []
+        }
+    };
+
+    let responseData = null;
+
+    if (attachmentData.length > 0) {
+        const form =
+            new FormData();
+
+        form.append(
+            "payload_json",
+            JSON.stringify(payload)
+        );
+
+        attachmentData.forEach(
+            (item, index) => {
+                form.append(
+                    `files[${index}]`,
+                    new Blob(
+                        [item.file.buffer],
+                        {
+                            type:
+                                item.file.mimetype ||
+                                "application/octet-stream"
+                        }
+                    ),
+                    item.filename
+                );
+            }
+        );
+
+        const response =
+            await fetch(
+                `https://discord.com/api/v10/channels/${channelId}/messages`,
+                {
+                    method:
+                        "POST",
+
+                    headers: {
+                        Authorization:
+                            `Bot ${BOT_TOKEN}`
+                    },
+
+                    body:
+                        form
+                }
+            );
+
+        responseData =
+            await response
+                .json()
+                .catch(
+                    () => ({})
+                );
+
+        if (!response.ok) {
+            const error =
+                new Error(
+                    `Discord API ${response.status}`
+                );
+
+            error.response = {
+                data:
+                    responseData
+            };
+
+            throw error;
+        }
+    }
+    else {
+        const response =
+            await axios.post(
+                `https://discord.com/api/v10/channels/${channelId}/messages`,
+                payload,
+                {
+                    headers: {
+                        Authorization:
+                            `Bot ${BOT_TOKEN}`,
+
+                        "Content-Type":
+                            "application/json"
+                    }
+                }
+            );
+
+        responseData =
+            response.data;
+    }
 
     return {
         sent: true,
         skipped: false,
         channelId,
+        imageCount:
+            attachmentData.length,
         messageId:
-            response.data?.id ||
+            responseData?.id ||
             null
     };
 }
-
 
 // ======================================================
 // RAPOARTE - POSTARE
@@ -3399,7 +3545,8 @@ app.post(
                 try {
                     discordNotification =
                         await sendOperationalReportToDiscord(
-                            report
+                            report,
+                            req.files || []
                         );
                 }
                 catch (discordError) {
