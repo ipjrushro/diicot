@@ -10006,6 +10006,45 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 }
 </style>
 
+
+<style id="complaints-premium-panel-css">
+/* ========= SUBMIT MODAL ========= */
+.complaint-submit-modal-v2{
+    padding:22px!important;
+    background:rgba(0,5,10,.84)!important;
+    backdrop-filter:blur(18px)!important;
+}
+.complaint-submit-shell{
+    position:relative;z-index:2;width:min(720px,100%);max-height:calc(100vh - 44px);
+    overflow:auto;border:1px solid rgba(126,159,194,.17);border-radius:20px;
+    background:linear-gradient(145deg,rgba(8,20,34,.99),rgba(3,11,20,.995));
+    box-shadow:0 45px 120px rgba(0,0,0,.68),inset 0 1px 0 rgba(255,255,255,.03)
+}
+.complaint-submit-head{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:21px 22px;border-bottom:1px solid rgba(255,255,255,.055);background:linear-gradient(90deg,rgba(239,68,82,.035),transparent)}
+.complaint-submit-title{display:flex;align-items:center;gap:13px}.complaint-submit-icon{width:48px;height:48px;display:grid;place-items:center;border-radius:13px;color:#ff5967;font-size:21px;font-weight:950;border:1px solid rgba(255,89,103,.22);background:rgba(255,89,103,.075);box-shadow:0 0 28px rgba(255,89,103,.06)}
+.complaint-submit-title span{display:block;color:#ef5662;font-size:8px;font-weight:950;letter-spacing:.14em}.complaint-submit-title h3{margin:3px 0;color:#f4f7fb;font-size:21px}.complaint-submit-title p{margin:4px 0 0;color:#6e8399;font-size:8px}
+.complaint-submit-close,.complaint-detail-close{width:38px;height:38px;border-radius:10px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.02);color:#8295a9;font-size:21px;cursor:pointer}
+.complaint-submit-form{padding:19px 22px 22px;display:grid;gap:12px}.complaint-submit-info{display:flex;gap:11px;padding:12px;border-radius:11px;border:1px solid rgba(233,185,73,.13);background:rgba(233,185,73,.035)}.complaint-submit-info>span{color:#eab83e}.complaint-submit-info strong{display:block;color:#dce5ed;font-size:9px}.complaint-submit-info small{display:block;margin-top:3px;color:#667b91;font-size:8px;line-height:1.45}
+.complaint-submit-field{padding:13px;border:1px solid rgba(126,159,194,.10);border-radius:12px;background:rgba(2,10,18,.47)}.complaint-submit-field label{display:flex;align-items:center;gap:10px;margin-bottom:9px}.complaint-submit-field label>span{width:34px;height:34px;display:grid;place-items:center;border-radius:9px;color:#e9b644;border:1px solid rgba(233,182,68,.15);background:rgba(233,182,68,.05)}.complaint-submit-field label strong{display:block;color:#dce5ee;font-size:8px;letter-spacing:.08em}.complaint-submit-field label small{display:block;color:#566b81;font-size:7px;margin-top:3px}
+.complaint-submit-field select,.complaint-submit-field textarea,.complaint-submit-field input{width:100%;box-sizing:border-box;border:1px solid rgba(126,159,194,.13);border-radius:10px;background:rgba(1,8,15,.76);color:#e9eff5;outline:none}.complaint-submit-field select,.complaint-submit-field input{height:47px;padding:0 13px;font-size:10px}.complaint-submit-field textarea{min-height:130px;padding:13px;font-size:10px;line-height:1.55;resize:vertical}.complaint-submit-field select:focus,.complaint-submit-field textarea:focus,.complaint-submit-field input:focus{border-color:rgba(233,185,73,.32);box-shadow:0 0 0 3px rgba(233,185,73,.04)}
+.complaint-char-row{display:flex;justify-content:space-between;gap:10px;margin-top:6px;color:#4f647a;font-size:7px}.complaint-char-row b{color:#667b91}.complaint-submit-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:3px}.complaint-submit-actions button{height:41px;border-radius:9px;padding:0 15px;font-size:7px;font-weight:950;cursor:pointer}.complaint-cancel-btn{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.018);color:#8295a9}.complaint-send-btn{min-width:170px;border:1px solid rgba(225,163,35,.35);background:linear-gradient(135deg,#dfa31f,#a86608);color:#fff;box-shadow:0 12px 28px rgba(204,137,12,.15)}
+
+/* ========= ADMIN SECTION ========= */
+.complaints-admin-hero{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px 25px;margin-bottom:13px;border:1px solid rgba(126,159,194,.14);border-radius:18px;background:radial-gradient(circle at 88% 20%,rgba(239,68,82,.08),transparent 24%),linear-gradient(135deg,rgba(9,22,37,.87),rgba(4,14,25,.70));box-shadow:0 18px 48px rgba(0,0,0,.15)}
+.complaints-admin-kicker{display:flex;align-items:center;gap:8px;color:#ee4f5c;font-size:8px;font-weight:950;letter-spacing:.14em}.complaints-admin-hero h2{margin:6px 0 4px;color:#f5f7fb;font-size:27px}.complaints-admin-hero p{margin:0;color:#71869c;font-size:9px}.complaints-admin-hero-badge{min-width:106px;padding:13px 15px;text-align:center;border-radius:13px;border:1px solid rgba(239,68,82,.16);background:rgba(239,68,82,.045)}.complaints-admin-hero-badge span{display:block;color:#fff;font-size:25px;font-weight:900}.complaints-admin-hero-badge small{display:block;margin-top:3px;color:#ee5964;font-size:7px;font-weight:950;letter-spacing:.09em}
+.complaints-admin-stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:13px}.complaints-admin-stats article{position:relative;padding:14px 15px;border:1px solid rgba(126,159,194,.10);border-radius:13px;background:linear-gradient(145deg,rgba(8,20,34,.76),rgba(4,13,23,.62));overflow:hidden}.complaints-admin-stats span{display:block;color:#667b91;font-size:7px;font-weight:900}.complaints-admin-stats strong{display:block;margin-top:6px;color:#f1f5f8;font-size:21px}.complaints-admin-stats i{position:absolute;right:13px;top:14px;width:8px;height:8px;border-radius:50%}.complaints-admin-stats i.pending{background:#e8ae35;box-shadow:0 0 12px rgba(232,174,53,.55)}.complaints-admin-stats i.review{background:#3b91ef;box-shadow:0 0 12px rgba(59,145,239,.55)}.complaints-admin-stats i.solved{background:#25ce88;box-shadow:0 0 12px rgba(37,206,136,.55)}.complaints-admin-stats i.rejected{background:#ef4855;box-shadow:0 0 12px rgba(239,72,85,.55)}
+.complaints-admin-panel{border:1px solid rgba(126,159,194,.12);border-radius:17px;overflow:hidden;background:linear-gradient(145deg,rgba(8,20,34,.76),rgba(4,13,23,.64));box-shadow:0 18px 48px rgba(0,0,0,.13)}.complaints-admin-toolbar{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:15px 17px;border-bottom:1px solid rgba(255,255,255,.05)}.complaints-admin-toolbar>div:first-child span{display:block;color:#6d8298;font-size:7px;letter-spacing:.10em}.complaints-admin-toolbar>div:first-child strong{display:block;margin-top:3px;color:#eaf0f5;font-size:11px}.complaints-admin-toolbar-actions{display:flex;gap:8px}.complaints-admin-toolbar select,.complaints-admin-toolbar button{height:35px;border-radius:8px;border:1px solid rgba(126,159,194,.12);background:rgba(2,10,18,.66);color:#96a8ba;font-size:7px;font-weight:900;padding:0 10px}.complaints-admin-toolbar button{cursor:pointer;color:#d5dfe8}
+.complaints-admin-table-wrap{overflow:auto}.complaints-admin-table{width:100%;border-collapse:collapse;min-width:780px}.complaints-admin-table th{padding:12px 14px;text-align:left;color:#61768c;font-size:7px;letter-spacing:.08em;border-bottom:1px solid rgba(255,255,255,.045)}.complaints-admin-table td{padding:13px 14px;color:#aab8c7;font-size:9px;border-bottom:1px solid rgba(255,255,255,.035)}.complaints-admin-table tr:last-child td{border-bottom:0}.complaints-admin-table tbody tr:hover{background:rgba(255,255,255,.015)}.complaint-person strong{display:block;color:#e8eef4;font-size:9px}.complaint-person span{display:block;margin-top:2px;color:#5e7389;font-size:7px}.complaint-status{display:inline-flex;padding:5px 7px;border-radius:6px;font-size:7px;font-weight:950;border:1px solid}.complaint-status.PENDING{color:#e9b33a;border-color:rgba(233,179,58,.20);background:rgba(233,179,58,.055)}.complaint-status.IN_REVIEW{color:#55a6ff;border-color:rgba(85,166,255,.20);background:rgba(85,166,255,.055)}.complaint-status.SOLVED{color:#30d492;border-color:rgba(48,212,146,.20);background:rgba(48,212,146,.055)}.complaint-status.REJECTED{color:#ff6673;border-color:rgba(255,102,115,.20);background:rgba(255,102,115,.055)}
+.complaint-open-btn{height:31px;padding:0 10px;border-radius:7px;border:1px solid rgba(95,146,204,.14);background:rgba(59,121,185,.05);color:#b7c7d7;font-size:7px;font-weight:950;cursor:pointer}.complaint-open-btn:hover{border-color:rgba(95,146,204,.28);color:#fff}.complaints-admin-empty{text-align:center!important;padding:35px!important;color:#61768c!important}
+
+/* ========= DETAIL MODAL ========= */
+.complaint-detail-modal{padding:22px!important;background:rgba(0,5,10,.86)!important;backdrop-filter:blur(18px)!important}.complaint-detail-shell{position:relative;z-index:2;width:min(760px,100%);max-height:calc(100vh - 44px);overflow:auto;border:1px solid rgba(126,159,194,.17);border-radius:19px;background:linear-gradient(145deg,rgba(9,21,36,.995),rgba(4,12,22,.995));box-shadow:0 48px 130px rgba(0,0,0,.72)}.complaint-detail-head{display:flex;align-items:center;justify-content:space-between;gap:15px;padding:19px 21px;border-bottom:1px solid rgba(255,255,255,.05)}.complaint-detail-head span{display:block;color:#f04e5a;font-size:9px;font-weight:950;letter-spacing:.09em}.complaint-detail-head h3{margin:4px 0 0;color:#f2f5f8;font-size:19px}.complaint-detail-body{padding:19px 21px 22px}.complaint-detail-people{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:13px;border:1px solid rgba(239,75,88,.16);border-radius:11px;background:rgba(239,75,88,.035)}.complaint-detail-people>div{padding:4px 7px}.complaint-detail-people>div+div{border-left:1px solid rgba(255,255,255,.055)}.complaint-detail-people span,.complaint-detail-section>span{display:block;color:#697e94;font-size:7px;font-weight:950;letter-spacing:.09em}.complaint-detail-people strong{display:block;margin-top:5px;color:#edf2f6;font-size:10px}.complaint-detail-people .accused strong{color:#ff5966}.complaint-detail-people small{display:block;margin-top:4px;color:#586d83;font-size:7px}
+.complaint-detail-section{padding:15px 0;border-bottom:1px solid rgba(255,255,255,.045)}.complaint-detail-section p{margin:9px 0 0;color:#a4b3c1;font-size:9px;line-height:1.6;white-space:pre-wrap}.complaint-evidence-box{margin-top:9px;padding:10px;border-radius:9px;border:1px solid rgba(126,159,194,.10);background:rgba(2,10,18,.52);color:#72879d;font-size:8px;word-break:break-word}.complaint-evidence-box a{color:#68aef9;text-decoration:none}
+.complaint-status-buttons{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:10px 0 13px}.complaint-status-buttons button{height:37px;border-radius:8px;border:1px solid rgba(126,159,194,.12);background:rgba(255,255,255,.018);color:#8fa2b5;font-size:7px;font-weight:950;cursor:pointer}.complaint-status-buttons button.active[data-complaint-status="IN_REVIEW"]{color:#fff;border-color:#3d91ec;background:rgba(61,145,236,.18)}.complaint-status-buttons button.active[data-complaint-status="SOLVED"]{color:#fff;border-color:#25c984;background:rgba(37,201,132,.18)}.complaint-status-buttons button.active[data-complaint-status="REJECTED"]{color:#fff;border-color:#ef4855;background:rgba(239,72,85,.18)}
+.complaint-resolution-label{display:block;margin-bottom:7px;color:#7b8fa4;font-size:7px;font-weight:950}.complaint-detail-section textarea{width:100%;min-height:105px;box-sizing:border-box;padding:12px;border:1px solid rgba(126,159,194,.12);border-radius:9px;background:rgba(2,10,18,.60);color:#dfe7ef;outline:none;resize:vertical;font-size:9px}.complaint-detail-section textarea:focus{border-color:rgba(85,155,230,.26)}.complaint-detail-meta{display:flex;justify-content:space-between;gap:10px;padding-top:12px;color:#53687e;font-size:7px}.complaint-detail-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.complaint-detail-actions button{height:39px;border-radius:8px;padding:0 14px;font-size:7px;font-weight:950;cursor:pointer}.complaint-detail-cancel{border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.018);color:#8799ab}.complaint-detail-save{min-width:164px;border:1px solid rgba(75,135,205,.22);background:linear-gradient(135deg,#5e7fa7,#48698e);color:#fff}
+@media(max-width:760px){.complaints-admin-stats{grid-template-columns:repeat(2,1fr)}.complaints-admin-hero{align-items:flex-start}.complaints-admin-hero-badge{display:none}.complaint-detail-people{grid-template-columns:1fr}.complaint-detail-people>div+div{border-left:0;border-top:1px solid rgba(255,255,255,.055);padding-top:10px}.complaint-status-buttons{grid-template-columns:1fr}.complaint-submit-title p{display:none}}
+</style>
+
 </head>
 
 
@@ -10531,6 +10570,20 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
                         <button
                             type="button"
+                            class="home-action-card gold admin-home-card complaint-panel-card"
+                            data-home-section="complaints-admin"
+                        >
+                            <div class="home-action-icon">⚠</div>
+                            <h3>PANOU RECLAMAȚII</h3>
+                            <p>
+                                COORDONATOR+ poate vedea, analiza și soluționa
+                                toate reclamațiile salvate.
+                            </p>
+                            <span class="home-action-arrow">→</span>
+                        </button>
+
+                        <button
+                            type="button"
                             class="home-action-card"
                             id="open-callsign-request-modal"
                         >
@@ -10590,6 +10643,106 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 </section>
             </section>
 
+
+
+
+            <!-- =====================================================
+                 PANOU RECLAMAȚII — COORDONATOR+
+            ====================================================== -->
+            <section
+                id="complaints-admin"
+                class="dashboard-section complaints-admin-v1"
+            >
+                <div class="complaints-admin-hero">
+                    <div>
+                        <div class="complaints-admin-kicker">
+                            <span>⚠</span>
+                            CONDUCERE DIICOT / SESIZĂRI INTERNE
+                        </div>
+                        <h2>Panou reclamații</h2>
+                        <p>
+                            Gestionează toate reclamațiile interne. Reclamațiile
+                            rămân salvate în sistem indiferent de status.
+                        </p>
+                    </div>
+
+                    <div class="complaints-admin-hero-badge">
+                        <span id="complaints-admin-total">0</span>
+                        <small>RECLAMAȚII</small>
+                    </div>
+                </div>
+
+                <div class="complaints-admin-stats">
+                    <article>
+                        <span>ÎN AȘTEPTARE</span>
+                        <strong id="complaints-stat-pending">0</strong>
+                        <i class="pending"></i>
+                    </article>
+                    <article>
+                        <span>ÎN ANALIZĂ</span>
+                        <strong id="complaints-stat-review">0</strong>
+                        <i class="review"></i>
+                    </article>
+                    <article>
+                        <span>SOLUȚIONATE</span>
+                        <strong id="complaints-stat-solved">0</strong>
+                        <i class="solved"></i>
+                    </article>
+                    <article>
+                        <span>RESPINSE</span>
+                        <strong id="complaints-stat-rejected">0</strong>
+                        <i class="rejected"></i>
+                    </article>
+                </div>
+
+                <div class="complaints-admin-panel">
+                    <div class="complaints-admin-toolbar">
+                        <div>
+                            <span>REGISTRU SESIZĂRI</span>
+                            <strong>Toate reclamațiile</strong>
+                        </div>
+
+                        <div class="complaints-admin-toolbar-actions">
+                            <select id="complaints-admin-filter">
+                                <option value="ALL">TOATE STATUSURILE</option>
+                                <option value="PENDING">ÎN AȘTEPTARE</option>
+                                <option value="IN_REVIEW">ÎN ANALIZĂ</option>
+                                <option value="SOLVED">SOLUȚIONATĂ</option>
+                                <option value="REJECTED">RESPINSĂ</option>
+                            </select>
+
+                            <button
+                                type="button"
+                                id="complaints-admin-refresh"
+                            >
+                                ↻ ACTUALIZEAZĂ
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="complaints-admin-table-wrap">
+                        <table class="complaints-admin-table">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>RECLAMANT</th>
+                                    <th>MEMBRU RECLAMAT</th>
+                                    <th>DATA SESIZĂRII</th>
+                                    <th>STATUS</th>
+                                    <th>ACȚIUNE</th>
+                                </tr>
+                            </thead>
+                            <tbody id="complaints-admin-list">
+                                <tr>
+                                    <td colspan="6" class="complaints-admin-empty">
+                                        Se încarcă reclamațiile...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 
 
             <!-- =====================================================
@@ -13687,87 +13840,214 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
 
     <!-- =========================================================
-         RECLAMAȚIE INTERNĂ
+         RECLAMAȚIE INTERNĂ — PREMIUM
     ========================================================== -->
-    <div class="modal" id="complaint-modal">
-        <div class="modal-card">
+    <div class="modal complaint-submit-modal-v2" id="complaint-modal">
+        <div class="modal-overlay" data-close-modal="complaint-modal"></div>
 
-            <div class="modal-head">
-                <div>
-                    <span>ACTIVITĂȚI</span>
-                    <h3>Trimite reclamație</h3>
+        <div class="complaint-submit-shell">
+            <div class="complaint-submit-head">
+                <div class="complaint-submit-title">
+                    <div class="complaint-submit-icon">!</div>
+                    <div>
+                        <span>ACTIVITĂȚI / SESIZARE INTERNĂ</span>
+                        <h3>Trimite reclamație</h3>
+                        <p>Completează datele reclamației cât mai clar și obiectiv.</p>
+                    </div>
                 </div>
 
                 <button
                     type="button"
-                    class="modal-close"
+                    class="complaint-submit-close"
                     data-close-modal="complaint-modal"
                 >
                     ×
                 </button>
             </div>
 
-            <form id="complaint-form">
+            <form id="complaint-form" class="complaint-submit-form">
 
-                <div class="activity-modal-grid one">
-
-                    <div class="form-group">
-                        <label for="complaint-target">
-                            COLEG RECLAMAT
-                        </label>
-
-                        <select
-                            id="complaint-target"
-                            required
-                        >
-                            <option value="">
-                                Selectează membrul
-                            </option>
-                        </select>
+                <div class="complaint-submit-info">
+                    <span>ⓘ</span>
+                    <div>
+                        <strong>Reclamația va fi salvată permanent</strong>
+                        <small>
+                            Conducerea DIICOT poate analiza sesizarea, modifica
+                            statusul și adăuga o rezoluție oficială.
+                        </small>
                     </div>
-
-                    <div class="form-group">
-                        <label for="complaint-reason">
-                            MOTIV
-                        </label>
-
-                        <textarea
-                            id="complaint-reason"
-                            maxlength="1500"
-                            placeholder="Descrie clar motivul reclamației..."
-                            required
-                        ></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="complaint-evidence">
-                            DOVEZI / LINK (OPȚIONAL)
-                        </label>
-
-                        <input
-                            id="complaint-evidence"
-                            type="text"
-                            maxlength="500"
-                            placeholder="Link către filmare, poze sau alte dovezi"
-                        >
-                    </div>
-
                 </div>
 
-                <div
-                    id="complaint-message"
-                    class="form-message"
-                ></div>
+                <div class="complaint-submit-field">
+                    <label for="complaint-target">
+                        <span>♙</span>
+                        <div>
+                            <strong>COLEG RECLAMAT</strong>
+                            <small>Selectează membrul împotriva căruia trimiți sesizarea.</small>
+                        </div>
+                    </label>
 
-                <button
-                    type="submit"
-                    class="primary-btn gold-btn"
-                >
-                    TRIMITE RECLAMAȚIA
-                </button>
+                    <select id="complaint-target" required>
+                        <option value="">Selectează membrul</option>
+                    </select>
+                </div>
+
+                <div class="complaint-submit-field">
+                    <label for="complaint-reason">
+                        <span>✎</span>
+                        <div>
+                            <strong>DESCRIEREA SITUAȚIEI</strong>
+                            <small>Explică motivul reclamației și ce s-a întâmplat.</small>
+                        </div>
+                    </label>
+
+                    <textarea
+                        id="complaint-reason"
+                        maxlength="1500"
+                        placeholder="Descrie clar situația, contextul și motivul reclamației..."
+                        required
+                    ></textarea>
+
+                    <div class="complaint-char-row">
+                        <span>Folosește informații relevante și verificabile.</span>
+                        <b id="complaint-reason-counter">0 / 1500</b>
+                    </div>
+                </div>
+
+                <div class="complaint-submit-field">
+                    <label for="complaint-evidence">
+                        <span>⌁</span>
+                        <div>
+                            <strong>DOVEZI / LINK</strong>
+                            <small>Opțional — filmare, capturi sau altă dovadă.</small>
+                        </div>
+                    </label>
+
+                    <input
+                        id="complaint-evidence"
+                        type="text"
+                        maxlength="500"
+                        placeholder="https://..."
+                    >
+                </div>
+
+                <div id="complaint-message" class="form-message"></div>
+
+                <div class="complaint-submit-actions">
+                    <button
+                        type="button"
+                        class="complaint-cancel-btn"
+                        data-close-modal="complaint-modal"
+                    >
+                        ANULEAZĂ
+                    </button>
+
+                    <button
+                        type="submit"
+                        class="complaint-send-btn"
+                    >
+                        <span>➜</span>
+                        TRIMITE RECLAMAȚIA
+                    </button>
+                </div>
 
             </form>
+        </div>
+    </div>
 
+
+    <!-- =========================================================
+         DETALII RECLAMAȚIE — CONDUCERE
+    ========================================================== -->
+    <div class="modal complaint-detail-modal" id="complaint-admin-detail-modal">
+        <div class="modal-overlay" data-close-modal="complaint-admin-detail-modal"></div>
+
+        <div class="complaint-detail-shell">
+            <div class="complaint-detail-head">
+                <div>
+                    <span id="complaint-detail-number">⚠ RECLAMAȚIE</span>
+                    <h3>Dosar reclamație internă</h3>
+                </div>
+
+                <button
+                    type="button"
+                    class="complaint-detail-close"
+                    data-close-modal="complaint-admin-detail-modal"
+                >
+                    ×
+                </button>
+            </div>
+
+            <div class="complaint-detail-body">
+                <div class="complaint-detail-people">
+                    <div>
+                        <span>RECLAMANT</span>
+                        <strong id="complaint-detail-author">-</strong>
+                        <small id="complaint-detail-author-rank">-</small>
+                    </div>
+
+                    <div class="accused">
+                        <span>MEMBRU RECLAMAT</span>
+                        <strong id="complaint-detail-target">-</strong>
+                        <small>Departament: DIICOT</small>
+                    </div>
+                </div>
+
+                <div class="complaint-detail-section">
+                    <span>DESCRIEREA SITUAȚIEI</span>
+                    <p id="complaint-detail-reason">-</p>
+                </div>
+
+                <div class="complaint-detail-section">
+                    <span>DOVEZI / LINK</span>
+                    <div id="complaint-detail-evidence" class="complaint-evidence-box">Fără dovezi atașate.</div>
+                </div>
+
+                <div class="complaint-detail-section">
+                    <span>ACTUALIZARE STATUS</span>
+
+                    <div class="complaint-status-buttons">
+                        <button type="button" data-complaint-status="IN_REVIEW">ÎN ANALIZĂ</button>
+                        <button type="button" data-complaint-status="SOLVED">SOLUȚIONATĂ</button>
+                        <button type="button" data-complaint-status="REJECTED">RESPINSĂ</button>
+                    </div>
+
+                    <label class="complaint-resolution-label" for="complaint-detail-resolution">
+                        REZOLUȚIE OFICIALĂ
+                    </label>
+
+                    <textarea
+                        id="complaint-detail-resolution"
+                        maxlength="1500"
+                        placeholder="Concluzia anchetei, măsuri luate, observații..."
+                    ></textarea>
+                </div>
+
+                <div class="complaint-detail-meta">
+                    <span id="complaint-detail-created">-</span>
+                    <span id="complaint-detail-evaluator">-</span>
+                </div>
+
+                <div id="complaint-detail-message" class="form-message"></div>
+
+                <div class="complaint-detail-actions">
+                    <button
+                        type="button"
+                        class="complaint-detail-cancel"
+                        data-close-modal="complaint-admin-detail-modal"
+                    >
+                        ÎNCHIDE
+                    </button>
+
+                    <button
+                        type="button"
+                        class="complaint-detail-save"
+                        id="complaint-detail-save"
+                    >
+                        SALVEAZĂ MODIFICĂRILE
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -16310,7 +16590,8 @@ const query =
         const adminSections = [
             "leadership",
             "blacklist",
-            "admin"
+            "admin",
+            "complaints-admin"
         ];
 
 
@@ -16582,7 +16863,7 @@ const query =
                     const section = card.dataset.homeSection;
 
                     if (
-                        (section === "admin" || section === "blacklist") &&
+                        (section === "admin" || section === "blacklist" || section === "complaints-admin") &&
                         Number(currentUser?.rankLevel || 0) < 10
                     ) {
                         return;
@@ -16608,6 +16889,7 @@ const query =
                     if (section === "penal-code") renderPenalCode();
                     if (section === "blacklist") await loadBlacklist();
                     if (section === "admin") await loadAdminReports();
+                    if (section === "complaints-admin") await loadAdminComplaints();
                 });
             });
     }
@@ -28533,6 +28815,325 @@ const query =
 
     reason.addEventListener("input", updateCounter);
     updateCounter();
+})();
+</script>
+
+
+<script id="complaints-admin-panel-js">
+(() => {
+    let adminComplaintsCache = [];
+    let activeComplaintId = null;
+    let activeComplaintStatus = "IN_REVIEW";
+
+    const statusLabel = status => ({
+        PENDING: "ÎN AȘTEPTARE",
+        IN_REVIEW: "ÎN ANALIZĂ",
+        SOLVED: "SOLUȚIONATĂ",
+        REJECTED: "RESPINSĂ"
+    }[status] || status || "-");
+
+    const safeDate = value => {
+        if (!value) return "-";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return "-";
+        return date.toLocaleString("ro-RO", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    };
+
+    function updateComplaintStats() {
+        const by = status => adminComplaintsCache.filter(x => x.status === status).length;
+        const set = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = String(value);
+        };
+
+        set("complaints-admin-total", adminComplaintsCache.length);
+        set("complaints-stat-pending", by("PENDING"));
+        set("complaints-stat-review", by("IN_REVIEW"));
+        set("complaints-stat-solved", by("SOLVED"));
+        set("complaints-stat-rejected", by("REJECTED"));
+    }
+
+    function renderAdminComplaints() {
+        const body = document.getElementById("complaints-admin-list");
+        if (!body) return;
+
+        const filter = document.getElementById("complaints-admin-filter")?.value || "ALL";
+        const rows = adminComplaintsCache.filter(item => filter === "ALL" || item.status === filter);
+
+        updateComplaintStats();
+
+        if (!rows.length) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="6" class="complaints-admin-empty">
+                        Nu există reclamații pentru filtrul selectat.
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        body.innerHTML = rows.map((item, index) => `
+            <tr>
+                <td><strong>#${index + 1}</strong></td>
+
+                <td>
+                    <div class="complaint-person">
+                        <strong>${escapeHTML(item.authorName || "Necunoscut")}</strong>
+                        <span>${escapeHTML(item.authorRank || "-")}</span>
+                    </div>
+                </td>
+
+                <td>
+                    <div class="complaint-person">
+                        <strong>${escapeHTML(item.targetName || item.targetId || "-")}</strong>
+                        <span>DIICOT</span>
+                    </div>
+                </td>
+
+                <td>${escapeHTML(safeDate(item.createdAt))}</td>
+
+                <td>
+                    <span class="complaint-status ${escapeHTML(item.status || "PENDING")}">
+                        ${escapeHTML(statusLabel(item.status))}
+                    </span>
+                </td>
+
+                <td>
+                    <button
+                        type="button"
+                        class="complaint-open-btn"
+                        data-open-admin-complaint="${escapeHTML(item.id)}"
+                    >
+                        DESCHIDE
+                    </button>
+                </td>
+            </tr>
+        `).join("");
+
+        body.querySelectorAll("[data-open-admin-complaint]").forEach(button => {
+            button.addEventListener("click", () => {
+                openAdminComplaint(button.dataset.openAdminComplaint);
+            });
+        });
+    }
+
+    window.loadAdminComplaints = async function loadAdminComplaints() {
+        if (Number(currentUser?.rankLevel || 0) < 10) return;
+
+        const body = document.getElementById("complaints-admin-list");
+        if (body) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="6" class="complaints-admin-empty">
+                        Se încarcă reclamațiile...
+                    </td>
+                </tr>
+            `;
+        }
+
+        try {
+            const response = await fetch("/api/admin/complaints", {
+                credentials: "include",
+                cache: "no-store"
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Reclamațiile nu au putut fi încărcate.");
+            }
+
+            adminComplaintsCache = Array.isArray(data.complaints)
+                ? data.complaints
+                : [];
+
+            renderAdminComplaints();
+
+        } catch (error) {
+            if (body) {
+                body.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="complaints-admin-empty">
+                            ${escapeHTML(error.message || "Reclamațiile nu au putut fi încărcate.")}
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+    };
+
+    function setDetailStatus(status) {
+        activeComplaintStatus = status;
+
+        document
+            .querySelectorAll("[data-complaint-status]")
+            .forEach(button => {
+                button.classList.toggle(
+                    "active",
+                    button.dataset.complaintStatus === status
+                );
+            });
+    }
+
+    function openAdminComplaint(id) {
+        const item = adminComplaintsCache.find(x => String(x.id) === String(id));
+        if (!item) return;
+
+        activeComplaintId = item.id;
+        setDetailStatus(
+            ["IN_REVIEW", "SOLVED", "REJECTED"].includes(item.status)
+                ? item.status
+                : "IN_REVIEW"
+        );
+
+        document.getElementById("complaint-detail-number").textContent =
+            `⚠ RECLAMAȚIE #${adminComplaintsCache.indexOf(item) + 1}`;
+
+        document.getElementById("complaint-detail-author").textContent =
+            item.authorName || "Necunoscut";
+
+        document.getElementById("complaint-detail-author-rank").textContent =
+            item.authorRank || "-";
+
+        document.getElementById("complaint-detail-target").textContent =
+            item.targetName || item.targetId || "-";
+
+        document.getElementById("complaint-detail-reason").textContent =
+            item.reason || "-";
+
+        const evidence = document.getElementById("complaint-detail-evidence");
+        const evidenceValue = String(item.evidence || "").trim();
+
+        if (evidenceValue) {
+            if (/^https?:\/\//i.test(evidenceValue)) {
+                evidence.innerHTML = `
+                    <a href="${escapeHTML(evidenceValue)}" target="_blank" rel="noopener noreferrer">
+                        ${escapeHTML(evidenceValue)}
+                    </a>
+                `;
+            } else {
+                evidence.textContent = evidenceValue;
+            }
+        } else {
+            evidence.textContent = "Fără dovezi atașate.";
+        }
+
+        document.getElementById("complaint-detail-resolution").value =
+            item.resolution || "";
+
+        document.getElementById("complaint-detail-created").textContent =
+            `Creată: ${safeDate(item.createdAt)}`;
+
+        document.getElementById("complaint-detail-evaluator").textContent =
+            item.evaluatorName
+                ? `Ultima evaluare: ${item.evaluatorName}${item.decidedAt ? ` • ${safeDate(item.decidedAt)}` : ""}`
+                : "Neevaluată";
+
+        const message = document.getElementById("complaint-detail-message");
+        message.className = "form-message";
+        message.textContent = "";
+
+        openModal("complaint-admin-detail-modal");
+    }
+
+    document
+        .querySelectorAll("[data-complaint-status]")
+        .forEach(button => {
+            button.addEventListener("click", () => {
+                setDetailStatus(button.dataset.complaintStatus);
+            });
+        });
+
+    document
+        .getElementById("complaint-detail-save")
+        ?.addEventListener("click", async function () {
+            if (!activeComplaintId) return;
+
+            const message = document.getElementById("complaint-detail-message");
+            const resolution = document
+                .getElementById("complaint-detail-resolution")
+                .value
+                .trim();
+
+            this.disabled = true;
+            const oldText = this.textContent;
+            this.textContent = "SE SALVEAZĂ...";
+
+            message.className = "form-message";
+            message.textContent = "";
+
+            try {
+                const response = await fetch(
+                    `/api/admin/complaints/${encodeURIComponent(activeComplaintId)}`,
+                    {
+                        method: "PATCH",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            status: activeComplaintStatus,
+                            resolution
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Modificările nu au putut fi salvate.");
+                }
+
+                message.className = "form-message success";
+                message.textContent = "✓ Reclamația a fost actualizată.";
+
+                await loadAdminComplaints();
+
+                setTimeout(() => {
+                    closeModal("complaint-admin-detail-modal");
+                }, 650);
+
+            } catch (error) {
+                message.className = "form-message error";
+                message.textContent = error.message || "Modificările nu au putut fi salvate.";
+            } finally {
+                this.disabled = false;
+                this.textContent = oldText;
+            }
+        });
+
+    document
+        .getElementById("complaints-admin-filter")
+        ?.addEventListener("change", renderAdminComplaints);
+
+    document
+        .getElementById("complaints-admin-refresh")
+        ?.addEventListener("click", loadAdminComplaints);
+
+    const reason = document.getElementById("complaint-reason");
+    const counter = document.getElementById("complaint-reason-counter");
+
+    if (reason && counter) {
+        const update = () => {
+            counter.textContent = `${reason.value.length} / 1500`;
+        };
+        reason.addEventListener("input", update);
+        update();
+    }
+
+    // Cardul Panou Reclamații există doar pentru COORDONATOR+ prin clasa admin-home-card.
+    document
+        .querySelector('[data-home-section="complaints-admin"]')
+        ?.addEventListener("click", () => {
+            setTimeout(loadAdminComplaints, 0);
+        });
 })();
 </script>
 
