@@ -9228,6 +9228,91 @@ body{background:
 @media(max-width:760px){.dashboard-content{padding:12px!important}.command-topbar{margin:0 12px 12px!important}.v4-hero-shell{grid-template-columns:1fr;padding:24px 20px}.v4-hero-right{align-items:flex-start;min-height:auto;margin-top:24px}.v4-hero-logo{right:0}.v4-stats-grid{grid-template-columns:1fr!important}.v4-bottom-grid{grid-template-columns:1fr}.v4-quick-grid{grid-template-columns:repeat(2,1fr)}.v4-events-list .event-card{grid-template-columns:52px minmax(0,1fr)!important}.v4-events-list .event-delete{grid-column:2}.v4-hero-actions{flex-wrap:wrap}}
 </style>
 
+
+<style id="diicot-v5-final">
+/* ===== DIICOT V5 — HARD VISUAL OVERRIDE ===== */
+:root{--v5-bg:#02070d;--v5-panel:rgba(6,15,25,.72);--v5-panel2:rgba(8,20,34,.82);--v5-line:rgba(141,178,217,.15);--v5-gold:#f0b93f;--v5-gold2:#c88816;--v5-blue:#4a9dff;--v5-green:#2be2a4;--v5-text:#f5f7fb;--v5-muted:#8193a9;}
+html,body{background:#02070d!important;color:var(--v5-text)!important;}
+body{background:
+ radial-gradient(circle at 87% 12%,rgba(37,77,119,.22),transparent 25%),
+ radial-gradient(circle at 18% 40%,rgba(202,145,28,.08),transparent 22%),
+ linear-gradient(135deg,#02070d 0%,#06101b 46%,#02070d 100%)!important;}
+body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:
+ linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
+ linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px);background-size:54px 54px;opacity:.32;}
+.command-app{background:transparent!important;}
+.command-main{background:transparent!important;}
+
+/* Sidebar exactly separated like the reference */
+.command-sidebar{width:260px!important;padding:22px 16px 18px!important;background:linear-gradient(180deg,rgba(3,10,18,.96),rgba(2,7,13,.92))!important;border-right:1px solid rgba(122,158,197,.14)!important;box-shadow:18px 0 70px rgba(0,0,0,.38)!important;backdrop-filter:blur(28px)!important;}
+.sidebar-brand{min-height:150px!important;padding:10px 8px 20px!important;border:0!important;background:transparent!important;box-shadow:none!important;align-items:flex-start!important;text-align:left!important;}
+.sidebar-brand .diicot-logo{width:64px!important;height:64px!important;filter:drop-shadow(0 0 18px rgba(240,185,63,.25))!important;}
+.sidebar-brand strong{font-size:25px!important;letter-spacing:1px!important;margin-top:6px!important;color:#f0bd49!important;}
+.sidebar-brand .command-name{font-size:9px!important;letter-spacing:1.25px!important;color:#c9d4df!important;margin-top:2px!important;}
+.sidebar-brand .department-name{display:none!important;}
+.v5-brand-quote{display:block!important;margin-top:9px;color:#6d7e91;font-size:8px;font-style:italic;}
+.sidebar-group-title{padding:0 10px!important;margin:16px 0 8px!important;font-size:7px!important;letter-spacing:2px!important;color:#54697f!important;}
+.sidebar-nav{gap:4px!important;}
+.sidebar-link{position:relative!important;min-height:40px!important;padding:0 12px 0 44px!important;border:1px solid transparent!important;border-radius:10px!important;color:#a4b2c1!important;background:transparent!important;font-size:10px!important;font-weight:750!important;letter-spacing:.05px!important;text-align:left!important;transition:.18s ease!important;}
+.sidebar-link:before{position:absolute;left:15px;top:50%;transform:translateY(-50%);width:18px;text-align:center;color:#8197ae;font-size:14px;opacity:.9;}
+.sidebar-link[data-section="overview"]:before{content:"⌂"}.sidebar-link[data-section="activities"]:before{content:"≋"}.sidebar-link[data-section="new-report"]:before{content:"▤"}.sidebar-link[data-section="my-reports"]:before{content:"▣"}.sidebar-link[data-section="personnel"]:before{content:"♙"}.sidebar-link[data-section="leave"]:before{content:"▰"}.sidebar-link[data-section="docs"]:before{content:"▥"}.sidebar-link[data-section="penal-code"]:before{content:"§"}.sidebar-link[data-section="leadership"]:before{content:"♛"}.sidebar-link[data-section="blacklist"]:before{content:"◇"}.sidebar-link[data-section="admin"]:before{content:"⚙"}.sidebar-link[data-section="profile"]:before{content:"♧"}.sidebar-home:before{content:"←"}.sidebar-logout:before{content:"↪"}
+.sidebar-link:hover{background:rgba(255,255,255,.035)!important;color:#fff!important;transform:translateX(2px)!important;}
+.sidebar-link.active{color:#fff!important;background:linear-gradient(90deg,rgba(240,185,63,.18),rgba(240,185,63,.035))!important;border-color:rgba(240,185,63,.32)!important;box-shadow:inset 3px 0 0 var(--v5-gold),0 10px 28px rgba(0,0,0,.24),0 0 24px rgba(240,185,63,.07)!important;}
+.sidebar-link.active:before{color:#ffd267!important;}
+.sidebar-security{margin-top:16px!important;border:1px solid rgba(43,226,164,.14)!important;background:linear-gradient(145deg,rgba(8,35,31,.52),rgba(4,15,22,.6))!important;border-radius:13px!important;box-shadow:0 16px 35px rgba(0,0,0,.18)!important;}
+.sidebar-security strong{color:#48e4b0!important;}.sidebar-security .security-icon{color:#37dfaa!important;}
+
+/* Top toolbar */
+.command-topbar.v5-topbar{height:70px!important;margin:14px 22px 0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;display:flex!important;align-items:center!important;justify-content:space-between!important;}
+.v5-topbar-left,.v5-topbar-right{display:flex;align-items:center;gap:12px;}
+.v5-grid-btn,.v5-notify{width:42px;height:42px;border-radius:11px;border:1px solid var(--v5-line);background:rgba(5,15,26,.72);color:#96a9bd;display:grid;place-items:center;box-shadow:0 12px 30px rgba(0,0,0,.18);backdrop-filter:blur(14px);}
+.v5-search-wrap{width:320px;height:42px;border:1px solid var(--v5-line);border-radius:11px;background:rgba(5,15,26,.72);display:flex;align-items:center;padding:0 12px;gap:9px;box-shadow:0 12px 30px rgba(0,0,0,.16);backdrop-filter:blur(14px);}
+.v5-search-wrap>span{color:#778ca2;font-size:17px}.v5-search-wrap input{flex:1;border:0!important;background:transparent!important;box-shadow:none!important;color:#dce6f0!important;outline:0!important;padding:0!important;font-size:10px!important;}.v5-search-wrap kbd{font-size:7px;color:#72849a;border:1px solid rgba(255,255,255,.09);border-radius:5px;padding:4px 6px;background:rgba(255,255,255,.025)}
+.v5-notify{position:relative}.v5-notify i{position:absolute;width:7px;height:7px;border-radius:50%;background:#ff5566;right:6px;top:6px;box-shadow:0 0 10px rgba(255,85,102,.65)}
+.v5-user-menu{height:48px!important;padding:5px 10px 5px 6px!important;border-radius:12px!important;border:1px solid var(--v5-line)!important;background:rgba(5,15,26,.78)!important;box-shadow:0 12px 32px rgba(0,0,0,.18)!important;min-width:225px!important;backdrop-filter:blur(14px)!important;}
+.v5-user-menu .user-avatar{width:36px!important;height:36px!important;border:2px solid rgba(240,185,63,.5)!important;}.v5-user-menu .user-info strong{font-size:10px!important}.v5-user-menu .user-info span{color:#f0b93f!important;font-size:8px!important;font-weight:900!important}.v5-chevron{margin-left:auto;color:#8da0b5;font-size:16px}
+
+.dashboard-content{max-width:none!important;padding:14px 22px 30px!important;}
+
+/* OVERVIEW — visually rebuilt from scratch */
+#overview.v5-overview{display:none;gap:14px;animation:v5In .28s ease both}#overview.v5-overview.active{display:grid!important;}
+.v5-overview-hero{position:relative;min-height:235px;overflow:hidden;border:1px solid rgba(126,163,203,.18);border-radius:18px;background:
+ linear-gradient(90deg,rgba(2,8,15,.96) 0%,rgba(5,15,25,.82) 45%,rgba(8,22,38,.82) 100%);box-shadow:0 26px 75px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.025);display:grid;grid-template-columns:1.4fr .6fr;align-items:center;padding:28px 30px;}
+.v5-overview-hero:before{content:"";position:absolute;inset:0;background:
+ radial-gradient(circle at 28% 70%,rgba(222,162,34,.11),transparent 24%),
+ radial-gradient(circle at 78% 30%,rgba(67,122,188,.18),transparent 28%),
+ linear-gradient(90deg,transparent,rgba(255,255,255,.018),transparent);pointer-events:none}
+.v5-overview-hero:after{content:"";position:absolute;right:-5%;bottom:-55%;width:55%;height:150%;border:1px solid rgba(240,185,63,.12);border-radius:50%;box-shadow:0 0 80px rgba(240,185,63,.035) inset;transform:rotate(-12deg)}
+.v5-hero-atmosphere{position:absolute;inset:0;opacity:.22;background:linear-gradient(115deg,transparent 48%,rgba(76,143,215,.12));}
+.v5-hero-watermark{position:absolute;left:43%;top:38%;transform:translate(-50%,-50%);font-size:78px;font-weight:950;letter-spacing:-5px;color:rgba(240,185,63,.055);text-shadow:0 0 70px rgba(240,185,63,.08);}
+.v5-hero-copy,.v5-hero-side{position:relative;z-index:2}.v5-system-pill{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(43,226,164,.18);background:rgba(20,120,92,.08);border-radius:999px;padding:7px 11px;color:#8297ad;font-size:7px;font-weight:900;letter-spacing:.11em}.v5-system-pill i{width:8px;height:8px;border-radius:50%;background:#18e69c;box-shadow:0 0 12px #18e69c}
+.v5-welcome-kicker{display:block;margin-top:22px;color:#f0b93f;font-size:9px;font-weight:950;letter-spacing:2px}.v5-hero-copy h1{font-size:37px!important;letter-spacing:-1.1px!important;margin:5px 0 4px!important;color:#fff!important;}.v5-rank-wrap .hero-rank{display:inline-block;color:#f0b93f!important;font-size:11px!important;font-weight:950!important;letter-spacing:.8px!important;background:transparent!important;border:0!important;padding:0!important}.v5-hero-copy p{margin-top:18px;color:#8194aa;font-size:10px;font-style:italic;}
+.v5-hero-side{display:flex;flex-direction:column;align-items:flex-end;gap:12px}.v5-clock-panel{width:245px;padding:17px 18px;border:1px solid rgba(138,174,213,.16);border-radius:14px;background:rgba(3,11,20,.68);backdrop-filter:blur(16px);box-shadow:0 16px 40px rgba(0,0,0,.2)}.v5-clock-panel span{color:#8294a8;font-size:8px}.v5-clock-panel strong{display:block;color:#fff;font-size:27px;letter-spacing:.08em;margin:4px 0 7px}.v5-clock-panel small{color:#798ca1;font-size:8px;font-style:italic;line-height:1.45}.v5-hero-statuses{display:flex;gap:7px;flex-wrap:wrap;justify-content:flex-end}.v5-hero-statuses span{border:1px solid rgba(137,173,211,.13);background:rgba(3,11,20,.58);border-radius:9px;padding:7px 9px;color:#8fa2b7;font-size:7px;font-weight:850}.v5-hero-statuses i.green{display:inline-block;width:6px;height:6px;border-radius:50%;background:#22e29f;margin-right:5px;box-shadow:0 0 10px #22e29f}
+.v5-stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important}.v5-stat-card{position:relative!important;display:grid!important;grid-template-columns:48px 1fr auto!important;align-items:center!important;gap:13px!important;min-height:96px!important;padding:15px 16px!important;border-radius:15px!important;border:1px solid rgba(132,168,207,.15)!important;background:linear-gradient(145deg,rgba(8,20,34,.78),rgba(3,11,20,.65))!important;box-shadow:0 18px 50px rgba(0,0,0,.2)!important;overflow:hidden!important;backdrop-filter:blur(16px)!important}.v5-stat-card:before{content:"";position:absolute;inset:auto -25px -45px auto;width:105px;height:105px;border-radius:50%;background:currentColor;opacity:.03}.v5-stat-card.gold{color:#f0b93f}.v5-stat-card.blue{color:#429dff}.v5-stat-card.violet{color:#a26bff}.v5-stat-card.green{color:#2be2a4}.v5-stat-icon{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-size:19px;background:color-mix(in srgb,currentColor 9%,transparent);border:1px solid color-mix(in srgb,currentColor 25%,transparent)}.v5-stat-copy span{display:block;color:#8194aa!important;font-size:7px!important;font-weight:950!important;letter-spacing:.1em!important}.v5-stat-copy strong{display:block;color:#fff!important;font-size:26px!important;line-height:1.05!important;margin-top:3px!important}.v5-stat-copy small{color:#697d93;font-size:7px}.v5-mini-bars{display:flex;gap:2px;align-items:flex-end;height:24px}.v5-mini-bars i{width:3px;border-radius:3px;background:currentColor;opacity:.75}.v5-mini-bars i:nth-child(1){height:9px}.v5-mini-bars i:nth-child(2){height:17px}.v5-mini-bars i:nth-child(3){height:23px}.v5-live-pulse{width:9px;height:9px;border-radius:50%;background:#21dfa0;box-shadow:0 0 16px #21dfa0}
+.v5-dashboard-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:14px}.v5-glass-panel,.v5-quick-panel{border:1px solid rgba(133,169,208,.15)!important;border-radius:16px!important;background:linear-gradient(145deg,rgba(7,18,31,.76),rgba(3,11,20,.66))!important;box-shadow:0 20px 58px rgba(0,0,0,.22)!important;backdrop-filter:blur(18px)!important;overflow:hidden}.v5-panel-head{min-height:54px;padding:0 16px!important;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(126,162,202,.10)!important;background:rgba(255,255,255,.006)}.v5-panel-head>div{display:flex;align-items:center;gap:9px}.v5-panel-head>div>span{color:#f0b93f;font-size:14px}.v5-panel-head h3{font-size:10px!important;letter-spacing:.45px!important;margin:0!important;color:#edf3f8!important}.v5-small-link,.v5-add-event{border:1px solid rgba(128,165,204,.15);border-radius:8px;background:rgba(4,13,23,.58);color:#9aabba;padding:7px 9px;font-size:7px;font-weight:900;cursor:pointer}.v5-add-event{color:#fff;background:linear-gradient(135deg,#d99c1e,#a96709);border-color:rgba(240,185,63,.35);box-shadow:0 8px 24px rgba(213,145,15,.18)}
+.v5-activity #recent-activity{min-height:285px;padding:10px 14px!important}.v5-events-list{display:grid!important;gap:7px!important;padding:10px 12px 12px!important;max-height:300px;overflow:auto}.v5-events-list .event-card{min-height:58px!important;display:grid!important;grid-template-columns:58px minmax(0,1fr) auto!important;gap:11px!important;padding:10px 11px!important;border-radius:10px!important;border:1px solid rgba(128,165,204,.10)!important;background:rgba(9,22,37,.68)!important;box-shadow:none!important}.v5-events-list .event-card:before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:2px;background:#f0b93f;border-radius:3px;box-shadow:0 0 8px rgba(240,185,63,.4)}.v5-events-list .event-time{font-size:14px!important;color:#f2c459!important;font-weight:950!important}.v5-events-list .event-title{font-size:10px!important;color:#edf2f7!important}.v5-events-list .event-meta{font-size:7px!important;color:#71869c!important;margin-top:3px!important}.v5-events-list .event-description{font-size:8px!important;color:#93a5b7!important;margin-top:4px!important}.v5-events-list .event-delete{padding:6px 7px!important;font-size:6px!important}
+.v5-bottom-grid{display:grid;grid-template-columns:1.2fr .8fr .8fr;gap:14px}.v5-quote-panel{min-height:150px;border:1px solid rgba(151,122,55,.18);border-radius:16px;background:radial-gradient(circle at 15% 50%,rgba(240,185,63,.11),transparent 35%),linear-gradient(145deg,rgba(9,18,26,.86),rgba(5,11,17,.82));box-shadow:0 20px 58px rgba(0,0,0,.22);display:flex;align-items:center;gap:20px;padding:20px 24px}.v5-scales{font-size:52px;color:#dda72f;text-shadow:0 0 28px rgba(221,167,47,.22)}.v5-quote-panel span{display:block;color:#9e7d36;font-size:7px;font-weight:950;letter-spacing:2px}.v5-quote-panel strong{display:block;margin-top:5px;color:#f4f1e9;font-size:14px;line-height:1.55}.v5-quote-panel small{display:block;margin-top:8px;color:#77899b;font-size:8px}.v5-system-box{padding:7px 14px 13px!important}.v5-system-box .system-row{padding:10px 0!important;border-bottom:1px solid rgba(129,165,204,.08)!important}.v5-system-box .system-row span,.v5-system-box .system-row strong{font-size:7px!important}.v5-system-status .v5-panel-head b{font-size:7px;color:#32dca5;background:rgba(50,220,165,.08);border:1px solid rgba(50,220,165,.15);padding:5px 7px;border-radius:999px}.v5-quick-panel{padding-bottom:12px}.v5-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:7px;padding:10px 12px}.v5-quick-grid button{min-height:54px;border-radius:10px;border:1px solid rgba(129,165,204,.12);background:rgba(5,14,24,.65);color:#a8b5c4;font-size:8px;cursor:pointer}.v5-quick-grid button b{display:block;color:#f0b93f;font-size:16px;margin-bottom:3px}.v5-quick-grid button:hover{border-color:rgba(240,185,63,.28);background:rgba(240,185,63,.05);color:#fff;transform:translateY(-1px)}
+
+/* Every other section except DOCS/Cod Penal gets a much more visible glass treatment */
+.dashboard-section:not(#overview):not(#docs):not(#penal-code){padding:6px 0 20px!important;}
+.dashboard-section:not(#docs):not(#penal-code) .dashboard-panel,
+.dashboard-section:not(#docs):not(#penal-code) .home-launcher,
+.dashboard-section:not(#docs):not(#penal-code) .home-action-card,
+.dashboard-section:not(#docs):not(#penal-code) .profile-card,
+.dashboard-section:not(#docs):not(#penal-code) .report-card,
+.dashboard-section:not(#docs):not(#penal-code) .admin-home-card,
+.dashboard-section:not(#docs):not(#penal-code) .leave-card,
+.dashboard-section:not(#docs):not(#penal-code) .blacklist-card,
+.dashboard-section:not(#docs):not(#penal-code) .personnel-card{border-radius:16px!important;border:1px solid rgba(132,168,207,.15)!important;background:linear-gradient(145deg,rgba(8,19,32,.72),rgba(3,11,20,.62))!important;box-shadow:0 20px 55px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.02)!important;backdrop-filter:blur(18px)!important;}
+.dashboard-section:not(#docs):not(#penal-code) input,.dashboard-section:not(#docs):not(#penal-code) textarea,.dashboard-section:not(#docs):not(#penal-code) select{background:rgba(2,9,16,.66)!important;border:1px solid rgba(132,168,207,.16)!important;border-radius:10px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.015)!important}.dashboard-section:not(#docs):not(#penal-code) input:focus,.dashboard-section:not(#docs):not(#penal-code) textarea:focus,.dashboard-section:not(#docs):not(#penal-code) select:focus{border-color:rgba(240,185,63,.48)!important;box-shadow:0 0 0 3px rgba(240,185,63,.07)!important}.dashboard-section:not(#docs):not(#penal-code) .primary-btn,.dashboard-section:not(#docs):not(#penal-code) .gold-btn{background:linear-gradient(135deg,#e7aa2d,#aa6d0a)!important;border-color:rgba(240,185,63,.38)!important;box-shadow:0 10px 28px rgba(191,124,13,.18)!important}
+.modal{background:rgba(0,5,10,.74)!important;backdrop-filter:blur(12px)!important}.modal-box,.modal-card{border-radius:19px!important;border:1px solid rgba(133,169,208,.18)!important;background:linear-gradient(145deg,rgba(8,20,34,.97),rgba(3,10,18,.97))!important;box-shadow:0 40px 110px rgba(0,0,0,.62)!important}
+.command-footer{opacity:.72!important;border-top:1px solid rgba(131,167,205,.08)!important;margin-top:12px!important}
+
+@keyframes v5In{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(max-width:1250px){.command-sidebar{width:230px!important}.v5-stats-grid{grid-template-columns:repeat(2,1fr)!important}.v5-dashboard-grid{grid-template-columns:1fr}.v5-bottom-grid{grid-template-columns:1fr 1fr}.v5-quote-panel{grid-column:1/-1}}
+@media(max-width:850px){.v5-search-wrap{display:none}.v5-overview-hero{grid-template-columns:1fr;padding:22px}.v5-hero-side{align-items:flex-start;margin-top:18px}.v5-hero-statuses{justify-content:flex-start}.v5-stats-grid{grid-template-columns:1fr!important}.v5-bottom-grid{grid-template-columns:1fr}.v5-quote-panel{grid-column:auto}.v5-user-menu{min-width:180px!important}}
+</style>
+
 </head>
 
 
@@ -9269,6 +9354,7 @@ body{background:
                 INFRACȚIUNILOR DE CRIMINALITATE
                 ORGANIZATĂ ȘI TERORISM
             </span>
+            <span class="v5-brand-quote">„Legea nu iartă. Noi acționăm.”</span>
 
 
         </div>
@@ -9490,70 +9576,27 @@ body{background:
              TOPBAR
         ====================================================== -->
 
-        <header class="command-topbar">
-
-
-            <div class="topbar-left">
-
-
-                <div class="topbar-status-dot"></div>
-
-
-                <div>
-
-                    <strong>
-                        CENTRU OPERAȚIONAL DIICOT
-                    </strong>
-
-                    <span>
-                        Sistem intern securizat • acces pe grade
-                    </span>
-
+        <header class="command-topbar v5-topbar">
+            <div class="v5-topbar-left">
+                <button type="button" class="v5-grid-btn" aria-label="Meniu">⌘</button>
+                <div class="v5-search-wrap">
+                    <span>⌕</span>
+                    <input id="v5-quick-search" type="text" placeholder="Caută rapid..." autocomplete="off">
+                    <kbd>Ctrl K</kbd>
                 </div>
-
-
             </div>
-
-
-
-            <div class="dashboard-user">
-
-
-                <div class="user-menu">
-
-
-                    <img
-                        id="dashboard-avatar"
-                        class="user-avatar"
-                        alt="Avatar"
-                    >
-
-
+            <div class="v5-topbar-right">
+                <div class="v5-notify">♢<i></i></div>
+                <div class="user-menu v5-user-menu">
+                    <img id="dashboard-avatar" class="user-avatar" alt="Avatar">
                     <div class="user-info">
-
-
-                        <strong id="dashboard-name">
-                            Se încarcă...
-                        </strong>
-
-
-                        <span id="dashboard-rank">
-                            -
-                        </span>
-
-
+                        <strong id="dashboard-name">Se încarcă...</strong>
+                        <span id="dashboard-rank">-</span>
                     </div>
-
-
+                    <span class="v5-chevron">⌄</span>
                 </div>
-
-
             </div>
-
-
         </header>
-
-
 
         <!-- =====================================================
              CONTENT
@@ -9566,141 +9609,111 @@ body{background:
                  OVERVIEW
             ================================================== -->
 
-            <section
-                id="overview"
-                class="dashboard-section active premium-overview-v4"
-            >
+            <section id="overview" class="dashboard-section active v5-overview">
 
-                <div class="v4-hero-shell">
-                    <div class="v4-hero-glow"></div>
-                    <div class="v4-hero-grid"></div>
+                <div class="v5-overview-hero">
+                    <div class="v5-hero-atmosphere"></div>
+                    <div class="v5-hero-watermark">DIICOT</div>
 
-                    <div class="v4-hero-left">
-                        <div class="v4-status-pill">
-                            <span class="v4-live-dot"></span>
-                            SISTEM OPERAȚIONAL
-                        </div>
-
-                        <div class="v4-eyebrow">CENTRU DE COMANDĂ • ACCES AUTORIZAT</div>
+                    <div class="v5-hero-copy">
+                        <div class="v5-system-pill"><i></i> SISTEM OPERAȚIONAL</div>
+                        <span class="v5-welcome-kicker">BUN VENIT</span>
                         <h1 id="welcome-name">Bun venit</h1>
-                        <div class="v4-rank-line">
-                            <span class="hero-rank" id="welcome-rank">-</span>
-                        </div>
-                        <p class="v4-hero-copy">
-                            Monitorizează activitatea, evenimentele și resursele operaționale dintr-un singur centru de comandă.
-                        </p>
-
-                        <div class="v4-hero-actions">
-                            <button type="button" class="v4-primary-action" data-home-section="new-report">
-                                <span>＋</span> RAPORT NOU
-                            </button>
-                            <button type="button" class="v4-secondary-action" data-home-section="activities">
-                                ACTIVITĂȚI <span>→</span>
-                            </button>
-                        </div>
+                        <div class="v5-rank-wrap"><span class="hero-rank" id="welcome-rank">-</span></div>
+                        <p>Disciplină, integritate și profesionalism în fiecare operațiune.</p>
                     </div>
 
-                    <div class="v4-hero-right">
-                        <img src="/uploads/diicot-logo.png" alt="" class="v4-hero-logo">
-                        <div class="v4-clock-card">
-                            <span>ORA SISTEMULUI</span>
+                    <div class="v5-hero-side">
+                        <div class="v5-clock-panel">
+                            <span id="system-date">-</span>
                             <strong id="system-clock">--:--:--</strong>
-                            <small id="system-date">-</small>
+                            <small>„Ordinea este rezultatul acțiunii, nu al întâmplării.”</small>
                         </div>
-                        <div class="v4-security-row">
-                            <span><i></i>SISTEM ONLINE</span>
-                            <span>◆ ACCES SECURIZAT</span>
+                        <div class="v5-hero-statuses">
+                            <span><i class="green"></i>SISTEM ONLINE</span>
+                            <span>🔒 ACCES PERMIS</span>
+                            <span>⌁ LOGURI ACTIVE</span>
                         </div>
                     </div>
                 </div>
 
-                <div class="stats-grid v4-stats-grid">
-                    <div class="stat-card v4-stat-card">
-                        <div class="v4-stat-icon gold">▤</div>
-                        <div><span>RAPOARTE TOTALE</span><strong id="stat-total">0</strong><small>Activitate înregistrată</small></div>
-                    </div>
-                    <div class="stat-card v4-stat-card">
-                        <div class="v4-stat-icon blue">▧</div>
-                        <div><span>CU IMAGINI</span><strong id="stat-images">0</strong><small>Rapoarte cu dovezi</small></div>
-                    </div>
-                    <div class="stat-card v4-stat-card">
-                        <div class="v4-stat-icon violet">◇</div>
-                        <div><span>TIPURI OPERAȚIUNI</span><strong id="stat-types">0</strong><small>Categorii utilizate</small></div>
-                    </div>
-                    <div class="stat-card v4-stat-card">
-                        <div class="v4-stat-icon green">◷</div>
-                        <div><span>ULTIMA ACTIVITATE</span><strong id="stat-last">-</strong><small>Ultima actualizare</small></div>
-                    </div>
+                <div class="stats-grid v5-stats-grid">
+                    <article class="stat-card v5-stat-card gold">
+                        <div class="v5-stat-icon">▤</div>
+                        <div class="v5-stat-copy"><span>RAPOARTE TOTALE</span><strong id="stat-total">0</strong><small>Activitate înregistrată</small></div>
+                        <div class="v5-mini-bars"><i></i><i></i><i></i></div>
+                    </article>
+                    <article class="stat-card v5-stat-card blue">
+                        <div class="v5-stat-icon">▧</div>
+                        <div class="v5-stat-copy"><span>CU IMAGINI</span><strong id="stat-images">0</strong><small>Rapoarte cu dovezi</small></div>
+                        <div class="v5-mini-bars"><i></i><i></i><i></i></div>
+                    </article>
+                    <article class="stat-card v5-stat-card violet">
+                        <div class="v5-stat-icon">◇</div>
+                        <div class="v5-stat-copy"><span>TIPURI OPERAȚIUNI</span><strong id="stat-types">0</strong><small>Categorii active</small></div>
+                        <div class="v5-mini-bars"><i></i><i></i><i></i></div>
+                    </article>
+                    <article class="stat-card v5-stat-card green">
+                        <div class="v5-stat-icon">◷</div>
+                        <div class="v5-stat-copy"><span>ULTIMA ACTIVITATE</span><strong id="stat-last">-</strong><small>Sistem actualizat</small></div>
+                        <div class="v5-live-pulse"></div>
+                    </article>
                 </div>
 
-                <div class="v4-main-grid">
-                    <div class="dashboard-panel v4-panel v4-activity-panel">
-                        <div class="v4-panel-head">
-                            <div>
-                                <span class="v4-panel-kicker">FLUX OPERAȚIONAL</span>
-                                <h3>Activitate recentă</h3>
-                            </div>
-                            <button type="button" class="v4-panel-link" data-home-section="my-reports">VEZI RAPOARTELE →</button>
+                <div class="v5-dashboard-grid">
+                    <section class="dashboard-panel v5-glass-panel v5-activity">
+                        <div class="v5-panel-head">
+                            <div><span>✦</span><h3>ACTIVITATE RECENTĂ</h3></div>
+                            <button type="button" class="v5-small-link" data-home-section="my-reports">Vezi toate →</button>
                         </div>
                         <div class="recent-activity-wrap" id="recent-activity">
                             <div class="empty-state">Se încarcă activitatea...</div>
                         </div>
-                    </div>
+                    </section>
 
-                    <div class="dashboard-panel v4-panel v4-system-panel">
-                        <div class="v4-panel-head">
-                            <div>
-                                <span class="v4-panel-kicker">INFRASTRUCTURĂ</span>
-                                <h3>Stare sistem</h3>
-                            </div>
-                            <span class="v4-online-badge">ONLINE</span>
+                    <section class="dashboard-panel v5-glass-panel v5-events-panel">
+                        <div class="v5-panel-head">
+                            <div><span>▣</span><h3>EVENIMENTE</h3></div>
+                            <button type="button" id="open-event-modal-btn" class="v5-add-event admin-only">＋ Adaugă eveniment</button>
                         </div>
-                        <div class="system-box v4-system-box">
+                        <div id="overview-events-list" class="events-list v5-events-list">
+                            <div class="empty-state">Se încarcă evenimentele...</div>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="v5-bottom-grid">
+                    <section class="v5-quote-panel">
+                        <div class="v5-scales">⚖</div>
+                        <div>
+                            <span>DIICOT ROMÂNIA</span>
+                            <strong>„LEGEA ESTE ARMA NOASTRĂ<br>ÎMPOTRIVA CRIMINALITĂȚII ORGANIZATE.”</strong>
+                            <small>Unitate. Acțiune. Rezultate.</small>
+                        </div>
+                    </section>
+
+                    <section class="dashboard-panel v5-glass-panel v5-system-status">
+                        <div class="v5-panel-head"><div><span>◉</span><h3>STARE SISTEM</h3></div><b>ONLINE</b></div>
+                        <div class="system-box v5-system-box">
                             <div class="system-row"><span>AUTENTIFICARE</span><strong class="online-text">DISCORD OAUTH</strong></div>
                             <div class="system-row"><span>BAZĂ DE DATE</span><strong class="online-text">SUPABASE</strong></div>
                             <div class="system-row"><span>STOCARE RAPOARTE</span><strong class="online-text">BACKBLAZE B2</strong></div>
-                            <div class="system-row"><span>ACCES CURENT</span><strong id="system-access">MEMBRU</strong></div>
+                            <div class="system-row"><span>ACCES</span><strong id="system-access">MEMBRU</strong></div>
                         </div>
-                    </div>
-                </div>
+                    </section>
 
-                <div class="dashboard-panel events-overview-panel v4-events-panel">
-                    <div class="events-panel-head v4-events-head">
-                        <div>
-                            <span class="v4-panel-kicker">CALENDAR OPERAȚIONAL</span>
-                            <div class="events-panel-title">Evenimente</div>
-                            <p>Ședințe, antrenamente și activități programate.</p>
+                    <section class="v5-quick-panel">
+                        <div class="v5-panel-head"><div><span>◈</span><h3>ACCES RAPID</h3></div></div>
+                        <div class="v5-quick-grid">
+                            <button type="button" data-home-section="new-report"><b>▤</b><span>Raport nou</span></button>
+                            <button type="button" data-home-section="leave"><b>▣</b><span>Concediu</span></button>
+                            <button type="button" data-home-section="personnel"><b>♟</b><span>Personal</span></button>
+                            <button type="button" class="admin-only" data-home-section="leadership"><b>♛</b><span>Conducere</span></button>
                         </div>
-                        <button type="button" id="open-event-modal-btn" class="primary-btn gold-btn events-add-btn admin-only">＋ ADAUGĂ EVENIMENT</button>
-                    </div>
-                    <div id="overview-events-list" class="events-list v4-events-list">
-                        <div class="empty-state">Se încarcă evenimentele...</div>
-                    </div>
-                </div>
-
-                <div class="v4-bottom-grid">
-                    <div class="v4-quote-card">
-                        <div class="v4-quote-mark">§</div>
-                        <div>
-                            <span>PRINCIPIU OPERAȚIONAL</span>
-                            <strong>„Legea este arma noastră împotriva criminalității organizate.”</strong>
-                            <small>Unitate • Acțiune • Rezultate</small>
-                        </div>
-                    </div>
-
-                    <div class="v4-quick-card">
-                        <div class="v4-panel-head compact"><div><span class="v4-panel-kicker">SCURTĂTURI</span><h3>Acces rapid</h3></div></div>
-                        <div class="v4-quick-grid">
-                            <button type="button" data-home-section="new-report"><span>▤</span>Raport nou</button>
-                            <button type="button" data-home-section="leave"><span>▣</span>Concedii</button>
-                            <button type="button" data-home-section="personnel"><span>♟</span>Personal</button>
-                            <button type="button" class="admin-only" data-home-section="leadership"><span>♛</span>Conducere</button>
-                        </div>
-                    </div>
+                    </section>
                 </div>
 
             </section>
-
 
             <!-- =================================================
                  ACTIVITĂȚI
@@ -27218,6 +27231,11 @@ const query =
             }
         });
 
+</script>
+
+
+<script id="v5-quick-search-script">
+(()=>{const q=document.getElementById('v5-quick-search');if(!q)return;const links=[...document.querySelectorAll('.sidebar-link[data-section]')];const openFirst=()=>{const term=q.value.trim().toLowerCase();if(!term)return;const hit=links.find(x=>x.textContent.trim().toLowerCase().includes(term));if(hit){hit.click();q.value='';q.blur();}};q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();openFirst();}});document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();q.focus();q.select();}});})();
 </script>
 
 </body>
