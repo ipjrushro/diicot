@@ -27139,7 +27139,20 @@ const query =
     loadUser()
 
 
-        .then(openSectionFromURL)
+        .then(() => {
+
+            // Încarcă statisticile de rapoarte imediat la intrarea în dashboard,
+            // fără să fie nevoie să deschizi mai întâi „Rapoartele mele”.
+            // Rulează în fundal ca pagina principală să se deschidă instant.
+            if (typeof loadMyReports === "function") {
+                loadMyReports().catch(error => {
+                    console.error("Initial report stats load:", error);
+                });
+            }
+
+            openSectionFromURL();
+
+        })
 
 
         .catch(error => {
