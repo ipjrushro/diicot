@@ -9124,6 +9124,110 @@ body:before{
 }
 </style>
 
+
+<style id="diicot-premium-v4">
+/* ==========================================================
+   DIICOT PREMIUM V4 — structural redesign
+   DOCS (#docs) and COD PENAL (#penal-code) intentionally excluded
+========================================================== */
+:root{
+  --v4-bg:#030810;--v4-surface:rgba(8,18,31,.70);--v4-surface2:rgba(12,25,42,.62);
+  --v4-line:rgba(143,180,220,.13);--v4-line2:rgba(229,174,55,.22);
+  --v4-gold:#e8b441;--v4-gold2:#ffcf62;--v4-text:#f5f7fb;--v4-muted:#8292a8;
+  --v4-blue:#3d8cff;--v4-green:#18d89b;--v4-red:#ff5364;
+}
+body{background:
+  radial-gradient(circle at 78% 8%,rgba(30,86,157,.15),transparent 30%),
+  radial-gradient(circle at 15% 92%,rgba(205,151,32,.08),transparent 28%),
+  linear-gradient(180deg,#03070d 0%,#050b13 100%) !important;
+}
+.command-main{background:transparent!important;}
+.dashboard-content{max-width:1720px!important;margin:0 auto!important;padding:20px 24px 34px!important;}
+.command-topbar{margin:0 24px 16px!important;border:1px solid var(--v4-line)!important;background:rgba(4,11,20,.66)!important;backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;box-shadow:0 18px 50px rgba(0,0,0,.22)!important;}
+.command-sidebar{background:linear-gradient(180deg,rgba(4,11,20,.94),rgba(2,7,13,.97))!important;border-right:1px solid rgba(143,180,220,.10)!important;box-shadow:22px 0 70px rgba(0,0,0,.30)!important;}
+.sidebar-logo-card,.sidebar-security{background:linear-gradient(145deg,rgba(13,27,44,.75),rgba(5,13,23,.58))!important;border:1px solid rgba(232,180,65,.17)!important;box-shadow:inset 0 1px rgba(255,255,255,.03),0 16px 40px rgba(0,0,0,.18)!important;backdrop-filter:blur(14px)!important;}
+.sidebar-link{border:1px solid transparent!important;border-radius:12px!important;transition:.22s ease!important;}
+.sidebar-link:hover{background:rgba(255,255,255,.035)!important;border-color:rgba(255,255,255,.055)!important;transform:translateX(3px)!important;}
+.sidebar-link.active{background:linear-gradient(90deg,rgba(232,180,65,.16),rgba(232,180,65,.035))!important;border-color:rgba(232,180,65,.34)!important;box-shadow:inset 3px 0 0 var(--v4-gold),0 12px 28px rgba(0,0,0,.18)!important;}
+
+/* Global premium treatment — except DOCS and COD PENAL */
+.dashboard-section:not(#docs):not(#penal-code){animation:v4Fade .32s ease;}
+.dashboard-section:not(#docs):not(#penal-code) .dashboard-panel,
+.dashboard-section:not(#docs):not(#penal-code) .home-launcher,
+.dashboard-section:not(#docs):not(#penal-code) .report-premium-shell,
+.dashboard-section:not(#docs):not(#penal-code) .test-manager-shell,
+.dashboard-section:not(#docs):not(#penal-code) .profile-shell,
+.dashboard-section:not(#docs):not(#penal-code) .personnel-shell,
+.dashboard-section:not(#docs):not(#penal-code) .leave-shell,
+.dashboard-section:not(#docs):not(#penal-code) .blacklist-shell,
+.dashboard-section:not(#docs):not(#penal-code) .leadership-shell,
+.dashboard-section:not(#docs):not(#penal-code) .admin-shell{
+  background:linear-gradient(145deg,rgba(10,22,37,.72),rgba(5,13,23,.58))!important;
+  border:1px solid var(--v4-line)!important;border-radius:20px!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.025),0 24px 65px rgba(0,0,0,.22)!important;
+  backdrop-filter:blur(18px)!important;-webkit-backdrop-filter:blur(18px)!important;
+}
+.dashboard-section:not(#docs):not(#penal-code) input,
+.dashboard-section:not(#docs):not(#penal-code) textarea,
+.dashboard-section:not(#docs):not(#penal-code) select{
+  background:rgba(2,9,17,.70)!important;border:1px solid rgba(139,172,207,.16)!important;border-radius:13px!important;color:#edf3fa!important;box-shadow:inset 0 1px rgba(255,255,255,.02)!important;transition:.2s ease!important;
+}
+.dashboard-section:not(#docs):not(#penal-code) input:focus,
+.dashboard-section:not(#docs):not(#penal-code) textarea:focus,
+.dashboard-section:not(#docs):not(#penal-code) select:focus{border-color:rgba(232,180,65,.58)!important;box-shadow:0 0 0 3px rgba(232,180,65,.08)!important;outline:none!important;}
+.dashboard-section:not(#docs):not(#penal-code) .primary-btn,
+.dashboard-section:not(#docs):not(#penal-code) .gold-btn{background:linear-gradient(135deg,#d69a16,#f1bd3e)!important;border:1px solid rgba(255,218,125,.38)!important;color:#07101a!important;border-radius:12px!important;box-shadow:0 12px 28px rgba(224,163,27,.16)!important;transition:.2s ease!important;}
+.dashboard-section:not(#docs):not(#penal-code) .primary-btn:hover,
+.dashboard-section:not(#docs):not(#penal-code) .gold-btn:hover{transform:translateY(-2px)!important;box-shadow:0 16px 36px rgba(224,163,27,.24)!important;filter:brightness(1.05)!important;}
+.dashboard-section:not(#docs):not(#penal-code) .section-title h2,
+.dashboard-section:not(#docs):not(#penal-code) h1,
+.dashboard-section:not(#docs):not(#penal-code) h2,
+.dashboard-section:not(#docs):not(#penal-code) h3{letter-spacing:-.02em;}
+
+/* OVERVIEW V4 */
+#overview{display:flex;flex-direction:column;gap:16px;}
+.v4-hero-shell{position:relative;min-height:300px;border:1px solid rgba(143,180,220,.16);border-radius:24px;overflow:hidden;background:
+ linear-gradient(90deg,rgba(5,14,25,.98) 0%,rgba(7,18,32,.91) 48%,rgba(10,24,42,.78) 100%);box-shadow:0 30px 85px rgba(0,0,0,.32),inset 0 1px rgba(255,255,255,.03);display:grid;grid-template-columns:1.25fr .75fr;align-items:center;padding:34px 40px;}
+.v4-hero-shell:after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 83% 42%,rgba(232,180,65,.18),transparent 18%),radial-gradient(circle at 72% 10%,rgba(61,140,255,.13),transparent 28%);pointer-events:none;}
+.v4-hero-grid{position:absolute;inset:0;opacity:.16;background-image:linear-gradient(rgba(91,132,174,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(91,132,174,.10) 1px,transparent 1px);background-size:52px 52px;mask-image:linear-gradient(90deg,transparent,black 38%,black);}
+.v4-hero-glow{position:absolute;width:430px;height:430px;border-radius:50%;right:-90px;top:-150px;background:rgba(40,105,190,.18);filter:blur(75px);}
+.v4-hero-left,.v4-hero-right{position:relative;z-index:2;}
+.v4-status-pill{display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border:1px solid rgba(24,216,155,.18);background:rgba(24,216,155,.055);border-radius:999px;color:#9ee9d0;font-size:10px;font-weight:900;letter-spacing:.09em;}
+.v4-live-dot{width:8px;height:8px;border-radius:50%;background:#20e7a6;box-shadow:0 0 14px #20e7a6;}
+.v4-eyebrow{margin-top:25px;color:var(--v4-gold);font-size:10px;font-weight:900;letter-spacing:.19em;}
+.v4-hero-left h1{font-size:clamp(34px,4vw,58px)!important;margin:8px 0 8px!important;color:#fff!important;line-height:1.02!important;text-shadow:0 5px 25px rgba(0,0,0,.35);}
+.v4-rank-line .hero-rank{display:inline-flex!important;padding:7px 12px!important;background:rgba(232,180,65,.08)!important;border:1px solid rgba(232,180,65,.26)!important;border-radius:999px!important;color:#f4c75d!important;font-weight:900!important;font-size:10px!important;letter-spacing:.06em!important;}
+.v4-hero-copy{max-width:680px;color:#9caec2;font-size:13px;line-height:1.7;margin:16px 0 0;}
+.v4-hero-actions{display:flex;gap:10px;margin-top:22px;}
+.v4-primary-action,.v4-secondary-action{height:43px;padding:0 18px;border-radius:11px;font-weight:900;font-size:10px;letter-spacing:.06em;cursor:pointer;transition:.2s ease;}
+.v4-primary-action{border:1px solid rgba(255,218,125,.38);background:linear-gradient(135deg,#d89d1a,#f0bd42);color:#06101b;box-shadow:0 12px 30px rgba(232,180,65,.15);}
+.v4-secondary-action{border:1px solid rgba(138,176,217,.15);background:rgba(6,16,29,.65);color:#dce7f4;}
+.v4-primary-action:hover,.v4-secondary-action:hover{transform:translateY(-2px);}
+.v4-hero-right{display:flex;flex-direction:column;align-items:flex-end;justify-content:center;min-height:220px;}
+.v4-hero-logo{position:absolute;width:250px;height:250px;object-fit:contain;opacity:.10;right:40px;filter:drop-shadow(0 0 50px rgba(232,180,65,.35));}
+.v4-clock-card{position:relative;z-index:2;width:230px;padding:18px 20px;border-radius:18px;border:1px solid rgba(143,180,220,.14);background:rgba(3,10,19,.58);backdrop-filter:blur(15px);box-shadow:0 20px 45px rgba(0,0,0,.22);}
+.v4-clock-card span{font-size:8px;color:#7f91a7;font-weight:900;letter-spacing:.11em;}.v4-clock-card strong{display:block;margin-top:6px;font-size:28px;color:#fff;letter-spacing:.06em;}.v4-clock-card small{display:block;margin-top:5px;color:#6f8198;font-size:9px;}
+.v4-security-row{display:flex;gap:8px;margin-top:12px;position:relative;z-index:2;}.v4-security-row span{padding:7px 10px;border:1px solid rgba(143,180,220,.12);background:rgba(3,10,19,.52);border-radius:9px;color:#91a3b8;font-size:8px;font-weight:800;}.v4-security-row i{display:inline-block;width:6px;height:6px;border-radius:50%;background:#20df9f;margin-right:6px;box-shadow:0 0 10px #20df9f;}
+.v4-stats-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:12px!important;}
+.v4-stat-card{display:flex!important;align-items:center!important;gap:14px!important;min-height:112px!important;padding:18px!important;border-radius:18px!important;background:linear-gradient(145deg,rgba(10,23,39,.74),rgba(5,13,23,.55))!important;border:1px solid rgba(143,180,220,.13)!important;box-shadow:0 18px 48px rgba(0,0,0,.18),inset 0 1px rgba(255,255,255,.025)!important;position:relative;overflow:hidden;}
+.v4-stat-card:after{content:"";position:absolute;width:90px;height:90px;border-radius:50%;right:-35px;top:-35px;background:rgba(61,140,255,.05);}
+.v4-stat-card>div:last-child{display:flex;flex-direction:column;min-width:0}.v4-stat-card span{font-size:8px!important;letter-spacing:.1em;color:#7d90a6!important;font-weight:900!important;}.v4-stat-card strong{font-size:28px!important;color:#fff!important;line-height:1.15!important;margin-top:3px!important;}.v4-stat-card small{color:#63768d;font-size:8px;margin-top:4px;}
+.v4-stat-icon{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;font-size:18px;font-weight:900;border:1px solid currentColor;box-shadow:inset 0 0 20px rgba(255,255,255,.03);}.v4-stat-icon.gold{color:#efb936;background:rgba(239,185,54,.07)}.v4-stat-icon.blue{color:#4d9aff;background:rgba(77,154,255,.08)}.v4-stat-icon.violet{color:#9b65ff;background:rgba(155,101,255,.08)}.v4-stat-icon.green{color:#28d8a0;background:rgba(40,216,160,.08)}
+.v4-main-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(320px,.65fr);gap:14px;}.v4-panel{padding:0!important;overflow:hidden!important;}.v4-panel-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid rgba(143,180,220,.10);}.v4-panel-head.compact{padding:0 0 14px;border:0}.v4-panel-kicker{display:block;color:#6d8198;font-size:7px;font-weight:900;letter-spacing:.15em;margin-bottom:3px}.v4-panel-head h3{font-size:14px;margin:0;color:#f3f7fb}.v4-panel-link{border:1px solid rgba(143,180,220,.13);background:rgba(4,12,22,.5);color:#8ea2b9;border-radius:9px;padding:8px 10px;font-size:7px;font-weight:900;cursor:pointer}.v4-online-badge{padding:6px 9px;border-radius:999px;background:rgba(24,216,155,.08);border:1px solid rgba(24,216,155,.18);color:#51d9ad;font-size:7px;font-weight:900;letter-spacing:.08em;}
+.v4-activity-panel #recent-activity{padding:8px 18px 16px!important;}.v4-system-box{padding:8px 18px 16px!important;}.v4-system-box .system-row{padding:13px 2px!important;border-bottom:1px solid rgba(143,180,220,.08)!important;}.v4-system-box .system-row:last-child{border-bottom:0!important;}
+.v4-events-panel{padding:0!important;overflow:hidden!important;border-color:rgba(232,180,65,.14)!important;}.v4-events-head{padding:20px 22px!important;background:linear-gradient(90deg,rgba(232,180,65,.045),transparent 55%);}.v4-events-head .events-panel-title{font-size:17px!important;color:#f5f7fb!important;margin-top:2px!important;}.v4-events-head p{margin:5px 0 0;color:#6e8198;font-size:9px;}.v4-events-list{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;padding:16px 18px 20px!important;}.v4-events-list .event-card{position:relative!important;display:grid!important;grid-template-columns:64px minmax(0,1fr) auto!important;gap:12px!important;align-items:center!important;padding:15px!important;border:1px solid rgba(143,180,220,.11)!important;background:linear-gradient(145deg,rgba(7,17,29,.82),rgba(3,10,18,.60))!important;border-radius:14px!important;overflow:hidden!important;transition:.22s ease!important;}.v4-events-list .event-card:before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:2px;background:linear-gradient(#f0bd42,#9a6a05);border-radius:4px;box-shadow:0 0 12px rgba(232,180,65,.3);}.v4-events-list .event-card:hover{transform:translateY(-2px)!important;border-color:rgba(232,180,65,.22)!important;box-shadow:0 18px 40px rgba(0,0,0,.18)!important;}.v4-events-list .event-time{font-size:17px!important;font-weight:900!important;color:#f2c45a!important;text-align:center!important;}.v4-events-list .event-title{font-size:11px!important;font-weight:900!important;color:#edf3f9!important;}.v4-events-list .event-meta{margin-top:4px!important;color:#6f8298!important;font-size:8px!important;}.v4-events-list .event-description{margin-top:7px!important;color:#9aaabd!important;font-size:9px!important;line-height:1.5!important;}.v4-events-list .event-delete{border:1px solid rgba(255,83,100,.18)!important;background:rgba(255,83,100,.05)!important;color:#ff7886!important;border-radius:8px!important;font-size:7px!important;font-weight:900!important;padding:8px!important;}
+.v4-bottom-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:14px;}.v4-quote-card,.v4-quick-card{border:1px solid rgba(143,180,220,.12);background:linear-gradient(145deg,rgba(10,22,37,.68),rgba(5,13,23,.58));border-radius:18px;padding:18px 20px;box-shadow:0 20px 55px rgba(0,0,0,.18);backdrop-filter:blur(15px);}.v4-quote-card{display:flex;align-items:center;gap:18px;background:radial-gradient(circle at 15% 50%,rgba(232,180,65,.10),transparent 30%),linear-gradient(145deg,rgba(10,22,37,.72),rgba(5,13,23,.60));}.v4-quote-mark{font-size:48px;color:#dfaa34;opacity:.8}.v4-quote-card span{display:block;color:#806d40;font-size:7px;font-weight:900;letter-spacing:.14em}.v4-quote-card strong{display:block;color:#f0f2f5;font-size:16px;margin-top:5px;}.v4-quote-card small{display:block;color:#6c7d91;font-size:8px;margin-top:7px;}.v4-quick-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.v4-quick-grid button{min-height:78px;border-radius:12px;border:1px solid rgba(143,180,220,.11);background:rgba(3,10,18,.52);color:#a9b8c9;font-size:8px;font-weight:900;cursor:pointer;transition:.2s ease}.v4-quick-grid button span{display:block;color:#e6b13b;font-size:18px;margin-bottom:7px}.v4-quick-grid button:hover{transform:translateY(-2px);border-color:rgba(232,180,65,.23);color:#fff;background:rgba(232,180,65,.045)}
+
+/* Other sections: stronger card separation and hover */
+#activities .home-action-card,#personnel .personnel-card,#leave .leave-card,#admin .admin-home-card,#leadership .leadership-card,#blacklist .blacklist-card,#profile .profile-stat-card,#my-reports .report-card{background:linear-gradient(145deg,rgba(8,19,32,.78),rgba(4,12,21,.63))!important;border:1px solid rgba(143,180,220,.12)!important;border-radius:16px!important;box-shadow:0 16px 42px rgba(0,0,0,.15)!important;transition:.22s ease!important;}
+#activities .home-action-card:hover,#personnel .personnel-card:hover,#leave .leave-card:hover,#admin .admin-home-card:hover,#leadership .leadership-card:hover,#blacklist .blacklist-card:hover,#profile .profile-stat-card:hover,#my-reports .report-card:hover{transform:translateY(-3px)!important;border-color:rgba(232,180,65,.22)!important;box-shadow:0 22px 50px rgba(0,0,0,.22)!important;}
+.modal .modal-card{background:linear-gradient(145deg,rgba(9,21,36,.96),rgba(4,12,21,.96))!important;border:1px solid rgba(143,180,220,.16)!important;border-radius:20px!important;box-shadow:0 35px 100px rgba(0,0,0,.55)!important;backdrop-filter:blur(22px)!important;}
+.modal{background:rgba(0,5,11,.72)!important;backdrop-filter:blur(8px)!important;}
+@keyframes v4Fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+@media(max-width:1250px){.v4-hero-shell{grid-template-columns:1fr .55fr}.v4-stats-grid{grid-template-columns:repeat(2,1fr)!important}.v4-main-grid{grid-template-columns:1fr}.v4-events-list{grid-template-columns:1fr!important}.v4-bottom-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.dashboard-content{padding:12px!important}.command-topbar{margin:0 12px 12px!important}.v4-hero-shell{grid-template-columns:1fr;padding:24px 20px}.v4-hero-right{align-items:flex-start;min-height:auto;margin-top:24px}.v4-hero-logo{right:0}.v4-stats-grid{grid-template-columns:1fr!important}.v4-bottom-grid{grid-template-columns:1fr}.v4-quick-grid{grid-template-columns:repeat(2,1fr)}.v4-events-list .event-card{grid-template-columns:52px minmax(0,1fr)!important}.v4-events-list .event-delete{grid-column:2}.v4-hero-actions{flex-wrap:wrap}}
+</style>
+
 </head>
 
 
@@ -9464,271 +9568,138 @@ body:before{
 
             <section
                 id="overview"
-                class="dashboard-section active"
+                class="dashboard-section active premium-overview-v4"
             >
 
+                <div class="v4-hero-shell">
+                    <div class="v4-hero-glow"></div>
+                    <div class="v4-hero-grid"></div>
 
-                <div class="command-hero">
+                    <div class="v4-hero-left">
+                        <div class="v4-status-pill">
+                            <span class="v4-live-dot"></span>
+                            SISTEM OPERAȚIONAL
+                        </div>
 
-
-                    <img
-                        src="/uploads/diicot-logo.png"
-                        alt=""
-                        class="hero-emblem"
-                    >
-
-
-
-                    <div class="hero-info">
-
-
-                        <span class="hero-kicker">
-                            EXECUTIVE COMMAND / EXECUTIVE COMMAND / ACCES AUTORIZAT
-                        </span>
-
-
-                        <h1 id="welcome-name">
-                            Bun venit
-                        </h1>
-
-
-                        <span
-                            class="hero-rank"
-                            id="welcome-rank"
-                        >
-                            -
-                        </span>
-
-
-                        <p class="hero-quote">
-                            „Disciplina, integritatea și profesionalismul
-                            definesc fiecare operațiune.”
+                        <div class="v4-eyebrow">CENTRU DE COMANDĂ • ACCES AUTORIZAT</div>
+                        <h1 id="welcome-name">Bun venit</h1>
+                        <div class="v4-rank-line">
+                            <span class="hero-rank" id="welcome-rank">-</span>
+                        </div>
+                        <p class="v4-hero-copy">
+                            Monitorizează activitatea, evenimentele și resursele operaționale dintr-un singur centru de comandă.
                         </p>
 
-
+                        <div class="v4-hero-actions">
+                            <button type="button" class="v4-primary-action" data-home-section="new-report">
+                                <span>＋</span> RAPORT NOU
+                            </button>
+                            <button type="button" class="v4-secondary-action" data-home-section="activities">
+                                ACTIVITĂȚI <span>→</span>
+                            </button>
+                        </div>
                     </div>
 
-
-
-                    <div class="hero-clock">
-
-
-                        <span>
-                            ORA SISTEMULUI
-                        </span>
-
-
-                        <strong id="system-clock">
-                            --:--:--
-                        </strong>
-
-
-                        <small id="system-date">
-                            -
-                        </small>
-
-
+                    <div class="v4-hero-right">
+                        <img src="/uploads/diicot-logo.png" alt="" class="v4-hero-logo">
+                        <div class="v4-clock-card">
+                            <span>ORA SISTEMULUI</span>
+                            <strong id="system-clock">--:--:--</strong>
+                            <small id="system-date">-</small>
+                        </div>
+                        <div class="v4-security-row">
+                            <span><i></i>SISTEM ONLINE</span>
+                            <span>◆ ACCES SECURIZAT</span>
+                        </div>
                     </div>
-
-
                 </div>
 
-
-
-                <div class="stats-grid">
-
-
-                    <div class="stat-card">
-
-                        <span>
-                            RAPOARTE TOTALE
-                        </span>
-
-                        <strong id="stat-total">
-                            0
-                        </strong>
-
+                <div class="stats-grid v4-stats-grid">
+                    <div class="stat-card v4-stat-card">
+                        <div class="v4-stat-icon gold">▤</div>
+                        <div><span>RAPOARTE TOTALE</span><strong id="stat-total">0</strong><small>Activitate înregistrată</small></div>
                     </div>
-
-
-
-                    <div class="stat-card">
-
-                        <span>
-                            CU IMAGINI
-                        </span>
-
-                        <strong id="stat-images">
-                            0
-                        </strong>
-
+                    <div class="stat-card v4-stat-card">
+                        <div class="v4-stat-icon blue">▧</div>
+                        <div><span>CU IMAGINI</span><strong id="stat-images">0</strong><small>Rapoarte cu dovezi</small></div>
                     </div>
-
-
-
-                    <div class="stat-card">
-
-                        <span>
-                            TIPURI OPERAȚIUNI
-                        </span>
-
-                        <strong id="stat-types">
-                            0
-                        </strong>
-
+                    <div class="stat-card v4-stat-card">
+                        <div class="v4-stat-icon violet">◇</div>
+                        <div><span>TIPURI OPERAȚIUNI</span><strong id="stat-types">0</strong><small>Categorii utilizate</small></div>
                     </div>
-
-
-
-                    <div class="stat-card">
-
-                        <span>
-                            ULTIMA ACTIVITATE
-                        </span>
-
-                        <strong id="stat-last">
-                            -
-                        </strong>
-
+                    <div class="stat-card v4-stat-card">
+                        <div class="v4-stat-icon green">◷</div>
+                        <div><span>ULTIMA ACTIVITATE</span><strong id="stat-last">-</strong><small>Ultima actualizare</small></div>
                     </div>
-
-
-                </div>
-<div class="overview-grid">
-
-
-                    <div class="dashboard-panel">
-
-
-                        <div class="panel-heading">
-                            ACTIVITATE RECENTĂ
-                        </div>
-
-
-                        <div
-                            class="recent-activity-wrap"
-                            id="recent-activity"
-                        >
-
-                            <div class="empty-state">
-                                Se încarcă activitatea...
-                            </div>
-
-                        </div>
-
-
-                    </div>
-
-
-
-                    <div class="dashboard-panel">
-
-
-                        <div class="panel-heading">
-                            STARE SISTEM
-                        </div>
-
-
-                        <div class="system-box">
-
-
-                            <div class="system-row">
-
-                                <span>
-                                    AUTENTIFICARE
-                                </span>
-
-                                <strong class="online-text">
-                                    DISCORD OAUTH
-                                </strong>
-
-                            </div>
-
-
-
-                            <div class="system-row">
-
-                                <span>
-                                    BAZĂ DE DATE
-                                </span>
-
-                                <strong class="online-text">
-                                    SUPABASE
-                                </strong>
-
-                            </div>
-
-
-
-                            <div class="system-row">
-
-                                <span>
-                                    STOCARE RAPOARTE
-                                </span>
-
-                                <strong class="online-text">
-                                    BACKBLAZE B2
-                                </strong>
-
-                            </div>
-
-
-
-                            <div class="system-row">
-
-                                <span>
-                                    ACCES
-                                </span>
-
-                                <strong id="system-access">
-                                    MEMBRU
-                                </strong>
-
-                            </div>
-
-
-                        </div>
-
-
-                    </div>
-
-
                 </div>
 
-
-                <div class="dashboard-panel events-overview-panel">
-
-                    <div class="events-panel-head">
-
-                        <div class="events-panel-title">
-                            EVENIMENTE
+                <div class="v4-main-grid">
+                    <div class="dashboard-panel v4-panel v4-activity-panel">
+                        <div class="v4-panel-head">
+                            <div>
+                                <span class="v4-panel-kicker">FLUX OPERAȚIONAL</span>
+                                <h3>Activitate recentă</h3>
+                            </div>
+                            <button type="button" class="v4-panel-link" data-home-section="my-reports">VEZI RAPOARTELE →</button>
                         </div>
-
-                        <button
-                            type="button"
-                            id="open-event-modal-btn"
-                            class="primary-btn gold-btn events-add-btn admin-only"
-                        >
-                            + ADAUGĂ EVENIMENT
-                        </button>
-
-                    </div>
-
-                    <div
-                        id="overview-events-list"
-                        class="events-list"
-                    >
-                        <div class="empty-state">
-                            Se încarcă evenimentele...
+                        <div class="recent-activity-wrap" id="recent-activity">
+                            <div class="empty-state">Se încarcă activitatea...</div>
                         </div>
                     </div>
 
+                    <div class="dashboard-panel v4-panel v4-system-panel">
+                        <div class="v4-panel-head">
+                            <div>
+                                <span class="v4-panel-kicker">INFRASTRUCTURĂ</span>
+                                <h3>Stare sistem</h3>
+                            </div>
+                            <span class="v4-online-badge">ONLINE</span>
+                        </div>
+                        <div class="system-box v4-system-box">
+                            <div class="system-row"><span>AUTENTIFICARE</span><strong class="online-text">DISCORD OAUTH</strong></div>
+                            <div class="system-row"><span>BAZĂ DE DATE</span><strong class="online-text">SUPABASE</strong></div>
+                            <div class="system-row"><span>STOCARE RAPOARTE</span><strong class="online-text">BACKBLAZE B2</strong></div>
+                            <div class="system-row"><span>ACCES CURENT</span><strong id="system-access">MEMBRU</strong></div>
+                        </div>
+                    </div>
                 </div>
 
+                <div class="dashboard-panel events-overview-panel v4-events-panel">
+                    <div class="events-panel-head v4-events-head">
+                        <div>
+                            <span class="v4-panel-kicker">CALENDAR OPERAȚIONAL</span>
+                            <div class="events-panel-title">Evenimente</div>
+                            <p>Ședințe, antrenamente și activități programate.</p>
+                        </div>
+                        <button type="button" id="open-event-modal-btn" class="primary-btn gold-btn events-add-btn admin-only">＋ ADAUGĂ EVENIMENT</button>
+                    </div>
+                    <div id="overview-events-list" class="events-list v4-events-list">
+                        <div class="empty-state">Se încarcă evenimentele...</div>
+                    </div>
+                </div>
+
+                <div class="v4-bottom-grid">
+                    <div class="v4-quote-card">
+                        <div class="v4-quote-mark">§</div>
+                        <div>
+                            <span>PRINCIPIU OPERAȚIONAL</span>
+                            <strong>„Legea este arma noastră împotriva criminalității organizate.”</strong>
+                            <small>Unitate • Acțiune • Rezultate</small>
+                        </div>
+                    </div>
+
+                    <div class="v4-quick-card">
+                        <div class="v4-panel-head compact"><div><span class="v4-panel-kicker">SCURTĂTURI</span><h3>Acces rapid</h3></div></div>
+                        <div class="v4-quick-grid">
+                            <button type="button" data-home-section="new-report"><span>▤</span>Raport nou</button>
+                            <button type="button" data-home-section="leave"><span>▣</span>Concedii</button>
+                            <button type="button" data-home-section="personnel"><span>♟</span>Personal</button>
+                            <button type="button" class="admin-only" data-home-section="leadership"><span>♛</span>Conducere</button>
+                        </div>
+                    </div>
+                </div>
 
             </section>
-
-
 
 
             <!-- =================================================
