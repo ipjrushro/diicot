@@ -3151,6 +3151,153 @@ app.delete(
 );
 
 
+
+// ======================================================
+// EVENIMENTE + CENTRU NOTIFICĂRI
+// ======================================================
+
+app.get("/api/events", requireAuth, async (req, res) => {
+    if (!ensureSupabase(res)) return;
+    try {
+        const { data, error } = await supabase.from("events").select("*").order("event_at", { ascending: true });
+        if (error) throw error;
+        return res.json({
+            events: (data || []).map(row => ({
+                id: row.id,
+                title: row.title,
+                eventAt: row.event_at,
+                type: row.type,
+                description: row.description || "",
+                createdById: row.created_by_id || "",
+                createdByName: row.created_by_name || "",
+                createdByRank: row.created_by_rank || "",
+                createdAt: row.created_at
+            }))
+        });
+    } catch (error) {
+        console.error("Events List Error:", error);
+        return res.status(500).json({ error: "Evenimentele nu au putut fi încărcate." });
+    }
+});
+
+app.post("/api/admin/events", requireAdmin, async (req, res) => {
+    if (!ensureSupabase(res)) return;
+    try {
+        const title = String(req.body?.title || "").trim().slice(0, 100);
+        const eventAt = String(req.body?.eventAt || "").trim();
+        const type = String(req.body?.type || "ALTUL").trim().toUpperCase();
+        const description = String(req.body?.description || "").trim().slice(0, 500);
+        const allowed = new Set(["SEDINTA","BRIEFING","RAZIE","ANTRENAMENT","ALTUL"]);
+        const parsed = new Date(eventAt);
+
+        if (title.length < 2) return res.status(400).json({ error: "Titlul evenimentului este prea scurt." });
+        if (Number.isNaN(parsed.getTime())) return res.status(400).json({ error: "Data și ora evenimentului sunt invalide." });
+        if (!allowed.has(type)) return res.status(400).json({ error: "Tip de eveniment invalid." });
+
+        const row = {
+            id: crypto.randomUUID(),
+            title,
+            event_at: parsed.toISOString(),
+            type,
+            description,
+            created_by_id: String(req.session.user.id),
+            created_by_name: req.session.user.displayName || req.session.user.username || "",
+            created_by_rank: req.session.user.rank || ""
+        };
+
+        const { data, error } = await supabase.from("events").insert(row).select("*").single();
+        if (error) throw error;
+
+        return res.status(201).json({
+            success: true,
+            event: {
+                id: data.id,
+                title: data.title,
+                eventAt: data.event_at,
+                type: data.type,
+                description: data.description || "",
+                createdByName: data.created_by_name || "",
+                createdAt: data.created_at
+            }
+        });
+    } catch (error) {
+        console.error("Event Create Error:", error);
+        return res.status(500).json({ error: "Evenimentul nu a putut fi postat." });
+    }
+});
+
+app.delete("/api/admin/events/:id", requireAdmin, async (req, res) => {
+    if (!ensureSupabase(res)) return;
+    try {
+        const { error } = await supabase.from("events").delete().eq("id", String(req.params.id || ""));
+        if (error) throw error;
+        return res.json({ success: true });
+    } catch (error) {
+        console.error("Event Delete Error:", error);
+        return res.status(500).json({ error: "Evenimentul nu a putut fi șters." });
+    }
+});
+
+app.get("/api/notifications", requireAuth, async (req, res) => {
+    if (!ensureSupabase(res)) return;
+    try {
+        const userId = String(req.session.user.id);
+        const oldLimit = new Date(Date.now() - 48 * 60 * 60 * 1000).toISOString();
+        const notifications = [];
+
+        const [eventsResult, complaintsResult, announcementsResult] = await Promise.all([
+            supabase.from("events").select("id,title,event_at,type,description,created_at").gte("event_at", oldLimit).order("event_at", { ascending: true }).limit(30),
+            supabase.from("complaints").select("id,author_name,reason,status,created_at").eq("target_id", userId).order("created_at", { ascending: false }).limit(30),
+            supabase.from("site_announcements").select("id,title,message,author_name,author_rank,created_at").order("created_at", { ascending: false }).limit(30)
+        ]);
+
+        if (!eventsResult.error) {
+            for (const row of eventsResult.data || []) {
+                const dt = new Date(row.event_at);
+                const when = Number.isNaN(dt.getTime()) ? "" : dt.toLocaleString("ro-RO", { day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit" });
+                notifications.push({
+                    id: `event:${row.id}`,
+                    type: "EVENT",
+                    title: row.type === "SEDINTA" ? `Ședință: ${row.title}` : `Eveniment: ${row.title}`,
+                    message: `${when}${row.description ? ` • ${row.description}` : ""}`,
+                    createdAt: row.created_at || row.event_at
+                });
+            }
+        } else console.error("Notification Events Error:", eventsResult.error);
+
+        if (!complaintsResult.error) {
+            for (const row of complaintsResult.data || []) {
+                notifications.push({
+                    id: `complaint:${row.id}`,
+                    type: "COMPLAINT",
+                    title: "Reclamație pe numele tău",
+                    message: `${row.author_name ? `Trimisă de ${row.author_name}. ` : ""}${row.reason || "A fost înregistrată o reclamație."}`,
+                    createdAt: row.created_at
+                });
+            }
+        } else console.error("Notification Complaints Error:", complaintsResult.error);
+
+        if (!announcementsResult.error) {
+            for (const row of announcementsResult.data || []) {
+                notifications.push({
+                    id: `announcement:${row.id}`,
+                    type: "ANNOUNCEMENT",
+                    title: row.title || "Anunț conducere",
+                    message: `${row.message || ""}${row.author_name ? ` • ${row.author_name}` : ""}`,
+                    createdAt: row.created_at
+                });
+            }
+        } else console.error("Notification Announcements Error:", announcementsResult.error);
+
+        notifications.sort((a,b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime());
+        return res.json({ notifications: notifications.slice(0,60) });
+    } catch (error) {
+        console.error("Notifications Error:", error);
+        return res.status(500).json({ error: "Notificările nu au putut fi încărcate." });
+    }
+});
+
+
 // ======================================================
 // CONDUCERE - ANUNȚURI DISCORD
 // ======================================================
@@ -3320,6 +3467,70 @@ app.post(
                 );
 
 
+            let notificationSaved =
+                false;
+
+            try {
+
+                if (supabase) {
+
+                    const {
+                        error:
+                            saveAnnouncementError
+                    } =
+                        await supabase
+                            .from(
+                                "site_announcements"
+                            )
+                            .insert({
+                                id:
+                                    crypto.randomUUID(),
+
+                                title,
+
+                                message,
+
+                                author_id:
+                                    String(
+                                        req.session.user.id
+                                    ),
+
+                                author_name:
+                                    authorName,
+
+                                author_rank:
+                                    authorRank,
+
+                                discord_message_id:
+                                    String(
+                                        response.data.id ||
+                                        ""
+                                    )
+                            });
+
+                    if (
+                        saveAnnouncementError
+                    ) {
+                        throw saveAnnouncementError;
+                    }
+
+                    notificationSaved =
+                        true;
+                }
+
+            }
+
+            catch (
+                saveError
+            ) {
+
+                console.error(
+                    "Announcement Notification Save Error:",
+                    saveError
+                );
+            }
+
+
             res.json({
 
                 success:
@@ -3329,7 +3540,9 @@ app.post(
                     "Anunțul a fost trimis pe Discord.",
 
                 discordMessageId:
-                    response.data.id
+                    response.data.id,
+
+                notificationSaved
             });
 
         }
