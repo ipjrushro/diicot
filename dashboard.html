@@ -10045,6 +10045,306 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 @media(max-width:760px){.complaints-admin-stats{grid-template-columns:repeat(2,1fr)}.complaints-admin-hero{align-items:flex-start}.complaints-admin-hero-badge{display:none}.complaint-detail-people{grid-template-columns:1fr}.complaint-detail-people>div+div{border-left:0;border-top:1px solid rgba(255,255,255,.055);padding-top:10px}.complaint-status-buttons{grid-template-columns:1fr}.complaint-submit-title p{display:none}}
 </style>
 
+
+<style id="report-organizer-premium-css">
+#new-report .report-organizer-card{
+    position:relative;
+    overflow:visible!important;
+}
+#new-report .report-organizer-main-icon{
+    color:#68a9ff;
+    border-color:rgba(104,169,255,.20);
+    background:rgba(104,169,255,.07);
+}
+#new-report .report-organizer-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+    margin-bottom:14px;
+}
+#new-report .report-organizer-head label{
+    display:block;
+    margin:0 0 4px!important;
+}
+#new-report .report-organizer-head p{
+    margin:0;
+    color:#657a91;
+    font-size:9px;
+    line-height:1.5;
+}
+#new-report .report-organizer-head p b{
+    color:#aebdcb;
+}
+#new-report .report-organizer-required{
+    flex:0 0 auto;
+    padding:6px 8px;
+    border-radius:999px;
+    border:1px solid rgba(236,177,45,.20);
+    background:rgba(236,177,45,.06);
+    color:#e9b541;
+    font-size:7px;
+    font-weight:950;
+    letter-spacing:.08em;
+}
+#new-report .report-department-tabs{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    padding:5px;
+    margin-bottom:11px;
+    border:1px solid rgba(126,159,194,.10);
+    border-radius:12px;
+    background:rgba(2,10,18,.46);
+}
+#new-report .report-department-tab{
+    height:43px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    border:1px solid transparent;
+    border-radius:9px;
+    background:transparent;
+    color:#74889e;
+    font-size:8px;
+    font-weight:950;
+    letter-spacing:.08em;
+    cursor:pointer;
+    transition:.18s ease;
+}
+#new-report .report-department-tab:hover{
+    color:#dce5ee;
+    background:rgba(255,255,255,.022);
+}
+#new-report .report-department-tab.active{
+    color:#fff;
+    border-color:rgba(233,180,54,.24);
+    background:
+        linear-gradient(
+            135deg,
+            rgba(233,180,54,.13),
+            rgba(233,180,54,.035)
+        );
+    box-shadow:inset 0 0 20px rgba(233,180,54,.025);
+}
+#new-report .report-department-tab span{
+    color:#e6ae2f;
+    font-size:13px;
+}
+#new-report .report-organizer-list{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:8px;
+    max-height:310px;
+    overflow:auto;
+    padding:2px 3px 2px 0;
+}
+#new-report .report-organizer-list::-webkit-scrollbar{
+    width:5px;
+}
+#new-report .report-organizer-list::-webkit-scrollbar-thumb{
+    background:rgba(126,159,194,.18);
+    border-radius:10px;
+}
+#new-report .report-organizer-member{
+    width:100%;
+    min-width:0;
+    display:grid;
+    grid-template-columns:40px minmax(0,1fr) auto;
+    align-items:center;
+    gap:10px;
+    padding:9px 10px;
+    border:1px solid rgba(126,159,194,.09);
+    border-radius:11px;
+    background:
+        linear-gradient(
+            145deg,
+            rgba(8,20,34,.70),
+            rgba(4,13,23,.53)
+        );
+    color:#dce6ef;
+    text-align:left;
+    cursor:pointer;
+    transition:.16s ease;
+}
+#new-report .report-organizer-member:hover{
+    transform:translateY(-1px);
+    border-color:rgba(233,180,54,.22);
+    background:
+        linear-gradient(
+            145deg,
+            rgba(12,27,45,.80),
+            rgba(6,16,28,.64)
+        );
+}
+#new-report .report-organizer-member.selected{
+    border-color:rgba(233,180,54,.42);
+    box-shadow:
+        inset 3px 0 0 #e5ac2c,
+        0 0 0 2px rgba(233,180,54,.035);
+}
+#new-report .report-organizer-member img{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    object-fit:cover;
+    border:1px solid rgba(255,255,255,.08);
+}
+#new-report .report-organizer-member-copy{
+    min-width:0;
+}
+#new-report .report-organizer-member-copy strong{
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    color:#edf2f7;
+    font-size:9px;
+}
+#new-report .report-organizer-member-copy span{
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    margin-top:3px;
+    color:#62778e;
+    font-size:7px;
+}
+#new-report .report-organizer-member-check{
+    width:24px;
+    height:24px;
+    display:grid;
+    place-items:center;
+    border-radius:7px;
+    color:#07101a;
+    background:#e6ad2c;
+    font-size:10px;
+    font-weight:950;
+    opacity:0;
+    transform:scale(.8);
+    transition:.16s ease;
+}
+#new-report .report-organizer-member.selected .report-organizer-member-check{
+    opacity:1;
+    transform:scale(1);
+}
+#new-report .report-organizer-empty{
+    grid-column:1/-1;
+    padding:23px 15px;
+    border:1px dashed rgba(126,159,194,.12);
+    border-radius:10px;
+    color:#60758b;
+    text-align:center;
+    font-size:8px;
+}
+#new-report .report-organizer-selected{
+    margin-top:10px;
+    padding:10px 11px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    border-radius:11px;
+    border:1px solid rgba(47,207,145,.16);
+    background:
+        linear-gradient(
+            90deg,
+            rgba(47,207,145,.055),
+            rgba(47,207,145,.015)
+        );
+}
+#new-report .report-organizer-selected>div{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+}
+#new-report .report-organizer-selected img{
+    width:38px;
+    height:38px;
+    border-radius:10px;
+    object-fit:cover;
+    border:1px solid rgba(47,207,145,.20);
+}
+#new-report .report-organizer-selected span{
+    display:block;
+    color:#43dca5;
+    font-size:7px;
+    font-weight:950;
+    letter-spacing:.08em;
+}
+#new-report .report-organizer-selected strong{
+    display:block;
+    margin-top:2px;
+    color:#eef4f8;
+    font-size:9px;
+}
+#new-report .report-organizer-selected small{
+    display:block;
+    margin-top:2px;
+    color:#688097;
+    font-size:7px;
+}
+#new-report #report-organizer-clear{
+    height:31px;
+    padding:0 10px;
+    border-radius:8px;
+    border:1px solid rgba(126,159,194,.11);
+    background:rgba(255,255,255,.018);
+    color:#8fa2b5;
+    font-size:7px;
+    font-weight:950;
+    cursor:pointer;
+}
+#new-report #report-organizer-clear:hover{
+    color:#fff;
+    border-color:rgba(126,159,194,.23);
+}
+.report-coorganizer-display{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin:0 0 13px;
+    padding:10px 11px;
+    border-radius:10px;
+    border:1px solid rgba(104,169,255,.12);
+    background:rgba(104,169,255,.035);
+}
+.report-coorganizer-display img{
+    width:34px;
+    height:34px;
+    border-radius:9px;
+    object-fit:cover;
+}
+.report-coorganizer-display span{
+    display:block;
+    color:#6d83a0;
+    font-size:7px;
+    font-weight:900;
+}
+.report-coorganizer-display strong{
+    display:block;
+    margin-top:2px;
+    color:#dfe8f2;
+    font-size:9px;
+}
+.report-coorganizer-display small{
+    display:block;
+    margin-top:2px;
+    color:#61768d;
+    font-size:7px;
+}
+@media(max-width:760px){
+    #new-report .report-organizer-list{
+        grid-template-columns:1fr;
+    }
+    #new-report .report-organizer-head{
+        flex-direction:column;
+    }
+}
+</style>
+
 </head>
 
 
@@ -11007,6 +11307,99 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
                             </div>
                         </div>
+
+
+                        <div
+                            class="report-field-card report-organizer-card"
+                            id="report-organizer-card"
+                            style="display:none;"
+                        >
+                            <div class="report-field-icon report-organizer-main-icon">♙</div>
+
+                            <div class="report-field-body">
+                                <div class="report-organizer-head">
+                                    <div>
+                                        <label>AL DOILEA ORGANIZATOR</label>
+                                        <p>
+                                            Tu ești primul organizator. Selectează încă o persoană
+                                            cu grad de <b>Sub Inspector+</b>.
+                                        </p>
+                                    </div>
+
+                                    <span class="report-organizer-required">
+                                        OBLIGATORIU
+                                    </span>
+                                </div>
+
+                                <div class="report-department-tabs">
+                                    <button
+                                        type="button"
+                                        class="report-department-tab active"
+                                        data-report-department="DIICOT"
+                                    >
+                                        <span>◆</span>
+                                        DIICOT
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        class="report-department-tab"
+                                        data-report-department="POLITIE"
+                                    >
+                                        <span>▣</span>
+                                        POLIȚIE
+                                    </button>
+                                </div>
+
+                                <input
+                                    type="hidden"
+                                    id="report-co-organizer-id"
+                                    value=""
+                                >
+
+                                <input
+                                    type="hidden"
+                                    id="report-co-organizer-department"
+                                    value="DIICOT"
+                                >
+
+                                <div
+                                    class="report-organizer-list"
+                                    id="report-organizer-list"
+                                >
+                                    <div class="report-organizer-empty">
+                                        Selectează RAZIE sau ANTRENAMENT pentru a încărca lista.
+                                    </div>
+                                </div>
+
+                                <div
+                                    class="report-organizer-selected"
+                                    id="report-organizer-selected"
+                                    style="display:none;"
+                                >
+                                    <div>
+                                        <img
+                                            id="report-organizer-selected-avatar"
+                                            alt="Avatar"
+                                        >
+
+                                        <div>
+                                            <span>ORGANIZATOR SELECTAT</span>
+                                            <strong id="report-organizer-selected-name">-</strong>
+                                            <small id="report-organizer-selected-rank">-</small>
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        id="report-organizer-clear"
+                                    >
+                                        SCHIMBĂ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
 
                         <div class="report-field-card">
                             <div class="report-field-icon report-title-icon">T</div>
@@ -19800,6 +20193,373 @@ const query =
     ["dragenter", "dragover"].forEach(evt => reportDropzone?.addEventListener(evt, () => reportDropzone.classList.add("dragging")));
     ["dragleave", "drop"].forEach(evt => reportDropzone?.addEventListener(evt, () => reportDropzone.classList.remove("dragging")));
 
+
+    /* =========================================================
+       ORGANIZATOR RAZIE / ANTRENAMENT
+       Autorul raportului = organizator 1.
+       Utilizatorul selectat aici = organizator 2.
+    ========================================================== */
+
+    let reportOrganizerData = {
+        DIICOT: [],
+        POLITIE: []
+    };
+
+    let reportOrganizerDepartment =
+        "DIICOT";
+
+    let selectedReportOrganizer =
+        null;
+
+
+    function reportNeedsOrganizer() {
+        const type =
+            document.getElementById(
+                "report-type"
+            )?.value;
+
+        return (
+            type === "RAZIE" ||
+            type === "ANTRENAMENT"
+        );
+    }
+
+
+    function resetReportOrganizerSelection() {
+        selectedReportOrganizer =
+            null;
+
+        const idInput =
+            document.getElementById(
+                "report-co-organizer-id"
+            );
+
+        if (idInput) {
+            idInput.value =
+                "";
+        }
+
+        const selectedBox =
+            document.getElementById(
+                "report-organizer-selected"
+            );
+
+        if (selectedBox) {
+            selectedBox.style.display =
+                "none";
+        }
+
+        document
+            .querySelectorAll(
+                ".report-organizer-member"
+            )
+            .forEach(
+                element =>
+                    element.classList.remove(
+                        "selected"
+                    )
+            );
+    }
+
+
+    function renderReportOrganizerMembers() {
+        const container =
+            document.getElementById(
+                "report-organizer-list"
+            );
+
+        if (!container) return;
+
+        const members =
+            Array.isArray(
+                reportOrganizerData[
+                    reportOrganizerDepartment
+                ]
+            )
+                ? reportOrganizerData[
+                    reportOrganizerDepartment
+                ]
+                : [];
+
+        if (!members.length) {
+            container.innerHTML = `
+                <div class="report-organizer-empty">
+                    Nu există membri eligibili de Sub Inspector+ în
+                    ${reportOrganizerDepartment === "POLITIE" ? "POLIȚIE" : "DIICOT"}.
+                </div>
+            `;
+
+            return;
+        }
+
+        container.innerHTML =
+            members
+                .map(
+                    member => `
+                        <button
+                            type="button"
+                            class="report-organizer-member ${
+                                selectedReportOrganizer?.id === member.id &&
+                                selectedReportOrganizer?.department === member.department
+                                    ? "selected"
+                                    : ""
+                            }"
+                            data-report-organizer-id="${escapeHTML(member.id)}"
+                        >
+                            <img
+                                src="${escapeHTML(member.avatar || "")}"
+                                alt="Avatar"
+                            >
+
+                            <span class="report-organizer-member-copy">
+                                <strong>${escapeHTML(member.displayName || member.username || "Necunoscut")}</strong>
+                                <span>${escapeHTML(member.rank || "-")}</span>
+                            </span>
+
+                            <span class="report-organizer-member-check">✓</span>
+                        </button>
+                    `
+                )
+                .join("");
+
+        container
+            .querySelectorAll(
+                "[data-report-organizer-id]"
+            )
+            .forEach(
+                button => {
+                    button.addEventListener(
+                        "click",
+                        () => {
+                            const member =
+                                members.find(
+                                    item =>
+                                        String(item.id) ===
+                                        String(
+                                            button.dataset
+                                                .reportOrganizerId
+                                        )
+                                );
+
+                            if (!member) return;
+
+                            selectedReportOrganizer =
+                                member;
+
+                            const idInput =
+                                document.getElementById(
+                                    "report-co-organizer-id"
+                                );
+
+                            const departmentInput =
+                                document.getElementById(
+                                    "report-co-organizer-department"
+                                );
+
+                            if (idInput) {
+                                idInput.value =
+                                    member.id;
+                            }
+
+                            if (departmentInput) {
+                                departmentInput.value =
+                                    member.department;
+                            }
+
+                            document.getElementById(
+                                "report-organizer-selected-avatar"
+                            ).src =
+                                member.avatar ||
+                                "";
+
+                            document.getElementById(
+                                "report-organizer-selected-name"
+                            ).textContent =
+                                member.displayName ||
+                                member.username ||
+                                "Necunoscut";
+
+                            document.getElementById(
+                                "report-organizer-selected-rank"
+                            ).textContent =
+                                `${
+                                    member.department === "POLITIE"
+                                        ? "POLIȚIE"
+                                        : "DIICOT"
+                                } • ${member.rank || "-"}`;
+
+                            document.getElementById(
+                                "report-organizer-selected"
+                            ).style.display =
+                                "flex";
+
+                            renderReportOrganizerMembers();
+                        }
+                    );
+                }
+            );
+    }
+
+
+    async function loadReportOrganizers() {
+        const container =
+            document.getElementById(
+                "report-organizer-list"
+            );
+
+        if (!container) return;
+
+        container.innerHTML = `
+            <div class="report-organizer-empty">
+                Se încarcă membrii eligibili din Discord...
+            </div>
+        `;
+
+        try {
+            const response =
+                await fetch(
+                    "/api/report-organizers",
+                    {
+                        credentials:
+                            "include",
+
+                        cache:
+                            "no-store"
+                    }
+                );
+
+            const data =
+                await response.json();
+
+            if (!response.ok) {
+                throw new Error(
+                    data.error ||
+                    "Lista organizatorilor nu a putut fi încărcată."
+                );
+            }
+
+            reportOrganizerData = {
+                DIICOT:
+                    Array.isArray(data.DIICOT)
+                        ? data.DIICOT
+                        : [],
+
+                POLITIE:
+                    Array.isArray(data.POLITIE)
+                        ? data.POLITIE
+                        : []
+            };
+
+            renderReportOrganizerMembers();
+
+        } catch (error) {
+            container.innerHTML = `
+                <div class="report-organizer-empty">
+                    ${escapeHTML(error.message || "Lista nu a putut fi încărcată.")}
+                </div>
+            `;
+        }
+    }
+
+
+    function updateReportOrganizerVisibility() {
+        const card =
+            document.getElementById(
+                "report-organizer-card"
+            );
+
+        if (!card) return;
+
+        const visible =
+            reportNeedsOrganizer();
+
+        card.style.display =
+            visible
+                ? "grid"
+                : "none";
+
+        if (!visible) {
+            resetReportOrganizerSelection();
+            return;
+        }
+
+        if (
+            !reportOrganizerData.DIICOT.length &&
+            !reportOrganizerData.POLITIE.length
+        ) {
+            loadReportOrganizers();
+        } else {
+            renderReportOrganizerMembers();
+        }
+    }
+
+
+    document
+        .querySelectorAll(
+            "[data-report-department]"
+        )
+        .forEach(
+            button => {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        reportOrganizerDepartment =
+                            button.dataset
+                                .reportDepartment;
+
+                        document
+                            .querySelectorAll(
+                                "[data-report-department]"
+                            )
+                            .forEach(
+                                item =>
+                                    item.classList.toggle(
+                                        "active",
+                                        item === button
+                                    )
+                            );
+
+                        const departmentInput =
+                            document.getElementById(
+                                "report-co-organizer-department"
+                            );
+
+                        if (departmentInput) {
+                            departmentInput.value =
+                                reportOrganizerDepartment;
+                        }
+
+                        resetReportOrganizerSelection();
+                        renderReportOrganizerMembers();
+                    }
+                );
+            }
+        );
+
+
+    document
+        .getElementById(
+            "report-organizer-clear"
+        )
+        ?.addEventListener(
+            "click",
+            () => {
+                resetReportOrganizerSelection();
+                renderReportOrganizerMembers();
+            }
+        );
+
+
+    document
+        .getElementById(
+            "report-type"
+        )
+        ?.addEventListener(
+            "change",
+            updateReportOrganizerVisibility
+        );
+
+
     /* =========================================================
        REPORT FORM
     ========================================================== */
@@ -19882,6 +20642,20 @@ const query =
                 }
 
 
+                if (
+                    reportNeedsOrganizer() &&
+                    !selectedReportOrganizer
+                ) {
+                    message.className =
+                        "form-message error";
+
+                    message.textContent =
+                        "Selectează al doilea organizator din DIICOT sau POLIȚIE.";
+
+                    return;
+                }
+
+
                 const formData =
                     new FormData();
 
@@ -19900,6 +20674,22 @@ const query =
                         "report-title"
                     ).value.trim()
                 );
+
+
+                if (
+                    reportNeedsOrganizer() &&
+                    selectedReportOrganizer
+                ) {
+                    formData.append(
+                        "coOrganizerId",
+                        selectedReportOrganizer.id
+                    );
+
+                    formData.append(
+                        "coOrganizerDepartment",
+                        selectedReportOrganizer.department
+                    );
+                }
 
 
                 for (
@@ -19963,6 +20753,8 @@ const query =
 
                     this.reset();
                     refreshReportFileSummary();
+                    resetReportOrganizerSelection();
+                    updateReportOrganizerVisibility();
 
 
                     // Actualizează arhiva în fundal, dar rămâne pe „Raport nou”.
@@ -20332,6 +21124,46 @@ const query =
                         ""
                     )}
                 </div>
+
+
+                ${
+                    report.coOrganizer
+                        ? `
+                            <div class="report-coorganizer-display">
+                                ${
+                                    report.coOrganizer.avatar
+                                        ? `
+                                            <img
+                                                src="${escapeHTML(report.coOrganizer.avatar)}"
+                                                alt="Avatar organizator"
+                                            >
+                                        `
+                                        : ""
+                                }
+
+                                <div>
+                                    <span>AL DOILEA ORGANIZATOR</span>
+                                    <strong>
+                                        ${escapeHTML(
+                                            report.coOrganizer.displayName ||
+                                            report.coOrganizer.username ||
+                                            "Necunoscut"
+                                        )}
+                                    </strong>
+                                    <small>
+                                        ${escapeHTML(
+                                            `${
+                                                report.coOrganizer.department === "POLITIE"
+                                                    ? "POLIȚIE"
+                                                    : "DIICOT"
+                                            } • ${report.coOrganizer.rank || "-"}`
+                                        )}
+                                    </small>
+                                </div>
+                            </div>
+                        `
+                        : ""
+                }
 
 
                 ${
