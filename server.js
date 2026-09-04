@@ -3226,17 +3226,75 @@ app.post("/api/admin/events", requireAdmin, async (req, res) => {
     }
 });
 
-app.delete("/api/admin/events/:id", requireAdmin, async (req, res) => {
+async function deleteAdminEvent(req, res) {
     if (!ensureSupabase(res)) return;
+
     try {
-        const { error } = await supabase.from("events").delete().eq("id", String(req.params.id || ""));
-        if (error) throw error;
-        return res.json({ success: true });
+        const id = String(req.params.id || "").trim();
+
+        if (!id) {
+            return res.status(400).json({
+                error: "ID-ul evenimentului lipsește."
+            });
+        }
+
+        const { data: existing, error: findError } =
+            await supabase
+                .from("events")
+                .select("id,title")
+                .eq("id", id)
+                .maybeSingle();
+
+        if (findError) throw findError;
+
+        if (!existing) {
+            return res.status(404).json({
+                error: "Evenimentul nu mai există."
+            });
+        }
+
+        const { data: deleted, error: deleteError } =
+            await supabase
+                .from("events")
+                .delete()
+                .eq("id", id)
+                .select("id");
+
+        if (deleteError) throw deleteError;
+
+        if (!deleted || !deleted.length) {
+            return res.status(500).json({
+                error: "Supabase nu a confirmat ștergerea evenimentului."
+            });
+        }
+
+        return res.json({
+            success: true,
+            deletedId: id
+        });
+
     } catch (error) {
         console.error("Event Delete Error:", error);
-        return res.status(500).json({ error: "Evenimentul nu a putut fi șters." });
+
+        return res.status(500).json({
+            error:
+                error?.message ||
+                "Evenimentul nu a putut fi șters."
+        });
     }
-});
+}
+
+app.delete(
+    "/api/admin/events/:id",
+    requireAdmin,
+    deleteAdminEvent
+);
+
+app.post(
+    "/api/admin/events/:id/delete",
+    requireAdmin,
+    deleteAdminEvent
+);
 
 app.get("/api/notifications", requireAuth, async (req, res) => {
     if (!ensureSupabase(res)) return;
