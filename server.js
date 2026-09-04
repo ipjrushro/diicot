@@ -60,6 +60,11 @@ if (
 
 const ANNOUNCEMENT_CHANNEL_ID = "1528758228450672803";
 
+// Canale Discord pentru rapoarte operaționale
+const RAID_REPORT_CHANNEL_ID = "1541732669409460345";
+const TRAINING_REPORT_CHANNEL_ID = "1541879731127976056";
+
+
 const VACATION_DAYS_LIMIT = 14;
 const MEETING_EXCUSES_LIMIT = 2;
 const TESTER_DIICOT_ROLE_ID = "1528758226407919637";
@@ -2999,6 +3004,133 @@ app.get(
 
 
 // ======================================================
+// DISCORD - NOTIFICARE RAZIE / ANTRENAMENT
+// ======================================================
+
+async function sendOperationalReportToDiscord(report) {
+    if (!BOT_TOKEN) {
+        throw new Error("DISCORD_BOT_TOKEN nu este configurat.");
+    }
+
+    const channelId =
+        report.type === "RAZIE"
+            ? RAID_REPORT_CHANNEL_ID
+            : report.type === "ANTRENAMENT"
+                ? TRAINING_REPORT_CHANNEL_ID
+                : null;
+
+    if (!channelId) {
+        return {
+            sent: false,
+            skipped: true
+        };
+    }
+
+    const typeLabel =
+        report.type === "RAZIE"
+            ? "RAZIE"
+            : "ANTRENAMENT";
+
+    const color =
+        report.type === "RAZIE"
+            ? 0xD9A11E
+            : 0x3498DB;
+
+    const authorMention =
+        report.authorId
+            ? `<@${report.authorId}>`
+            : (report.authorName || "Necunoscut");
+
+    const coOrganizer = report.coOrganizer || null;
+
+    const secondOrganizer =
+        coOrganizer?.id
+            ? `<@${coOrganizer.id}>\n${coOrganizer.rank || "-"} • ${coOrganizer.department || "-"}`
+            : "Neselectat";
+
+    const imageCount =
+        Array.isArray(report.images)
+            ? report.images.length
+            : 0;
+
+    const embed = {
+        title:
+            report.type === "RAZIE"
+                ? "📋 RAZIE POSTATĂ"
+                : "🎯 ANTRENAMENT POSTAT",
+
+        description:
+            `**${String(report.title || "Raport operațional").slice(0, 200)}**`,
+
+        color,
+
+        fields: [
+            {
+                name: "TIP ACTIVITATE",
+                value: typeLabel,
+                inline: true
+            },
+            {
+                name: "DOVEZI",
+                value: `${imageCount} ${imageCount === 1 ? "imagine" : "imagini"}`,
+                inline: true
+            },
+            {
+                name: "ORGANIZATOR 1",
+                value:
+                    `${authorMention}\n${report.authorRank || "Membru DIICOT"}`,
+                inline: false
+            },
+            {
+                name: "ORGANIZATOR 2",
+                value: secondOrganizer,
+                inline: false
+            }
+        ],
+
+        footer: {
+            text: "DIICOT • Centru de Comandă • Rush România"
+        },
+
+        timestamp:
+            report.createdAt ||
+            new Date().toISOString()
+    };
+
+    const response =
+        await axios.post(
+            `https://discord.com/api/v10/channels/${channelId}/messages`,
+            {
+                embeds: [embed],
+
+                // Mențiunile sunt afișate în embed, dar botul nu dă ping.
+                allowed_mentions: {
+                    parse: []
+                }
+            },
+            {
+                headers: {
+                    Authorization:
+                        `Bot ${BOT_TOKEN}`,
+
+                    "Content-Type":
+                        "application/json"
+                }
+            }
+        );
+
+    return {
+        sent: true,
+        skipped: false,
+        channelId,
+        messageId:
+            response.data?.id ||
+            null
+    };
+}
+
+
+// ======================================================
 // RAPOARTE - POSTARE
 // ======================================================
 
@@ -3255,10 +3387,44 @@ app.post(
                 })
             );
 
+            let discordNotification = {
+                sent: false,
+                skipped: true
+            };
+
+            if (
+                type === "RAZIE" ||
+                type === "ANTRENAMENT"
+            ) {
+                try {
+                    discordNotification =
+                        await sendOperationalReportToDiscord(
+                            report
+                        );
+                }
+                catch (discordError) {
+                    console.error(
+                        "Discord Operational Report Notification Error:",
+                        discordError.response?.data ||
+                        discordError.message
+                    );
+
+                    discordNotification = {
+                        sent: false,
+                        skipped: false,
+                        error:
+                            "Raportul a fost salvat, dar notificarea Discord nu a putut fi trimisă."
+                    };
+                }
+            }
+
             return res.status(201).json({
                 success: true,
                 message:
-                    "Raportul a fost postat în Backblaze B2.",
+                    discordNotification.sent
+                        ? "Raportul a fost postat și trimis pe Discord."
+                        : "Raportul a fost postat în Backblaze B2.",
+                discordNotification,
                 report:
                     mapB2Report(report)
             });
