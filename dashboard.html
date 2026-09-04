@@ -9494,6 +9494,119 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 }
 </style>
 
+
+<style id="v10-real-photo-hero-css">
+/* =========================================================
+   PREZENTARE GENERALĂ — HERO CU POZA FIVEM
+   Păstrează dimensiunea actuală a bannerului.
+========================================================= */
+#overview .v5-overview-hero{
+    min-height:235px !important;
+    position:relative !important;
+    overflow:hidden !important;
+
+    background-image:
+        linear-gradient(
+            90deg,
+            rgba(2,9,16,.96) 0%,
+            rgba(2,9,16,.89) 20%,
+            rgba(2,9,16,.66) 38%,
+            rgba(2,9,16,.30) 55%,
+            rgba(2,9,16,.53) 72%,
+            rgba(2,9,16,.91) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(3,10,17,.22) 0%,
+            rgba(3,10,17,.08) 46%,
+            rgba(3,10,17,.42) 100%
+        ),
+        url("/uploads/diicot-hero-bg.png") !important;
+
+    background-size:
+        100% 100%,
+        100% 100%,
+        cover !important;
+
+    /*
+      Poza este tăiată automat în interiorul spațiului deja existent.
+      50% 49% ține cei doi agenți în centru fără să mărească bannerul.
+    */
+    background-position:
+        center,
+        center,
+        50% 49% !important;
+
+    background-repeat:no-repeat !important;
+    border:1px solid rgba(126,163,203,.18) !important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.035),
+        0 18px 44px rgba(0,0,0,.22) !important;
+}
+
+/* Elimină watermark-ul mare DIICOT deoarece poza devine fundalul principal. */
+#overview .v5-hero-watermark{
+    display:none !important;
+}
+
+/* Păstrăm atmosfera, dar mult mai discretă ca să se vadă poza. */
+#overview .v5-hero-atmosphere{
+    opacity:.16 !important;
+    background:
+        radial-gradient(
+            circle at 61% 49%,
+            rgba(230,174,48,.08),
+            transparent 25%
+        ) !important;
+}
+
+/* Overlay fin pentru lizibilitatea textului din stânga. */
+#overview .v5-overview-hero::before{
+    content:"" !important;
+    position:absolute !important;
+    inset:0 !important;
+    pointer-events:none !important;
+    z-index:1 !important;
+    background:
+        linear-gradient(
+            90deg,
+            rgba(1,7,13,.40) 0%,
+            transparent 43%,
+            transparent 70%,
+            rgba(1,7,13,.20) 100%
+        ) !important;
+}
+
+/* Linia aurie curbată din partea dreaptă rămâne peste fotografie. */
+#overview .v5-overview-hero::after{
+    z-index:1 !important;
+}
+
+/* Textul și panoul cu ora stau deasupra pozei. */
+#overview .v5-hero-copy,
+#overview .v5-hero-side{
+    position:relative !important;
+    z-index:3 !important;
+}
+
+#overview .v5-clock-panel,
+#overview .v5-hero-statuses span{
+    background:rgba(2,10,18,.72) !important;
+    backdrop-filter:blur(12px) !important;
+    -webkit-backdrop-filter:blur(12px) !important;
+}
+
+/* Pe ecrane mai mici păstrăm fotografia centrată pe personaje. */
+@media(max-width:850px){
+    #overview .v5-overview-hero{
+        background-position:
+            center,
+            center,
+            53% 49% !important;
+    }
+}
+</style>
+
 </head>
 
 
