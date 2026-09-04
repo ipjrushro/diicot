@@ -10307,6 +10307,167 @@ app.post(
 );
 
 
+
+// ======================================================
+// CONDUCERE — PANOU RECLAMAȚII
+// ======================================================
+
+app.get(
+    "/api/admin/complaints",
+    requireAdmin,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        try {
+            const { data, error } =
+                await supabase
+                    .from("complaints")
+                    .select("*")
+                    .order("created_at", { ascending: false });
+
+            if (error) throw error;
+
+            return res.json({
+                complaints: (data || []).map(row => ({
+                    id: row.id,
+                    authorId: row.author_id,
+                    authorName: row.author_name,
+                    authorRank: row.author_rank,
+                    targetId: row.target_id,
+                    targetName: row.target_name,
+                    reason: row.reason,
+                    evidence: row.evidence || "",
+                    status: row.status || "PENDING",
+                    resolution: row.resolution || "",
+                    evaluatorId: row.evaluator_id || "",
+                    evaluatorName: row.evaluator_name || "",
+                    evaluatorRank: row.evaluator_rank || "",
+                    decidedAt: row.decided_at || null,
+                    createdAt: row.created_at
+                }))
+            });
+
+        } catch (error) {
+            console.error("Admin Complaints List Error:", error);
+
+            return res.status(500).json({
+                error: "Reclamațiile nu au putut fi încărcate."
+            });
+        }
+    }
+);
+
+
+app.patch(
+    "/api/admin/complaints/:id",
+    requireAdmin,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        try {
+            const id = String(req.params.id || "").trim();
+            const status = String(req.body?.status || "").trim().toUpperCase();
+            const resolution = String(req.body?.resolution || "").trim().slice(0, 1500);
+
+            const allowedStatuses = new Set([
+                "IN_REVIEW",
+                "SOLVED",
+                "REJECTED"
+            ]);
+
+            if (!id) {
+                return res.status(400).json({
+                    error: "ID reclamație invalid."
+                });
+            }
+
+            if (!allowedStatuses.has(status)) {
+                return res.status(400).json({
+                    error: "Status reclamație invalid."
+                });
+            }
+
+            if (
+                (status === "SOLVED" || status === "REJECTED") &&
+                resolution.length < 3
+            ) {
+                return res.status(400).json({
+                    error: "Completează rezoluția oficială înainte de soluționare/respingere."
+                });
+            }
+
+            const update = {
+                status,
+                resolution,
+                evaluator_id: String(req.session.user.id),
+                evaluator_name:
+                    req.session.user.displayName ||
+                    req.session.user.username ||
+                    "",
+                evaluator_rank:
+                    req.session.user.rank ||
+                    "",
+                decided_at: new Date().toISOString()
+            };
+
+            const { data, error } =
+                await supabase
+                    .from("complaints")
+                    .update(update)
+                    .eq("id", id)
+                    .select("*")
+                    .maybeSingle();
+
+            if (error) throw error;
+
+            if (!data) {
+                return res.status(404).json({
+                    error: "Reclamația nu a fost găsită."
+                });
+            }
+
+            // Încercăm să notificăm persoana reclamată prin DM.
+            let dmSent = false;
+
+            try {
+                if (data.target_id) {
+                    const statusText =
+                        status === "SOLVED"
+                            ? "SOLUȚIONATĂ"
+                            : status === "REJECTED"
+                                ? "RESPINSĂ"
+                                : "ÎN ANALIZĂ";
+
+                    await sendDiscordDM(
+                        String(data.target_id),
+                        `⚠️ ACTUALIZARE RECLAMAȚIE\n\nO reclamație în care ești menționat(ă) a fost actualizată la statusul **${statusText}**.${resolution ? `\n\nRezoluție: **${resolution}**` : ""}\n\nActualizat de: **${update.evaluator_name}**`
+                    );
+
+                    dmSent = true;
+                }
+            } catch (dmError) {
+                console.error(
+                    "Complaint Status DM Error:",
+                    dmError.response?.data || dmError.message
+                );
+            }
+
+            return res.json({
+                success: true,
+                dmSent
+            });
+
+        } catch (error) {
+            console.error("Admin Complaint Update Error:", error);
+
+            return res.status(500).json({
+                error: "Reclamația nu a putut fi actualizată."
+            });
+        }
+    }
+);
+
+
 // ======================================================
 // ACTIVITĂȚI — TESTARE CANDIDAȚI
 // ======================================================
