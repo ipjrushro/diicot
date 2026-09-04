@@ -63,6 +63,7 @@ const ANNOUNCEMENT_CHANNEL_ID = "1528758228450672803";
 const VACATION_DAYS_LIMIT = 14;
 const MEETING_EXCUSES_LIMIT = 2;
 const TESTER_DIICOT_ROLE_ID = "1528758226407919637";
+const LEAVE_RESET_USER_ID = "1315733546312142921";
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
     console.warn(
@@ -1300,88 +1301,60 @@ function mapDocsRow(row) {
 // CONCEDII HELPERS
 // ======================================================
 
-async function getLeaveUsage(
-    userId
-) {
+async function getLeaveResetAt() {
+    const { data, error } = await supabase
+        .from("leave_allowance_resets")
+        .select("reset_at")
+        .eq("id", "global")
+        .maybeSingle();
 
-    const {
-        data,
-        error
-    } =
-        await supabase
-            .from(
-                "leave_requests"
-            )
-            .select(
-                "type, days"
-            )
-            .eq(
-                "author_id",
-                String(userId)
-            )
-            .eq(
-                "status",
-                "APPROVED"
-            );
+    if (error) {
+        // Dacă tabela nu a fost creată încă, lăsăm eroarea să ajungă în log/API.
+        throw error;
+    }
+
+    return data?.reset_at || null;
+}
+
+async function getLeaveUsage(userId) {
+    const resetAt = await getLeaveResetAt();
+
+    let query = supabase
+        .from("leave_requests")
+        .select("type, days")
+        .eq("author_id", String(userId))
+        .eq("status", "APPROVED");
+
+    // Cererile aprobate înainte de ultima resetare rămân în istoric,
+    // dar nu mai consumă din noul sold de 14 zile / 2 învoiri.
+    if (resetAt) {
+        query = query.gte("created_at", resetAt);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
         throw error;
     }
 
-    const approved =
-        data || [];
+    const approved = data || [];
 
-    const vacationUsed =
-        approved
-            .filter(
-                request =>
-                    request.type ===
-                    "VACATION"
-            )
-            .reduce(
-                (
-                    total,
-                    request
-                ) =>
-                    total +
-                    Number(
-                        request.days ||
-                        0
-                    ),
+    const vacationUsed = approved
+        .filter(request => request.type === "VACATION")
+        .reduce((total, request) => total + Number(request.days || 0), 0);
 
-                0
-            );
-
-    const meetingExcusesUsed =
-        approved.filter(
-            request =>
-                request.type ===
-                "MEETING_EXCUSE"
-        ).length;
+    const meetingExcusesUsed = approved
+        .filter(request => request.type === "MEETING_EXCUSE")
+        .length;
 
     return {
         vacationUsed,
-
-        vacationRemaining:
-            Math.max(
-                0,
-
-                VACATION_DAYS_LIMIT -
-                vacationUsed
-            ),
-
+        vacationRemaining: Math.max(0, VACATION_DAYS_LIMIT - vacationUsed),
         meetingExcusesUsed,
-
-        meetingExcusesRemaining:
-            Math.max(
-                0,
-
-                MEETING_EXCUSES_LIMIT -
-                meetingExcusesUsed
-            )
+        meetingExcusesRemaining: Math.max(0, MEETING_EXCUSES_LIMIT - meetingExcusesUsed),
+        lastResetAt: resetAt
     };
 }
-
 
 function normalizeLeaveRequest(
     request
@@ -4293,6 +4266,62 @@ app.patch(
                     error:
                         "Cererea nu a putut fi anulată."
                 });
+        }
+    }
+);
+
+
+// ======================================================
+// CONCEDII / ÎNVOIRI - RESETARE SOLDURI
+// Acces EXCLUSIV pentru userul configurat mai sus.
+// Istoricul NU se șterge; resetarea stabilește un nou punct de calcul.
+// ======================================================
+
+app.post(
+    "/api/leave/reset-allowances",
+    requireAuth,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        const actorId = String(req.session.user?.id || "");
+
+        if (actorId !== LEAVE_RESET_USER_ID) {
+            return res.status(403).json({
+                error: "Nu ai permisiunea să resetezi zilele de concediu și învoirile."
+            });
+        }
+
+        try {
+            const resetAt = new Date().toISOString();
+
+            const { error } = await supabase
+                .from("leave_allowance_resets")
+                .upsert(
+                    {
+                        id: "global",
+                        reset_at: resetAt,
+                        reset_by_id: actorId,
+                        reset_by_name:
+                            req.session.user?.displayName ||
+                            req.session.user?.username ||
+                            "DIICOT"
+                    },
+                    { onConflict: "id" }
+                );
+
+            if (error) throw error;
+
+            return res.json({
+                success: true,
+                message: "Soldurile au fost resetate la 14/14 zile de concediu și 2/2 învoiri.",
+                resetAt
+            });
+        }
+        catch (error) {
+            console.error("Leave Allowance Reset Error:", error);
+            return res.status(500).json({
+                error: "Resetarea nu a putut fi salvată. Verifică tabela leave_allowance_resets în Supabase."
+            });
         }
     }
 );
