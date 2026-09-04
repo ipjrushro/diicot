@@ -9735,6 +9735,277 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
 </style>
 
+
+<style id="leave-form-premium-v2">
+#leave .leave-request-body{
+    padding:18px!important;
+}
+
+#leave .leave-premium-form{
+    display:grid;
+    gap:12px;
+}
+
+#leave .leave-form-block{
+    position:relative;
+    display:grid;
+    grid-template-columns:52px minmax(0,1fr);
+    gap:14px;
+    align-items:start;
+    padding:15px;
+    border:1px solid rgba(126,159,194,.11);
+    border-radius:14px;
+    background:
+        linear-gradient(145deg,rgba(6,17,29,.72),rgba(3,11,20,.54));
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.015),
+        0 12px 30px rgba(0,0,0,.08);
+    transition:.18s ease;
+}
+
+#leave .leave-form-block:hover{
+    border-color:rgba(221,169,48,.20);
+    background:
+        linear-gradient(145deg,rgba(8,20,34,.80),rgba(4,13,22,.62));
+}
+
+#leave .leave-field-icon{
+    width:46px;
+    height:46px;
+    display:grid;
+    place-items:center;
+    border-radius:12px;
+    color:#efb938;
+    font-size:18px;
+    border:1px solid rgba(239,185,56,.18);
+    background:rgba(239,185,56,.07);
+    box-shadow:0 0 24px rgba(239,185,56,.05);
+}
+
+#leave .leave-field-icon.blue{
+    color:#48a0ff;
+    border-color:rgba(72,160,255,.18);
+    background:rgba(72,160,255,.07);
+}
+#leave .leave-field-icon.purple{
+    color:#9d6cff;
+    border-color:rgba(157,108,255,.18);
+    background:rgba(157,108,255,.07);
+}
+#leave .leave-field-icon.green{
+    color:#38d998;
+    border-color:rgba(56,217,152,.18);
+    background:rgba(56,217,152,.07);
+}
+
+#leave .leave-field-content{
+    min-width:0;
+}
+
+#leave .leave-field-content label{
+    display:flex!important;
+    align-items:flex-end!important;
+    justify-content:space-between!important;
+    gap:10px!important;
+    margin:0 0 9px!important;
+}
+
+#leave .leave-field-content label span{
+    color:#dce5ee;
+    font-size:8px;
+    font-weight:950;
+    letter-spacing:.10em;
+}
+
+#leave .leave-field-content label small{
+    color:#53677d;
+    font-size:7px;
+    font-weight:700;
+}
+
+#leave .leave-control-wrap{
+    position:relative;
+}
+
+#leave .leave-control-wrap select,
+#leave .leave-control-wrap input,
+#leave .leave-reason-block textarea{
+    width:100%!important;
+    box-sizing:border-box!important;
+    border:1px solid rgba(126,159,194,.13)!important;
+    border-radius:10px!important;
+    background:rgba(1,8,15,.72)!important;
+    color:#edf3f8!important;
+    outline:none!important;
+    transition:.18s ease!important;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.01)!important;
+}
+
+#leave .leave-control-wrap select,
+#leave .leave-control-wrap input{
+    height:50px!important;
+    padding:0 15px!important;
+    font-size:10px!important;
+}
+
+#leave .leave-control-wrap select{
+    appearance:none!important;
+    padding-right:42px!important;
+}
+
+#leave .leave-control-arrow{
+    position:absolute;
+    right:15px;
+    top:50%;
+    transform:translateY(-50%);
+    color:#c8992a;
+    pointer-events:none;
+    font-size:16px;
+}
+
+#leave .leave-control-wrap select:focus,
+#leave .leave-control-wrap input:focus,
+#leave .leave-reason-block textarea:focus{
+    border-color:rgba(233,185,73,.38)!important;
+    background:rgba(2,11,20,.90)!important;
+    box-shadow:
+        0 0 0 3px rgba(233,185,73,.04),
+        inset 0 1px 0 rgba(255,255,255,.015)!important;
+}
+
+#leave .leave-date-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+}
+
+#leave .leave-reason-block textarea{
+    min-height:128px!important;
+    resize:vertical!important;
+    padding:14px 15px!important;
+    font-size:10px!important;
+    line-height:1.6!important;
+}
+
+#leave .leave-reason-block textarea::placeholder{
+    color:#455a70!important;
+}
+
+#leave .leave-reason-footer{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    margin-top:7px;
+    color:#4e6379;
+    font-size:7px;
+}
+
+#leave .leave-reason-footer b{
+    color:#697e93;
+    font-weight:800;
+}
+
+#leave .leave-submit-row.premium{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:space-between!important;
+    gap:15px!important;
+    padding:14px 15px!important;
+    border:1px solid rgba(126,159,194,.09)!important;
+    border-radius:12px!important;
+    background:
+        linear-gradient(90deg,rgba(255,255,255,.013),rgba(232,177,44,.018))!important;
+}
+
+#leave .leave-submit-note{
+    display:flex!important;
+    align-items:center!important;
+    gap:9px!important;
+    color:#5f7489!important;
+    font-size:8px!important;
+}
+
+#leave .leave-note-icon{
+    width:30px;
+    height:30px;
+    flex:0 0 30px;
+    display:grid;
+    place-items:center;
+    border-radius:8px;
+    color:#76a8dc;
+    border:1px solid rgba(118,168,220,.12);
+    background:rgba(118,168,220,.045);
+}
+
+#leave .leave-submit-note b{
+    color:#9fb0c2!important;
+}
+
+#leave .leave-premium-submit{
+    min-width:170px!important;
+    height:43px!important;
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    gap:7px!important;
+    border-radius:10px!important;
+    border:1px solid rgba(234,177,43,.35)!important;
+    background:
+        linear-gradient(135deg,#e2a721,#a96a08)!important;
+    color:#fff!important;
+    font-size:7px!important;
+    font-weight:950!important;
+    letter-spacing:.06em!important;
+    box-shadow:
+        0 12px 28px rgba(205,140,16,.15)!important;
+    transition:.18s ease!important;
+}
+
+#leave .leave-premium-submit:hover{
+    transform:translateY(-1px)!important;
+    box-shadow:
+        0 16px 34px rgba(205,140,16,.23)!important;
+}
+
+#leave .leave-premium-submit span{
+    font-size:12px;
+}
+
+@media(max-width:760px){
+    #leave .leave-date-grid{
+        grid-template-columns:1fr;
+    }
+
+    #leave .leave-form-block{
+        grid-template-columns:42px minmax(0,1fr);
+        gap:10px;
+        padding:12px;
+    }
+
+    #leave .leave-field-icon{
+        width:38px;
+        height:38px;
+        font-size:15px;
+    }
+
+    #leave .leave-field-content label{
+        align-items:flex-start!important;
+        flex-direction:column!important;
+        gap:3px!important;
+    }
+
+    #leave .leave-submit-row.premium{
+        align-items:stretch!important;
+        flex-direction:column!important;
+    }
+
+    #leave .leave-premium-submit{
+        width:100%!important;
+    }
+}
+</style>
+
 </head>
 
 
@@ -10766,36 +11037,99 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                     </div>
 
                     <div class="leave-request-body">
-                        <form id="leave-form">
-                            <div class="form-group">
-                                <label for="leave-type">TIP CERERE</label>
-                                <select id="leave-type" required>
-                                    <option value="">Selectează tipul cererii</option>
-                                    <option value="VACATION">CONCEDIU</option>
-                                    <option value="MEETING_EXCUSE">ÎNVOIRE ȘEDINȚĂ</option>
-                                </select>
-                            </div>
+                        <form id="leave-form" class="leave-premium-form">
 
-                            <div class="two-columns">
-                                <div class="form-group">
-                                    <label for="leave-start">DATA ÎNCEPUT</label>
-                                    <input type="date" id="leave-start" required>
+                            <div class="leave-form-block leave-form-type">
+                                <div class="leave-field-icon">▣</div>
+
+                                <div class="leave-field-content">
+                                    <label for="leave-type">
+                                        <span>TIP CERERE</span>
+                                        <small>Alege categoria solicitării</small>
+                                    </label>
+
+                                    <div class="leave-control-wrap">
+                                        <select id="leave-type" required>
+                                            <option value="">Selectează tipul cererii</option>
+                                            <option value="VACATION">CONCEDIU</option>
+                                            <option value="MEETING_EXCUSE">ÎNVOIRE ȘEDINȚĂ</option>
+                                        </select>
+                                        <span class="leave-control-arrow">⌄</span>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label for="leave-end">DATA FINAL</label>
-                                    <input type="date" id="leave-end" required>
+                            </div>
+
+                            <div class="leave-date-grid">
+                                <div class="leave-form-block">
+                                    <div class="leave-field-icon blue">◫</div>
+
+                                    <div class="leave-field-content">
+                                        <label for="leave-start">
+                                            <span>DATA ÎNCEPUT</span>
+                                            <small>Prima zi a perioadei</small>
+                                        </label>
+
+                                        <div class="leave-control-wrap">
+                                            <input type="date" id="leave-start" required>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="leave-form-block">
+                                    <div class="leave-field-icon purple">◫</div>
+
+                                    <div class="leave-field-content">
+                                        <label for="leave-end">
+                                            <span>DATA FINAL</span>
+                                            <small>Ultima zi a perioadei</small>
+                                        </label>
+
+                                        <div class="leave-control-wrap">
+                                            <input type="date" id="leave-end" required>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="leave-reason">MOTIV</label>
-                                <textarea id="leave-reason" maxlength="1000" placeholder="Descrie motivul cererii..." required></textarea>
+                            <div class="leave-form-block leave-reason-block">
+                                <div class="leave-field-icon green">✎</div>
+
+                                <div class="leave-field-content">
+                                    <label for="leave-reason">
+                                        <span>MOTIV</span>
+                                        <small>Explică pe scurt motivul solicitării</small>
+                                    </label>
+
+                                    <textarea
+                                        id="leave-reason"
+                                        maxlength="1000"
+                                        placeholder="Ex: Solicit concediu în perioada selectată din motive personale..."
+                                        required
+                                    ></textarea>
+
+                                    <div class="leave-reason-footer">
+                                        <span>Informația este vizibilă conducerii.</span>
+                                        <b id="leave-reason-counter">0 / 1000</b>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="leave-submit-row">
-                                <div class="leave-submit-note">ⓘ Cererea va fi trimisă către <b>Conducerea DIICOT</b> pentru verificare.</div>
-                                <button type="submit" class="primary-btn">TRIMITE CERERE →</button>
+                            <div class="leave-submit-row premium">
+                                <div class="leave-submit-note">
+                                    <span class="leave-note-icon">ⓘ</span>
+                                    <span>
+                                        Cererea va fi trimisă către
+                                        <b>Conducerea DIICOT</b>
+                                        pentru verificare.
+                                    </span>
+                                </div>
+
+                                <button type="submit" class="primary-btn leave-premium-submit">
+                                    <span>➜</span>
+                                    TRIMITE CERERE
+                                </button>
                             </div>
+
                             <div id="leave-message" class="form-message"></div>
                         </form>
                     </div>
@@ -28182,6 +28516,23 @@ const query =
     test.src = "/uploads/diicot-hero-bg.png?v=11";
     test.onload = () => console.log("[DIICOT HERO V11] Fundal încărcat:", test.naturalWidth, "x", test.naturalHeight);
     test.onerror = () => console.error("[DIICOT HERO V11] Imaginea /uploads/diicot-hero-bg.png NU poate fi încărcată.");
+})();
+</script>
+
+
+<script id="leave-form-counter-v2">
+(() => {
+    const reason = document.getElementById("leave-reason");
+    const counter = document.getElementById("leave-reason-counter");
+
+    if (!reason || !counter) return;
+
+    const updateCounter = () => {
+        counter.textContent = `${reason.value.length} / 1000`;
+    };
+
+    reason.addEventListener("input", updateCounter);
+    updateCounter();
 })();
 </script>
 
