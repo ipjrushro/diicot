@@ -8479,60 +8479,6 @@
 .report-premium-message.success{padding:11px 13px;background:rgba(29,180,110,.08);border:1px solid rgba(29,180,110,.22);color:#57d99d;}
 .report-premium-message.error{padding:11px 13px;background:rgba(235,76,76,.08);border:1px solid rgba(235,76,76,.22);color:#ff7373;}
 @media(max-width:800px){.report-premium-shell{padding:18px}.report-premium-hero{min-height:auto}.report-hero-art{display:none}.report-premium-hero h2{font-size:31px}.report-field-card{grid-template-columns:1fr}.report-field-icon{display:none}.report-form-footer{align-items:stretch;flex-direction:column}.report-submit-btn{width:100%}}
-/* =========================================================
-   RAPORT NOU — MODERN V2
-========================================================= */
-#new-report{--rp-gold:#f0b532;--rp-gold2:#b87912;--rp-line:rgba(95,118,145,.22);--rp-card:rgba(8,20,34,.76);}
-#new-report .report-premium-shell{padding:0;border-radius:26px;background:radial-gradient(circle at 88% 5%,rgba(240,181,50,.14),transparent 28%),linear-gradient(145deg,#071321 0%,#06101b 58%,#040b13 100%);border:1px solid rgba(91,116,146,.30);overflow:visible;box-shadow:0 28px 90px rgba(0,0,0,.40);}
-#new-report .report-premium-shell:before{display:none}
-#new-report .report-premium-hero{min-height:150px;padding:30px 34px 24px;border-bottom:1px solid rgba(255,255,255,.05);overflow:hidden}
-#new-report .report-premium-hero:after{content:"";position:absolute;right:40px;top:-105px;width:330px;height:330px;border-radius:50%;border:1px solid rgba(240,181,50,.08);box-shadow:0 0 85px rgba(240,181,50,.07),inset 0 0 60px rgba(240,181,50,.03);pointer-events:none}
-#new-report .report-kicker{display:inline-flex;align-items:center;gap:8px;font-size:10px;letter-spacing:2px;color:#f0b532}
-#new-report .report-kicker:before{content:"";width:22px;height:2px;border-radius:9px;background:linear-gradient(90deg,#f0b532,transparent)}
-#new-report .report-premium-hero h2{font-size:42px;margin:10px 0 8px;letter-spacing:-1.5px}
-#new-report .report-premium-hero p{font-size:13px;color:#8190a4}
-#new-report .report-hero-art{width:170px;height:105px}
-#new-report .report-hero-doc{font-size:62px;opacity:.92}
-#new-report .report-hero-plus{width:34px;height:34px;font-size:22px;right:30px}
-#new-report .report-premium-form{padding:24px 30px 28px;gap:14px}
-#new-report .report-field-card{grid-template-columns:52px 1fr;gap:16px;padding:15px 16px;border-radius:16px;background:linear-gradient(180deg,rgba(12,27,44,.78),rgba(6,17,29,.82));border:1px solid var(--rp-line);box-shadow:none}
-#new-report .report-field-card:hover{border-color:rgba(125,148,175,.32);background:linear-gradient(180deg,rgba(14,31,50,.84),rgba(7,19,32,.88))}
-#new-report .report-field-card:focus-within{border-color:rgba(240,181,50,.48);box-shadow:0 0 0 3px rgba(240,181,50,.05)}
-#new-report .report-field-icon{width:46px;height:46px;border-radius:14px;background:linear-gradient(145deg,rgba(240,181,50,.13),rgba(240,181,50,.035));border:1px solid rgba(240,181,50,.20);box-shadow:inset 0 1px 0 rgba(255,255,255,.025)}
-#new-report .report-field-body label{margin-bottom:9px;color:#7f91a7;font-size:9px;letter-spacing:1.35px}
-#new-report .report-field-body input[type="text"]{height:52px!important;border-radius:13px!important;background:rgba(2,9,16,.64)!important;border:1px solid rgba(94,117,143,.24)!important;padding:0 16px!important;transition:.18s ease}
-#new-report .report-field-body input[type="text"]:focus{border-color:rgba(240,181,50,.50)!important;box-shadow:0 0 0 3px rgba(240,181,50,.055)!important}
-#new-report .report-native-select{position:absolute!important;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none!important}
-#new-report .report-type-picker{position:relative;z-index:30}
-#new-report .report-type-trigger{width:100%;height:52px;border-radius:13px;border:1px solid rgba(94,117,143,.24);background:rgba(2,9,16,.64);color:#eaf0f7;display:flex;align-items:center;justify-content:space-between;padding:0 15px;cursor:pointer;font:inherit;transition:.18s ease}
-#new-report .report-type-trigger:hover,#new-report .report-type-picker.open .report-type-trigger{border-color:rgba(240,181,50,.48);background:rgba(6,15,25,.94);box-shadow:0 0 0 3px rgba(240,181,50,.045)}
-#new-report .report-type-trigger-left{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:700}
-#new-report .report-type-mini-icon{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;background:rgba(240,181,50,.10);color:var(--rp-gold);font-size:13px}
-#new-report .report-type-chevron{font-size:20px;color:#7890a9;transition:.18s ease;transform:translateY(-2px)}
-#new-report .report-type-picker.open .report-type-chevron{transform:rotate(180deg) translateY(2px);color:var(--rp-gold)}
-#new-report .report-type-menu{position:absolute;left:0;right:0;top:calc(100% + 8px);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;padding:10px;border:1px solid rgba(108,132,159,.27);border-radius:15px;background:rgba(4,12,21,.985);box-shadow:0 24px 65px rgba(0,0,0,.62);opacity:0;visibility:hidden;transform:translateY(-7px) scale(.99);transition:.16s ease;backdrop-filter:blur(18px)}
-#new-report .report-type-picker.open .report-type-menu{opacity:1;visibility:visible;transform:none}
-#new-report .report-type-option{min-height:56px;border:1px solid rgba(96,119,145,.16);border-radius:11px;background:rgba(12,25,40,.65);color:#e8eef6;display:grid;grid-template-columns:30px 1fr;grid-template-rows:auto auto;text-align:left;column-gap:8px;padding:9px 11px;cursor:pointer;transition:.15s ease}
-#new-report .report-type-option>span{grid-row:1/3;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;align-self:center;background:rgba(240,181,50,.08);color:var(--rp-gold)}
-#new-report .report-type-option b{font-size:11px;align-self:end;letter-spacing:.2px}
-#new-report .report-type-option small{font-size:9px;color:#6f8196;align-self:start;margin-top:2px}
-#new-report .report-type-option:hover,#new-report .report-type-option.selected{border-color:rgba(240,181,50,.34);background:linear-gradient(90deg,rgba(240,181,50,.11),rgba(14,28,44,.76));transform:translateY(-1px)}
-#new-report .report-type-option.selected:after{content:"✓";position:absolute}
-#new-report .report-upload-card{padding:15px 16px}
-#new-report .report-dropzone{min-height:155px;border-radius:14px;border:1px dashed rgba(104,129,158,.42);background:radial-gradient(circle at 50% 100%,rgba(240,181,50,.035),transparent 40%),rgba(2,9,16,.38)}
-#new-report .report-dropzone:hover,#new-report .report-dropzone.dragging{border-color:rgba(240,181,50,.65);background:rgba(240,181,50,.035);transform:translateY(-1px)}
-#new-report .report-upload-symbol{width:46px;height:46px;font-size:22px;border:none;background:linear-gradient(145deg,rgba(240,181,50,.16),rgba(240,181,50,.045));box-shadow:0 0 0 1px rgba(240,181,50,.18),0 10px 25px rgba(0,0,0,.16)}
-#new-report .report-dropzone strong{font-size:13px}
-#new-report .report-file-summary{padding:5px 10px;border-radius:999px;background:rgba(240,181,50,.055);border:1px solid rgba(240,181,50,.12)}
-#new-report .report-form-footer{margin-top:3px;padding:19px 3px 0}
-#new-report .report-form-note{display:flex;align-items:center;gap:8px;color:#6f8196;font-size:10px}
-#new-report .report-form-note:before{content:"i";width:18px;height:18px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(240,181,50,.28);color:var(--rp-gold);font-weight:900}
-#new-report .report-submit-btn{min-width:215px!important;height:52px!important;border-radius:13px!important;background:linear-gradient(135deg,#efb532,#ae7010)!important;box-shadow:0 12px 30px rgba(181,119,13,.18),inset 0 1px 0 rgba(255,255,255,.16)!important;position:relative;overflow:hidden}
-#new-report .report-submit-btn:after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.16),transparent 65%);transform:translateX(-120%);transition:.45s ease}
-#new-report .report-submit-btn:hover:after{transform:translateX(120%)}
-@media(max-width:900px){#new-report .report-type-menu{grid-template-columns:1fr}}
-@media(max-width:800px){#new-report .report-premium-form{padding:18px}#new-report .report-premium-hero{padding:22px 20px 18px}#new-report .report-premium-hero h2{font-size:32px}}
-
 </style>
 
 <style id="sanction-premium-styles">
@@ -8874,6 +8820,307 @@
 }
 #sanction-modal .sanction-message.error{
     padding:11px 14px;border-radius:10px;background:rgba(239,75,75,.08);border:1px solid rgba(239,75,75,.18)
+}
+
+
+/* =============================================================
+   DIICOT PREMIUM GLASS UI V3 — global visual refresh
+   DOCS and COD PENAL content intentionally left untouched.
+============================================================= */
+:root{
+  --premium-bg:#040a12;
+  --premium-panel:rgba(8,18,31,.72);
+  --premium-panel-strong:rgba(9,20,35,.90);
+  --premium-line:rgba(145,174,211,.13);
+  --premium-line-soft:rgba(255,255,255,.055);
+  --premium-text:#f4f7fb;
+  --premium-muted:#8395aa;
+  --premium-gold:#e8b441;
+  --premium-gold-2:#ffcf62;
+  --premium-green:#38e6a0;
+  --premium-blue:#4c8fff;
+  --premium-purple:#9b6bff;
+  --premium-red:#ff5d69;
+}
+
+body{
+  background:
+    radial-gradient(circle at 18% -8%,rgba(29,73,121,.18),transparent 28%),
+    radial-gradient(circle at 88% 7%,rgba(232,180,65,.09),transparent 22%),
+    linear-gradient(180deg,#030912 0%,#050c16 44%,#030811 100%) !important;
+}
+body:before{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+  background-image:
+    linear-gradient(rgba(255,255,255,.012) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.01) 1px,transparent 1px);
+  background-size:42px 42px;
+  mask-image:linear-gradient(to bottom,rgba(0,0,0,.35),transparent 72%);
+}
+
+/* SIDEBAR */
+.sidebar{
+  background:linear-gradient(180deg,rgba(4,12,22,.95),rgba(3,10,18,.91)) !important;
+  border-right:1px solid rgba(142,172,209,.10) !important;
+  box-shadow:18px 0 55px rgba(0,0,0,.18) !important;
+  backdrop-filter:blur(24px) saturate(125%) !important;
+}
+.sidebar::after{
+  content:"";position:absolute;inset:0 0 auto 0;height:180px;pointer-events:none;
+  background:radial-gradient(circle at 45% 0%,rgba(232,180,65,.09),transparent 64%);
+}
+.sidebar-logo-card,
+.logo-card{
+  background:linear-gradient(145deg,rgba(11,24,39,.76),rgba(6,14,25,.72)) !important;
+  border:1px solid rgba(232,180,65,.16) !important;
+  box-shadow:0 18px 45px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.03) !important;
+  backdrop-filter:blur(18px) !important;
+}
+.sidebar-link{
+  border-radius:12px !important;
+  min-height:42px !important;
+  color:#8ea0b5 !important;
+  transition:.22s ease !important;
+}
+.sidebar-link:hover{
+  color:#eef3f9 !important;
+  background:rgba(255,255,255,.035) !important;
+  transform:translateX(3px);
+}
+.sidebar-link.active{
+  color:#fff !important;
+  border:1px solid rgba(232,180,65,.28) !important;
+  background:linear-gradient(90deg,rgba(232,180,65,.15),rgba(232,180,65,.035)) !important;
+  box-shadow:0 12px 30px rgba(0,0,0,.18),inset 3px 0 0 var(--premium-gold) !important;
+}
+.sidebar-label{color:#526a83 !important;letter-spacing:2.25px !important;}
+
+/* TOP BAR */
+.topbar,
+.dashboard-topbar,
+.command-topbar{
+  background:rgba(7,16,28,.67) !important;
+  border:1px solid var(--premium-line) !important;
+  box-shadow:0 12px 38px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.025) !important;
+  backdrop-filter:blur(22px) saturate(130%) !important;
+}
+.user-chip,.user-area,.header-user{
+  background:linear-gradient(145deg,rgba(13,26,43,.78),rgba(8,17,29,.72)) !important;
+  border-color:rgba(139,169,205,.15) !important;
+  box-shadow:0 10px 30px rgba(0,0,0,.15) !important;
+}
+
+/* ALL SECTIONS EXCEPT DOCS / PENAL CODE */
+.dashboard-section:not(#docs):not(#penal-code){position:relative;}
+.dashboard-section:not(#docs):not(#penal-code) .dashboard-panel,
+.dashboard-section:not(#docs):not(#penal-code) .panel,
+.dashboard-section:not(#docs):not(#penal-code) .card,
+.dashboard-section:not(#docs):not(#penal-code) .form-card,
+.dashboard-section:not(#docs):not(#penal-code) .profile-card,
+.dashboard-section:not(#docs):not(#penal-code) .admin-card,
+.dashboard-section:not(#docs):not(#penal-code) .leave-card,
+.dashboard-section:not(#docs):not(#penal-code) .blacklist-card,
+.dashboard-section:not(#docs):not(#penal-code) .activity-card,
+.dashboard-section:not(#docs):not(#penal-code) .table-card{
+  background:
+    radial-gradient(circle at 100% 0%,rgba(73,125,190,.055),transparent 26%),
+    linear-gradient(145deg,rgba(10,22,37,.78),rgba(5,13,23,.79)) !important;
+  border:1px solid var(--premium-line) !important;
+  border-radius:18px !important;
+  box-shadow:0 22px 58px rgba(0,0,0,.20),inset 0 1px 0 rgba(255,255,255,.025) !important;
+  backdrop-filter:blur(20px) saturate(120%) !important;
+}
+.dashboard-section:not(#docs):not(#penal-code) .dashboard-panel:hover,
+.dashboard-section:not(#docs):not(#penal-code) .card:hover{
+  border-color:rgba(232,180,65,.18) !important;
+}
+
+/* HEADINGS */
+.dashboard-section:not(#docs):not(#penal-code) .section-title span,
+.dashboard-section:not(#docs):not(#penal-code) .eyebrow,
+.dashboard-section:not(#docs):not(#penal-code) .kicker{
+  color:var(--premium-gold) !important;
+  letter-spacing:1.6px !important;
+}
+.dashboard-section:not(#docs):not(#penal-code) h1,
+.dashboard-section:not(#docs):not(#penal-code) h2,
+.dashboard-section:not(#docs):not(#penal-code) h3{
+  color:var(--premium-text) !important;
+  text-shadow:0 4px 28px rgba(0,0,0,.25);
+}
+
+/* OVERVIEW HERO */
+#overview .command-hero{
+  overflow:hidden !important;
+  border:1px solid rgba(142,172,209,.15) !important;
+  border-radius:22px !important;
+  min-height:184px !important;
+  background:
+    radial-gradient(circle at 15% 100%,rgba(232,180,65,.09),transparent 35%),
+    radial-gradient(circle at 88% 20%,rgba(58,111,176,.16),transparent 30%),
+    linear-gradient(112deg,rgba(7,17,29,.93),rgba(10,26,44,.88)) !important;
+  box-shadow:0 28px 70px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.025) !important;
+  backdrop-filter:blur(20px) !important;
+}
+#overview .command-hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:
+    linear-gradient(90deg,transparent 0%,rgba(255,255,255,.015) 50%,transparent 100%),
+    repeating-linear-gradient(90deg,transparent 0 79px,rgba(255,255,255,.012) 80px);
+}
+#overview .hero-emblem{opacity:.06 !important;filter:grayscale(1) brightness(1.5) !important;transform:scale(1.6) rotate(-8deg);}
+#overview .command-hero h1{font-size:clamp(28px,3vw,44px) !important;letter-spacing:-1.1px !important;}
+#overview .rank-badge{border-radius:999px !important;padding:7px 11px !important;background:rgba(232,180,65,.085) !important;border-color:rgba(232,180,65,.20) !important;}
+
+/* STAT CARDS */
+#overview .stat-card,
+#overview .overview-stat-card{
+  min-height:92px !important;
+  overflow:hidden;
+  border-radius:18px !important;
+  border:1px solid rgba(142,172,209,.12) !important;
+  background:linear-gradient(145deg,rgba(11,24,40,.77),rgba(6,15,26,.76)) !important;
+  box-shadow:0 18px 42px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.02) !important;
+  backdrop-filter:blur(18px) !important;
+  transition:.22s ease !important;
+}
+#overview .stat-card:hover,#overview .overview-stat-card:hover{transform:translateY(-3px);border-color:rgba(232,180,65,.22) !important;}
+
+/* FORMS */
+.dashboard-section:not(#docs):not(#penal-code) input,
+.dashboard-section:not(#docs):not(#penal-code) select,
+.dashboard-section:not(#docs):not(#penal-code) textarea{
+  background:rgba(3,10,18,.56) !important;
+  border:1px solid rgba(142,172,209,.14) !important;
+  border-radius:12px !important;
+  color:#eef4fb !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.018) !important;
+  transition:border-color .18s ease,box-shadow .18s ease,background .18s ease !important;
+}
+.dashboard-section:not(#docs):not(#penal-code) input:focus,
+.dashboard-section:not(#docs):not(#penal-code) select:focus,
+.dashboard-section:not(#docs):not(#penal-code) textarea:focus{
+  border-color:rgba(232,180,65,.46) !important;
+  background:rgba(5,14,24,.78) !important;
+  box-shadow:0 0 0 3px rgba(232,180,65,.07),0 12px 32px rgba(0,0,0,.12) !important;
+}
+.dashboard-section:not(#docs):not(#penal-code) label{color:#8fa2b8 !important;letter-spacing:.65px !important;}
+
+/* BUTTONS */
+.dashboard-section:not(#docs):not(#penal-code) .primary-btn,
+.dashboard-section:not(#docs):not(#penal-code) .gold-btn{
+  border-radius:11px !important;
+  border:1px solid rgba(255,214,114,.34) !important;
+  background:linear-gradient(135deg,#e7ad2a,#af7410) !important;
+  color:#fff !important;
+  box-shadow:0 14px 34px rgba(195,131,16,.22),inset 0 1px 0 rgba(255,255,255,.18) !important;
+  transition:.2s ease !important;
+}
+.dashboard-section:not(#docs):not(#penal-code) .primary-btn:hover,
+.dashboard-section:not(#docs):not(#penal-code) .gold-btn:hover{transform:translateY(-2px);filter:brightness(1.07);box-shadow:0 18px 42px rgba(195,131,16,.30) !important;}
+
+/* MODALS */
+.modal{background:rgba(0,5,11,.76) !important;backdrop-filter:blur(12px) saturate(115%) !important;}
+.modal-card{
+  border:1px solid rgba(145,174,211,.16) !important;
+  border-radius:22px !important;
+  background:linear-gradient(150deg,rgba(10,23,39,.94),rgba(5,13,23,.95)) !important;
+  box-shadow:0 34px 90px rgba(0,0,0,.46),inset 0 1px 0 rgba(255,255,255,.03) !important;
+  backdrop-filter:blur(28px) saturate(125%) !important;
+}
+.modal-head{border-bottom:1px solid rgba(255,255,255,.055) !important;}
+.modal-close{border-radius:11px !important;background:rgba(255,255,255,.035) !important;border-color:rgba(255,255,255,.07) !important;}
+
+/* TABLES / LISTS (NOT DOCS/PENAL) */
+.dashboard-section:not(#docs):not(#penal-code) table{border-collapse:separate !important;border-spacing:0 7px !important;}
+.dashboard-section:not(#docs):not(#penal-code) tbody tr{background:rgba(8,18,31,.53) !important;box-shadow:inset 0 0 0 1px rgba(142,172,209,.07);}
+.dashboard-section:not(#docs):not(#penal-code) tbody td:first-child{border-radius:10px 0 0 10px;}
+.dashboard-section:not(#docs):not(#penal-code) tbody td:last-child{border-radius:0 10px 10px 0;}
+
+/* ACTIVITIES launcher */
+#activities .home-launcher,
+#activities .activity-home-card,
+#activities .admin-home-card{
+  border-radius:18px !important;
+  border-color:rgba(143,172,207,.12) !important;
+  background:linear-gradient(145deg,rgba(11,23,39,.74),rgba(6,14,24,.76)) !important;
+  box-shadow:0 18px 44px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.02) !important;
+  backdrop-filter:blur(18px) !important;
+}
+#activities .activity-home-card:hover,#activities .admin-home-card:hover{transform:translateY(-4px) !important;border-color:rgba(232,180,65,.25) !important;box-shadow:0 24px 50px rgba(0,0,0,.22) !important;}
+
+/* EVENTS — premium timeline cards */
+#overview .events-overview-panel{
+  position:relative !important;
+  overflow:hidden !important;
+  border-radius:20px !important;
+  border:1px solid rgba(232,180,65,.17) !important;
+  background:
+    radial-gradient(circle at 100% 0%,rgba(232,180,65,.10),transparent 26%),
+    radial-gradient(circle at 8% 110%,rgba(63,125,198,.09),transparent 32%),
+    linear-gradient(145deg,rgba(10,21,35,.82),rgba(5,13,23,.84)) !important;
+  box-shadow:0 24px 58px rgba(0,0,0,.19),inset 0 1px 0 rgba(255,255,255,.025) !important;
+  backdrop-filter:blur(22px) !important;
+}
+#overview .events-overview-panel::before{
+  content:"";position:absolute;right:-70px;top:-90px;width:240px;height:240px;border-radius:50%;pointer-events:none;
+  background:radial-gradient(circle,rgba(232,180,65,.13),transparent 68%);
+}
+#overview .events-panel-head{min-height:70px !important;padding:0 20px !important;border-bottom:1px solid rgba(255,255,255,.055) !important;}
+#overview .events-panel-title{font-size:9px !important;letter-spacing:1.25px !important;color:#f2f5f9 !important;}
+#overview .events-panel-title::before{
+  content:"✦" !important;width:34px !important;height:34px !important;display:grid !important;place-items:center !important;
+  border-radius:11px !important;background:linear-gradient(145deg,rgba(232,180,65,.15),rgba(232,180,65,.04)) !important;
+  border:1px solid rgba(232,180,65,.22) !important;box-shadow:0 0 26px rgba(232,180,65,.10) !important;
+}
+#overview .events-list{grid-template-columns:repeat(2,minmax(0,1fr)) !important;gap:12px !important;padding:16px !important;}
+#overview .event-card{
+  min-height:138px !important;padding:16px 16px 14px 18px !important;border-radius:16px !important;
+  border:1px solid rgba(142,172,209,.11) !important;
+  background:linear-gradient(145deg,rgba(13,27,44,.78),rgba(6,15,26,.81)) !important;
+  box-shadow:0 16px 38px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.02) !important;
+  transition:.22s ease !important;
+}
+#overview .event-card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:3px;background:linear-gradient(var(--premium-gold),rgba(232,180,65,.14));box-shadow:0 0 16px rgba(232,180,65,.25);}
+#overview .event-card:hover{transform:translateY(-4px) !important;border-color:rgba(232,180,65,.24) !important;box-shadow:0 24px 46px rgba(0,0,0,.22) !important;}
+#overview .event-time{font-size:13px !important;color:#fff !important;background:rgba(232,180,65,.075) !important;border:1px solid rgba(232,180,65,.14) !important;border-radius:9px !important;padding:6px 9px !important;}
+#overview .event-title{font-size:11px !important;color:#f6f8fb !important;font-weight:900 !important;}
+#overview .event-meta{font-size:7px !important;color:#73869c !important;letter-spacing:.2px !important;}
+#overview .event-description{font-size:8px !important;color:#a0afbf !important;line-height:1.6 !important;}
+#overview .event-delete{border-radius:9px !important;}
+#overview .events-list .empty-state{
+  grid-column:1/-1;min-height:150px;border:1px dashed rgba(232,180,65,.15);border-radius:15px;
+  display:grid;place-items:center;color:#71849a !important;background:rgba(255,255,255,.012);
+}
+
+/* PROFILE / PERSONNEL / ADMIN / LEADERSHIP / BLACKLIST */
+#profile .profile-hero,#personnel .personnel-rank-section,#admin .admin-grid > *,#leadership .dashboard-panel,#blacklist .dashboard-panel,#leave .dashboard-panel{
+  backdrop-filter:blur(20px) saturate(120%) !important;
+}
+#personnel .personnel-card,#personnel .member-card{
+  border-radius:15px !important;border-color:rgba(143,172,208,.11) !important;
+  background:linear-gradient(145deg,rgba(12,24,39,.73),rgba(6,14,24,.76)) !important;
+  box-shadow:0 14px 34px rgba(0,0,0,.14) !important;transition:.2s ease !important;
+}
+#personnel .personnel-card:hover,#personnel .member-card:hover{transform:translateY(-3px);border-color:rgba(232,180,65,.22) !important;}
+
+/* REPORTS */
+#my-reports .report-card,#new-report .report-premium-shell{
+  border-radius:20px !important;
+  border-color:rgba(143,172,208,.13) !important;
+  box-shadow:0 24px 58px rgba(0,0,0,.19),inset 0 1px 0 rgba(255,255,255,.025) !important;
+  backdrop-filter:blur(22px) !important;
+}
+
+/* SCROLLBAR */
+*{scrollbar-width:thin;scrollbar-color:rgba(232,180,65,.32) rgba(255,255,255,.025);}
+*::-webkit-scrollbar{width:8px;height:8px;}*::-webkit-scrollbar-track{background:rgba(255,255,255,.02);}*::-webkit-scrollbar-thumb{background:linear-gradient(#7e6729,#b18326);border-radius:999px;border:2px solid #07101a;}
+
+@media(max-width:1100px){#overview .events-list{grid-template-columns:1fr !important;}}
+@media(max-width:760px){
+  #overview .command-hero{min-height:160px !important;border-radius:18px !important;}
+  #overview .events-panel-head{padding:0 13px !important;}
+  #overview .events-list{padding:10px !important;}
 }
 </style>
 
@@ -9783,7 +10030,7 @@
                             <div class="report-field-icon">▤</div>
                             <div class="report-field-body">
                                 <label for="report-type">TIP RAPORT</label>
-                                <select id="report-type" name="type" required class="report-native-select" aria-hidden="true" tabindex="-1">
+                                <select id="report-type" name="type" required>
                                     <option value="">Selectează tipul raportului</option>
                                     <option value="RAZIE">RAZIE</option>
                                     <option value="ANTRENAMENT">ANTRENAMENT</option>
@@ -9793,21 +10040,6 @@
                                     <option value="VERIFICARE ZONA">VERIFICARE ZONĂ</option>
                                     <option value="FOCURI DE ARMA">FOCURI DE ARMĂ</option>
                                 </select>
-                                <div class="report-type-picker" id="report-type-picker">
-                                    <button type="button" class="report-type-trigger" id="report-type-trigger" aria-expanded="false">
-                                        <span class="report-type-trigger-left"><span class="report-type-mini-icon">▤</span><span id="report-type-label">Selectează tipul raportului</span></span>
-                                        <span class="report-type-chevron">⌄</span>
-                                    </button>
-                                    <div class="report-type-menu" id="report-type-menu">
-                                        <button type="button" class="report-type-option" data-value="RAZIE"><span>◈</span><b>RAZIE</b><small>Operațiune coordonată</small></button>
-                                        <button type="button" class="report-type-option" data-value="ANTRENAMENT"><span>◇</span><b>ANTRENAMENT</b><small>Pregătire operațională</small></button>
-                                        <button type="button" class="report-type-option" data-value="JAFURI"><span>◆</span><b>JAFURI</b><small>Intervenție la jaf</small></button>
-                                        <button type="button" class="report-type-option" data-value="PATRULA"><span>◉</span><b>PATRULĂ</b><small>Activitate de patrulare</small></button>
-                                        <button type="button" class="report-type-option" data-value="PERCHEZITIE"><span>⌕</span><b>PERCHEZIȚIE</b><small>Acțiune de percheziție</small></button>
-                                        <button type="button" class="report-type-option" data-value="VERIFICARE ZONA"><span>▧</span><b>VERIFICARE ZONĂ</b><small>Control și verificare</small></button>
-                                        <button type="button" class="report-type-option" data-value="FOCURI DE ARMA"><span>✦</span><b>FOCURI DE ARMĂ</b><small>Incident armat</small></button>
-                                    </div>
-                                </div>
                             </div>
                         </div>
 
@@ -13473,8 +13705,12 @@
         if (!events.length) {
 
             container.innerHTML = `
-                <div class="empty-state">
-                    Nu există evenimente programate.
+                <div class="empty-state" style="padding:26px;text-align:center;">
+                    <div>
+                        <div style="font-size:28px;color:#e8b441;margin-bottom:8px;">✦</div>
+                        <div style="color:#dfe7f0;font-weight:900;font-size:10px;letter-spacing:.6px;">NICIUN EVENIMENT PROGRAMAT</div>
+                        <div style="margin-top:6px;color:#6f8298;font-size:8px;">Evenimentele operative și ședințele vor apărea aici.</div>
+                    </div>
                 </div>
             `;
 
@@ -18233,46 +18469,6 @@ const query =
     ["dragenter", "dragover"].forEach(evt => reportDropzone?.addEventListener(evt, () => reportDropzone.classList.add("dragging")));
     ["dragleave", "drop"].forEach(evt => reportDropzone?.addEventListener(evt, () => reportDropzone.classList.remove("dragging")));
 
-
-    /* RAPORT NOU — selector modern */
-    const reportTypeSelect = document.getElementById("report-type");
-    const reportTypePicker = document.getElementById("report-type-picker");
-    const reportTypeTrigger = document.getElementById("report-type-trigger");
-    const reportTypeLabel = document.getElementById("report-type-label");
-    const reportTypeOptions = Array.from(document.querySelectorAll(".report-type-option"));
-
-    function closeReportTypePicker() {
-        reportTypePicker?.classList.remove("open");
-        reportTypeTrigger?.setAttribute("aria-expanded", "false");
-    }
-
-    function syncReportTypePicker() {
-        if (!reportTypeSelect || !reportTypeLabel) return;
-        const current = reportTypeOptions.find(item => item.dataset.value === reportTypeSelect.value);
-        reportTypeLabel.textContent = current?.querySelector("b")?.textContent || "Selectează tipul raportului";
-        reportTypeOptions.forEach(item => item.classList.toggle("selected", item.dataset.value === reportTypeSelect.value));
-    }
-
-    reportTypeTrigger?.addEventListener("click", () => {
-        const opening = !reportTypePicker.classList.contains("open");
-        reportTypePicker.classList.toggle("open", opening);
-        reportTypeTrigger.setAttribute("aria-expanded", String(opening));
-    });
-
-    reportTypeOptions.forEach(item => item.addEventListener("click", () => {
-        reportTypeSelect.value = item.dataset.value || "";
-        reportTypeSelect.dispatchEvent(new Event("change", { bubbles: true }));
-        syncReportTypePicker();
-        closeReportTypePicker();
-    }));
-
-    document.addEventListener("click", event => {
-        if (reportTypePicker && !reportTypePicker.contains(event.target)) closeReportTypePicker();
-    });
-
-    document.addEventListener("keydown", event => { if (event.key === "Escape") closeReportTypePicker(); });
-    syncReportTypePicker();
-
     /* =========================================================
        REPORT FORM
     ========================================================== */
@@ -18436,7 +18632,6 @@ const query =
 
                     this.reset();
                     refreshReportFileSummary();
-                    syncReportTypePicker();
 
 
                     // Actualizează arhiva în fundal, dar rămâne pe „Raport nou”.
