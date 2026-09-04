@@ -9313,6 +9313,36 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 @media(max-width:850px){.v5-search-wrap{display:none}.v5-overview-hero{grid-template-columns:1fr;padding:22px}.v5-hero-side{align-items:flex-start;margin-top:18px}.v5-hero-statuses{justify-content:flex-start}.v5-stats-grid{grid-template-columns:1fr!important}.v5-bottom-grid{grid-template-columns:1fr}.v5-quote-panel{grid-column:auto}.v5-user-menu{min-width:180px!important}}
 </style>
 
+
+<style id="report-type-v7-css">
+.report-type-native-hidden{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
+.report-type-premium{position:relative;width:100%;z-index:35}
+.report-type-trigger{width:100%;min-height:68px;display:flex;align-items:center;gap:15px;padding:11px 18px;border:1px solid rgba(238,180,51,.28);border-radius:16px;background:linear-gradient(180deg,rgba(15,26,40,.90),rgba(7,16,28,.94)),radial-gradient(circle at 92% 0%,rgba(235,172,38,.12),transparent 30%);color:#eef4fb;cursor:pointer;text-align:left;box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 12px 35px rgba(0,0,0,.22);transition:.22s ease}
+.report-type-trigger:hover,.report-type-premium.open .report-type-trigger{border-color:rgba(246,184,42,.78);transform:translateY(-1px);box-shadow:0 0 0 3px rgba(235,170,32,.07),0 14px 40px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.05)}
+.report-type-trigger-icon{width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;border-radius:13px;color:#f2b72d;font-size:20px;font-weight:800;background:linear-gradient(145deg,rgba(231,171,34,.16),rgba(231,171,34,.04));border:1px solid rgba(235,177,40,.28);box-shadow:inset 0 0 22px rgba(228,167,31,.06)}
+.report-type-trigger-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.report-type-trigger-copy small{color:#788ba4;font-size:9px;font-weight:900;letter-spacing:.15em}
+.report-type-trigger-copy strong{color:#f7f9fc;font-size:14px;font-weight:800}
+.report-type-trigger-chevron{width:34px;height:34px;display:grid;place-items:center;border-radius:10px;color:#e9b137;font-size:19px;background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.055);transition:.22s ease}
+.report-type-premium.open .report-type-trigger-chevron{transform:rotate(180deg)}
+.report-type-menu{position:absolute;top:calc(100% + 10px);left:0;right:0;opacity:0;visibility:hidden;transform:translateY(-8px) scale(.992);transform-origin:top;padding:14px;border-radius:18px;border:1px solid rgba(235,179,43,.26);background:linear-gradient(180deg,rgba(10,21,34,.985),rgba(5,14,25,.99)),radial-gradient(circle at 100% 0%,rgba(235,174,38,.12),transparent 32%);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);box-shadow:0 28px 70px rgba(0,0,0,.52),inset 0 1px 0 rgba(255,255,255,.035);transition:.18s ease}
+.report-type-premium.open .report-type-menu{opacity:1;visibility:visible;transform:translateY(0) scale(1)}
+.report-type-menu-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:3px 4px 12px;border-bottom:1px solid rgba(255,255,255,.055);margin-bottom:11px}
+.report-type-menu-head>div{display:flex;flex-direction:column;gap:3px}.report-type-menu-kicker{color:#d9a52e;font-size:8px;font-weight:900;letter-spacing:.16em}
+.report-type-menu-head strong{color:#f3f6fa;font-size:13px}.report-type-menu-badge{border:1px solid rgba(228,170,34,.25);background:rgba(228,170,34,.08);color:#e7b23b;padding:6px 8px;border-radius:999px;font-size:8px;font-weight:900;letter-spacing:.08em}
+.report-type-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.report-type-option{display:flex;align-items:center;gap:11px;width:100%;min-height:60px;padding:10px 12px;border-radius:13px;border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.018);color:#dfe8f2;text-align:left;cursor:pointer;transition:.18s ease}
+.report-type-option:hover{transform:translateY(-1px);border-color:rgba(229,174,42,.34);background:linear-gradient(90deg,rgba(229,174,42,.085),rgba(255,255,255,.025))}
+.report-type-option.selected{border-color:rgba(240,181,41,.60);background:linear-gradient(90deg,rgba(229,171,34,.13),rgba(229,171,34,.035));box-shadow:inset 3px 0 0 #e2aa2a}
+.report-type-option-icon{width:36px;height:36px;flex:0 0 36px;display:grid;place-items:center;border-radius:11px;color:#f0b52f;background:rgba(231,172,35,.08);border:1px solid rgba(231,172,35,.16);font-size:15px;font-weight:900}
+.report-type-option-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.report-type-option-copy strong{color:#f5f7fb;font-size:12px;font-weight:850;letter-spacing:.02em}
+.report-type-option-copy small{color:#70839b;font-size:9px}
+.report-type-option-check{width:25px;height:25px;display:grid;place-items:center;border-radius:8px;color:#07101a;background:#e6ad2c;font-size:12px;font-weight:1000;opacity:0;transform:scale(.78);transition:.16s ease}
+.report-type-option.selected .report-type-option-check{opacity:1;transform:scale(1)}
+@media(max-width:760px){.report-type-options{grid-template-columns:1fr}.report-type-menu{position:relative;top:8px}}
+</style>
+
 </head>
 
 
@@ -10014,7 +10044,91 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
                             <div class="report-field-icon">▤</div>
                             <div class="report-field-body">
                                 <label for="report-type">TIP RAPORT</label>
-                                <select id="report-type" name="type" required>
+                                
+<div class="report-type-premium" id="report-type-premium">
+    <button type="button" class="report-type-trigger" id="report-type-trigger" aria-expanded="false">
+        <span class="report-type-trigger-icon">▤</span>
+        <span class="report-type-trigger-copy">
+            <small>TIP RAPORT</small>
+            <strong id="report-type-trigger-label">Selectează tipul raportului</strong>
+        </span>
+        <span class="report-type-trigger-chevron">⌄</span>
+    </button>
+    <div class="report-type-menu" id="report-type-menu">
+        <div class="report-type-menu-head">
+            <div>
+                <span class="report-type-menu-kicker">CATEGORIE OPERAȚIONALĂ</span>
+                <strong>Alege tipul activității</strong>
+            </div>
+            <span class="report-type-menu-badge">7 TIPURI</span>
+        </div>
+        <div class="report-type-options">
+        <button type="button" class="report-type-option" data-report-value="RAZIE">
+            <span class="report-type-option-icon">⌁</span>
+            <span class="report-type-option-copy">
+                <strong>RAZIE</strong>
+                <small>Operațiune coordonată</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+    
+        <button type="button" class="report-type-option" data-report-value="ANTRENAMENT">
+            <span class="report-type-option-icon">◈</span>
+            <span class="report-type-option-copy">
+                <strong>ANTRENAMENT</strong>
+                <small>Activitate de pregătire</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+    
+        <button type="button" class="report-type-option" data-report-value="JAFURI">
+            <span class="report-type-option-icon">◆</span>
+            <span class="report-type-option-copy">
+                <strong>JAFURI</strong>
+                <small>Intervenție la jaf</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+    
+        <button type="button" class="report-type-option" data-report-value="PATRULA">
+            <span class="report-type-option-icon">◎</span>
+            <span class="report-type-option-copy">
+                <strong>PATRULĂ</strong>
+                <small>Activitate de patrulare</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+    
+        <button type="button" class="report-type-option" data-report-value="PERCHEZITIE">
+            <span class="report-type-option-icon">⌕</span>
+            <span class="report-type-option-copy">
+                <strong>PERCHEZIȚIE</strong>
+                <small>Acțiune de percheziție</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+    
+        <button type="button" class="report-type-option" data-report-value="VERIFICARE ZONA">
+            <span class="report-type-option-icon">◫</span>
+            <span class="report-type-option-copy">
+                <strong>VERIFICARE ZONĂ</strong>
+                <small>Control și verificare</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+    
+        <button type="button" class="report-type-option" data-report-value="FOCURI DE ARMA">
+            <span class="report-type-option-icon">✦</span>
+            <span class="report-type-option-copy">
+                <strong>FOCURI DE ARMĂ</strong>
+                <small>Incident armat</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+    </div>
+    </div>
+</div>
+<div class="report-type-native-hidden"><select id="report-type" name="type" required>
                                     <option value="">Selectează tipul raportului</option>
                                     <option value="RAZIE">RAZIE</option>
                                     <option value="ANTRENAMENT">ANTRENAMENT</option>
@@ -10023,7 +10137,8 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
                                     <option value="PERCHEZITIE">PERCHEZIȚIE</option>
                                     <option value="VERIFICARE ZONA">VERIFICARE ZONĂ</option>
                                     <option value="FOCURI DE ARMA">FOCURI DE ARMĂ</option>
-                                </select>
+                                </select></div>
+
                             </div>
                         </div>
 
@@ -27249,6 +27364,50 @@ const query =
 
 <script id="v5-quick-search-script">
 (()=>{const q=document.getElementById('v5-quick-search');if(!q)return;const links=[...document.querySelectorAll('.sidebar-link[data-section]')];const openFirst=()=>{const term=q.value.trim().toLowerCase();if(!term)return;const hit=links.find(x=>x.textContent.trim().toLowerCase().includes(term));if(hit){hit.click();q.value='';q.blur();}};q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();openFirst();}});document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();q.focus();q.select();}});})();
+</script>
+
+
+<script id="report-type-v7-js">
+(() => {
+    const initPremiumReportType = () => {
+        const wrap = document.getElementById('report-type-premium');
+        const trigger = document.getElementById('report-type-trigger');
+        const label = document.getElementById('report-type-trigger-label');
+        const native = document.getElementById('report-type');
+        if (!wrap || !trigger || !label || !native || wrap.dataset.ready === '1') return;
+        wrap.dataset.ready = '1';
+        const options = [...wrap.querySelectorAll('.report-type-option')];
+        const setValue = (value, fire = true) => {
+            native.value = value;
+            const chosen = options.find(btn => btn.dataset.reportValue === value);
+            options.forEach(btn => btn.classList.toggle('selected', btn === chosen));
+            label.textContent = chosen ? chosen.querySelector('strong').textContent : 'Selectează tipul raportului';
+            if (fire) native.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        trigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const open = !wrap.classList.contains('open');
+            wrap.classList.toggle('open', open);
+            trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        options.forEach(btn => btn.addEventListener('click', () => {
+            setValue(btn.dataset.reportValue);
+            wrap.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+        }));
+        document.addEventListener('click', (e) => {
+            if (!wrap.contains(e.target)) {
+                wrap.classList.remove('open');
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+        native.addEventListener('change', () => setValue(native.value, false));
+        setValue(native.value, false);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPremiumReportType);
+    else initPremiumReportType();
+})();
 </script>
 
 </body>
