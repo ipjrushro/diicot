@@ -9526,380 +9526,254 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 </style>
 
 
-<style id="leave-premium-v12-css">
-#leave.leave-v12{
+<style id="leave-premium-v13-safe-css">
+/* =========================================================
+   CONCEDII / ÎNVOIRI — V13 SAFE
+   Doar CSS. Nu schimbă structura, ID-urile sau JavaScript-ul.
+========================================================= */
+#leave{
     position:relative;
 }
-#leave .leave-v12-hero{
+#leave .section-title{
     position:relative;
-    min-height:150px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:24px;
-    padding:26px 28px;
+    min-height:122px;
     margin-bottom:14px;
-    overflow:hidden;
+    padding:24px 26px!important;
     border:1px solid rgba(126,159,194,.14);
-    border-radius:20px;
+    border-radius:18px;
+    overflow:hidden;
     background:
-        radial-gradient(circle at 86% 30%,rgba(230,174,48,.12),transparent 23%),
-        radial-gradient(circle at 8% 100%,rgba(44,104,166,.10),transparent 30%),
-        linear-gradient(135deg,rgba(9,22,37,.88),rgba(4,14,25,.72));
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.03),
-        0 20px 55px rgba(0,0,0,.16);
+        radial-gradient(circle at 90% 20%,rgba(230,174,48,.10),transparent 24%),
+        radial-gradient(circle at 8% 100%,rgba(47,111,176,.09),transparent 30%),
+        linear-gradient(135deg,rgba(9,22,37,.86),rgba(4,14,25,.70));
+    box-shadow:0 18px 45px rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.025);
 }
-#leave .leave-v12-hero:after{
+#leave .section-title:after{
     content:"";
     position:absolute;
-    width:340px;
-    height:340px;
-    right:-130px;
-    top:-145px;
-    border:1px solid rgba(230,174,48,.13);
+    width:260px;
+    height:260px;
+    right:-90px;
+    top:-130px;
     border-radius:50%;
+    border:1px solid rgba(230,174,48,.11);
 }
-#leave .leave-v12-hero-copy{
+#leave .section-title span{
     position:relative;
     z-index:2;
-}
-#leave .leave-v12-kicker{
-    display:flex;
+    display:inline-flex;
     align-items:center;
     gap:8px;
-    margin-bottom:7px;
-    color:#d9a62d;
-    font-size:8px;
-    font-weight:950;
-    letter-spacing:.15em;
+    color:#d9a62d!important;
+    font-size:8px!important;
+    font-weight:950!important;
+    letter-spacing:.15em!important;
 }
-#leave .leave-v12-dot{
+#leave .section-title span:before{
+    content:"";
     width:7px;
     height:7px;
     border-radius:50%;
-    background:#28e2a0;
-    box-shadow:0 0 14px rgba(40,226,160,.6);
+    background:#27dfa0;
+    box-shadow:0 0 13px rgba(39,223,160,.56);
 }
-#leave .leave-v12-hero h2{
-    margin:0;
-    color:#f4f7fb;
-    font-size:27px;
-    letter-spacing:-.5px;
-}
-#leave .leave-v12-hero p{
-    max-width:560px;
-    margin:7px 0 0;
-    color:#71859b;
-    font-size:10px;
-    line-height:1.55;
-}
-#leave .leave-v12-hero-icon{
+#leave .section-title h2{
     position:relative;
     z-index:2;
-    width:70px;
-    height:70px;
-    flex:0 0 70px;
-    display:grid;
-    place-items:center;
-    border-radius:18px;
-    color:#edb43a;
-    font-size:28px;
-    border:1px solid rgba(237,180,58,.18);
-    background:linear-gradient(145deg,rgba(237,180,58,.12),rgba(237,180,58,.025));
-    box-shadow:0 0 34px rgba(237,180,58,.07);
+    margin-top:8px!important;
+    font-size:28px!important;
+    letter-spacing:-.45px;
+    color:#f5f7fb!important;
 }
-#leave .leave-v12-stats{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:12px;
-    margin-bottom:14px;
+#leave .leave-balance-grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:12px!important;
+    margin-bottom:14px!important;
 }
-#leave .leave-v12-stat{
-    position:relative;
-    min-height:116px;
-    display:flex;
-    align-items:center;
-    gap:15px;
-    overflow:hidden;
-    padding:18px;
-    border:1px solid rgba(126,159,194,.12);
-    border-radius:16px;
-    background:linear-gradient(145deg,rgba(8,20,34,.78),rgba(4,13,23,.64));
-    box-shadow:0 16px 40px rgba(0,0,0,.13);
-}
-#leave .leave-v12-stat-icon{
-    width:48px;
-    height:48px;
-    flex:0 0 48px;
-    display:grid;
-    place-items:center;
-    border-radius:13px;
-    font-size:20px;
-    border:1px solid rgba(255,255,255,.07);
-}
-#leave .leave-v12-stat.vacation .leave-v12-stat-icon{
-    color:#f1b93b;
-    background:rgba(241,185,59,.08);
-    border-color:rgba(241,185,59,.17);
-}
-#leave .leave-v12-stat.meeting .leave-v12-stat-icon{
-    color:#4a9ef7;
-    background:rgba(74,158,247,.08);
-    border-color:rgba(74,158,247,.17);
-}
-#leave .leave-v12-stat-copy{
-    position:relative;
-    z-index:2;
-    min-width:0;
-}
-#leave .leave-v12-stat-copy>span{
-    display:block;
-    color:#72869d;
-    font-size:7px;
-    font-weight:950;
-    letter-spacing:.10em;
-    margin-bottom:5px;
-}
-#leave .leave-v12-stat-value{
-    display:flex;
-    align-items:baseline;
-    gap:6px;
-}
-#leave .leave-v12-stat-value strong{
-    color:#f2f6fa;
-    font-size:27px;
-    line-height:1;
-}
-#leave .leave-v12-stat-value small{
-    color:#5e7389;
-    font-size:9px;
-}
-#leave .leave-v12-stat-copy p{
-    margin:7px 0 0;
-    color:#52677d;
-    font-size:8px;
-}
-#leave .leave-v12-stat-glow{
-    position:absolute;
-    width:140px;
-    height:140px;
-    right:-45px;
-    top:-65px;
-    border-radius:50%;
-    filter:blur(20px);
-    opacity:.13;
-}
-#leave .vacation .leave-v12-stat-glow{background:#e8ae34}
-#leave .meeting .leave-v12-stat-glow{background:#318be8}
-#leave .leave-v12-form-shell{
-    padding:0;
-    margin-bottom:14px;
-    overflow:hidden;
-    border:1px solid rgba(126,159,194,.13);
-    border-radius:18px;
+#leave .leave-balance-card{
+    position:relative!important;
+    overflow:hidden!important;
+    min-height:110px!important;
+    padding:18px 20px!important;
+    border-radius:15px!important;
+    border:1px solid rgba(126,159,194,.12)!important;
     background:
-        linear-gradient(145deg,rgba(8,20,34,.79),rgba(4,13,23,.67));
-    box-shadow:0 18px 48px rgba(0,0,0,.14);
+        linear-gradient(145deg,rgba(8,20,34,.78),rgba(4,13,23,.65))!important;
+    box-shadow:0 16px 40px rgba(0,0,0,.13)!important;
 }
-#leave .leave-v12-form-head{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:15px;
-    padding:16px 18px;
-    border-bottom:1px solid rgba(255,255,255,.05);
-    background:linear-gradient(90deg,rgba(232,180,65,.025),transparent);
+#leave .leave-balance-card:after{
+    content:"";
+    position:absolute;
+    width:120px;
+    height:120px;
+    right:-38px;
+    top:-58px;
+    border-radius:50%;
+    background:rgba(233,178,50,.10);
+    filter:blur(12px);
 }
-#leave .leave-v12-form-head>div:first-child{
-    display:flex;
-    align-items:center;
-    gap:10px;
+#leave .leave-balance-card:nth-child(2):after{
+    background:rgba(58,145,240,.10);
 }
-#leave .leave-v12-step{
-    width:28px;
-    height:28px;
-    display:grid;
+#leave .leave-balance-card span{
+    position:relative;
+    z-index:2;
+    display:block;
+    color:#72869d!important;
+    font-size:7px!important;
+    font-weight:950!important;
+    letter-spacing:.10em!important;
+    margin-bottom:8px!important;
+}
+#leave .leave-balance-card strong{
+    position:relative;
+    z-index:2;
+    color:#f3f6fa!important;
+    font-size:28px!important;
+    line-height:1!important;
+}
+#leave .leave-balance-card small{
+    position:relative;
+    z-index:2;
+    color:#60758b!important;
+    font-size:9px!important;
+    margin-left:4px!important;
+}
+#leave .dashboard-panel.form-panel{
+    padding:0!important;
+    overflow:hidden!important;
+    border-radius:18px!important;
+    border:1px solid rgba(126,159,194,.13)!important;
+    background:
+        linear-gradient(145deg,rgba(8,20,34,.80),rgba(4,13,23,.67))!important;
+    box-shadow:0 18px 48px rgba(0,0,0,.14)!important;
+}
+#leave .dashboard-panel.form-panel .panel-heading{
+    padding:16px 18px!important;
+    margin:0!important;
+    border-bottom:1px solid rgba(255,255,255,.05)!important;
+    color:#dfe8f1!important;
+    font-size:9px!important;
+    font-weight:950!important;
+    letter-spacing:.10em!important;
+    background:linear-gradient(90deg,rgba(231,177,50,.025),transparent)!important;
+}
+#leave .dashboard-panel.form-panel .panel-heading:before{
+    content:"01";
+    display:inline-grid;
     place-items:center;
+    width:27px;
+    height:27px;
+    margin-right:9px;
     border-radius:8px;
     color:#e7b236;
     font-size:8px;
-    font-weight:950;
     border:1px solid rgba(231,178,54,.18);
     background:rgba(231,178,54,.06);
 }
-#leave .leave-v12-form-head strong{
+#leave #leave-form{
+    margin-top:0!important;
+    padding:18px!important;
+}
+#leave .form-group{
+    margin-bottom:13px!important;
+}
+#leave .form-group label{
     display:block;
-    color:#dfe7ef;
-    font-size:9px;
-    letter-spacing:.09em;
+    margin-bottom:7px!important;
+    color:#73879d!important;
+    font-size:7px!important;
+    font-weight:950!important;
+    letter-spacing:.09em!important;
 }
-#leave .leave-v12-form-head p{
-    margin:3px 0 0;
-    color:#5e7389;
-    font-size:8px;
-}
-#leave .leave-v12-secure{
-    color:#42d9a1;
-    font-size:7px;
-    font-weight:900;
-    letter-spacing:.08em;
-}
-#leave .leave-v12-secure span{
-    margin-right:5px;
-    text-shadow:0 0 10px rgba(66,217,161,.55);
-}
-#leave .leave-v12-form{
-    padding:18px;
-}
-#leave .leave-v12-grid{
-    display:grid;
-    grid-template-columns:repeat(2,minmax(0,1fr));
-    gap:12px;
-}
-#leave .leave-v12-field.full{
-    grid-column:1/-1;
-}
-#leave .leave-v12-field label{
-    display:flex;
-    align-items:center;
-    gap:7px;
-    margin-bottom:7px;
-    color:#73879d;
-    font-size:7px;
-    font-weight:950;
-    letter-spacing:.09em;
-}
-#leave .leave-v12-field label span{
-    color:#dba934;
-    font-size:11px;
-}
-#leave .leave-v12-input-wrap{
-    position:relative;
-}
-#leave .leave-v12-input-wrap select,
-#leave .leave-v12-input-wrap input,
-#leave .leave-v12-field textarea{
-    width:100%;
-    box-sizing:border-box;
+#leave .form-group select,
+#leave .form-group input,
+#leave .form-group textarea{
+    width:100%!important;
+    box-sizing:border-box!important;
     border:1px solid rgba(126,159,194,.13)!important;
     border-radius:11px!important;
     outline:none!important;
     color:#dfe7ef!important;
     background:rgba(2,10,18,.68)!important;
     transition:.18s ease!important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.01)!important;
 }
-#leave .leave-v12-input-wrap select,
-#leave .leave-v12-input-wrap input{
+#leave .form-group select,
+#leave .form-group input{
     height:48px!important;
     padding:0 14px!important;
     font-size:10px!important;
 }
-#leave .leave-v12-input-wrap select{
-    appearance:none;
-    padding-right:42px!important;
-}
-#leave .leave-v12-field textarea{
-    min-height:118px!important;
-    resize:vertical;
+#leave .form-group textarea{
+    min-height:122px!important;
     padding:13px 14px!important;
     font-size:10px!important;
     line-height:1.55!important;
+    resize:vertical!important;
 }
-#leave .leave-v12-input-wrap select:focus,
-#leave .leave-v12-input-wrap input:focus,
-#leave .leave-v12-field textarea:focus{
+#leave .form-group select:focus,
+#leave .form-group input:focus,
+#leave .form-group textarea:focus{
     border-color:rgba(232,180,65,.32)!important;
-    box-shadow:0 0 0 3px rgba(232,180,65,.04)!important;
-    background:rgba(3,12,21,.85)!important;
+    box-shadow:0 0 0 3px rgba(232,180,65,.045)!important;
+    background:rgba(3,12,21,.84)!important;
 }
-#leave .leave-v12-chevron{
-    position:absolute;
-    right:14px;
-    top:50%;
-    transform:translateY(-50%);
-    color:#c99629;
-    pointer-events:none;
+#leave .two-columns{
+    gap:12px!important;
 }
-#leave .leave-v12-helper-row{
-    display:flex;
-    justify-content:space-between;
-    gap:10px;
-    margin-top:6px;
-    color:#53677d;
-    font-size:7px;
+#leave #leave-form .primary-btn{
+    min-width:166px!important;
+    height:43px!important;
+    border-radius:10px!important;
+    border:1px solid rgba(228,171,43,.35)!important;
+    background:linear-gradient(135deg,#dfa31f,#a96709)!important;
+    color:#fff!important;
+    font-size:7px!important;
+    font-weight:950!important;
+    letter-spacing:.05em!important;
+    box-shadow:0 12px 28px rgba(204,139,15,.16)!important;
+    transition:.18s ease!important;
 }
-#leave .leave-v12-helper-row b{
-    color:#687d92;
-    font-weight:800;
-}
-#leave .leave-v12-form-footer{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:14px;
-    margin-top:16px;
-    padding-top:14px;
-    border-top:1px solid rgba(255,255,255,.045);
-}
-#leave .leave-v12-form-note{
-    display:flex;
-    align-items:center;
-    gap:7px;
-    color:#5d7288;
-    font-size:8px;
-}
-#leave .leave-v12-form-note span{
-    color:#7c91a7;
-}
-#leave .leave-v12-submit{
-    min-width:168px;
-    height:43px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:7px;
-    border-radius:10px;
-    border:1px solid rgba(228,171,43,.35);
-    background:linear-gradient(135deg,#dfa31f,#a96709);
-    color:#fff;
-    font-size:7px;
-    font-weight:950;
-    letter-spacing:.05em;
-    cursor:pointer;
-    box-shadow:0 12px 28px rgba(204,139,15,.16);
-    transition:.18s ease;
-}
-#leave .leave-v12-submit:hover{
-    transform:translateY(-1px);
-    box-shadow:0 16px 35px rgba(204,139,15,.23);
-}
-#leave .leave-v12-message{
-    margin-top:10px!important;
+#leave #leave-form .primary-btn:hover{
+    transform:translateY(-1px)!important;
+    box-shadow:0 16px 35px rgba(204,139,15,.23)!important;
 }
 #leave .dashboard-panel.table-panel{
+    margin-top:14px!important;
     border-radius:18px!important;
-    background:linear-gradient(145deg,rgba(8,20,34,.75),rgba(4,13,23,.63))!important;
     border:1px solid rgba(126,159,194,.12)!important;
+    background:linear-gradient(145deg,rgba(8,20,34,.76),rgba(4,13,23,.63))!important;
     box-shadow:0 18px 48px rgba(0,0,0,.13)!important;
 }
+#leave .table-toolbar{
+    padding-bottom:12px!important;
+    border-bottom:1px solid rgba(255,255,255,.04)!important;
+}
 #leave .table-toolbar h3{
-    font-size:12px!important;
     color:#eef3f8!important;
+    font-size:12px!important;
 }
 #leave .table-toolbar p{
     color:#61768c!important;
     font-size:8px!important;
 }
+#leave .command-table th{
+    color:#6e8298!important;
+    font-size:7px!important;
+    letter-spacing:.08em!important;
+}
+#leave .command-table td{
+    border-color:rgba(255,255,255,.045)!important;
+}
 @media(max-width:760px){
-    #leave .leave-v12-hero{padding:20px}
-    #leave .leave-v12-hero-icon{display:none}
-    #leave .leave-v12-stats{grid-template-columns:1fr}
-    #leave .leave-v12-grid{grid-template-columns:1fr}
-    #leave .leave-v12-field.full{grid-column:auto}
-    #leave .leave-v12-form-footer{align-items:stretch;flex-direction:column}
-    #leave .leave-v12-submit{width:100%}
-    #leave .leave-v12-secure{display:none}
+    #leave .leave-balance-grid{
+        grid-template-columns:1fr!important;
+    }
+    #leave .two-columns{
+        grid-template-columns:1fr!important;
+    }
 }
 </style>
 
@@ -10886,171 +10760,189 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
             ====================================================== -->
 
             <section
-                class="dashboard-section leave-v12"
+                class="dashboard-section"
                 id="leave"
             >
 
-                <div class="leave-v12-hero">
-                    <div class="leave-v12-hero-copy">
-                        <div class="leave-v12-kicker">
-                            <span class="leave-v12-dot"></span>
-                            MANAGEMENT ABSENȚE
-                        </div>
 
-                        <h2>Concedii / Învoiri</h2>
+                <div class="section-title">
 
-                        <p>
-                            Trimite rapid o cerere de concediu sau învoire și urmărește statusul acesteia.
-                        </p>
-                    </div>
+                    <span>
+                        MANAGEMENT ABSENȚE
+                    </span>
 
-                    <div class="leave-v12-hero-icon">
-                        <span>▰</span>
-                    </div>
-                </div>
-
-                <div class="leave-v12-stats">
-
-                    <article class="leave-v12-stat vacation">
-                        <div class="leave-v12-stat-icon">☀</div>
-
-                        <div class="leave-v12-stat-copy">
-                            <span>ZILE CONCEDIU DISPONIBILE</span>
-
-                            <div class="leave-v12-stat-value">
-                                <strong id="leave-vacation-remaining">14</strong>
-                                <small>/ 14 zile</small>
-                            </div>
-
-                            <p>Sold disponibil pentru anul curent</p>
-                        </div>
-
-                        <div class="leave-v12-stat-glow"></div>
-                    </article>
-
-                    <article class="leave-v12-stat meeting">
-                        <div class="leave-v12-stat-icon">◷</div>
-
-                        <div class="leave-v12-stat-copy">
-                            <span>ÎNVOIRI ȘEDINȚĂ DISPONIBILE</span>
-
-                            <div class="leave-v12-stat-value">
-                                <strong id="leave-meeting-remaining">2</strong>
-                                <small>/ 2 învoiri</small>
-                            </div>
-
-                            <p>Învoiri disponibile pentru ședințe</p>
-                        </div>
-
-                        <div class="leave-v12-stat-glow"></div>
-                    </article>
+                    <h2>
+                        Concedii / Învoiri
+                    </h2>
 
                 </div>
 
-                <div class="leave-v12-form-shell">
 
-                    <div class="leave-v12-form-head">
-                        <div>
-                            <span class="leave-v12-step">01</span>
 
-                            <div>
-                                <strong>CERERE NOUĂ</strong>
-                                <p>Completează informațiile necesare pentru trimiterea cererii.</p>
-                            </div>
-                        </div>
+                <div class="leave-balance-grid">
 
-                        <div class="leave-v12-secure">
-                            <span>●</span>
-                            CERERE SECURIZATĂ
-                        </div>
+
+                    <div class="leave-balance-card">
+
+                        <span>
+                            ZILE CONCEDIU DISPONIBILE
+                        </span>
+
+                        <strong id="leave-vacation-remaining">
+                            14
+                        </strong>
+
+                        <small>
+                            / 14 zile
+                        </small>
+
                     </div>
 
-                    <form id="leave-form" class="leave-v12-form">
 
-                        <div class="leave-v12-grid">
 
-                            <div class="leave-v12-field full">
-                                <label for="leave-type">
-                                    <span>▣</span>
-                                    TIP CERERE
-                                </label>
+                    <div class="leave-balance-card">
 
-                                <div class="leave-v12-input-wrap">
-                                    <select id="leave-type" required>
-                                        <option value="">Selectează tipul cererii</option>
-                                        <option value="VACATION">CONCEDIU</option>
-                                        <option value="MEETING_EXCUSE">ÎNVOIRE ȘEDINȚĂ</option>
-                                    </select>
+                        <span>
+                            ÎNVOIRI ȘEDINȚĂ DISPONIBILE
+                        </span>
 
-                                    <span class="leave-v12-chevron">⌄</span>
-                                </div>
-                            </div>
+                        <strong id="leave-meeting-remaining">
+                            2
+                        </strong>
 
-                            <div class="leave-v12-field">
+                        <small>
+                            / 2 învoiri
+                        </small>
+
+                    </div>
+
+
+                </div>
+
+
+
+                <div class="dashboard-panel form-panel">
+
+
+                    <div class="panel-heading">
+                        CERERE NOUĂ
+                    </div>
+
+
+
+                    <form
+                        id="leave-form"
+                        style="margin-top:18px;"
+                    >
+
+
+                        <div class="form-group">
+
+                            <label for="leave-type">
+                                TIP CERERE
+                            </label>
+
+                            <select
+                                id="leave-type"
+                                required
+                            >
+
+                                <option value="">
+                                    Selectează tipul
+                                </option>
+
+                                <option value="VACATION">
+                                    CONCEDIU
+                                </option>
+
+                                <option value="MEETING_EXCUSE">
+                                    ÎNVOIRE ȘEDINȚĂ
+                                </option>
+
+                            </select>
+
+                        </div>
+
+
+
+                        <div class="two-columns">
+
+
+                            <div class="form-group">
+
                                 <label for="leave-start">
-                                    <span>◫</span>
                                     DATA ÎNCEPUT
                                 </label>
 
-                                <div class="leave-v12-input-wrap">
-                                    <input type="date" id="leave-start" required>
-                                </div>
+                                <input
+                                    type="date"
+                                    id="leave-start"
+                                    required
+                                >
+
                             </div>
 
-                            <div class="leave-v12-field">
+
+
+                            <div class="form-group">
+
                                 <label for="leave-end">
-                                    <span>◫</span>
                                     DATA FINAL
                                 </label>
 
-                                <div class="leave-v12-input-wrap">
-                                    <input type="date" id="leave-end" required>
-                                </div>
-                            </div>
-
-                            <div class="leave-v12-field full">
-                                <label for="leave-reason">
-                                    <span>✎</span>
-                                    MOTIV
-                                </label>
-
-                                <textarea
-                                    id="leave-reason"
-                                    maxlength="1000"
-                                    placeholder="Descrie pe scurt motivul cererii..."
+                                <input
+                                    type="date"
+                                    id="leave-end"
                                     required
-                                ></textarea>
+                                >
 
-                                <div class="leave-v12-helper-row">
-                                    <span>Menționează informațiile importante pentru conducere.</span>
-                                    <b id="leave-v12-counter">0 / 1000</b>
-                                </div>
                             </div>
+
 
                         </div>
 
-                        <div class="leave-v12-form-footer">
-                            <div class="leave-v12-form-note">
-                                <span>ⓘ</span>
-                                Cererea va apărea imediat în istoricul de mai jos.
-                            </div>
 
-                            <button type="submit" class="leave-v12-submit">
-                                <span>➜</span>
-                                TRIMITE CERERE
-                            </button>
+
+                        <div class="form-group">
+
+                            <label for="leave-reason">
+                                MOTIV
+                            </label>
+
+                            <textarea
+                                id="leave-reason"
+                                maxlength="1000"
+                                placeholder="Descrie motivul cererii..."
+                                required
+                            ></textarea>
+
                         </div>
+
+
+
+                        <button
+                            type="submit"
+                            class="primary-btn"
+                        >
+                            TRIMITE CERERE
+                        </button>
+
+
 
                         <div
                             id="leave-message"
-                            class="form-message leave-v12-message"
+                            class="form-message"
                         ></div>
+
 
                     </form>
 
+
                 </div>
 
-<div class="dashboard-panel table-panel">
+
+
+                <div class="dashboard-panel table-panel">
 
 
                     <div class="table-toolbar">
@@ -27251,3 +27143,1112 @@ const query =
 
                     return;
 
+                }
+
+
+                if (
+                    parsed.special
+                ) {
+
+                    special.add(
+                        String(
+                            parsed.special
+                        )
+                    );
+
+                }
+
+            }
+        );
+
+
+        return {
+            minimum,
+            maximum,
+            hasNumeric,
+            hasPlus,
+            special:
+                Array.from(
+                    special
+                )
+        };
+
+    }
+
+
+
+    /* =========================================================
+       COD PENAL — CALCUL AMENDĂ
+    ========================================================== */
+
+    function calculatePenalFine(
+        articles
+    ) {
+
+        let minimum =
+            0;
+
+
+        let maximum =
+            0;
+
+
+        let hasNumeric =
+            false;
+
+
+        const special =
+            new Set();
+
+
+        articles.forEach(
+            article => {
+
+                const parsed =
+                    parseFineRange(
+                        article.fine
+                    );
+
+
+                if (
+                    parsed.numeric
+                ) {
+
+                    /*
+                     * Unele valori din Codul Penal au intervalul
+                     * scris invers. Pentru calculator alegem mereu
+                     * valoarea mai mică drept minim.
+                     */
+
+                    const articleMin =
+                        Math.min(
+                            parsed.min,
+                            parsed.max
+                        );
+
+
+                    const articleMax =
+                        Math.max(
+                            parsed.min,
+                            parsed.max
+                        );
+
+
+                    minimum +=
+                        articleMin;
+
+
+                    maximum +=
+                        articleMax;
+
+
+                    hasNumeric =
+                        true;
+
+                }
+                else if (
+                    parsed.raw
+                ) {
+
+                    special.add(
+                        parsed.raw
+                    );
+
+                }
+
+            }
+        );
+
+
+        return {
+            minimum,
+            maximum,
+            hasNumeric,
+
+            special:
+                Array.from(
+                    special
+                )
+        };
+
+    }
+
+
+
+    /* =========================================================
+       COD PENAL — TEXT TOTAL ÎNCHISOARE
+    ========================================================== */
+
+    function getPenalJailTotalText(
+        result
+    ) {
+
+        const parts =
+            [];
+
+
+        if (
+            result.hasNumeric
+        ) {
+
+            if (
+                result.minimum ===
+                result.maximum
+            ) {
+
+                parts.push(
+                    `${result.minimum}${
+                        result.hasPlus
+                            ? "+"
+                            : ""
+                    } luni`
+                );
+
+            }
+            else {
+
+                parts.push(
+                    `${result.minimum} - ${result.maximum}${
+                        result.hasPlus
+                            ? "+"
+                            : ""
+                    } luni`
+                );
+
+            }
+
+        }
+
+
+        if (
+            result.special.length
+        ) {
+
+            parts.push(
+                result.special.join(
+                    " / "
+                )
+            );
+
+        }
+
+
+        return parts.length
+            ? parts.join(
+                " + "
+            )
+            : "0 luni";
+
+    }
+
+
+
+    /* =========================================================
+       COD PENAL — TEXT TOTAL AMENDĂ
+    ========================================================== */
+
+    function getPenalFineTotalText(
+        result
+    ) {
+
+        const parts =
+            [];
+
+
+        if (
+            result.hasNumeric
+        ) {
+
+            if (
+                result.minimum ===
+                result.maximum
+            ) {
+
+                parts.push(
+                    formatPenalMoney(
+                        result.minimum
+                    )
+                );
+
+            }
+            else {
+
+                parts.push(
+                    `${formatPenalMoney(
+                        result.minimum
+                    )} - ${formatPenalMoney(
+                        result.maximum
+                    )}`
+                );
+
+            }
+
+        }
+
+
+        if (
+            result.special.length
+        ) {
+
+            parts.push(
+                result.special.join(
+                    " / "
+                )
+            );
+
+        }
+
+
+        return parts.length
+            ? parts.join(
+                " + "
+            )
+            : "$0";
+
+    }
+
+
+
+    /* =========================================================
+       COD PENAL — CALCULATOR
+    ========================================================== */
+
+    function updatePenalCalculator() {
+
+        const calculator =
+            document.getElementById(
+                "penal-calculator"
+            );
+
+
+        const selectedList =
+            document.getElementById(
+                "penal-selected-list"
+            );
+
+
+        const count =
+            document.getElementById(
+                "penal-selected-count"
+            );
+
+
+        const jail =
+            document.getElementById(
+                "penal-total-jail"
+            );
+
+
+        const fine =
+            document.getElementById(
+                "penal-total-fine"
+            );
+
+
+        if (
+            !calculator ||
+            !selectedList ||
+            !count ||
+            !jail ||
+            !fine
+        ) {
+
+            return;
+
+        }
+
+
+        const articles =
+            getSelectedPenalArticles();
+
+
+        const penalSection =
+            document.getElementById(
+                "penal-code"
+            );
+
+
+        const sectionVisible =
+            penalSection
+                ?.classList
+                .contains(
+                    "active"
+                );
+
+
+        /*
+         * Calculatorul apare doar în secțiunea COD PENAL
+         * și doar dacă există cel puțin un articol bifat.
+         */
+
+        calculator.classList.toggle(
+            "visible",
+
+            Boolean(
+                sectionVisible &&
+                articles.length
+            )
+        );
+
+
+        count.textContent =
+            articles.length;
+
+
+        if (!articles.length) {
+
+            selectedList.innerHTML =
+                "";
+
+
+            jail.textContent =
+                "0 luni";
+
+
+            fine.textContent =
+                "$0";
+
+
+            return;
+
+        }
+
+
+        selectedList.innerHTML =
+            articles
+                .map(
+                    article => `
+
+                        <div class="penal-selected-chip">
+
+                            <span>
+
+                                <strong>
+                                    ${escapeHTML(
+                                        article.article
+                                    )}
+                                </strong>
+
+                                ${escapeHTML(
+                                    article.title
+                                )}
+
+                            </span>
+
+
+                            <button
+                                type="button"
+                                class="penal-selected-remove"
+                                data-penal-remove="${escapeHTML(article.id)}"
+                                title="Elimină"
+                            >
+                                ×
+                            </button>
+
+                        </div>
+                    `
+                )
+                .join("");
+
+
+        selectedList
+            .querySelectorAll(
+                "[data-penal-remove]"
+            )
+            .forEach(
+                button => {
+
+                    button.onclick =
+                        function () {
+
+                            const articleId =
+                                String(
+                                    this.dataset.penalRemove
+                                );
+
+
+                            penalSelectedArticles.delete(
+                                articleId
+                            );
+
+
+                            renderPenalArticles();
+
+
+                            updatePenalCalculator();
+
+                        };
+
+                }
+            );
+
+
+        const jailResult =
+            calculatePenalJail(
+                articles
+            );
+
+
+        const fineResult =
+            calculatePenalFine(
+                articles
+            );
+
+
+        jail.textContent =
+            getPenalJailTotalText(
+                jailResult
+            );
+
+
+        fine.textContent =
+            getPenalFineTotalText(
+                fineResult
+            );
+
+    }
+
+
+
+    /* =========================================================
+       COD PENAL — GOLEȘTE
+    ========================================================== */
+
+    document
+        .getElementById(
+            "penal-clear"
+        )
+        ?.addEventListener(
+            "click",
+
+            function () {
+
+                penalSelectedArticles.clear();
+
+
+                renderPenalArticles();
+
+
+                updatePenalCalculator();
+
+            }
+        );
+
+
+
+    /* =========================================================
+       COD PENAL — TEXT PENTRU CLIPBOARD
+    ========================================================== */
+
+    function buildPenalClipboardText() {
+
+        const articles =
+            getSelectedPenalArticles();
+
+
+        if (!articles.length) {
+
+            return "";
+
+        }
+
+
+        const jailResult =
+            calculatePenalJail(
+                articles
+            );
+
+
+        const fineResult =
+            calculatePenalFine(
+                articles
+            );
+
+
+        const lines =
+            [];
+
+
+        lines.push(
+            "COD PENAL RUSH"
+        );
+
+
+        lines.push(
+            "=============================="
+        );
+
+
+        lines.push(
+            ""
+        );
+
+
+        articles.forEach(
+            (
+                article,
+                index
+            ) => {
+
+                lines.push(
+                    `${index + 1}. ${article.article} — ${article.title}`
+                );
+
+
+                if (
+                    article.jail
+                ) {
+
+                    lines.push(
+                        `Închisoare: ${article.jail}`
+                    );
+
+                }
+
+
+                if (
+                    article.fine
+                ) {
+
+                    lines.push(
+                        `Amendă: ${article.fine}`
+                    );
+
+                }
+
+
+                lines.push(
+                    ""
+                );
+
+            }
+        );
+
+
+        lines.push(
+            "=============================="
+        );
+
+
+        lines.push(
+            `TOTAL ARTICOLE: ${articles.length}`
+        );
+
+
+        lines.push(
+            `TOTAL ÎNCHISOARE: ${getPenalJailTotalText(
+                jailResult
+            )}`
+        );
+
+
+        lines.push(
+            `TOTAL AMENDĂ: ${getPenalFineTotalText(
+                fineResult
+            )}`
+        );
+
+
+        return lines.join(
+            "\n"
+        );
+
+    }
+
+
+
+    /* =========================================================
+       COD PENAL — COPY
+    ========================================================== */
+
+    async function copyPenalSelection() {
+
+        const text =
+            buildPenalClipboardText();
+
+
+        if (!text) {
+
+            return;
+
+        }
+
+
+        try {
+
+            if (
+                navigator.clipboard &&
+                window.isSecureContext
+            ) {
+
+                await navigator
+                    .clipboard
+                    .writeText(
+                        text
+                    );
+
+            }
+            else {
+
+                const textarea =
+                    document.createElement(
+                        "textarea"
+                    );
+
+
+                textarea.value =
+                    text;
+
+
+                textarea.style.position =
+                    "fixed";
+
+
+                textarea.style.opacity =
+                    "0";
+
+
+                textarea.style.pointerEvents =
+                    "none";
+
+
+                document.body.appendChild(
+                    textarea
+                );
+
+
+                textarea.focus();
+
+
+                textarea.select();
+
+
+                document.execCommand(
+                    "copy"
+                );
+
+
+                textarea.remove();
+
+            }
+
+
+            showPenalCopyMessage();
+
+        }
+        catch (error) {
+
+            console.error(
+                "Penal Clipboard Error:",
+                error
+            );
+
+        }
+
+    }
+
+
+
+    document
+        .getElementById(
+            "penal-copy"
+        )
+        ?.addEventListener(
+            "click",
+            copyPenalSelection
+        );
+
+
+
+    /* =========================================================
+       COD PENAL — MESAJ COPIAT
+    ========================================================== */
+
+    function showPenalCopyMessage() {
+
+        const element =
+            document.getElementById(
+                "penal-copy-message"
+            );
+
+
+        if (!element) {
+
+            return;
+
+        }
+
+
+        element.classList.add(
+            "visible"
+        );
+
+
+        clearTimeout(
+            showPenalCopyMessage.timeout
+        );
+
+
+        showPenalCopyMessage.timeout =
+            setTimeout(
+                () => {
+
+                    element.classList.remove(
+                        "visible"
+                    );
+
+                },
+                1600
+            );
+
+    }
+
+
+
+    /* =========================================================
+       COD PENAL — ASCUNDE CALCULATORUL LA SCHIMBAREA SECȚIUNII
+    ========================================================== */
+
+    document
+        .querySelectorAll(
+            ".sidebar-link[data-section]"
+        )
+        .forEach(
+            button => {
+
+                button.addEventListener(
+                    "click",
+
+                    function () {
+
+                        setTimeout(
+                            updatePenalCalculator,
+                            0
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+
+    /* =========================================================
+       COD PENAL — INIT
+    ========================================================== */
+
+    renderPenalCode();
+
+        /* =========================================================
+       START
+    ========================================================== */
+
+    updateAnnouncementPreview();
+
+
+
+    async function openSectionFromURL() {
+
+        const params =
+            new URLSearchParams(
+                window.location.search
+            );
+
+        const requestedSection =
+            params.get(
+                "section"
+            );
+
+        if (!requestedSection) {
+            return;
+        }
+
+        const allowedSections =
+            new Set([
+                "overview",
+                "new-report",
+                "my-reports",
+                "personnel",
+                "leave",
+                "docs",
+                "penal-code",
+                "leadership",
+                "blacklist",
+                "admin",
+                "profile"
+            ]);
+
+        if (
+            !allowedSections.has(
+                requestedSection
+            )
+        ) {
+            return;
+        }
+
+        const button =
+            document.querySelector(
+                `.sidebar-link[data-section="${requestedSection}"]`
+            );
+
+        if (
+            !button ||
+            button.classList.contains(
+                "hidden"
+            ) ||
+            getComputedStyle(button).display ===
+                "none"
+        ) {
+            return;
+        }
+
+        button.click();
+    }
+
+
+    loadUser()
+
+
+        .then(() => {
+
+            // Încarcă statisticile de rapoarte imediat la intrarea în dashboard,
+            // fără să fie nevoie să deschizi mai întâi „Rapoartele mele”.
+            // Rulează în fundal ca pagina principală să se deschidă instant.
+            if (typeof loadMyReports === "function") {
+                loadMyReports().catch(error => {
+                    console.error("Initial report stats load:", error);
+                });
+            }
+
+            openSectionFromURL();
+
+        })
+
+
+        .catch(error => {
+
+
+            console.error("Dashboard startup error:", error);
+
+
+        });
+    document
+        .getElementById("admin-delete-all-reports")
+        ?.addEventListener("click", async () => {
+
+            if (Number(currentUser?.rankLevel || 0) < 10) {
+                return;
+            }
+
+            if (!confirm(
+                "ATENȚIE: Se vor șterge definitiv TOATE rapoartele tuturor membrilor și imaginile lor. Datele din DOCS NU vor fi atinse. Continui?"
+            )) {
+                return;
+            }
+
+            const confirmation = prompt(
+                'Pentru confirmare scrie exact: STERGE RAPOARTELE'
+            );
+
+            if (confirmation !== "STERGE RAPOARTELE") {
+                alert("Ștergerea a fost anulată.");
+                return;
+            }
+
+            const button = document.getElementById("admin-delete-all-reports");
+
+            try {
+                if (button) {
+                    button.disabled = true;
+                    button.textContent = "SE ȘTERG...";
+                }
+
+                const response = await fetch(
+                    "/api/admin/reports/all",
+                    {
+                        method: "DELETE",
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            confirmation: "STERGE RAPOARTELE"
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.error || "Rapoartele nu au putut fi șterse."
+                    );
+                }
+
+                if (typeof loadAdminReports === "function") {
+                    await loadAdminReports();
+                }
+
+                if (typeof loadMyReports === "function") {
+                    await loadMyReports();
+                }
+
+                if (typeof loadDashboard === "function") {
+                    await loadDashboard();
+                }
+
+                alert(
+                    `Gata. ${Number(data.deletedReports || 0)} rapoarte au fost șterse. DOCS a rămas neschimbat.`
+                );
+            }
+            catch (error) {
+                alert(
+                    error.message || "Rapoartele nu au putut fi șterse."
+                );
+            }
+            finally {
+                if (button) {
+                    button.disabled = false;
+                    button.textContent = "ȘTERGERE RAPOARTE";
+                }
+            }
+        });
+
+</script>
+
+
+<script id="v5-quick-search-script">
+(()=>{const q=document.getElementById('v5-quick-search');if(!q)return;const links=[...document.querySelectorAll('.sidebar-link[data-section]')];const openFirst=()=>{const term=q.value.trim().toLowerCase();if(!term)return;const hit=links.find(x=>x.textContent.trim().toLowerCase().includes(term));if(hit){hit.click();q.value='';q.blur();}};q.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();openFirst();}});document.addEventListener('keydown',e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();q.focus();q.select();}});})();
+</script>
+
+
+<script id="report-type-v7-js">
+(() => {
+    const initPremiumReportType = () => {
+        const wrap = document.getElementById('report-type-premium');
+        const trigger = document.getElementById('report-type-trigger');
+        const label = document.getElementById('report-type-trigger-label');
+        const native = document.getElementById('report-type');
+        if (!wrap || !trigger || !label || !native || wrap.dataset.ready === '1') return;
+        wrap.dataset.ready = '1';
+        const options = [...wrap.querySelectorAll('.report-type-option')];
+        const setValue = (value, fire = true) => {
+            native.value = value;
+            const chosen = options.find(btn => btn.dataset.reportValue === value);
+            options.forEach(btn => btn.classList.toggle('selected', btn === chosen));
+            label.textContent = chosen ? chosen.querySelector('strong').textContent : 'Selectează tipul raportului';
+            if (fire) native.dispatchEvent(new Event('change', { bubbles: true }));
+        };
+        trigger.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const open = !wrap.classList.contains('open');
+            wrap.classList.toggle('open', open);
+            trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+        });
+        options.forEach(btn => btn.addEventListener('click', () => {
+            setValue(btn.dataset.reportValue);
+            wrap.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+        }));
+        document.addEventListener('click', (e) => {
+            if (!wrap.contains(e.target)) {
+                wrap.classList.remove('open');
+                trigger.setAttribute('aria-expanded', 'false');
+            }
+        });
+        native.addEventListener('change', () => setValue(native.value, false));
+        setValue(native.value, false);
+    };
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPremiumReportType);
+    else initPremiumReportType();
+})();
+</script>
+
+
+<script id="v8-settings-notifications-js">
+(() => {
+    let notifications = [];
+    let filter = "ALL";
+    let draft = null;
+    const $ = id => document.getElementById(id);
+    const getUser = () => (typeof currentUser !== "undefined" && currentUser) ? currentUser : null;
+    const key = () => `diicot-display-settings:${getUser()?.id || "default"}`;
+    const readKey = () => `diicot-notifications-read:${getUser()?.id || "default"}`;
+    const defaults = () => ({mode:"dark",fontSize:"normal",primary:"#718198",primaryName:"Slate",secondary:"#ef3340",secondaryName:"Roșu"});
+
+    function loadSettings(){try{return {...defaults(),...JSON.parse(localStorage.getItem(key())||"{}")}}catch{return defaults()}}
+    function apply(s){
+        s={...defaults(),...(s||{})};
+        document.documentElement.style.setProperty("--display-primary",s.primary);
+        document.documentElement.style.setProperty("--display-secondary",s.secondary);
+        document.body.classList.toggle("v8-light-mode",s.mode==="light");
+        document.body.classList.toggle("v8-font-small",s.fontSize==="small");
+        document.body.classList.toggle("v8-font-large",s.fontSize==="large");
+        document.querySelectorAll("[data-display-mode]").forEach(b=>b.classList.toggle("active",b.dataset.displayMode===s.mode));
+        document.querySelectorAll("[data-font-size]").forEach(b=>b.classList.toggle("active",b.dataset.fontSize===s.fontSize));
+        document.querySelectorAll("#v8-primary-colors button").forEach(b=>b.classList.toggle("active",b.dataset.color.toLowerCase()===s.primary.toLowerCase()));
+        document.querySelectorAll("#v8-secondary-colors button").forEach(b=>b.classList.toggle("active",b.dataset.color.toLowerCase()===s.secondary.toLowerCase()));
+        if($("v8-primary-name"))$("v8-primary-name").textContent=s.primaryName;
+        if($("v8-secondary-name"))$("v8-secondary-name").textContent=s.secondaryName;
+    }
+    function fillInfo(){
+        const u=getUser()||{},display=u.displayName||u.global_name||u.username||"Utilizator",rank=u.rank||"-";
+        const m=String(display).match(/\[(D-\d{2})\]/i),callsign=m?`[${m[1].toUpperCase()}]`:"-";
+        if($("v8-settings-user"))$("v8-settings-user").textContent=u.username||display;
+        if($("v8-settings-rank"))$("v8-settings-rank").textContent=rank;
+        if($("v8-settings-callsign"))$("v8-settings-callsign").textContent=callsign;
+        if($("v8-preview-user"))$("v8-preview-user").textContent=`${callsign!=="-"?callsign+" ":""}${display.replace(/\[[^\]]+\]\s*/,"")}`;
+    }
+    function openSettings(){draft=loadSettings();apply(draft);fillInfo();if(typeof openSection==="function")openSection("display-settings");document.querySelector(".v8-user-wrap")?.classList.remove("open")}
+    function readIds(){try{return new Set(JSON.parse(localStorage.getItem(readKey())||"[]"))}catch{return new Set()}}
+    function ago(v){const t=new Date(v).getTime();if(!Number.isFinite(t))return"";const m=Math.floor((Date.now()-t)/60000);if(m<1)return"acum";if(m<60)return`${m} min`;const h=Math.floor(m/60);if(h<24)return`${h}h`;return`${Math.floor(h/24)}z`}
+    function renderNotifications(){
+        const list=$("v8-notification-list");if(!list)return;
+        const read=readIds(),arr=notifications.filter(n=>filter==="ALL"||n.type===filter);
+        const icon=t=>t==="EVENT"?"◷":t==="COMPLAINT"?"!":"✦",cls=t=>t==="EVENT"?"event":t==="COMPLAINT"?"complaint":"announcement";
+        list.innerHTML=arr.length?arr.map(n=>`<div class="v8-notification-item ${read.has(String(n.id))?"":"unread"}"><div class="v8-notification-icon ${cls(n.type)}">${icon(n.type)}</div><div class="v8-notification-copy"><strong>${escapeHTML(n.title||"Notificare")}</strong><p>${escapeHTML(n.message||"")}</p></div><span class="v8-notification-time">${escapeHTML(ago(n.createdAt))}</span></div>`).join(""):'<div class="v8-notification-empty">Nu există notificări în această categorie.</div>';
+        const unread=notifications.filter(n=>!read.has(String(n.id))).length,c=$("v8-notification-count");if(c){c.textContent=unread>99?"99+":String(unread);c.dataset.empty=unread?"0":"1"}
+    }
+    async function loadNotifications(){
+        try{const r=await fetch("/api/notifications",{credentials:"include",cache:"no-store"}),d=await r.json();if(!r.ok)throw new Error(d.error||"Notificările nu au putut fi încărcate.");notifications=Array.isArray(d.notifications)?d.notifications:[];renderNotifications()}
+        catch(e){if($("v8-notification-list"))$("v8-notification-list").innerHTML=`<div class="v8-notification-empty">${escapeHTML(e.message||"Notificări indisponibile.")}</div>`}
+    }
+    function init(){
+        const nw=document.querySelector(".v8-notification-wrap"),uw=document.querySelector(".v8-user-wrap");
+        $("v8-notification-btn")?.addEventListener("click",e=>{e.stopPropagation();uw?.classList.remove("open");nw?.classList.toggle("open");if(nw?.classList.contains("open"))loadNotifications()});
+        $("v8-user-trigger")?.addEventListener("click",e=>{e.stopPropagation();nw?.classList.remove("open");uw?.classList.toggle("open")});
+        document.addEventListener("click",e=>{if(!nw?.contains(e.target))nw?.classList.remove("open");if(!uw?.contains(e.target))uw?.classList.remove("open")});
+        $("v8-open-profile")?.addEventListener("click",async()=>{if(typeof loadProfile==="function")await loadProfile();if(typeof openSection==="function")openSection("profile");uw?.classList.remove("open")});
+        $("v8-open-display-settings")?.addEventListener("click",openSettings);
+        $("v8-mark-read")?.addEventListener("click",()=>{localStorage.setItem(readKey(),JSON.stringify(notifications.map(n=>String(n.id))));renderNotifications()});
+        document.querySelectorAll("[data-notification-filter]").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.notificationFilter;document.querySelectorAll("[data-notification-filter]").forEach(x=>x.classList.toggle("active",x===b));renderNotifications()}));
+
+        draft=loadSettings();apply(draft);
+        document.querySelectorAll("[data-display-mode]").forEach(b=>b.addEventListener("click",()=>{draft={...(draft||loadSettings()),mode:b.dataset.displayMode};apply(draft)}));
+        document.querySelectorAll("[data-font-size]").forEach(b=>b.addEventListener("click",()=>{draft={...(draft||loadSettings()),fontSize:b.dataset.fontSize};apply(draft)}));
+        document.querySelectorAll("#v8-primary-colors button").forEach(b=>b.addEventListener("click",()=>{draft={...(draft||loadSettings()),primary:b.dataset.color,primaryName:b.dataset.name};apply(draft)}));
+        document.querySelectorAll("#v8-secondary-colors button").forEach(b=>b.addEventListener("click",()=>{draft={...(draft||loadSettings()),secondary:b.dataset.color,secondaryName:b.dataset.name};apply(draft)}));
+        $("v8-save-settings")?.addEventListener("click",()=>{const s=draft||loadSettings();localStorage.setItem(key(),JSON.stringify(s));apply(s);const b=$("v8-save-settings"),old=b.textContent;b.textContent="✓ SETĂRI SALVATE";setTimeout(()=>b.textContent=old,1000)});
+        $("v8-reset-settings")?.addEventListener("click",()=>{draft=defaults();localStorage.setItem(key(),JSON.stringify(draft));apply(draft)});
+
+        const timer=setInterval(()=>{if(getUser()){clearInterval(timer);fillInfo();apply(loadSettings());loadNotifications();setInterval(loadNotifications,60000)}},300);
+        setTimeout(()=>clearInterval(timer),15000);
+    }
+    if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
+})();
+</script>
+
+
+<script>
+(() => {
+    const test = new Image();
+    test.src = "/uploads/diicot-hero-bg.png?v=11";
+    test.onload = () => console.log("[DIICOT HERO V11] Fundal încărcat:", test.naturalWidth, "x", test.naturalHeight);
+    test.onerror = () => console.error("[DIICOT HERO V11] Imaginea /uploads/diicot-hero-bg.png NU poate fi încărcată.");
+})();
+</script>
+
+</body>
+</html>
