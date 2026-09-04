@@ -8479,6 +8479,279 @@
 .report-premium-message.success{padding:11px 13px;background:rgba(29,180,110,.08);border:1px solid rgba(29,180,110,.22);color:#57d99d;}
 .report-premium-message.error{padding:11px 13px;background:rgba(235,76,76,.08);border:1px solid rgba(235,76,76,.22);color:#ff7373;}
 @media(max-width:800px){.report-premium-shell{padding:18px}.report-premium-hero{min-height:auto}.report-hero-art{display:none}.report-premium-hero h2{font-size:31px}.report-field-card{grid-template-columns:1fr}.report-field-icon{display:none}.report-form-footer{align-items:stretch;flex-direction:column}.report-submit-btn{width:100%}}
+
+/* =========================================================
+   CERINȚE UP — PREMIUM CAREER PROGRESSION
+========================================================= */
+
+.upreq-card .home-action-icon{
+    background:linear-gradient(145deg,rgba(232,180,65,.18),rgba(232,180,65,.06))!important;
+    border-color:rgba(232,180,65,.30)!important;
+    color:#f1bd43!important;
+    box-shadow:0 0 30px rgba(232,180,65,.08);
+}
+
+.upreq-page{
+    position:relative;
+    padding:8px 0 32px;
+}
+
+.upreq-hero{
+    position:relative;
+    overflow:hidden;
+    border:1px solid rgba(232,180,65,.20);
+    border-radius:22px;
+    padding:30px 32px;
+    margin-bottom:18px;
+    background:
+        radial-gradient(circle at 85% 15%,rgba(232,180,65,.13),transparent 28%),
+        linear-gradient(135deg,rgba(9,21,35,.92),rgba(4,12,21,.80));
+    box-shadow:0 24px 70px rgba(0,0,0,.24),inset 0 1px 0 rgba(255,255,255,.03);
+}
+
+.upreq-hero:after{
+    content:"↑";
+    position:absolute;
+    right:34px;
+    top:2px;
+    font-size:150px;
+    line-height:1;
+    font-weight:900;
+    color:rgba(232,180,65,.055);
+    pointer-events:none;
+}
+
+.upreq-eyebrow{
+    display:flex;
+    align-items:center;
+    gap:9px;
+    color:#e8b441;
+    font-size:11px;
+    font-weight:900;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    margin-bottom:10px;
+}
+
+.upreq-eyebrow:before{
+    content:"";
+    width:28px;
+    height:2px;
+    border-radius:10px;
+    background:#e8b441;
+    box-shadow:0 0 14px rgba(232,180,65,.35);
+}
+
+.upreq-hero h2{
+    margin:0;
+    color:#f6f8fb;
+    font-size:34px;
+    line-height:1.05;
+    font-weight:900;
+}
+
+.upreq-hero p{
+    max-width:720px;
+    margin:10px 0 0;
+    color:#8fa0b4;
+    font-size:13px;
+    line-height:1.65;
+}
+
+.upreq-flow{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:14px;
+}
+
+.upreq-rank{
+    position:relative;
+    overflow:hidden;
+    min-height:245px;
+    padding:20px;
+    border:1px solid rgba(131,166,205,.14);
+    border-radius:18px;
+    background:
+        linear-gradient(145deg,rgba(8,19,32,.88),rgba(3,11,20,.73));
+    box-shadow:0 18px 48px rgba(0,0,0,.17),inset 0 1px 0 rgba(255,255,255,.025);
+    transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease;
+}
+
+.upreq-rank:hover{
+    transform:translateY(-3px);
+    border-color:rgba(232,180,65,.30);
+    box-shadow:0 25px 58px rgba(0,0,0,.24),0 0 28px rgba(232,180,65,.04);
+}
+
+.upreq-rank:before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:0;
+    bottom:0;
+    width:3px;
+    background:linear-gradient(#f1bd43,rgba(232,180,65,.12));
+}
+
+.upreq-rank-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    padding-bottom:15px;
+    margin-bottom:14px;
+    border-bottom:1px solid rgba(133,166,204,.10);
+}
+
+.upreq-route{
+    min-width:0;
+}
+
+.upreq-from{
+    color:#7e91a8;
+    font-size:10px;
+    font-weight:800;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+}
+
+.upreq-route h3{
+    margin:5px 0 0;
+    color:#f4f7fb;
+    font-size:17px;
+    font-weight:900;
+}
+
+.upreq-arrow{
+    color:#e8b441;
+    padding:0 5px;
+}
+
+.upreq-time{
+    flex:0 0 auto;
+    padding:7px 10px;
+    border:1px solid rgba(232,180,65,.20);
+    border-radius:999px;
+    color:#f0bd48;
+    background:rgba(232,180,65,.07);
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:.06em;
+    white-space:nowrap;
+}
+
+.upreq-list{
+    display:grid;
+    gap:9px;
+}
+
+.upreq-item{
+    display:flex;
+    align-items:flex-start;
+    gap:10px;
+    color:#b6c2d0;
+    font-size:12px;
+    line-height:1.45;
+}
+
+.upreq-check{
+    display:grid;
+    place-items:center;
+    flex:0 0 22px;
+    width:22px;
+    height:22px;
+    border-radius:7px;
+    color:#e8b441;
+    background:rgba(232,180,65,.08);
+    border:1px solid rgba(232,180,65,.15);
+    font-size:10px;
+    font-weight:900;
+}
+
+.upreq-highlight{
+    color:#f5f7fa;
+    font-weight:800;
+}
+
+.upreq-final{
+    grid-column:1/-1;
+    display:grid;
+    grid-template-columns:1.1fr .9fr;
+    gap:14px;
+    margin-top:2px;
+}
+
+.upreq-merit,
+.upreq-warning{
+    position:relative;
+    overflow:hidden;
+    border-radius:18px;
+    padding:20px 22px;
+}
+
+.upreq-merit{
+    border:1px solid rgba(232,180,65,.24);
+    background:
+        radial-gradient(circle at 100% 0,rgba(232,180,65,.12),transparent 40%),
+        rgba(8,18,30,.78);
+}
+
+.upreq-warning{
+    border:1px solid rgba(255,83,92,.18);
+    background:
+        radial-gradient(circle at 100% 0,rgba(255,83,92,.10),transparent 42%),
+        rgba(24,10,15,.42);
+}
+
+.upreq-final-title{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:8px;
+    color:#f5f7fa;
+    font-size:13px;
+    font-weight:900;
+}
+
+.upreq-final-icon{
+    display:grid;
+    place-items:center;
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    color:#e8b441;
+    background:rgba(232,180,65,.09);
+    border:1px solid rgba(232,180,65,.17);
+}
+
+.upreq-warning .upreq-final-icon{
+    color:#ff6971;
+    background:rgba(255,83,92,.08);
+    border-color:rgba(255,83,92,.17);
+}
+
+.upreq-final p{
+    margin:0;
+    color:#93a4b7;
+    font-size:12px;
+    line-height:1.6;
+}
+
+.upreq-warning strong{
+    color:#ff7a82;
+}
+
+@media(max-width:950px){
+    .upreq-flow{grid-template-columns:1fr}
+    .upreq-final{grid-template-columns:1fr}
+}
+
+@media(max-width:620px){
+    .upreq-hero{padding:24px 20px}
+    .upreq-hero h2{font-size:28px}
+    .upreq-rank-top{align-items:flex-start;flex-direction:column}
+}
+
 </style>
 
 <style id="sanction-premium-styles">
@@ -10925,6 +11198,20 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
                         <button
                             type="button"
+                            class="home-action-card gold upreq-card"
+                            data-home-section="promotion-requirements"
+                        >
+                            <div class="home-action-icon">↑</div>
+                            <h3>CERINȚE UP</h3>
+                            <p>
+                                Vezi traseul de promovare, numărul de rapoarte,
+                                activitățile și condițiile necesare pentru următorul grad.
+                            </p>
+                            <span class="home-action-arrow">→</span>
+                        </button>
+
+                        <button
+                            type="button"
                             class="home-action-card gold admin-home-card"
                             id="open-sanction-modal"
                         >
@@ -10944,6 +11231,164 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
             </section>
 
 
+
+
+
+            <!-- =====================================================
+                 CERINȚE UP — TOȚI MEMBRII
+            ====================================================== -->
+            <section
+                id="promotion-requirements"
+                class="dashboard-section"
+            >
+                <div class="upreq-page">
+
+                    <div class="upreq-hero">
+                        <div class="upreq-eyebrow">
+                            PROGRES PROFESIONAL • DIICOT
+                        </div>
+
+                        <h2>Cerințe pentru promovare</h2>
+
+                        <p>
+                            Consultă cerințele minime pentru avansarea în grad.
+                            Îndeplinirea numărului de rapoarte nu garantează automat promovarea:
+                            conduita, capabilitatea și implicarea sunt evaluate separat.
+                        </p>
+                    </div>
+
+                    <div class="upreq-flow">
+
+                        <article class="upreq-rank">
+                            <div class="upreq-rank-top">
+                                <div class="upreq-route">
+                                    <div class="upreq-from">TRASEU DE PROMOVARE</div>
+                                    <h3>Agent Stagiar <span class="upreq-arrow">→</span> Agent Operativ</h3>
+                                </div>
+                                <div class="upreq-time">MIN. 1 SĂPTĂMÂNĂ</div>
+                            </div>
+
+                            <div class="upreq-list">
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span><span class="upreq-highlight">50 rapoarte</span></span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Evaluare comportamentală</span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Analiză capabilitate</span></div>
+                            </div>
+                        </article>
+
+                        <article class="upreq-rank">
+                            <div class="upreq-rank-top">
+                                <div class="upreq-route">
+                                    <div class="upreq-from">TRASEU DE PROMOVARE</div>
+                                    <h3>Agent Operativ <span class="upreq-arrow">→</span> Agent Principal</h3>
+                                </div>
+                                <div class="upreq-time">MIN. 1 SĂPTĂMÂNĂ</div>
+                            </div>
+
+                            <div class="upreq-list">
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span><span class="upreq-highlight">70 rapoarte</span></span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Seriozitate și capabilitate</span></div>
+                            </div>
+                        </article>
+
+                        <article class="upreq-rank">
+                            <div class="upreq-rank-top">
+                                <div class="upreq-route">
+                                    <div class="upreq-from">TRASEU DE PROMOVARE</div>
+                                    <h3>Agent Principal <span class="upreq-arrow">→</span> Sub Inspector</h3>
+                                </div>
+                                <div class="upreq-time">MIN. 2 SĂPTĂMÂNI</div>
+                            </div>
+
+                            <div class="upreq-list">
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span><span class="upreq-highlight">100 rapoarte</span></span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Seriozitate și capabilitate</span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Evaluare comportamentală</span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Testarea capacităților de coordonare</span></div>
+                            </div>
+                        </article>
+
+                        <article class="upreq-rank">
+                            <div class="upreq-rank-top">
+                                <div class="upreq-route">
+                                    <div class="upreq-from">TRASEU DE PROMOVARE</div>
+                                    <h3>Sub Inspector <span class="upreq-arrow">→</span> Inspector</h3>
+                                </div>
+                                <div class="upreq-time">MIN. 2 SĂPTĂMÂNI</div>
+                            </div>
+
+                            <div class="upreq-list">
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span><span class="upreq-highlight">50 rapoarte</span></span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span><span class="upreq-highlight">5 razii</span> și <span class="upreq-highlight">2 antrenamente</span></span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Seriozitate și capabilitate</span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Evaluare comportamentală</span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Recomandare de la superiori</span></div>
+                            </div>
+                        </article>
+
+                        <article class="upreq-rank">
+                            <div class="upreq-rank-top">
+                                <div class="upreq-route">
+                                    <div class="upreq-from">TRASEU DE PROMOVARE</div>
+                                    <h3>Inspector <span class="upreq-arrow">→</span> Inspector Principal</h3>
+                                </div>
+                                <div class="upreq-time">MIN. 2 SĂPTĂMÂNI</div>
+                            </div>
+
+                            <div class="upreq-list">
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span><span class="upreq-highlight">60 rapoarte</span></span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span><span class="upreq-highlight">7 razii</span> și <span class="upreq-highlight">3 antrenamente</span></span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Prezențe neanunțate</span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Recomandare de la superiori</span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Implicare activă în structura DIICOT</span></div>
+                            </div>
+                        </article>
+
+                        <article class="upreq-rank">
+                            <div class="upreq-rank-top">
+                                <div class="upreq-route">
+                                    <div class="upreq-from">TRASEU DE PROMOVARE</div>
+                                    <h3>Inspector Principal <span class="upreq-arrow">→</span> Sub-Comisar</h3>
+                                </div>
+                                <div class="upreq-time">MIN. 2 SĂPTĂMÂNI</div>
+                            </div>
+
+                            <div class="upreq-list">
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span><span class="upreq-highlight">50 rapoarte</span></span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span><span class="upreq-highlight">8 razii</span> și <span class="upreq-highlight">2 antrenamente</span></span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Ajutarea gradelor mai mici</span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Implicare activă în structura DIICOT</span></div>
+                                <div class="upreq-item"><span class="upreq-check">✓</span><span>Recomandare de la <span class="upreq-highlight">CONDUCERE</span></span></div>
+                            </div>
+                        </article>
+
+                        <div class="upreq-final">
+                            <div class="upreq-merit">
+                                <div class="upreq-final-title">
+                                    <span class="upreq-final-icon">♛</span>
+                                    DE LA SUB-COMISAR ÎN SUS
+                                </div>
+                                <p>
+                                    Promovarea se va oferi <strong style="color:#f1bd43">strict pe încredere și pe merit</strong>,
+                                    în funcție de activitatea și conduita membrului în cadrul structurii.
+                                </p>
+                            </div>
+
+                            <div class="upreq-warning">
+                                <div class="upreq-final-title">
+                                    <span class="upreq-final-icon">!</span>
+                                    ATENȚIE
+                                </div>
+                                <p>
+                                    Nu contează numai rapoartele. Dacă cerințele de
+                                    <strong>capabilitate și comportament</strong> nu sunt îndeplinite,
+                                    UP-ul nu va fi acordat.
+                                </p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
 
 
             <!-- =====================================================
