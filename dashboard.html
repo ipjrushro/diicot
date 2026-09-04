@@ -9523,6 +9523,216 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
         background-position:center,center,55% 49%!important;
     }
 }
+
+        /* =========================================================
+           CONCEDII / INVOIRI — PREMIUM 2026
+        ========================================================== */
+        #leave .leave-premium-head {
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            gap: 20px;
+            margin-bottom: 18px;
+            padding: 24px 26px;
+            overflow: hidden;
+            border: 1px solid rgba(233,185,73,.16);
+            border-radius: 16px;
+            background:
+                radial-gradient(circle at 88% 20%, rgba(233,185,73,.10), transparent 28%),
+                linear-gradient(135deg, rgba(12,24,39,.92), rgba(6,15,27,.82));
+            box-shadow: 0 22px 55px rgba(0,0,0,.22);
+        }
+        #leave .leave-premium-head::after {
+            content: "14 / 2";
+            position: absolute;
+            right: 210px;
+            top: -22px;
+            font-size: 92px;
+            font-weight: 950;
+            letter-spacing: -7px;
+            color: rgba(233,185,73,.035);
+            pointer-events: none;
+        }
+        #leave .leave-eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: var(--gold);
+            font-size: 8px;
+            font-weight: 950;
+            letter-spacing: 1.8px;
+        }
+        #leave .leave-eyebrow::before {
+            content: "";
+            width: 22px;
+            height: 2px;
+            background: var(--gold);
+            box-shadow: 0 0 12px rgba(233,185,73,.45);
+        }
+        #leave .leave-premium-head h2 {
+            margin: 0;
+            font-size: clamp(25px, 2.3vw, 36px);
+            letter-spacing: -.7px;
+        }
+        #leave .leave-premium-head p {
+            margin: 8px 0 0;
+            max-width: 620px;
+            color: #71839a;
+            font-size: 10px;
+            line-height: 1.6;
+        }
+        #leave-reset-btn {
+            display: none;
+            position: relative;
+            z-index: 2;
+            flex: 0 0 auto;
+            align-items: center;
+            gap: 8px;
+            min-height: 38px;
+            padding: 0 14px;
+            border: 1px solid rgba(233,185,73,.34);
+            border-radius: 9px;
+            color: #ffd76e;
+            background: linear-gradient(135deg, rgba(233,185,73,.14), rgba(233,185,73,.055));
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.04), 0 10px 28px rgba(0,0,0,.18);
+            font-size: 8px;
+            font-weight: 950;
+            letter-spacing: .8px;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+        #leave-reset-btn:hover {
+            transform: translateY(-1px);
+            border-color: rgba(255,205,75,.62);
+            background: linear-gradient(135deg, rgba(233,185,73,.22), rgba(233,185,73,.08));
+            box-shadow: 0 0 24px rgba(233,185,73,.10);
+        }
+        #leave-reset-btn:disabled { opacity: .5; cursor: wait; transform: none; }
+
+        #leave .leave-balance-grid {
+            grid-template-columns: repeat(2, minmax(0,1fr));
+            gap: 15px;
+            margin-bottom: 16px;
+        }
+        #leave .leave-balance-card {
+            position: relative;
+            min-height: 132px;
+            padding: 21px 22px 19px 78px;
+            overflow: hidden;
+            border: 1px solid rgba(91,126,169,.16);
+            border-radius: 14px;
+            background: linear-gradient(145deg, rgba(13,27,45,.90), rgba(7,17,30,.86));
+            box-shadow: 0 16px 38px rgba(0,0,0,.18);
+        }
+        #leave .leave-balance-card::before {
+            position: absolute;
+            left: 20px;
+            top: 22px;
+            width: 42px;
+            height: 42px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            font-size: 19px;
+            font-weight: 900;
+        }
+        #leave .leave-balance-card.vacation::before {
+            content: "▰";
+            color: var(--gold);
+            border: 1px solid rgba(233,185,73,.22);
+            background: rgba(233,185,73,.08);
+        }
+        #leave .leave-balance-card.meeting::before {
+            content: "✓";
+            color: var(--blue-light);
+            border: 1px solid rgba(49,131,255,.24);
+            background: rgba(49,131,255,.08);
+        }
+        #leave .leave-balance-card::after {
+            content: "";
+            position: absolute;
+            width: 130px;
+            height: 130px;
+            right: -55px;
+            top: -55px;
+            border: 1px solid rgba(255,255,255,.035);
+            border-radius: 50%;
+        }
+        #leave .leave-balance-card span { color:#8192a7; letter-spacing:1px; }
+        #leave .leave-balance-card strong { font-size:31px; line-height:1; color:#fff; }
+        #leave .leave-balance-card small { margin-left:5px; color:#5f7188; }
+        #leave .leave-progress {
+            position: absolute;
+            left: 78px;
+            right: 22px;
+            bottom: 20px;
+            height: 4px;
+            overflow: hidden;
+            border-radius: 10px;
+            background: rgba(255,255,255,.045);
+        }
+        #leave .leave-progress > i {
+            display:block;
+            height:100%;
+            width:100%;
+            border-radius:inherit;
+            background: linear-gradient(90deg, var(--gold), #ffd96d);
+            box-shadow:0 0 12px rgba(233,185,73,.24);
+            transition:width .3s ease;
+        }
+        #leave .meeting .leave-progress > i { background: linear-gradient(90deg,#3183ff,#74adff); }
+
+        #leave .leave-request-panel {
+            position: relative;
+            overflow: hidden;
+            padding: 0;
+            border-radius: 15px;
+            background: linear-gradient(145deg, rgba(11,24,40,.91), rgba(6,15,27,.90));
+        }
+        #leave .leave-request-top {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:15px;
+            padding:18px 21px;
+            border-bottom:1px solid rgba(255,255,255,.055);
+            background:rgba(255,255,255,.012);
+        }
+        #leave .leave-request-top strong { font-size:10px; letter-spacing:.8px; }
+        #leave .leave-request-top span { color:#60738b; font-size:8px; }
+        #leave .leave-request-body { padding: 21px; }
+        #leave .leave-request-body .form-group label { color:#8495aa; letter-spacing:.8px; }
+        #leave .leave-request-body select,
+        #leave .leave-request-body input,
+        #leave .leave-request-body textarea {
+            border-color:rgba(94,132,179,.17);
+            border-radius:10px;
+            background:rgba(3,11,20,.72);
+        }
+        #leave .leave-request-body select:focus,
+        #leave .leave-request-body input:focus,
+        #leave .leave-request-body textarea:focus {
+            border-color:rgba(233,185,73,.42);
+            box-shadow:0 0 0 3px rgba(233,185,73,.055);
+        }
+        #leave .leave-submit-row {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:16px;
+            margin-top:4px;
+        }
+        #leave .leave-submit-note { color:#586b82; font-size:8px; }
+        #leave .leave-submit-note b { color:#8da0b7; }
+        #leave .leave-reset-message { margin-top:8px; text-align:right; font-size:8px; min-height:12px; color:var(--green); }
+        @media (max-width: 850px) {
+            #leave .leave-premium-head { align-items:flex-start; flex-direction:column; }
+            #leave .leave-balance-grid { grid-template-columns:1fr; }
+            #leave .leave-submit-row { align-items:stretch; flex-direction:column; }
+        }
+
 </style>
 
 </head>
@@ -10513,182 +10723,83 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
             >
 
 
-                <div class="section-title">
+                <div class="leave-premium-head">
+                    <div>
+                        <div class="leave-eyebrow">MANAGEMENT ABSENȚE</div>
+                        <h2>Concedii / Învoiri</h2>
+                        <p>Gestionează concediile și învoirile de ședință dintr-un singur loc. Soldurile se actualizează automat după aprobarea cererilor.</p>
+                    </div>
 
-                    <span>
-                        MANAGEMENT ABSENȚE
-                    </span>
-
-                    <h2>
-                        Concedii / Învoiri
-                    </h2>
-
+                    <div>
+                        <button type="button" id="leave-reset-btn">↻ RESETARE ZILE</button>
+                        <div id="leave-reset-message" class="leave-reset-message"></div>
+                    </div>
                 </div>
-
-
 
                 <div class="leave-balance-grid">
-
-
-                    <div class="leave-balance-card">
-
-                        <span>
-                            ZILE CONCEDIU DISPONIBILE
-                        </span>
-
-                        <strong id="leave-vacation-remaining">
-                            14
-                        </strong>
-
-                        <small>
-                            / 14 zile
-                        </small>
-
+                    <div class="leave-balance-card vacation">
+                        <span>ZILE CONCEDIU DISPONIBILE</span>
+                        <div>
+                            <strong id="leave-vacation-remaining">14</strong>
+                            <small>/ 14 zile</small>
+                        </div>
+                        <div class="leave-progress"><i id="leave-vacation-progress"></i></div>
                     </div>
 
-
-
-                    <div class="leave-balance-card">
-
-                        <span>
-                            ÎNVOIRI ȘEDINȚĂ DISPONIBILE
-                        </span>
-
-                        <strong id="leave-meeting-remaining">
-                            2
-                        </strong>
-
-                        <small>
-                            / 2 învoiri
-                        </small>
-
+                    <div class="leave-balance-card meeting">
+                        <span>ÎNVOIRI ȘEDINȚĂ DISPONIBILE</span>
+                        <div>
+                            <strong id="leave-meeting-remaining">2</strong>
+                            <small>/ 2 învoiri</small>
+                        </div>
+                        <div class="leave-progress"><i id="leave-meeting-progress"></i></div>
                     </div>
-
-
                 </div>
 
-
-
-                <div class="dashboard-panel form-panel">
-
-
-                    <div class="panel-heading">
-                        CERERE NOUĂ
+                <div class="dashboard-panel leave-request-panel">
+                    <div class="leave-request-top">
+                        <div>
+                            <strong>✦ CERERE NOUĂ</strong>
+                            <span style="display:block;margin-top:4px;">Completează informațiile necesare pentru trimiterea solicitării.</span>
+                        </div>
+                        <span>DIICOT • CENTRU DE COMANDĂ</span>
                     </div>
 
-
-
-                    <form
-                        id="leave-form"
-                        style="margin-top:18px;"
-                    >
-
-
-                        <div class="form-group">
-
-                            <label for="leave-type">
-                                TIP CERERE
-                            </label>
-
-                            <select
-                                id="leave-type"
-                                required
-                            >
-
-                                <option value="">
-                                    Selectează tipul
-                                </option>
-
-                                <option value="VACATION">
-                                    CONCEDIU
-                                </option>
-
-                                <option value="MEETING_EXCUSE">
-                                    ÎNVOIRE ȘEDINȚĂ
-                                </option>
-
-                            </select>
-
-                        </div>
-
-
-
-                        <div class="two-columns">
-
-
+                    <div class="leave-request-body">
+                        <form id="leave-form">
                             <div class="form-group">
-
-                                <label for="leave-start">
-                                    DATA ÎNCEPUT
-                                </label>
-
-                                <input
-                                    type="date"
-                                    id="leave-start"
-                                    required
-                                >
-
+                                <label for="leave-type">TIP CERERE</label>
+                                <select id="leave-type" required>
+                                    <option value="">Selectează tipul cererii</option>
+                                    <option value="VACATION">CONCEDIU</option>
+                                    <option value="MEETING_EXCUSE">ÎNVOIRE ȘEDINȚĂ</option>
+                                </select>
                             </div>
 
-
-
-                            <div class="form-group">
-
-                                <label for="leave-end">
-                                    DATA FINAL
-                                </label>
-
-                                <input
-                                    type="date"
-                                    id="leave-end"
-                                    required
-                                >
-
+                            <div class="two-columns">
+                                <div class="form-group">
+                                    <label for="leave-start">DATA ÎNCEPUT</label>
+                                    <input type="date" id="leave-start" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="leave-end">DATA FINAL</label>
+                                    <input type="date" id="leave-end" required>
+                                </div>
                             </div>
 
+                            <div class="form-group">
+                                <label for="leave-reason">MOTIV</label>
+                                <textarea id="leave-reason" maxlength="1000" placeholder="Descrie motivul cererii..." required></textarea>
+                            </div>
 
-                        </div>
-
-
-
-                        <div class="form-group">
-
-                            <label for="leave-reason">
-                                MOTIV
-                            </label>
-
-                            <textarea
-                                id="leave-reason"
-                                maxlength="1000"
-                                placeholder="Descrie motivul cererii..."
-                                required
-                            ></textarea>
-
-                        </div>
-
-
-
-                        <button
-                            type="submit"
-                            class="primary-btn"
-                        >
-                            TRIMITE CERERE
-                        </button>
-
-
-
-                        <div
-                            id="leave-message"
-                            class="form-message"
-                        ></div>
-
-
-                    </form>
-
-
+                            <div class="leave-submit-row">
+                                <div class="leave-submit-note">ⓘ Cererea va fi trimisă către <b>Conducerea DIICOT</b> pentru verificare.</div>
+                                <button type="submit" class="primary-btn">TRIMITE CERERE →</button>
+                            </div>
+                            <div id="leave-message" class="form-message"></div>
+                        </form>
+                    </div>
                 </div>
-
-
 
                 <div class="dashboard-panel table-panel">
 
@@ -14746,6 +14857,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                 data.user ||
                 data;
 
+            syncLeaveResetAccess();
 
             if (!currentUser) {
 
@@ -21913,8 +22025,79 @@ const query =
 
 
 
+    const LEAVE_RESET_USER_ID = "1315733546312142921";
+
+    function syncLeaveResetAccess() {
+        const button = document.getElementById("leave-reset-btn");
+        if (!button) return;
+
+        button.style.display =
+            String(currentUser?.id || "") === LEAVE_RESET_USER_ID
+                ? "inline-flex"
+                : "none";
+    }
+
+    function updateLeaveProgress(vacationRemaining, meetingRemaining) {
+        const vacationBar = document.getElementById("leave-vacation-progress");
+        const meetingBar = document.getElementById("leave-meeting-progress");
+
+        if (vacationBar) {
+            const value = Math.max(0, Math.min(14, Number(vacationRemaining ?? 14)));
+            vacationBar.style.width = `${(value / 14) * 100}%`;
+        }
+
+        if (meetingBar) {
+            const value = Math.max(0, Math.min(2, Number(meetingRemaining ?? 2)));
+            meetingBar.style.width = `${(value / 2) * 100}%`;
+        }
+    }
+
+    async function resetLeaveAllowances() {
+        const button = document.getElementById("leave-reset-btn");
+        const message = document.getElementById("leave-reset-message");
+
+        if (String(currentUser?.id || "") !== LEAVE_RESET_USER_ID) return;
+
+        const confirmed = confirm(
+            "Resetezi soldurile pentru TOȚI membrii la 14/14 zile de concediu și 2/2 învoiri? Istoricul cererilor va rămâne salvat."
+        );
+        if (!confirmed) return;
+
+        button.disabled = true;
+        button.textContent = "SE RESETEAZĂ...";
+        if (message) message.textContent = "";
+
+        try {
+            const response = await fetch("/api/leave/reset-allowances", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ confirmation: "RESET" })
+            });
+
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Resetarea a eșuat.");
+
+            if (message) message.textContent = "✓ Soldurile au fost resetate pentru toți membrii.";
+            await loadLeave();
+        }
+        catch (error) {
+            if (message) {
+                message.style.color = "var(--red)";
+                message.textContent = error.message;
+            }
+        }
+        finally {
+            button.disabled = false;
+            button.textContent = "↻ RESETARE ZILE";
+        }
+    }
+
+    document.getElementById("leave-reset-btn")?.addEventListener("click", resetLeaveAllowances);
+
     async function loadLeave() {
 
+        syncLeaveResetAccess();
         await loadMyLeave();
 
 
@@ -21985,6 +22168,10 @@ const query =
                         ?.meetingExcusesRemaining ??
                     2;
 
+            updateLeaveProgress(
+                data.usage?.vacationRemaining ?? 14,
+                data.usage?.meetingExcusesRemaining ?? 2
+            );
 
             renderMyLeave();
 
