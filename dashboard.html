@@ -9343,6 +9343,36 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
 @media(max-width:760px){.report-type-options{grid-template-columns:1fr}.report-type-menu{position:relative;top:8px}}
 </style>
 
+
+<style id="v8-settings-notifications-css">
+:root{--display-primary:#718198;--display-secondary:#ef3340}
+.v8-fixed-topbar{position:sticky!important;top:0!important;z-index:1400!important;margin:0!important;padding:14px 22px!important;height:82px!important;background:linear-gradient(180deg,rgba(3,11,20,.97),rgba(3,11,20,.90))!important;backdrop-filter:blur(24px)!important;-webkit-backdrop-filter:blur(24px)!important;border-bottom:1px solid rgba(130,160,190,.10)!important;box-shadow:0 18px 38px rgba(0,0,0,.18)!important}
+.v8-topbar-actions,.v8-user-wrap,.v8-notification-wrap{position:relative}.v8-user-trigger{border:1px solid rgba(125,155,190,.18)!important;background:rgba(5,16,28,.82)!important;cursor:pointer!important}
+.v8-notification-btn{width:46px;height:46px;border-radius:13px;border:1px solid rgba(125,155,190,.18);background:rgba(5,16,28,.82);color:#a8bad0;display:grid;place-items:center;cursor:pointer;position:relative;box-shadow:0 12px 28px rgba(0,0,0,.17);transition:.18s ease}
+.v8-notification-btn:hover{border-color:var(--display-primary);color:#fff;transform:translateY(-1px)}.v8-notification-count{position:absolute;right:-5px;top:-6px;min-width:20px;height:20px;padding:0 5px;border-radius:999px;background:var(--display-secondary);color:#fff;font-size:9px;font-weight:900;display:grid;place-items:center;border:2px solid #06101b}.v8-notification-count[data-empty="1"]{display:none}
+.v8-notification-panel,.v8-user-dropdown{position:absolute;right:0;top:calc(100% + 12px);opacity:0;visibility:hidden;transform:translateY(-7px) scale(.99);transition:.18s ease;z-index:1600;border:1px solid rgba(126,159,194,.18);background:linear-gradient(180deg,rgba(7,19,32,.985),rgba(3,12,22,.99));backdrop-filter:blur(24px);box-shadow:0 30px 80px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.035)}
+.v8-notification-wrap.open .v8-notification-panel,.v8-user-wrap.open .v8-user-dropdown{opacity:1;visibility:visible;transform:none}
+.v8-notification-panel{width:min(470px,calc(100vw - 26px));border-radius:18px;overflow:hidden}.v8-notification-head{padding:18px 18px 13px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid rgba(255,255,255,.055)}.v8-notification-head>div{display:flex;flex-direction:column;gap:3px}.v8-notification-head span{font-size:8px;color:#70859d;font-weight:900;letter-spacing:.14em}.v8-notification-head strong{font-size:15px;color:#f4f7fb}.v8-notification-head button{border:0;background:transparent;color:var(--display-primary);font-size:8px;font-weight:900;cursor:pointer}
+.v8-notification-tabs{display:flex;gap:6px;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,.045);overflow:auto}.v8-notification-tabs button{border:1px solid rgba(255,255,255,.055);background:rgba(255,255,255,.018);color:#6f839a;font-size:8px;font-weight:900;padding:7px 9px;border-radius:8px;cursor:pointer;white-space:nowrap}.v8-notification-tabs button.active{color:#fff;border-color:var(--display-primary);background:color-mix(in srgb,var(--display-primary) 16%,transparent)}
+.v8-notification-list{max-height:430px;overflow:auto;padding:9px}.v8-notification-item{display:grid;grid-template-columns:42px 1fr auto;gap:10px;align-items:start;padding:11px;border-radius:12px;border:1px solid transparent;transition:.16s ease}.v8-notification-item:hover{background:rgba(255,255,255,.025);border-color:rgba(255,255,255,.055)}.v8-notification-item.unread{background:linear-gradient(90deg,color-mix(in srgb,var(--display-primary) 10%,transparent),transparent)}
+.v8-notification-icon{width:40px;height:40px;border-radius:11px;display:grid;place-items:center;font-size:15px;border:1px solid rgba(255,255,255,.07)}.v8-notification-icon.event{color:#f4bb35;background:rgba(244,187,53,.08);border-color:rgba(244,187,53,.18)}.v8-notification-icon.complaint{color:#ef4552;background:rgba(239,69,82,.08);border-color:rgba(239,69,82,.18)}.v8-notification-icon.announcement{color:#4ea2ff;background:rgba(78,162,255,.08);border-color:rgba(78,162,255,.18)}
+.v8-notification-copy strong{display:block;color:#eef3f8;font-size:10px;margin-bottom:4px}.v8-notification-copy p{margin:0;color:#8497ad;font-size:9px;line-height:1.5}.v8-notification-time{font-size:8px;color:#5f748b;white-space:nowrap}.v8-notification-empty{padding:32px 18px;text-align:center;color:#6e8298;font-size:9px}
+.v8-user-dropdown{width:300px;border-radius:16px;padding:8px}.v8-user-action{width:100%;border:0;text-decoration:none;display:grid;grid-template-columns:40px 1fr auto;gap:10px;align-items:center;padding:11px;border-radius:11px;background:transparent;color:#dfe8f2;text-align:left;cursor:pointer}.v8-user-action:hover{background:rgba(255,255,255,.035)}.v8-user-action.accent{border:1px solid color-mix(in srgb,var(--display-primary) 45%,transparent);background:color-mix(in srgb,var(--display-primary) 8%,transparent)}
+.v8-user-action-icon{width:36px;height:36px;border-radius:10px;display:grid;place-items:center;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);font-size:15px}.v8-user-action span:nth-child(2){display:flex;flex-direction:column;gap:3px}.v8-user-action strong{font-size:10px;color:#f0f4f8}.v8-user-action small{font-size:8px;color:#71859b}.v8-user-action b{font-size:18px;color:#71859b}.v8-user-action.logout strong,.v8-user-action.logout .v8-user-action-icon{color:#f04a55}.v8-user-divider{height:1px;background:rgba(255,255,255,.055);margin:7px}
+.v8-display-settings{padding-bottom:34px}.v8-settings-breadcrumb{display:flex;align-items:center;gap:9px;color:#72869d;font-size:9px;margin:4px 2px 18px}.v8-settings-breadcrumb strong{color:var(--display-primary)}
+.v8-settings-hero{display:flex;gap:16px;align-items:center;padding:22px 24px;margin-bottom:14px;border:1px solid rgba(126,159,194,.14);border-radius:18px;background:linear-gradient(135deg,rgba(10,23,39,.78),rgba(5,15,27,.62));backdrop-filter:blur(16px);box-shadow:0 18px 45px rgba(0,0,0,.16)}.v8-settings-hero-icon{width:56px;height:56px;border-radius:16px;display:grid;place-items:center;font-size:30px;color:#f4bd3c;background:rgba(244,189,60,.08);border:1px solid rgba(244,189,60,.18);box-shadow:0 0 30px rgba(244,189,60,.08)}.v8-settings-hero span{font-size:8px;color:#d9a932;font-weight:900;letter-spacing:.15em}.v8-settings-hero h2{margin:3px 0 4px;font-size:25px;color:#f6f8fb}.v8-settings-hero p{margin:0;color:#7f92a8;font-size:10px}
+.v8-settings-layout{display:grid;grid-template-columns:360px minmax(0,1fr);gap:16px}.v8-settings-left{display:grid;gap:14px;align-content:start}.v8-setting-card{border:1px solid rgba(126,159,194,.14);border-radius:16px;background:linear-gradient(145deg,rgba(9,21,36,.72),rgba(5,15,26,.64));backdrop-filter:blur(16px);padding:17px;box-shadow:0 18px 45px rgba(0,0,0,.14)}
+.v8-card-title{display:flex;align-items:center;gap:8px;color:#91a5bb;font-size:9px;font-weight:900;letter-spacing:.08em;margin-bottom:13px}.v8-card-title span{color:var(--display-primary);font-size:14px}.v8-mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.v8-mode-option{min-height:108px;border-radius:13px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.018);color:#a7b7c8;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer}.v8-mode-option>span{font-size:29px}.v8-mode-option strong{font-size:10px}.v8-mode-option small{opacity:0;color:var(--display-primary)}.v8-mode-option.active{border-color:var(--display-primary);background:color-mix(in srgb,var(--display-primary) 10%,transparent)}.v8-mode-option.active small{opacity:1}
+.v8-font-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.v8-font-option{min-height:78px;border:1px solid rgba(255,255,255,.06);border-radius:11px;background:rgba(255,255,255,.014);color:#94a8bd;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;cursor:pointer}.v8-font-option span{font-size:20px;font-weight:800}.v8-font-option strong{font-size:8px}.v8-font-option.active{border-color:var(--display-primary);background:color-mix(in srgb,var(--display-primary) 10%,transparent);color:#fff}
+.v8-account-info div{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.045)}.v8-account-info div:last-child{border:0}.v8-account-info span{font-size:9px;color:#74879d}.v8-account-info strong{font-size:9px;color:#e1e7ee}
+.v8-color-header{display:flex;align-items:center;justify-content:space-between;gap:10px}.v8-color-name{font-size:8px;color:#bdc8d4;border:1px solid rgba(255,255,255,.07);padding:5px 8px;border-radius:6px}.v8-color-grid{display:grid;grid-template-columns:repeat(7,minmax(64px,1fr));gap:16px 10px;margin-top:8px}.v8-color-grid button{border:0;background:transparent;color:#71859b;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;font-size:7px;font-weight:900;letter-spacing:.08em}.v8-color-grid i{width:38px;height:38px;border-radius:50%;background:var(--sw);display:block;border:2px solid rgba(255,255,255,.08);box-shadow:0 8px 18px color-mix(in srgb,var(--sw) 22%,transparent)}.v8-color-grid button.active{color:#dce6f0}.v8-color-grid button.active i{outline:2px solid rgba(255,255,255,.55);outline-offset:5px;box-shadow:0 0 24px color-mix(in srgb,var(--sw) 45%,transparent)}
+.v8-settings-separator{height:1px;background:rgba(255,255,255,.055);margin:22px 0}.v8-preview>span{font-size:8px;color:#73879d}.v8-preview-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:10px 0}.v8-preview-row>*{font-size:8px;font-weight:900;padding:8px 11px;border-radius:7px;border:1px solid rgba(255,255,255,.06)}.v8-preview-primary{background:var(--display-primary);color:#fff}.v8-preview-secondary,.v8-preview-badge{background:var(--display-secondary);color:#fff}.v8-preview-active{background:var(--display-primary);color:#fff}.v8-preview-rank{color:var(--display-primary);background:transparent!important;border-color:var(--display-primary)!important}#v8-preview-user{font-size:10px;color:#8da1b7}
+.v8-settings-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:34px}.v8-settings-actions button{border-radius:9px;padding:10px 15px;font-size:8px;font-weight:900;cursor:pointer}.v8-settings-actions button:first-child{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.018);color:#a2b2c4}.v8-settings-actions button:last-child{border:1px solid var(--display-primary);background:var(--display-primary);color:#fff;box-shadow:0 10px 28px color-mix(in srgb,var(--display-primary) 24%,transparent)}
+body.v8-light-mode{background:#e7edf4!important;color:#172231!important}body.v8-light-mode .command-main{background:linear-gradient(180deg,#e8eef5,#dfe7f0)!important}body.v8-light-mode .v8-fixed-topbar,body.v8-light-mode .v8-setting-card,body.v8-light-mode .v8-settings-hero{background:rgba(245,249,253,.9)!important;color:#172231!important}body.v8-light-mode .v8-settings-hero h2,body.v8-light-mode .v8-account-info strong{color:#172231!important}
+body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!important}.sidebar-link.active{box-shadow:inset 3px 0 0 var(--display-primary)!important;border-color:color-mix(in srgb,var(--display-primary) 45%,transparent)!important}.primary-btn,.gold-btn{background:linear-gradient(135deg,var(--display-primary),color-mix(in srgb,var(--display-primary) 78%,black))!important}
+@media(max-width:980px){.v8-settings-layout{grid-template-columns:1fr}.v8-color-grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:720px){.v8-fixed-topbar{padding:10px 12px!important;height:68px!important}.v8-user-trigger .user-info{display:none}.v8-color-grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+
 </head>
 
 
@@ -9606,7 +9636,7 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
              TOPBAR
         ====================================================== -->
 
-        <header class="command-topbar v5-topbar">
+        <header class="command-topbar v5-topbar v8-fixed-topbar">
             <div class="v5-topbar-left">
                 <button type="button" class="v5-grid-btn" aria-label="Meniu">⌘</button>
                 <div class="v5-search-wrap">
@@ -9615,15 +9645,57 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
                     <kbd>Ctrl K</kbd>
                 </div>
             </div>
-            <div class="v5-topbar-right">
-                <div class="v5-notify">♢<i></i></div>
-                <div class="user-menu v5-user-menu">
-                    <img id="dashboard-avatar" class="user-avatar" alt="Avatar">
-                    <div class="user-info">
-                        <strong id="dashboard-name">Se încarcă...</strong>
-                        <span id="dashboard-rank">-</span>
+
+            <div class="v5-topbar-right v8-topbar-actions">
+                <div class="v8-notification-wrap">
+                    <button type="button" class="v8-notification-btn" id="v8-notification-btn" aria-label="Notificări">
+                        <span>♢</span>
+                        <span class="v8-notification-count" id="v8-notification-count">0</span>
+                    </button>
+                    <div class="v8-notification-panel" id="v8-notification-panel">
+                        <div class="v8-notification-head">
+                            <div><span>CENTRU DE NOTIFICĂRI</span><strong>Notificările tale</strong></div>
+                            <button type="button" id="v8-mark-read">MARCAȚI CITITE</button>
+                        </div>
+                        <div class="v8-notification-tabs">
+                            <button type="button" class="active" data-notification-filter="ALL">TOATE</button>
+                            <button type="button" data-notification-filter="EVENT">ȘEDINȚE</button>
+                            <button type="button" data-notification-filter="COMPLAINT">RECLAMAȚII</button>
+                            <button type="button" data-notification-filter="ANNOUNCEMENT">CONDUCERE</button>
+                        </div>
+                        <div class="v8-notification-list" id="v8-notification-list">
+                            <div class="v8-notification-empty">Se încarcă notificările...</div>
+                        </div>
                     </div>
-                    <span class="v5-chevron">⌄</span>
+                </div>
+
+                <div class="v8-user-wrap">
+                    <button type="button" class="user-menu v5-user-menu v8-user-trigger" id="v8-user-trigger">
+                        <img id="dashboard-avatar" class="user-avatar" alt="Avatar">
+                        <div class="user-info">
+                            <strong id="dashboard-name">Se încarcă...</strong>
+                            <span id="dashboard-rank">-</span>
+                        </div>
+                        <span class="v5-chevron">⌄</span>
+                    </button>
+
+                    <div class="v8-user-dropdown" id="v8-user-dropdown">
+                        <button type="button" class="v8-user-action" id="v8-open-profile">
+                            <span class="v8-user-action-icon">♙</span>
+                            <span><strong>Profilul meu</strong><small>Vezi și editează profilul tău</small></span>
+                            <b>›</b>
+                        </button>
+                        <button type="button" class="v8-user-action accent" id="v8-open-display-settings">
+                            <span class="v8-user-action-icon">⚙</span>
+                            <span><strong>Setări afișare</strong><small>Personalizează interfața</small></span>
+                            <b>›</b>
+                        </button>
+                        <div class="v8-user-divider"></div>
+                        <a href="/logout" class="v8-user-action logout">
+                            <span class="v8-user-action-icon">↪</span>
+                            <span><strong>Deconectare</strong><small>Închide sesiunea curentă</small></span>
+                        </a>
+                    </div>
                 </div>
             </div>
         </header>
@@ -11505,6 +11577,107 @@ body:before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;bac
             </section>
 
 
+
+
+            <!-- =====================================================
+                 SETĂRI AFIȘARE
+            ====================================================== -->
+            <section id="display-settings" class="dashboard-section v8-display-settings">
+                <div class="v8-settings-breadcrumb"><span>⌂</span><span>Acasă</span><b>›</b><strong>Setări afișare</strong></div>
+
+                <div class="v8-settings-hero">
+                    <div class="v8-settings-hero-icon">⚙</div>
+                    <div>
+                        <span>PERSONALIZARE INTERFAȚĂ</span>
+                        <h2>Setări afișare</h2>
+                        <p>Personalizează aspectul platformei după preferințele tale.</p>
+                    </div>
+                </div>
+
+                <div class="v8-settings-layout">
+                    <div class="v8-settings-left">
+                        <article class="v8-setting-card">
+                            <div class="v8-card-title"><span>▣</span> MOD AFIȘARE</div>
+                            <div class="v8-mode-grid">
+                                <button type="button" class="v8-mode-option active" data-display-mode="dark"><span>☾</span><strong>ÎNTUNECAT</strong><small>✓</small></button>
+                                <button type="button" class="v8-mode-option" data-display-mode="light"><span>☀</span><strong>LUMINOS</strong><small>✓</small></button>
+                            </div>
+                        </article>
+
+                        <article class="v8-setting-card">
+                            <div class="v8-card-title"><span>T</span> DIMENSIUNE TEXT</div>
+                            <div class="v8-font-grid">
+                                <button type="button" class="v8-font-option" data-font-size="small"><span>Aa</span><strong>MIC</strong></button>
+                                <button type="button" class="v8-font-option active" data-font-size="normal"><span>Aa</span><strong>NORMAL</strong></button>
+                                <button type="button" class="v8-font-option" data-font-size="large"><span>Aa</span><strong>MARE</strong></button>
+                            </div>
+                        </article>
+
+                        <article class="v8-setting-card">
+                            <div class="v8-card-title"><span>♙</span> INFO CONT</div>
+                            <div class="v8-account-info">
+                                <div><span>UTILIZATOR</span><strong id="v8-settings-user">-</strong></div>
+                                <div><span>GRAD</span><strong id="v8-settings-rank">-</strong></div>
+                                <div><span>DEPARTAMENT</span><strong>DIICOT</strong></div>
+                                <div><span>CALLSIGN</span><strong id="v8-settings-callsign">-</strong></div>
+                            </div>
+                        </article>
+                    </div>
+
+                    <div class="v8-settings-right">
+                        <article class="v8-setting-card v8-color-card">
+                            <div class="v8-color-header"><div class="v8-card-title"><span>◉</span> CULOARE PRINCIPALĂ</div><span class="v8-color-name" id="v8-primary-name">Slate</span></div>
+                            <div class="v8-color-grid" id="v8-primary-colors">
+                                <button data-color="#3b82f6" data-name="Police"><i style="--sw:#3b82f6"></i><span>POLICE</span></button>
+                                <button data-color="#ef2b2d" data-name="Fire"><i style="--sw:#ef2b2d"></i><span>FIRE</span></button>
+                                <button data-color="#10a85d" data-name="Forest"><i style="--sw:#10a85d"></i><span>FOREST</span></button>
+                                <button data-color="#8f2ee6" data-name="Royal"><i style="--sw:#8f2ee6"></i><span>ROYAL</span></button>
+                                <button data-color="#ef6509" data-name="Tactical"><i style="--sw:#ef6509"></i><span>TACTICAL</span></button>
+                                <button data-color="#d59505" data-name="Sheriff"><i style="--sw:#d59505"></i><span>SHERIFF</span></button>
+                                <button data-color="#13abc6" data-name="Cyber"><i style="--sw:#13abc6"></i><span>CYBER</span></button>
+                                <button data-color="#e83e8c" data-name="Neon"><i style="--sw:#e83e8c"></i><span>NEON</span></button>
+                                <button data-color="#5b5de4" data-name="Indigo"><i style="--sw:#5b5de4"></i><span>INDIGO</span></button>
+                                <button data-color="#14b8a6" data-name="Teal"><i style="--sw:#14b8a6"></i><span>TEAL</span></button>
+                                <button class="active" data-color="#718198" data-name="Slate"><i style="--sw:#718198"></i><span>SLATE</span></button>
+                                <button data-color="#f13d59" data-name="Rose"><i style="--sw:#f13d59"></i><span>ROSE</span></button>
+                                <button data-color="#7acc0a" data-name="Lime"><i style="--sw:#7acc0a"></i><span>LIME</span></button>
+                                <button data-color="#f3a20b" data-name="Amber"><i style="--sw:#f3a20b"></i><span>AMBER</span></button>
+                            </div>
+
+                            <div class="v8-settings-separator"></div>
+                            <div class="v8-color-header"><div class="v8-card-title"><span>◉</span> CULOARE SECUNDARĂ</div><span class="v8-color-name" id="v8-secondary-name">Roșu</span></div>
+                            <div class="v8-color-grid secondary" id="v8-secondary-colors">
+                                <button data-color="#e9b414" data-name="Auriu"><i style="--sw:#e9b414"></i><span>AURIU</span></button>
+                                <button data-color="#f59e0b" data-name="Chihlimbar"><i style="--sw:#f59e0b"></i><span>CHILIMBAR</span></button>
+                                <button data-color="#f97316" data-name="Portocaliu"><i style="--sw:#f97316"></i><span>PORTOCALIU</span></button>
+                                <button class="active" data-color="#ef3340" data-name="Roșu"><i style="--sw:#ef3340"></i><span>ROȘU</span></button>
+                                <button data-color="#10b981" data-name="Smarald"><i style="--sw:#10b981"></i><span>SMARALD</span></button>
+                                <button data-color="#13b8a6" data-name="Turcoaz"><i style="--sw:#13b8a6"></i><span>TURCOAZ</span></button>
+                                <button data-color="#0ea5e9" data-name="Azur"><i style="--sw:#0ea5e9"></i><span>AZUR</span></button>
+                                <button data-color="#7c3aed" data-name="Violet"><i style="--sw:#7c3aed"></i><span>VIOLET</span></button>
+                            </div>
+
+                            <div class="v8-settings-separator"></div>
+                            <div class="v8-preview">
+                                <span>PREVIZUALIZARE</span>
+                                <div class="v8-preview-row">
+                                    <button class="v8-preview-primary">ACȚIUNE PRIMARĂ</button>
+                                    <button class="v8-preview-secondary">SECUNDAR</button>
+                                    <span class="v8-preview-active">ACTIV</span>
+                                    <span class="v8-preview-badge">SECUNDARĂ</span>
+                                    <span class="v8-preview-rank">GRAD</span>
+                                </div>
+                                <strong id="v8-preview-user">[D-00] Utilizator</strong>
+                            </div>
+
+                            <div class="v8-settings-actions">
+                                <button type="button" id="v8-reset-settings">↻ RESETEAZĂ</button>
+                                <button type="button" id="v8-save-settings">▣ SALVEAZĂ SETĂRILE</button>
+                            </div>
+                        </article>
+                    </div>
+                </div>
+            </section>
 
             <!-- =====================================================
                  PROFILE
@@ -27407,6 +27580,80 @@ const query =
     };
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPremiumReportType);
     else initPremiumReportType();
+})();
+</script>
+
+
+<script id="v8-settings-notifications-js">
+(() => {
+    let notifications = [];
+    let filter = "ALL";
+    let draft = null;
+    const $ = id => document.getElementById(id);
+    const getUser = () => (typeof currentUser !== "undefined" && currentUser) ? currentUser : null;
+    const key = () => `diicot-display-settings:${getUser()?.id || "default"}`;
+    const readKey = () => `diicot-notifications-read:${getUser()?.id || "default"}`;
+    const defaults = () => ({mode:"dark",fontSize:"normal",primary:"#718198",primaryName:"Slate",secondary:"#ef3340",secondaryName:"Roșu"});
+
+    function loadSettings(){try{return {...defaults(),...JSON.parse(localStorage.getItem(key())||"{}")}}catch{return defaults()}}
+    function apply(s){
+        s={...defaults(),...(s||{})};
+        document.documentElement.style.setProperty("--display-primary",s.primary);
+        document.documentElement.style.setProperty("--display-secondary",s.secondary);
+        document.body.classList.toggle("v8-light-mode",s.mode==="light");
+        document.body.classList.toggle("v8-font-small",s.fontSize==="small");
+        document.body.classList.toggle("v8-font-large",s.fontSize==="large");
+        document.querySelectorAll("[data-display-mode]").forEach(b=>b.classList.toggle("active",b.dataset.displayMode===s.mode));
+        document.querySelectorAll("[data-font-size]").forEach(b=>b.classList.toggle("active",b.dataset.fontSize===s.fontSize));
+        document.querySelectorAll("#v8-primary-colors button").forEach(b=>b.classList.toggle("active",b.dataset.color.toLowerCase()===s.primary.toLowerCase()));
+        document.querySelectorAll("#v8-secondary-colors button").forEach(b=>b.classList.toggle("active",b.dataset.color.toLowerCase()===s.secondary.toLowerCase()));
+        if($("v8-primary-name"))$("v8-primary-name").textContent=s.primaryName;
+        if($("v8-secondary-name"))$("v8-secondary-name").textContent=s.secondaryName;
+    }
+    function fillInfo(){
+        const u=getUser()||{},display=u.displayName||u.global_name||u.username||"Utilizator",rank=u.rank||"-";
+        const m=String(display).match(/\[(D-\d{2})\]/i),callsign=m?`[${m[1].toUpperCase()}]`:"-";
+        if($("v8-settings-user"))$("v8-settings-user").textContent=u.username||display;
+        if($("v8-settings-rank"))$("v8-settings-rank").textContent=rank;
+        if($("v8-settings-callsign"))$("v8-settings-callsign").textContent=callsign;
+        if($("v8-preview-user"))$("v8-preview-user").textContent=`${callsign!=="-"?callsign+" ":""}${display.replace(/\[[^\]]+\]\s*/,"")}`;
+    }
+    function openSettings(){draft=loadSettings();apply(draft);fillInfo();if(typeof openSection==="function")openSection("display-settings");document.querySelector(".v8-user-wrap")?.classList.remove("open")}
+    function readIds(){try{return new Set(JSON.parse(localStorage.getItem(readKey())||"[]"))}catch{return new Set()}}
+    function ago(v){const t=new Date(v).getTime();if(!Number.isFinite(t))return"";const m=Math.floor((Date.now()-t)/60000);if(m<1)return"acum";if(m<60)return`${m} min`;const h=Math.floor(m/60);if(h<24)return`${h}h`;return`${Math.floor(h/24)}z`}
+    function renderNotifications(){
+        const list=$("v8-notification-list");if(!list)return;
+        const read=readIds(),arr=notifications.filter(n=>filter==="ALL"||n.type===filter);
+        const icon=t=>t==="EVENT"?"◷":t==="COMPLAINT"?"!":"✦",cls=t=>t==="EVENT"?"event":t==="COMPLAINT"?"complaint":"announcement";
+        list.innerHTML=arr.length?arr.map(n=>`<div class="v8-notification-item ${read.has(String(n.id))?"":"unread"}"><div class="v8-notification-icon ${cls(n.type)}">${icon(n.type)}</div><div class="v8-notification-copy"><strong>${escapeHTML(n.title||"Notificare")}</strong><p>${escapeHTML(n.message||"")}</p></div><span class="v8-notification-time">${escapeHTML(ago(n.createdAt))}</span></div>`).join(""):'<div class="v8-notification-empty">Nu există notificări în această categorie.</div>';
+        const unread=notifications.filter(n=>!read.has(String(n.id))).length,c=$("v8-notification-count");if(c){c.textContent=unread>99?"99+":String(unread);c.dataset.empty=unread?"0":"1"}
+    }
+    async function loadNotifications(){
+        try{const r=await fetch("/api/notifications",{credentials:"include",cache:"no-store"}),d=await r.json();if(!r.ok)throw new Error(d.error||"Notificările nu au putut fi încărcate.");notifications=Array.isArray(d.notifications)?d.notifications:[];renderNotifications()}
+        catch(e){if($("v8-notification-list"))$("v8-notification-list").innerHTML=`<div class="v8-notification-empty">${escapeHTML(e.message||"Notificări indisponibile.")}</div>`}
+    }
+    function init(){
+        const nw=document.querySelector(".v8-notification-wrap"),uw=document.querySelector(".v8-user-wrap");
+        $("v8-notification-btn")?.addEventListener("click",e=>{e.stopPropagation();uw?.classList.remove("open");nw?.classList.toggle("open");if(nw?.classList.contains("open"))loadNotifications()});
+        $("v8-user-trigger")?.addEventListener("click",e=>{e.stopPropagation();nw?.classList.remove("open");uw?.classList.toggle("open")});
+        document.addEventListener("click",e=>{if(!nw?.contains(e.target))nw?.classList.remove("open");if(!uw?.contains(e.target))uw?.classList.remove("open")});
+        $("v8-open-profile")?.addEventListener("click",async()=>{if(typeof loadProfile==="function")await loadProfile();if(typeof openSection==="function")openSection("profile");uw?.classList.remove("open")});
+        $("v8-open-display-settings")?.addEventListener("click",openSettings);
+        $("v8-mark-read")?.addEventListener("click",()=>{localStorage.setItem(readKey(),JSON.stringify(notifications.map(n=>String(n.id))));renderNotifications()});
+        document.querySelectorAll("[data-notification-filter]").forEach(b=>b.addEventListener("click",()=>{filter=b.dataset.notificationFilter;document.querySelectorAll("[data-notification-filter]").forEach(x=>x.classList.toggle("active",x===b));renderNotifications()}));
+
+        draft=loadSettings();apply(draft);
+        document.querySelectorAll("[data-display-mode]").forEach(b=>b.addEventListener("click",()=>{draft={...(draft||loadSettings()),mode:b.dataset.displayMode};apply(draft)}));
+        document.querySelectorAll("[data-font-size]").forEach(b=>b.addEventListener("click",()=>{draft={...(draft||loadSettings()),fontSize:b.dataset.fontSize};apply(draft)}));
+        document.querySelectorAll("#v8-primary-colors button").forEach(b=>b.addEventListener("click",()=>{draft={...(draft||loadSettings()),primary:b.dataset.color,primaryName:b.dataset.name};apply(draft)}));
+        document.querySelectorAll("#v8-secondary-colors button").forEach(b=>b.addEventListener("click",()=>{draft={...(draft||loadSettings()),secondary:b.dataset.color,secondaryName:b.dataset.name};apply(draft)}));
+        $("v8-save-settings")?.addEventListener("click",()=>{const s=draft||loadSettings();localStorage.setItem(key(),JSON.stringify(s));apply(s);const b=$("v8-save-settings"),old=b.textContent;b.textContent="✓ SETĂRI SALVATE";setTimeout(()=>b.textContent=old,1000)});
+        $("v8-reset-settings")?.addEventListener("click",()=>{draft=defaults();localStorage.setItem(key(),JSON.stringify(draft));apply(draft)});
+
+        const timer=setInterval(()=>{if(getUser()){clearInterval(timer);fillInfo();apply(loadSettings());loadNotifications();setInterval(loadNotifications,60000)}},300);
+        setTimeout(()=>clearInterval(timer),15000);
+    }
+    if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",init);else init();
 })();
 </script>
 
