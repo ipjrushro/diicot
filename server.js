@@ -155,6 +155,81 @@ const DIICOT_ROLES = [
     }
 ];
 
+
+// ======================================================
+// ORGANIZATORI RAZIE / ANTRENAMENT
+// Autorul raportului este primul organizator.
+// În formular se selectează încă o persoană eligibilă.
+// ======================================================
+
+const REPORT_ORGANIZER_DEPARTMENTS = {
+    DIICOT: [
+        { id: "1528758226416435211", name: "SUB INSPECTOR DIICOT", weight: 1 },
+        { id: "1528758226416435213", name: "INSPECTOR DIICOT", weight: 2 },
+        { id: "1528758226416435214", name: "INSPECTOR PRINCIPAL DIICOT", weight: 3 },
+        { id: "1528758226416435215", name: "SUB COMISAR DIICOT", weight: 4 },
+        { id: "1528758226416435216", name: "COMISAR DIICOT", weight: 5 },
+        { id: "1528758226416435217", name: "COMISAR ȘEF DIICOT", weight: 6 },
+        { id: "1528758226416435219", name: "COORDONATOR DIICOT", weight: 7 },
+        { id: "1528758226420633744", name: "PROCUROR DIICOT", weight: 8 },
+        { id: "1528758226420633745", name: "PROCUROR ȘEF ADJUNCT DIICOT", weight: 9 },
+        { id: "1528758226420633746", name: "PROCUROR ȘEF DIICOT", weight: 10 }
+    ],
+
+    POLITIE: [
+        { id: "1528758226428891362", name: "SUB INSPECTOR POLIȚIE", weight: 1 },
+        { id: "1528758226428891363", name: "INSPECTOR POLIȚIE", weight: 2 },
+        { id: "1528758226428891364", name: "INSPECTOR PRINCIPAL POLIȚIE", weight: 3 },
+        { id: "1528758226428891365", name: "SUB COMISAR POLIȚIE", weight: 4 },
+        { id: "1528758226428891366", name: "COMISAR POLIȚIE", weight: 5 },
+        { id: "1528758226428891368", name: "COMISAR ȘEF POLIȚIE", weight: 6 }
+    ]
+};
+
+
+function getReportOrganizerRank(roles = [], department = "") {
+    const key = String(department || "").trim().toUpperCase();
+    const allowed = REPORT_ORGANIZER_DEPARTMENTS[key];
+
+    if (!Array.isArray(allowed)) {
+        return null;
+    }
+
+    const roleSet = new Set(
+        Array.isArray(roles)
+            ? roles.map(String)
+            : []
+    );
+
+    return (
+        [...allowed]
+            .sort((a, b) => Number(b.weight) - Number(a.weight))
+            .find(role => roleSet.has(String(role.id))) ||
+        null
+    );
+}
+
+
+function discordMemberAvatar(user = {}) {
+    if (user.avatar) {
+        return `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128`;
+    }
+
+    let fallback = 0;
+
+    try {
+        fallback =
+            Number(
+                BigInt(user.id || "0") >> 22n
+            ) % 6;
+    } catch {
+        fallback = 0;
+    }
+
+    return `https://cdn.discordapp.com/embed/avatars/${fallback}.png`;
+}
+
+
 function getHighestDIICOTRole(roles = []) {
     return (
         DIICOT_ROLES.find(
@@ -640,6 +715,11 @@ function mapB2Report(report) {
 
         description:
             report.description,
+
+        coOrganizer:
+            report.coOrganizer ||
+            report.co_organizer ||
+            null,
 
         images:
             Array.isArray(report.images)
@@ -2798,6 +2878,126 @@ app.get(
 );
 
 
+
+// ======================================================
+// RAPOARTE — MEMBRI ELIGIBILI PENTRU RAZII / ANTRENAMENTE
+// ======================================================
+
+app.get(
+    "/api/report-organizers",
+    requireAuth,
+    async (req, res) => {
+        if (!BOT_TOKEN || !GUILD_ID) {
+            return res.status(503).json({
+                error: "Botul Discord nu este configurat complet."
+            });
+        }
+
+        try {
+            const response = await axios.get(
+                `https://discord.com/api/v10/guilds/${GUILD_ID}/members?limit=1000`,
+                {
+                    headers: {
+                        Authorization: `Bot ${BOT_TOKEN}`
+                    }
+                }
+            );
+
+            const members =
+                Array.isArray(response.data)
+                    ? response.data
+                    : [];
+
+            const currentUserId =
+                String(req.session.user.id);
+
+            const result = {
+                DIICOT: [],
+                POLITIE: []
+            };
+
+            for (const member of members) {
+                const user = member.user || {};
+
+                if (
+                    !user.id ||
+                    String(user.id) === currentUserId ||
+                    user.bot
+                ) {
+                    continue;
+                }
+
+                const roles =
+                    Array.isArray(member.roles)
+                        ? member.roles.map(String)
+                        : [];
+
+                for (const department of ["DIICOT", "POLITIE"]) {
+                    const rank =
+                        getReportOrganizerRank(
+                            roles,
+                            department
+                        );
+
+                    if (!rank) {
+                        continue;
+                    }
+
+                    result[department].push({
+                        id: String(user.id),
+                        username:
+                            user.username ||
+                            "Necunoscut",
+                        displayName:
+                            member.nick ||
+                            user.global_name ||
+                            user.username ||
+                            "Necunoscut",
+                        avatar:
+                            discordMemberAvatar(user),
+                        department,
+                        rank:
+                            rank.name,
+                        rankRoleId:
+                            rank.id,
+                        weight:
+                            Number(rank.weight || 0)
+                    });
+                }
+            }
+
+            for (const department of ["DIICOT", "POLITIE"]) {
+                result[department].sort((a, b) => {
+                    if (b.weight !== a.weight) {
+                        return b.weight - a.weight;
+                    }
+
+                    return String(a.displayName)
+                        .localeCompare(
+                            String(b.displayName),
+                            "ro"
+                        );
+                });
+            }
+
+            return res.json(result);
+
+        } catch (error) {
+            console.error(
+                "Report Organizers Discord Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res.status(500).json({
+                error:
+                    "Lista organizatorilor nu a putut fi încărcată din Discord."
+            });
+        }
+    }
+);
+
+
 // ======================================================
 // RAPOARTE - POSTARE
 // ======================================================
@@ -2825,6 +3025,20 @@ app.post(
                 req.body.title ||
                 ""
             ).trim();
+
+        const coOrganizerId =
+            String(
+                req.body.coOrganizerId ||
+                ""
+            ).trim();
+
+        const coOrganizerDepartment =
+            String(
+                req.body.coOrganizerDepartment ||
+                ""
+            )
+                .trim()
+                .toUpperCase();
 
         // Descrierea a fost eliminată din formular. Păstrăm câmpul gol
         // în JSON pentru compatibilitate cu rapoartele mai vechi.
@@ -2855,6 +3069,115 @@ app.post(
                 error:
                     "Titlul trebuie să aibă între 2 și 120 de caractere."
             });
+        }
+
+        const needsCoOrganizer =
+            type === "RAZIE" ||
+            type === "ANTRENAMENT";
+
+        let coOrganizer = null;
+
+        if (needsCoOrganizer) {
+            if (
+                !coOrganizerId ||
+                !["DIICOT", "POLITIE"].includes(
+                    coOrganizerDepartment
+                )
+            ) {
+                return res.status(400).json({
+                    error:
+                        "Pentru RAZIE și ANTRENAMENT trebuie să selectezi al doilea organizator din DIICOT sau POLIȚIE."
+                });
+            }
+
+            if (
+                coOrganizerId ===
+                String(req.session.user.id)
+            ) {
+                return res.status(400).json({
+                    error:
+                        "Nu te poți selecta pe tine ca al doilea organizator."
+                });
+            }
+
+            if (!BOT_TOKEN || !GUILD_ID) {
+                return res.status(503).json({
+                    error:
+                        "Botul Discord nu este configurat pentru verificarea organizatorului."
+                });
+            }
+
+            try {
+                const memberResponse =
+                    await axios.get(
+                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${coOrganizerId}`,
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bot ${BOT_TOKEN}`
+                            }
+                        }
+                    );
+
+                const member =
+                    memberResponse.data ||
+                    {};
+
+                const user =
+                    member.user ||
+                    {};
+
+                const roles =
+                    Array.isArray(member.roles)
+                        ? member.roles.map(String)
+                        : [];
+
+                const organizerRank =
+                    getReportOrganizerRank(
+                        roles,
+                        coOrganizerDepartment
+                    );
+
+                if (!organizerRank) {
+                    return res.status(400).json({
+                        error:
+                            `Persoana selectată nu mai are un grad eligibil de Sub Inspector+ în ${coOrganizerDepartment === "POLITIE" ? "POLIȚIE" : "DIICOT"}.`
+                    });
+                }
+
+                coOrganizer = {
+                    id:
+                        String(user.id),
+                    username:
+                        user.username ||
+                        "Necunoscut",
+                    displayName:
+                        member.nick ||
+                        user.global_name ||
+                        user.username ||
+                        "Necunoscut",
+                    avatar:
+                        discordMemberAvatar(user),
+                    department:
+                        coOrganizerDepartment,
+                    rank:
+                        organizerRank.name,
+                    rankRoleId:
+                        organizerRank.id
+                };
+
+            } catch (error) {
+                console.error(
+                    "Report Co-Organizer Validation Error:",
+                    error.response?.data ||
+                    error.message
+                );
+
+                return res.status(400).json({
+                    error:
+                        "Al doilea organizator nu a putut fi verificat pe Discord."
+                });
+            }
         }
 
         const reportId =
@@ -2905,6 +3228,10 @@ app.post(
                 type,
                 title,
                 description,
+
+                coOrganizer:
+                    coOrganizer,
+
                 images:
                     uploadedImages,
                 createdAt:
