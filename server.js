@@ -11380,6 +11380,77 @@ async function syncFactionWarnDiscordRole(userId, level) {
     };
 }
 
+
+async function sendSanctionRevokedInfoMessage({
+    targetId,
+    targetName,
+    type,
+    fwCount,
+    activeFw,
+    reason,
+    removedByName,
+    removedByRank
+}) {
+    if (!BOT_TOKEN || !INFO_SANCTIONS_CHANNEL_ID) {
+        throw new Error("Canalul info-sanctiuni sau botul Discord nu este configurat.");
+    }
+
+    const isOut = type === "OUT";
+
+    const embed = {
+        title: isOut
+            ? "🟢 Sancțiune retrasă — OUT"
+            : "🟢 Faction Warn retras",
+        color: 0x57F287,
+        fields: [
+            {
+                name: "Membru",
+                value: `${targetName || "Necunoscut"}\n<@${targetId}>`,
+                inline: true
+            },
+            {
+                name: "Sancțiune retrasă",
+                value: isOut ? "OUT" : `${Number(fwCount || 0)} FW`,
+                inline: true
+            },
+            {
+                name: "Situație FW rămasă",
+                value: `${Number(activeFw || 0)}/5 FW`,
+                inline: true
+            },
+            {
+                name: "Motiv sancțiune inițială",
+                value: String(reason || "-").slice(0, 1000),
+                inline: false
+            },
+            {
+                name: "Retrasă de",
+                value: `${removedByName || "Conducerea DIICOT"}\n${removedByRank || "CONDUCERE DIICOT"}`,
+                inline: true
+            }
+        ],
+        footer: {
+            text: "DIICOT • Centru de Comandă • Rush România"
+        },
+        timestamp: new Date().toISOString()
+    };
+
+    await axios.post(
+        `https://discord.com/api/v10/channels/${INFO_SANCTIONS_CHANNEL_ID}/messages`,
+        {
+            embeds: [embed],
+            allowed_mentions: { parse: [] }
+        },
+        {
+            headers: {
+                Authorization: `Bot ${BOT_TOKEN}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+}
+
+
 async function sendSanctionInfoMessage({
     targetId,
     targetName,
@@ -12476,6 +12547,186 @@ app.post(
 // ======================================================
 // ACTIVITĂȚI — SANCȚIUNI COORDONATOR+
 // ======================================================
+
+
+app.get(
+    "/api/admin/sanctions/active",
+    requireAdmin,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        try {
+            const { data, error } = await supabase
+                .from("sanctions")
+                .select("id,target_id,target_name,type,fw_count,reason,active,applied_by_id,applied_by_name,applied_by_rank,created_at")
+                .eq("active", true)
+                .order("created_at", { ascending: false });
+
+            if (error) throw error;
+
+            return res.json({
+                sanctions: (data || []).map(row => ({
+                    id: row.id,
+                    targetId: row.target_id,
+                    targetName: row.target_name,
+                    type: row.type,
+                    fwCount: Number(row.fw_count || 0),
+                    reason: row.reason || "",
+                    appliedById: row.applied_by_id || "",
+                    appliedByName: row.applied_by_name || "",
+                    appliedByRank: row.applied_by_rank || "",
+                    createdAt: row.created_at || null
+                }))
+            });
+        } catch (error) {
+            console.error("Sanctions Active List Error:", error);
+            return res.status(500).json({
+                error: "Sancțiunile active nu au putut fi încărcate."
+            });
+        }
+    }
+);
+
+
+app.patch(
+    "/api/admin/sanctions/:id/revoke",
+    requireAdmin,
+    async (req, res) => {
+        if (!ensureSupabase(res)) return;
+
+        try {
+            const sanctionId = String(req.params.id || "").trim();
+
+            const { data: sanction, error: sanctionError } = await supabase
+                .from("sanctions")
+                .select("*")
+                .eq("id", sanctionId)
+                .maybeSingle();
+
+            if (sanctionError) throw sanctionError;
+
+            if (!sanction) {
+                return res.status(404).json({
+                    error: "Sancțiunea nu a fost găsită."
+                });
+            }
+
+            if (!sanction.active) {
+                return res.status(400).json({
+                    error: "Sancțiunea este deja retrasă."
+                });
+            }
+
+            const { error: updateError } = await supabase
+                .from("sanctions")
+                .update({ active: false })
+                .eq("id", sanctionId);
+
+            if (updateError) throw updateError;
+
+            const targetId = String(sanction.target_id || "");
+            const targetName = String(sanction.target_name || "Necunoscut");
+
+            const { data: remainingRows, error: remainingError } = await supabase
+                .from("sanctions")
+                .select("fw_count")
+                .eq("target_id", targetId)
+                .eq("type", "FW")
+                .eq("active", true);
+
+            if (remainingError) throw remainingError;
+
+            const activeFw = (remainingRows || []).reduce(
+                (total, row) => total + Number(row.fw_count || 0),
+                0
+            );
+
+            let roleSynced = false;
+            let roleSyncError = null;
+
+            try {
+                await syncFactionWarnDiscordRole(targetId, activeFw);
+                roleSynced = true;
+            } catch (error) {
+                roleSyncError =
+                    error?.response?.data?.message ||
+                    error?.message ||
+                    "Rolul Discord nu a putut fi sincronizat.";
+            }
+
+            const removedByName =
+                req.session.user.displayName ||
+                req.session.user.username ||
+                "Conducerea DIICOT";
+
+            const removedByRank =
+                req.session.user.rank ||
+                "CONDUCERE DIICOT";
+
+            let dmSent = false;
+            let dmError = null;
+
+            try {
+                const text = [
+                    "✅ **NOTIFICARE SANCȚIUNE — DIICOT**",
+                    "",
+                    sanction.type === "OUT"
+                        ? "Sancțiunea **OUT** a fost retrasă."
+                        : `Au fost retrase **${Number(sanction.fw_count || 0)} FW**.`,
+                    `**Situație activă:** ${activeFw}/5 FW`,
+                    `**Retrasă de:** ${removedByName} — ${removedByRank}`
+                ].join("\n");
+
+                await sendDiscordDM(targetId, text);
+                dmSent = true;
+            } catch (error) {
+                dmError =
+                    error?.response?.data?.message ||
+                    error?.message ||
+                    "DM nelivrat.";
+            }
+
+            let channelSent = false;
+            let channelError = null;
+
+            try {
+                await sendSanctionRevokedInfoMessage({
+                    targetId,
+                    targetName,
+                    type: sanction.type,
+                    fwCount: sanction.fw_count,
+                    activeFw,
+                    reason: sanction.reason,
+                    removedByName,
+                    removedByRank
+                });
+                channelSent = true;
+            } catch (error) {
+                channelError =
+                    error?.response?.data?.message ||
+                    error?.message ||
+                    "Mesaj canal netrimis.";
+            }
+
+            return res.json({
+                success: true,
+                activeFw,
+                roleSynced,
+                roleSyncError,
+                dmSent,
+                dmError,
+                channelSent,
+                channelError
+            });
+        } catch (error) {
+            console.error("Sanction Revoke Error:", error);
+            return res.status(500).json({
+                error: "Sancțiunea nu a putut fi retrasă."
+            });
+        }
+    }
+);
+
 
 app.post(
     "/api/admin/sanctions",
