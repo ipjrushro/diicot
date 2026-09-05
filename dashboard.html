@@ -10618,6 +10618,339 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 }
 </style>
 
+
+<style id="profile-up-eligibility-css">
+#profile .profile-up-card{
+    position:relative;
+    overflow:hidden;
+    margin:14px 0;
+    padding:19px;
+    border:1px solid rgba(126,159,194,.13);
+    border-radius:18px;
+    background:
+        radial-gradient(circle at 96% 0%,rgba(232,180,65,.09),transparent 28%),
+        linear-gradient(145deg,rgba(8,20,34,.79),rgba(4,13,23,.66));
+    box-shadow:0 18px 48px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.025);
+}
+
+#profile .profile-up-card:after{
+    content:"↑";
+    position:absolute;
+    right:24px;
+    top:-25px;
+    font-size:115px;
+    font-weight:950;
+    color:rgba(232,180,65,.035);
+    pointer-events:none;
+}
+
+#profile .profile-up-head{
+    position:relative;
+    z-index:2;
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+    padding-bottom:14px;
+    border-bottom:1px solid rgba(255,255,255,.05);
+}
+
+#profile .profile-up-head>div:first-child>span{
+    color:#dca82e;
+    font-size:7px;
+    font-weight:950;
+    letter-spacing:.15em;
+}
+
+#profile .profile-up-head h3{
+    margin:4px 0 4px;
+    color:#f4f7fa;
+    font-size:17px;
+}
+
+#profile .profile-up-head p{
+    margin:0;
+    color:#63788e;
+    font-size:8px;
+    line-height:1.5;
+}
+
+#profile .profile-up-status{
+    flex:0 0 auto;
+    padding:7px 10px;
+    border-radius:999px;
+    border:1px solid rgba(232,180,65,.20);
+    background:rgba(232,180,65,.06);
+    color:#e8b441;
+    font-size:7px;
+    font-weight:950;
+    letter-spacing:.08em;
+}
+
+#profile .profile-up-status.ready{
+    color:#37d99b;
+    border-color:rgba(55,217,155,.20);
+    background:rgba(55,217,155,.06);
+}
+
+#profile .profile-up-status.merit{
+    color:#dba72d;
+    border-color:rgba(219,167,45,.20);
+    background:rgba(219,167,45,.06);
+}
+
+#profile .profile-up-route{
+    position:relative;
+    z-index:2;
+    display:grid;
+    grid-template-columns:1fr auto 1fr;
+    align-items:center;
+    gap:12px;
+    padding:13px 0 14px;
+}
+
+#profile .profile-up-route>div:not(.profile-up-route-arrow){
+    padding:11px 12px;
+    border-radius:11px;
+    border:1px solid rgba(126,159,194,.10);
+    background:rgba(2,10,18,.43);
+}
+
+#profile .profile-up-route span{
+    display:block;
+    color:#5f748a;
+    font-size:7px;
+    font-weight:900;
+    letter-spacing:.09em;
+}
+
+#profile .profile-up-route strong{
+    display:block;
+    margin-top:4px;
+    color:#e7edf3;
+    font-size:10px;
+}
+
+#profile .profile-up-route-arrow{
+    color:#e5ae30;
+    font-size:18px;
+}
+
+#profile .profile-up-progress-grid{
+    position:relative;
+    z-index:2;
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:9px;
+}
+
+#profile .profile-up-progress{
+    padding:12px;
+    border-radius:11px;
+    border:1px solid rgba(126,159,194,.10);
+    background:rgba(2,10,18,.47);
+}
+
+#profile .profile-up-progress-top{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    margin-bottom:9px;
+}
+
+#profile .profile-up-progress-top span{
+    color:#677c92;
+    font-size:7px;
+    font-weight:950;
+    letter-spacing:.08em;
+}
+
+#profile .profile-up-progress-top strong{
+    color:#edf2f6;
+    font-size:9px;
+}
+
+#profile .profile-up-bar{
+    height:5px;
+    overflow:hidden;
+    border-radius:999px;
+    background:rgba(255,255,255,.045);
+}
+
+#profile .profile-up-bar i{
+    display:block;
+    width:0;
+    height:100%;
+    border-radius:inherit;
+    background:linear-gradient(90deg,#d99f20,#f0bd43);
+    box-shadow:0 0 10px rgba(232,180,65,.25);
+    transition:width .35s ease;
+}
+
+#profile .profile-up-bottom{
+    position:relative;
+    z-index:2;
+    display:grid;
+    grid-template-columns:220px minmax(0,1fr);
+    gap:10px;
+    margin-top:10px;
+}
+
+#profile .profile-up-bottom>div{
+    padding:11px 12px;
+    border:1px solid rgba(126,159,194,.09);
+    border-radius:10px;
+    background:rgba(255,255,255,.012);
+}
+
+#profile .profile-up-small-label,
+#profile .profile-up-manual>span{
+    display:block;
+    color:#60758b;
+    font-size:7px;
+    font-weight:950;
+    letter-spacing:.08em;
+    margin-bottom:5px;
+}
+
+#profile #profile-up-since{
+    color:#dce5ed;
+    font-size:9px;
+}
+
+#profile #profile-up-manual-list{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+}
+
+#profile .profile-up-chip{
+    padding:5px 7px;
+    border-radius:999px;
+    border:1px solid rgba(79,140,207,.13);
+    background:rgba(79,140,207,.04);
+    color:#879db3;
+    font-size:7px;
+}
+
+#profile .profile-up-merit-message{
+    grid-column:1/-1;
+    padding:15px;
+    border:1px solid rgba(232,180,65,.15);
+    border-radius:11px;
+    background:rgba(232,180,65,.04);
+    color:#98a9ba;
+    font-size:9px;
+    line-height:1.55;
+}
+
+@media(max-width:980px){
+    #profile .profile-up-progress-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:650px){
+    #profile .profile-up-head{
+        flex-direction:column;
+    }
+
+    #profile .profile-up-route{
+        grid-template-columns:1fr;
+    }
+
+    #profile .profile-up-route-arrow{
+        transform:rotate(90deg);
+        justify-self:center;
+    }
+
+    #profile .profile-up-progress-grid{
+        grid-template-columns:1fr;
+    }
+
+    #profile .profile-up-bottom{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+
+
+<style id="sanction-revoke-premium-css">
+#sanction-modal .sanction-active-panel{
+    grid-column:1/-1;
+    padding:18px;
+    border:1px solid rgba(255,255,255,.075);
+    border-radius:18px;
+    background:linear-gradient(145deg,rgba(7,17,29,.78),rgba(4,12,21,.72));
+}
+#sanction-modal .sanction-active-head{
+    display:flex;align-items:flex-start;justify-content:space-between;
+    gap:14px;padding-bottom:13px;margin-bottom:12px;
+    border-bottom:1px solid rgba(255,255,255,.055)
+}
+#sanction-modal .sanction-active-head span{
+    color:#f1b83c;font-size:8px;font-weight:950;letter-spacing:.12em
+}
+#sanction-modal .sanction-active-head h4{
+    margin:4px 0 3px;color:#f1f5f9;font-size:14px
+}
+#sanction-modal .sanction-active-head p{
+    margin:0;color:#6e8196;font-size:9px
+}
+#sanction-modal .sanction-refresh-active{
+    height:34px;padding:0 10px;border-radius:9px;
+    border:1px solid rgba(126,159,194,.12);
+    background:rgba(255,255,255,.018);color:#8fa3b7;
+    font-size:7px;font-weight:950;cursor:pointer
+}
+#sanction-modal .sanction-active-list{
+    display:grid;gap:8px;max-height:260px;overflow:auto;padding-right:3px
+}
+#sanction-modal .sanction-active-item{
+    display:grid;
+    grid-template-columns:minmax(0,1.2fr) .6fr minmax(0,1.5fr) auto;
+    align-items:center;gap:12px;padding:11px 12px;
+    border:1px solid rgba(126,159,194,.09);
+    border-radius:11px;background:rgba(2,10,18,.48)
+}
+#sanction-modal .sanction-active-person strong{
+    display:block;color:#e8eef4;font-size:9px
+}
+#sanction-modal .sanction-active-person span,
+#sanction-modal .sanction-active-reason{
+    display:block;margin-top:3px;color:#60758b;font-size:7px
+}
+#sanction-modal .sanction-active-type{
+    display:inline-flex;width:max-content;padding:5px 7px;border-radius:7px;
+    border:1px solid rgba(244,185,47,.16);
+    background:rgba(244,185,47,.055);color:#efb83c;
+    font-size:7px;font-weight:950
+}
+#sanction-modal .sanction-active-type.out{
+    border-color:rgba(255,92,104,.17);
+    background:rgba(255,92,104,.055);color:#ff6672
+}
+#sanction-modal .sanction-revoke-btn{
+    height:32px;padding:0 10px;border-radius:8px;
+    border:1px solid rgba(54,211,153,.18);
+    background:rgba(54,211,153,.06);color:#42d9a1;
+    font-size:7px;font-weight:950;cursor:pointer;white-space:nowrap
+}
+#sanction-modal .sanction-revoke-btn:hover{
+    color:#fff;border-color:rgba(54,211,153,.35);
+    background:rgba(54,211,153,.11)
+}
+#sanction-modal .sanction-active-empty{
+    padding:24px 12px;text-align:center;
+    border:1px dashed rgba(126,159,194,.10);
+    border-radius:10px;color:#61768c;font-size:8px
+}
+@media(max-width:760px){
+    #sanction-modal .sanction-active-item{grid-template-columns:1fr}
+}
+</style>
+
 </head>
 
 
@@ -13547,6 +13880,113 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                 </div>
 
 
+                <!-- =====================================================
+                     ELIGIBILITATE UP
+                ====================================================== -->
+
+                <div
+                    id="profile-up-eligibility"
+                    class="profile-up-card"
+                >
+                    <div class="profile-up-head">
+                        <div>
+                            <span>PROGRES ÎN GRAD</span>
+                            <h3>Eligibilitate UP</h3>
+                            <p>
+                                Progresul numeric este calculat din activitatea
+                                realizată de la intrarea în gradul actual.
+                            </p>
+                        </div>
+
+                        <div
+                            id="profile-up-status"
+                            class="profile-up-status"
+                        >
+                            SE ÎNCARCĂ
+                        </div>
+                    </div>
+
+                    <div class="profile-up-route">
+                        <div>
+                            <span>GRAD ACTUAL</span>
+                            <strong id="profile-up-current-rank">-</strong>
+                        </div>
+
+                        <div class="profile-up-route-arrow">→</div>
+
+                        <div>
+                            <span>URMĂTORUL GRAD</span>
+                            <strong id="profile-up-next-rank">-</strong>
+                        </div>
+                    </div>
+
+                    <div
+                        id="profile-up-progress-grid"
+                        class="profile-up-progress-grid"
+                    >
+                        <div class="profile-up-progress">
+                            <div class="profile-up-progress-top">
+                                <span>RAPOARTE</span>
+                                <strong id="profile-up-reports">0 / 0</strong>
+                            </div>
+                            <div class="profile-up-bar">
+                                <i id="profile-up-reports-bar"></i>
+                            </div>
+                        </div>
+
+                        <div class="profile-up-progress">
+                            <div class="profile-up-progress-top">
+                                <span>ZILE ÎN GRAD</span>
+                                <strong id="profile-up-days">0 / 0</strong>
+                            </div>
+                            <div class="profile-up-bar">
+                                <i id="profile-up-days-bar"></i>
+                            </div>
+                        </div>
+
+                        <div
+                            class="profile-up-progress"
+                            id="profile-up-raids-box"
+                        >
+                            <div class="profile-up-progress-top">
+                                <span>RAZII</span>
+                                <strong id="profile-up-raids">0 / 0</strong>
+                            </div>
+                            <div class="profile-up-bar">
+                                <i id="profile-up-raids-bar"></i>
+                            </div>
+                        </div>
+
+                        <div
+                            class="profile-up-progress"
+                            id="profile-up-trainings-box"
+                        >
+                            <div class="profile-up-progress-top">
+                                <span>ANTRENAMENTE</span>
+                                <strong id="profile-up-trainings">0 / 0</strong>
+                            </div>
+                            <div class="profile-up-bar">
+                                <i id="profile-up-trainings-bar"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-up-bottom">
+                        <div>
+                            <span class="profile-up-small-label">ÎN GRAD DIN</span>
+                            <strong id="profile-up-since">-</strong>
+                        </div>
+
+                        <div class="profile-up-manual">
+                            <span>CRITERII MANUALE</span>
+                            <div id="profile-up-manual-list">
+                                Se încarcă...
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
 
                 <div class="profile-grid">
 
@@ -15034,6 +15474,24 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                     <div class="sanction-side-card"><div class="sanction-side-title">ⓘ Informații sancțiuni</div><div class="sanction-rule"><div><strong>Faction Warn</strong><p>Avertisment oficial. Punctele active sunt urmărite în sistem.</p></div><span class="sanction-badge">MAX. 5 FW</span></div><div class="sanction-rule"><div><strong>OUT</strong><p>Ieșire din structură. FW-urile active ale membrului sunt închise automat.</p></div><span class="sanction-badge red">FINAL</span></div></div>
                     <div class="sanction-side-card"><div class="sanction-side-title">✉ Notificare Discord</div><div class="sanction-dm-note"><div class="sanction-dm-note-icon">✉</div><div><b>Mesaj privat automat</b><br>Botul trimite tipul sancțiunii, motivul, cine a aplicat-o și situația FW. Dacă membrul are DM-urile blocate, sancțiunea rămâne salvată și vei fi informat pe ecran.</div></div></div>
                 </aside>
+
+                <div class="sanction-active-panel">
+                    <div class="sanction-active-head">
+                        <div>
+                            <span>SANCȚIUNI ACTIVE</span>
+                            <h4>Gestionare sancțiuni aplicate</h4>
+                            <p>Poți retrage individual o sancțiune activă. Istoricul rămâne salvat.</p>
+                        </div>
+
+                        <button type="button" id="sanction-refresh-active" class="sanction-refresh-active">
+                            ↻ ACTUALIZEAZĂ
+                        </button>
+                    </div>
+
+                    <div id="sanction-active-list" class="sanction-active-list">
+                        <div class="sanction-active-empty">Se încarcă sancțiunile active...</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -18473,6 +18931,152 @@ const query =
         );
 
 
+
+    let activeSanctionsCache = [];
+
+    function formatSanctionDate(value) {
+        if (!value) return "-";
+        const d = new Date(value);
+        if (Number.isNaN(d.getTime())) return "-";
+        return d.toLocaleString("ro-RO", {
+            day:"2-digit", month:"2-digit", year:"numeric",
+            hour:"2-digit", minute:"2-digit"
+        });
+    }
+
+    function renderActiveSanctions() {
+        const container = document.getElementById("sanction-active-list");
+        if (!container) return;
+
+        if (!activeSanctionsCache.length) {
+            container.innerHTML = `<div class="sanction-active-empty">Nu există sancțiuni active.</div>`;
+            return;
+        }
+
+        container.innerHTML = activeSanctionsCache.map(s => `
+            <div class="sanction-active-item">
+                <div class="sanction-active-person">
+                    <strong>${escapeHTML(s.targetName || s.targetId || "Necunoscut")}</strong>
+                    <span>${escapeHTML(formatSanctionDate(s.createdAt))}</span>
+                </div>
+
+                <div>
+                    <span class="sanction-active-type ${s.type === "OUT" ? "out" : ""}">
+                        ${s.type === "OUT" ? "OUT" : `${Number(s.fwCount || 0)} FW`}
+                    </span>
+                </div>
+
+                <div>
+                    <strong style="display:block;color:#cbd5e1;font-size:8px">
+                        ${escapeHTML(s.appliedByName || "Conducerea DIICOT")}
+                    </strong>
+                    <span class="sanction-active-reason">
+                        ${escapeHTML(s.reason || "-")}
+                    </span>
+                </div>
+
+                <button
+                    type="button"
+                    class="sanction-revoke-btn"
+                    data-revoke-sanction="${escapeHTML(s.id)}"
+                >
+                    ✓ SCOATE SANCȚIUNEA
+                </button>
+            </div>
+        `).join("");
+
+        container.querySelectorAll("[data-revoke-sanction]").forEach(button => {
+            button.addEventListener("click", async () => {
+                const sanction = activeSanctionsCache.find(
+                    x => String(x.id) === String(button.dataset.revokeSanction)
+                );
+
+                if (!sanction) return;
+
+                const label = sanction.type === "OUT"
+                    ? "OUT"
+                    : `${Number(sanction.fwCount || 0)} FW`;
+
+                if (!confirm(
+                    `Sigur vrei să retragi sancțiunea ${label} de la ${sanction.targetName || "acest membru"}?`
+                )) return;
+
+                const old = button.textContent;
+                button.disabled = true;
+                button.textContent = "SE SCOATE...";
+
+                try {
+                    const response = await fetch(
+                        `/api/admin/sanctions/${encodeURIComponent(sanction.id)}/revoke`,
+                        {
+                            method:"PATCH",
+                            credentials:"include"
+                        }
+                    );
+
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.error || "Sancțiunea nu a putut fi retrasă.");
+                    }
+
+                    const message = document.getElementById("sanction-message");
+                    if (message) {
+                        message.className = "sanction-message success";
+                        message.textContent =
+                            `✓ Sancțiune retrasă • ${Number(data.activeFw || 0)}/5 FW active` +
+                            (data.roleSynced ? " • 🎖 rol Discord actualizat" : " • ⚠ rol Discord nesincronizat") +
+                            (data.dmSent ? " • ✉ DM trimis" : " • ⚠ DM nelivrat");
+                    }
+
+                    await loadActiveSanctions();
+                } catch (error) {
+                    alert(error.message || "Sancțiunea nu a putut fi retrasă.");
+                } finally {
+                    button.disabled = false;
+                    button.textContent = old;
+                }
+            });
+        });
+    }
+
+    async function loadActiveSanctions() {
+        const container = document.getElementById("sanction-active-list");
+
+        if (container) {
+            container.innerHTML = `<div class="sanction-active-empty">Se încarcă sancțiunile active...</div>`;
+        }
+
+        try {
+            const response = await fetch(
+                "/api/admin/sanctions/active",
+                { credentials:"include", cache:"no-store" }
+            );
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Sancțiunile active nu au putut fi încărcate.");
+            }
+
+            activeSanctionsCache = Array.isArray(data.sanctions) ? data.sanctions : [];
+            renderActiveSanctions();
+        } catch (error) {
+            if (container) {
+                container.innerHTML = `
+                    <div class="sanction-active-empty">
+                        ${escapeHTML(error.message || "Sancțiunile active nu au putut fi încărcate.")}
+                    </div>
+                `;
+            }
+        }
+    }
+
+    document
+        .getElementById("sanction-refresh-active")
+        ?.addEventListener("click", loadActiveSanctions);
+
+
     document
         .getElementById(
             "open-sanction-modal"
@@ -18492,9 +19096,12 @@ const query =
 
                 try {
                     await prepareActivityMemberSelects();
+
                     openModal(
                         "sanction-modal"
                     );
+
+                    await loadActiveSanctions();
                 }
                 catch (error) {
                     alert(
@@ -18886,6 +19493,8 @@ const query =
                     ];
                     message.textContent = syncParts.join(" • ");
                     updateSanctionSummary();
+
+                    await loadActiveSanctions();
 
                 }
 
@@ -22542,6 +23151,30 @@ const query =
         }
 
 
+        renderProfilePromotionEligibility(
+            {
+                currentRank: "-",
+                nextRank: "-",
+                rankSince: null,
+                daysInRank: 0,
+                meritOnly: false,
+                numericEligible: false,
+                requirements: {
+                    reports: 0,
+                    raids: 0,
+                    trainings: 0,
+                    minDays: 0
+                },
+                progress: {
+                    reports: 0,
+                    raids: 0,
+                    trainings: 0
+                },
+                manualCriteria: []
+            }
+        );
+
+
         const activity =
             document.getElementById(
                 "profile-activity-list"
@@ -22770,6 +23403,11 @@ const query =
 
         renderProfileActivity(
             activity
+        );
+
+
+        renderProfilePromotionEligibility(
+            profile.promotionEligibility
         );
 
 
@@ -26067,6 +26705,312 @@ const query =
 
 
 
+
+    /* =========================================================
+       PROFILE — ELIGIBILITATE UP
+    ========================================================== */
+
+    function setProfileUpBar(
+        id,
+        current,
+        target
+    ) {
+        const element =
+            document.getElementById(
+                id
+            );
+
+        if (!element) return;
+
+        const max =
+            Number(target || 0);
+
+        const value =
+            Number(current || 0);
+
+        const percent =
+            max > 0
+                ? Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        (
+                            value /
+                            max
+                        ) * 100
+                    )
+                )
+                : 100;
+
+        element.style.width =
+            `${percent}%`;
+    }
+
+
+    function renderProfilePromotionEligibility(
+        eligibility
+    ) {
+        const card =
+            document.getElementById(
+                "profile-up-eligibility"
+            );
+
+        if (!card) return;
+
+        const status =
+            document.getElementById(
+                "profile-up-status"
+            );
+
+        const currentRank =
+            document.getElementById(
+                "profile-up-current-rank"
+            );
+
+        const nextRank =
+            document.getElementById(
+                "profile-up-next-rank"
+            );
+
+        const grid =
+            document.getElementById(
+                "profile-up-progress-grid"
+            );
+
+        const manual =
+            document.getElementById(
+                "profile-up-manual-list"
+            );
+
+        if (!eligibility) {
+            if (status) {
+                status.className =
+                    "profile-up-status";
+
+                status.textContent =
+                    "INDISPONIBIL";
+            }
+
+            return;
+        }
+
+        if (currentRank) {
+            currentRank.textContent =
+                eligibility.currentRank ||
+                "-";
+        }
+
+        if (nextRank) {
+            nextRank.textContent =
+                eligibility.nextRank ||
+                (
+                    eligibility.meritOnly
+                        ? "PE MERIT"
+                        : "-"
+                );
+        }
+
+        const since =
+            document.getElementById(
+                "profile-up-since"
+            );
+
+        if (since) {
+            since.textContent =
+                eligibility.rankSince
+                    ? new Date(
+                        eligibility.rankSince
+                    ).toLocaleDateString(
+                        "ro-RO",
+                        {
+                            day:
+                                "2-digit",
+                            month:
+                                "2-digit",
+                            year:
+                                "numeric"
+                        }
+                    )
+                    : "-";
+        }
+
+        if (eligibility.meritOnly) {
+            if (status) {
+                status.className =
+                    "profile-up-status merit";
+
+                status.textContent =
+                    "PE MERIT";
+            }
+
+            if (grid) {
+                grid.innerHTML = `
+                    <div class="profile-up-merit-message">
+                        De la <b>Sub-Comisar</b> în sus, promovarea se acordă
+                        strict pe încredere, merit, implicare și decizia Conducerii.
+                    </div>
+                `;
+            }
+
+            if (manual) {
+                manual.innerHTML = `
+                    <span class="profile-up-chip">
+                        Încredere
+                    </span>
+                    <span class="profile-up-chip">
+                        Merit
+                    </span>
+                    <span class="profile-up-chip">
+                        Implicare
+                    </span>
+                    <span class="profile-up-chip">
+                        Decizie Conducere
+                    </span>
+                `;
+            }
+
+            return;
+        }
+
+        const req =
+            eligibility.requirements ||
+            {};
+
+        const progress =
+            eligibility.progress ||
+            {};
+
+        if (status) {
+            status.className =
+                "profile-up-status" +
+                (
+                    eligibility.numericEligible
+                        ? " ready"
+                        : ""
+                );
+
+            status.textContent =
+                eligibility.numericEligible
+                    ? "CERINȚE NUMERICE OK"
+                    : "ÎN PROGRES";
+        }
+
+        if (grid) {
+            grid.innerHTML = `
+                <div class="profile-up-progress">
+                    <div class="profile-up-progress-top">
+                        <span>RAPOARTE</span>
+                        <strong id="profile-up-reports">
+                            ${Number(progress.reports || 0)} / ${Number(req.reports || 0)}
+                        </strong>
+                    </div>
+                    <div class="profile-up-bar">
+                        <i id="profile-up-reports-bar"></i>
+                    </div>
+                </div>
+
+                <div class="profile-up-progress">
+                    <div class="profile-up-progress-top">
+                        <span>ZILE ÎN GRAD</span>
+                        <strong id="profile-up-days">
+                            ${Number(eligibility.daysInRank || 0)} / ${Number(req.minDays || 0)}
+                        </strong>
+                    </div>
+                    <div class="profile-up-bar">
+                        <i id="profile-up-days-bar"></i>
+                    </div>
+                </div>
+
+                ${
+                    Number(req.raids || 0) > 0
+                        ? `
+                            <div class="profile-up-progress">
+                                <div class="profile-up-progress-top">
+                                    <span>RAZII</span>
+                                    <strong id="profile-up-raids">
+                                        ${Number(progress.raids || 0)} / ${Number(req.raids || 0)}
+                                    </strong>
+                                </div>
+                                <div class="profile-up-bar">
+                                    <i id="profile-up-raids-bar"></i>
+                                </div>
+                            </div>
+                        `
+                        : ""
+                }
+
+                ${
+                    Number(req.trainings || 0) > 0
+                        ? `
+                            <div class="profile-up-progress">
+                                <div class="profile-up-progress-top">
+                                    <span>ANTRENAMENTE</span>
+                                    <strong id="profile-up-trainings">
+                                        ${Number(progress.trainings || 0)} / ${Number(req.trainings || 0)}
+                                    </strong>
+                                </div>
+                                <div class="profile-up-bar">
+                                    <i id="profile-up-trainings-bar"></i>
+                                </div>
+                            </div>
+                        `
+                        : ""
+                }
+            `;
+        }
+
+        setProfileUpBar(
+            "profile-up-reports-bar",
+            progress.reports,
+            req.reports
+        );
+
+        setProfileUpBar(
+            "profile-up-days-bar",
+            eligibility.daysInRank,
+            req.minDays
+        );
+
+        setProfileUpBar(
+            "profile-up-raids-bar",
+            progress.raids,
+            req.raids
+        );
+
+        setProfileUpBar(
+            "profile-up-trainings-bar",
+            progress.trainings,
+            req.trainings
+        );
+
+        if (manual) {
+            const criteria =
+                Array.isArray(
+                    eligibility.manualCriteria
+                )
+                    ? eligibility.manualCriteria
+                    : [];
+
+            manual.innerHTML =
+                criteria.length
+                    ? criteria
+                        .map(
+                            item => `
+                                <span class="profile-up-chip">
+                                    ${escapeHTML(item)}
+                                </span>
+                            `
+                        )
+                        .join("")
+                    : `
+                        <span class="profile-up-chip">
+                            Fără criterii suplimentare
+                        </span>
+                    `;
+        }
+    }
+
+
     /* =========================================================
        PROFILE — OWN PROFILE
     ========================================================== */
@@ -26308,6 +27252,11 @@ const query =
             renderProfileActivity(
                 profile.recentActivity ||
                 []
+            );
+
+
+            renderProfilePromotionEligibility(
+                profile.promotionEligibility
             );
 
         }
