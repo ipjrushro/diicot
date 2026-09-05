@@ -6568,6 +6568,167 @@ app.get(
 );
 
 
+
+// ======================================================
+// DISCORD — BLACKLIST NOU
+// ======================================================
+
+async function sendBlacklistCreateMessage(entry = {}) {
+    if (!BOT_TOKEN || !BLACKLIST_CHANNEL_ID) {
+        throw new Error(
+            "Canalul de blacklist sau botul Discord nu este configurat."
+        );
+    }
+
+    const durationText =
+        entry.duration_type === "PERMANENT"
+            ? "PERMANENT"
+            : (
+                entry.expires_at
+                    ? `TEMPORAR • până la ${new Date(entry.expires_at).toLocaleString("ro-RO", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    })}`
+                    : "TEMPORAR"
+            );
+
+    const embed = {
+        title:
+            "⛔ BLACKLIST NOU",
+
+        color:
+            0xED4245,
+
+        description:
+            "O persoană a fost adăugată în blacklist-ul DIICOT.",
+
+        fields: [
+            {
+                name:
+                    "PERSOANĂ",
+
+                value:
+                    String(
+                        entry.name ||
+                        "Necunoscut"
+                    ).slice(
+                        0,
+                        1024
+                    ),
+
+                inline:
+                    true
+            },
+            {
+                name:
+                    "DISCORD ID",
+
+                value:
+                    `\`${String(
+                        entry.discord_id ||
+                        "-"
+                    )}\``,
+
+                inline:
+                    true
+            },
+            {
+                name:
+                    "DURATĂ",
+
+                value:
+                    durationText,
+
+                inline:
+                    true
+            },
+            {
+                name:
+                    "MOTIV",
+
+                value:
+                    String(
+                        entry.reason ||
+                        "-"
+                    ).slice(
+                        0,
+                        1024
+                    ),
+
+                inline:
+                    false
+            },
+            {
+                name:
+                    "ADĂUGAT DE",
+
+                value:
+                    `${entry.added_by_name || "Conducerea DIICOT"}\n${entry.added_by_rank || "CONDUCERE DIICOT"}`,
+
+                inline:
+                    true
+            },
+            {
+                name:
+                    "STATUS",
+
+                value:
+                    "ACTIV",
+
+                inline:
+                    true
+            }
+        ],
+
+        footer: {
+            text:
+                "DIICOT • Centru de Comandă • Rush România"
+        },
+
+        timestamp:
+            entry.created_at ||
+            new Date().toISOString()
+    };
+
+    if (
+        entry.avatar &&
+        /^https?:\/\//i.test(
+            String(entry.avatar)
+        )
+    ) {
+        embed.thumbnail = {
+            url:
+                String(entry.avatar)
+        };
+    }
+
+    await axios.post(
+        `https://discord.com/api/v10/channels/${BLACKLIST_CHANNEL_ID}/messages`,
+        {
+            embeds: [
+                embed
+            ],
+
+            allowed_mentions: {
+                parse: []
+            }
+        },
+        {
+            headers: {
+                Authorization:
+                    `Bot ${BOT_TOKEN}`,
+
+                "Content-Type":
+                    "application/json"
+            }
+        }
+    );
+}
+
+
 // ======================================================
 // BLACKLIST - ADĂUGARE
 // ======================================================
@@ -6891,6 +7052,33 @@ app.post(
             }
 
 
+            let discordSent =
+                false;
+
+            let discordError =
+                null;
+
+            try {
+                await sendBlacklistCreateMessage(
+                    inserted
+                );
+
+                discordSent =
+                    true;
+            }
+            catch (error) {
+                discordError =
+                    error?.response?.data?.message ||
+                    error?.message ||
+                    "Mesajul de blacklist nu a putut fi trimis pe Discord.";
+
+                console.warn(
+                    "Blacklist Discord Channel Warning:",
+                    discordError
+                );
+            }
+
+
             res
                 .status(201)
                 .json({
@@ -6899,7 +7087,12 @@ app.post(
                         true,
 
                     message:
-                        "Utilizatorul a fost adăugat în blacklist.",
+                        discordSent
+                            ? "Utilizatorul a fost adăugat în blacklist și trimis pe Discord."
+                            : "Utilizatorul a fost adăugat în blacklist.",
+
+                    discordSent,
+                    discordError,
 
                     entry:
                         mapBlacklist(
@@ -11325,6 +11518,7 @@ const FACTION_WARN_ROLE_IDS = {
 };
 
 const INFO_SANCTIONS_CHANNEL_ID = "1544679685030682664";
+const BLACKLIST_CHANNEL_ID = "1542990688814243981";
 
 async function syncFactionWarnDiscordRole(userId, level) {
     if (!BOT_TOKEN || !GUILD_ID) {
