@@ -13730,21 +13730,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
                         </div>
 
-                        <div class="profile-v4-side">
-                            <div class="profile-v4-emblem">⚖</div>
-
-                            <span>DIICOT ROMÂNIA</span>
-
-                            <strong>
-                                DISCIPLINĂ.<br>
-                                INTEGRITATE.<br>
-                                PROFESIONALISM.
-                            </strong>
-
-                            <small>
-                                „Legea nu iartă. Noi acționăm.”
-                            </small>
-                        </div>
+                        
 
                     </div>
 
@@ -31454,38 +31440,51 @@ const query =
     inset:0;
     pointer-events:none;
     overflow:hidden;
+
+    /* Poza de fundal pentru profil.
+       Pune imaginea în proiect la: /uploads/diicot-profile-bg.png */
+    background:
+        linear-gradient(
+            90deg,
+            rgba(3,10,18,.94) 0%,
+            rgba(3,10,18,.82) 34%,
+            rgba(3,10,18,.55) 68%,
+            rgba(3,10,18,.40) 100%
+        ),
+        linear-gradient(
+            180deg,
+            rgba(4,11,19,.20) 0%,
+            rgba(4,11,19,.08) 48%,
+            rgba(4,11,19,.58) 100%
+        ),
+        url('/uploads/diicot-profile-bg.png');
+
+    background-size:cover;
+    background-position:center 47%;
+    background-repeat:no-repeat;
+}
+
+/* vignette premium peste fotografie */
+#profile .profile-v4-hero-bg::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:
+        radial-gradient(circle at 22% 50%, transparent 0 22%, rgba(3,9,16,.12) 58%, rgba(3,9,16,.42) 100%),
+        linear-gradient(90deg, rgba(5,13,23,.25), transparent 55%);
+    pointer-events:none;
 }
 
 #profile .profile-v4-grid{
-    position:absolute;
-    inset:0;
-    background-image:
-        linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);
-    background-size:42px 42px;
-    mask-image:linear-gradient(90deg,rgba(0,0,0,.8),transparent 82%);
+    display:none;
 }
 
 #profile .profile-v4-glow{
-    position:absolute;
-    width:620px;
-    height:620px;
-    right:-170px;
-    top:-290px;
-    border-radius:50%;
-    border:1px solid rgba(230,174,45,.15);
-    background:
-        radial-gradient(circle,rgba(230,174,45,.11),rgba(34,98,167,.055) 38%,transparent 68%);
+    display:none;
 }
 
 #profile .profile-v4-watermark{
-    position:absolute;
-    right:70px;
-    bottom:-36px;
-    font-size:138px;
-    font-weight:950;
-    letter-spacing:.08em;
-    color:rgba(232,178,61,.035);
+    display:none;
 }
 
 #profile .profile-v4-topline{
@@ -31530,7 +31529,7 @@ const query =
     position:relative;
     z-index:2;
     display:grid;
-    grid-template-columns:145px minmax(0,1fr) 250px;
+    grid-template-columns:145px minmax(0,1fr);
     align-items:center;
     gap:24px;
     min-height:235px;
