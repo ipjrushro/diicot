@@ -129,12 +129,12 @@ const DIICOT_ROLES = [
         level: 7
     },
     {
-        id: "1528758226416435214",
+        id: "1528758226416435213",
         name: "INSPECTOR PRINCIPAL DIICOT",
         level: 6
     },
     {
-        id: "1528758226416435213",
+        id: "1528758226416435214",
         name: "INSPECTOR DIICOT",
         level: 5
     },
@@ -170,8 +170,8 @@ const DIICOT_ROLES = [
 const REPORT_ORGANIZER_DEPARTMENTS = {
     DIICOT: [
         { id: "1528758226416435211", name: "SUB INSPECTOR DIICOT", weight: 1 },
-        { id: "1528758226416435213", name: "INSPECTOR DIICOT", weight: 2 },
-        { id: "1528758226416435214", name: "INSPECTOR PRINCIPAL DIICOT", weight: 3 },
+        { id: "1528758226416435214", name: "INSPECTOR DIICOT", weight: 2 },
+        { id: "1528758226416435213", name: "INSPECTOR PRINCIPAL DIICOT", weight: 3 },
         { id: "1528758226416435215", name: "SUB COMISAR DIICOT", weight: 4 },
         { id: "1528758226416435216", name: "COMISAR DIICOT", weight: 5 },
         { id: "1528758226416435217", name: "COMISAR ȘEF DIICOT", weight: 6 },
@@ -733,11 +733,52 @@ async function buildPromotionEligibility(
 }
 
 
+
+const DIICOT_ROLE_BY_ID =
+    new Map(
+        DIICOT_ROLES.map(
+            role => [
+                String(role.id),
+                role
+            ]
+        )
+    );
+
+
+function resolveHighestDIICOTRoleSafe(roles = []) {
+    const ids =
+        Array.isArray(roles)
+            ? roles.map(String)
+            : [];
+
+    let best = null;
+
+    for (const roleId of ids) {
+        const match =
+            DIICOT_ROLE_BY_ID.get(
+                String(roleId)
+            );
+
+        if (
+            match &&
+            (
+                !best ||
+                Number(match.level) >
+                Number(best.level)
+            )
+        ) {
+            best =
+                match;
+        }
+    }
+
+    return best;
+}
+
+
 function getHighestDIICOTRole(roles = []) {
-    return (
-        DIICOT_ROLES.find(
-            rank => roles.includes(rank.id)
-        ) || null
+    return resolveHighestDIICOTRoleSafe(
+        roles
     );
 }
 
@@ -7606,6 +7647,100 @@ async function fetchPersonnelFallbackIds() {
         ...ids
     ];
 }
+
+
+
+// ======================================================
+// DEBUG PERSONAL DIICOT — doar utilizator autentificat
+// Returnează rolurile proprii și gradul DIICOT detectat.
+// Nu expune token-uri sau secrete.
+// ======================================================
+
+app.get(
+    "/api/personnel-debug",
+    requireAuth,
+    async (req, res) => {
+        if (!BOT_TOKEN || !GUILD_ID) {
+            return res.status(500).json({
+                error:
+                    "Bot/Guild neconfigurat."
+            });
+        }
+
+        try {
+            const userId =
+                String(
+                    req.session.user.id ||
+                    ""
+                );
+
+            const response =
+                await axios.get(
+                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
+                    {
+                        headers: {
+                            Authorization:
+                                `Bot ${BOT_TOKEN}`
+                        },
+                        timeout:
+                            12000
+                    }
+                );
+
+            const roles =
+                Array.isArray(
+                    response.data?.roles
+                )
+                    ? response.data.roles.map(String)
+                    : [];
+
+            const rank =
+                resolveHighestDIICOTRoleSafe(
+                    roles
+                );
+
+            return res.json({
+                success: true,
+                userId,
+                roles,
+                matchedDIICOTRole:
+                    rank
+                        ? {
+                            id: rank.id,
+                            name: rank.name,
+                            level: rank.level
+                        }
+                        : null,
+                configuredDIICOTRoleIds:
+                    DIICOT_ROLES.map(
+                        role => role.id
+                    )
+            });
+        }
+        catch (error) {
+            console.error(
+                "Personnel Debug Error:",
+                error.response?.data ||
+                error.message
+            );
+
+            return res.status(
+                error.response?.status ||
+                500
+            ).json({
+                error:
+                    "Debug-ul personalului a eșuat.",
+                discordStatus:
+                    error.response?.status ||
+                    null,
+                discordMessage:
+                    error.response?.data?.message ||
+                    error.message ||
+                    null
+            });
+        }
+    }
+);
 
 
 // ======================================================
