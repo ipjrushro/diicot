@@ -7408,6 +7408,206 @@ app.delete(
 );
 
 
+
+// ======================================================
+// DISCORD — LISTARE COMPLETĂ MEMBRI GUILD
+// Discord returnează maximum 1000 membri / request.
+// Facem paginare ca PERSONAL DIICOT să nu depindă doar de
+// primii 1000 membri ai serverului.
+// ======================================================
+
+async function fetchAllGuildMembersForPersonnel() {
+    if (!BOT_TOKEN || !GUILD_ID) {
+        throw new Error(
+            "Discord bot/guild configuration missing."
+        );
+    }
+
+    const allMembers = [];
+    let after = "0";
+    let safetyPages = 0;
+
+    while (safetyPages < 50) {
+        safetyPages += 1;
+
+        const response =
+            await axios.get(
+                `https://discord.com/api/v10/guilds/${GUILD_ID}/members`,
+                {
+                    params: {
+                        limit: 1000,
+                        after
+                    },
+
+                    headers: {
+                        Authorization:
+                            `Bot ${BOT_TOKEN}`
+                    },
+
+                    timeout: 20000
+                }
+            );
+
+        const page =
+            Array.isArray(response.data)
+                ? response.data
+                : [];
+
+        if (!page.length) {
+            break;
+        }
+
+        allMembers.push(...page);
+
+        if (page.length < 1000) {
+            break;
+        }
+
+        const lastId =
+            page[
+                page.length - 1
+            ]?.user?.id;
+
+        if (!lastId) {
+            break;
+        }
+
+        after =
+            String(lastId);
+    }
+
+    return allMembers;
+}
+
+
+function mapDiscordPersonnelMember(member) {
+    try {
+        const user =
+            member?.user ||
+            {};
+
+        if (!user.id) {
+            return null;
+        }
+
+        const roles =
+            Array.isArray(member.roles)
+                ? member.roles.map(String)
+                : [];
+
+        const rank =
+            getHighestDIICOTRole(
+                roles
+            );
+
+        if (!rank) {
+            return null;
+        }
+
+        return {
+            id:
+                String(user.id),
+
+            username:
+                user.username ||
+                "Necunoscut",
+
+            displayName:
+                member.nick ||
+                user.global_name ||
+                user.username ||
+                "Necunoscut",
+
+            avatar:
+                discordMemberAvatar(
+                    user
+                ),
+
+            rank:
+                rank.name,
+
+            rankLevel:
+                Number(rank.level || 0),
+
+            rankRoleId:
+                rank.id
+        };
+    }
+    catch (error) {
+        console.error(
+            "Personnel member map error:",
+            error.message ||
+            error
+        );
+
+        return null;
+    }
+}
+
+
+async function fetchPersonnelFallbackIds() {
+    const ids =
+        new Set();
+
+    // Utilizatorul autentificat va fi adăugat separat în rută.
+    if (
+        SUPABASE_URL &&
+        SUPABASE_SERVICE_KEY
+    ) {
+        try {
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from(
+                        "docs_personnel"
+                    )
+                    .select(
+                        "discord_id"
+                    )
+                    .not(
+                        "discord_id",
+                        "is",
+                        null
+                    );
+
+            if (!error) {
+                for (
+                    const row of
+                    data || []
+                ) {
+                    const id =
+                        String(
+                            row.discord_id ||
+                            ""
+                        ).trim();
+
+                    if (
+                        /^\d{17,20}$/.test(
+                            id
+                        )
+                    ) {
+                        ids.add(id);
+                    }
+                }
+            }
+        }
+        catch (error) {
+            console.error(
+                "Personnel DOCS fallback ids error:",
+                error.message ||
+                error
+            );
+        }
+    }
+
+    return [
+        ...ids
+    ];
+}
+
+
 // ======================================================
 // PERSONAL DIICOT
 // ======================================================
@@ -7422,7 +7622,10 @@ app.get(
         res
     ) => {
 
-        if (!BOT_TOKEN || !GUILD_ID) {
+        if (
+            !BOT_TOKEN ||
+            !GUILD_ID
+        ) {
             return res
                 .status(500)
                 .json({
@@ -7432,202 +7635,169 @@ app.get(
         }
 
         try {
-            let members = [];
-            let source = "discord";
+            const personnelById =
+                new Map();
 
-            // Încercarea principală: lista membrilor direct din Discord.
-            // Aceasta rămâne cea mai completă sursă atunci când endpoint-ul
-            // Guild Members este disponibil pentru bot.
+            // --------------------------------------------------
+            // 1. Luăm TOȚI membrii Discord, nu doar primii 1000.
+            // --------------------------------------------------
             try {
-                const response =
-                    await axios.get(
-                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members?limit=1000`,
-                        {
-                            headers: {
-                                Authorization:
-                                    `Bot ${BOT_TOKEN}`
-                            },
-                            timeout: 15000
-                        }
-                    );
-
-                members =
-                    Array.isArray(response.data)
-                        ? response.data
-                        : [];
-            }
-            catch (discordListError) {
-                console.error(
-                    "Personnel Discord List Error:",
-                    discordListError.response?.status || "NO_STATUS",
-                    discordListError.response?.data ||
-                    discordListError.message
-                );
-
-                // Fallback sigur: folosim ID-urile deja salvate în DOCS și
-                // cerem fiecare membru individual din Discord. Astfel pagina
-                // Personal DIICOT nu cade complet dacă listarea întregului
-                // server este refuzată temporar de Discord.
-                if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
-                    throw discordListError;
-                }
-
-                source = "docs_fallback";
-
-                const {
-                    data: docsRows,
-                    error: docsError
-                } = await supabase
-                    .from("docs_personnel")
-                    .select("discord_id")
-                    .not("discord_id", "is", null);
-
-                if (docsError) {
-                    throw docsError;
-                }
-
-                const ids = [
-                    ...new Set(
-                        [
-                            ...(docsRows || [])
-                                .map(row =>
-                                    String(row.discord_id || "").trim()
-                                ),
-                            String(req.session.user.id || "").trim()
-                        ]
-                            .filter(id => /^\d{17,20}$/.test(id))
-                    )
-                ];
-
-                const batchSize = 10;
+                const members =
+                    await fetchAllGuildMembersForPersonnel();
 
                 for (
-                    let index = 0;
-                    index < ids.length;
-                    index += batchSize
+                    const member of
+                    members
                 ) {
-                    const batch = ids.slice(
-                        index,
-                        index + batchSize
-                    );
-
-                    const results =
-                        await Promise.allSettled(
-                            batch.map(
-                                userId =>
-                                    axios.get(
-                                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
-                                        {
-                                            headers: {
-                                                Authorization:
-                                                    `Bot ${BOT_TOKEN}`
-                                            },
-                                            timeout: 10000
-                                        }
-                                    )
-                            )
+                    const mapped =
+                        mapDiscordPersonnelMember(
+                            member
                         );
 
-                    for (const result of results) {
-                        if (
-                            result.status === "fulfilled" &&
-                            result.value?.data
-                        ) {
-                            members.push(result.value.data);
-                        }
+                    if (mapped) {
+                        personnelById.set(
+                            mapped.id,
+                            mapped
+                        );
                     }
                 }
             }
+            catch (listError) {
+                console.error(
+                    "Personnel Discord full-list warning:",
+                    listError.response?.data ||
+                    listError.message
+                );
+            }
 
-            const personnel = [];
-            const seenIds = new Set();
+            // --------------------------------------------------
+            // 2. Garantăm verificarea utilizatorului autentificat.
+            // Dacă este DIICOT, trebuie să apară chiar dacă listarea
+            // mare a Discordului nu l-a returnat.
+            // --------------------------------------------------
+            const fallbackIds =
+                new Set();
 
-            // Procesăm fiecare membru separat. Un obiect Discord incomplet
-            // nu mai poate opri încărcarea întregii pagini.
-            for (const member of members) {
+            const currentUserId =
+                String(
+                    req.session.user.id ||
+                    ""
+                ).trim();
+
+            if (
+                /^\d{17,20}$/.test(
+                    currentUserId
+                )
+            ) {
+                fallbackIds.add(
+                    currentUserId
+                );
+            }
+
+            // --------------------------------------------------
+            // 3. Adăugăm ca fallback și ID-urile deja cunoscute
+            // din DOCS. Nu modificăm și nu ștergem nimic din DOCS.
+            // --------------------------------------------------
+            const docsIds =
+                await fetchPersonnelFallbackIds();
+
+            for (
+                const id of
+                docsIds
+            ) {
+                fallbackIds.add(
+                    String(id)
+                );
+            }
+
+            // --------------------------------------------------
+            // 4. Membrii care lipsesc sunt verificați individual
+            // direct în Discord.
+            // --------------------------------------------------
+            for (
+                const userId of
+                fallbackIds
+            ) {
+                if (
+                    personnelById.has(
+                        userId
+                    )
+                ) {
+                    continue;
+                }
+
                 try {
-                    const user =
-                        member?.user || {};
+                    const memberResponse =
+                        await axios.get(
+                            `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
+                            {
+                                headers: {
+                                    Authorization:
+                                        `Bot ${BOT_TOKEN}`
+                                },
 
-                    const userId =
-                        String(user.id || "").trim();
+                                timeout:
+                                    12000
+                            }
+                        );
 
-                    if (
-                        !/^\d{17,20}$/.test(userId) ||
-                        user.bot ||
-                        seenIds.has(userId)
-                    ) {
-                        continue;
+                    const mapped =
+                        mapDiscordPersonnelMember(
+                            memberResponse.data
+                        );
+
+                    if (mapped) {
+                        personnelById.set(
+                            mapped.id,
+                            mapped
+                        );
                     }
-
-                    const roles =
-                        Array.isArray(member.roles)
-                            ? member.roles.map(String)
-                            : [];
-
-                    const rank =
-                        getHighestDIICOTRole(roles);
-
-                    if (!rank) {
-                        continue;
-                    }
-
-                    seenIds.add(userId);
-
-                    personnel.push({
-                        id: userId,
-
-                        username:
-                            user.username ||
-                            "Necunoscut",
-
-                        displayName:
-                            member.nick ||
-                            user.global_name ||
-                            user.username ||
-                            "Necunoscut",
-
-                        avatar:
-                            discordMemberAvatar(user),
-
-                        rank:
-                            rank.name,
-
-                        rankLevel:
-                            Number(rank.level || 0),
-
-                        rankRoleId:
-                            rank.id
-                    });
                 }
                 catch (memberError) {
-                    console.error(
-                        "Personnel Member Parse Error:",
-                        member?.user?.id || "unknown",
-                        memberError.message || memberError
-                    );
+                    if (
+                        memberError.response?.status !==
+                        404
+                    ) {
+                        console.error(
+                            `Personnel member fallback ${userId}:`,
+                            memberError.response?.data ||
+                            memberError.message
+                        );
+                    }
                 }
             }
 
-            personnel.sort(
-                (a, b) => {
-                    if (
-                        Number(b.rankLevel) !==
-                        Number(a.rankLevel)
-                    ) {
-                        return (
-                            Number(b.rankLevel) -
-                            Number(a.rankLevel)
-                        );
-                    }
+            const personnel =
+                Array.from(
+                    personnelById.values()
+                )
+                    .sort(
+                        (
+                            a,
+                            b
+                        ) => {
+                            if (
+                                Number(b.rankLevel) !==
+                                Number(a.rankLevel)
+                            ) {
+                                return (
+                                    Number(b.rankLevel) -
+                                    Number(a.rankLevel)
+                                );
+                            }
 
-                    return String(a.displayName)
-                        .localeCompare(
-                            String(b.displayName),
-                            "ro"
-                        );
-                }
-            );
+                            return String(
+                                a.displayName ||
+                                ""
+                            ).localeCompare(
+                                String(
+                                    b.displayName ||
+                                    ""
+                                ),
+                                "ro"
+                            );
+                        }
+                    );
 
             const grouped =
                 DIICOT_ROLES
@@ -7645,28 +7815,41 @@ app.get(
                             members:
                                 personnel.filter(
                                     member =>
-                                        member.rankRoleId ===
-                                        role.id
+                                        String(
+                                            member.rankRoleId
+                                        ) ===
+                                        String(
+                                            role.id
+                                        )
                                 )
                         })
                     )
                     .filter(
                         group =>
-                            group.members.length > 0
+                            group.members.length >
+                            0
                     );
 
+            console.log(
+                `[PERSONAL DIICOT] ${personnel.length} membri găsiți.`
+            );
+
             return res.json({
-                success: true,
-                total: personnel.length,
+                success:
+                    true,
+
+                total:
+                    personnel.length,
+
                 personnel,
-                groups: grouped,
-                source
+
+                groups:
+                    grouped
             });
         }
         catch (error) {
             console.error(
                 "Personnel Discord Error:",
-                error.response?.status || "NO_STATUS",
                 error.response?.data ||
                 error.message ||
                 error
@@ -7676,11 +7859,12 @@ app.get(
                 .status(500)
                 .json({
                     error:
-                        "Personalul DIICOT nu a putut fi încărcat. Verifică logul serverului pentru Personnel Discord Error."
+                        "Personalul DIICOT nu a putut fi încărcat."
                 });
         }
     }
 );
+
 
 // ======================================================
 // PROFIL MEMBRU DIICOT
