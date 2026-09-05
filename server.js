@@ -235,6 +235,504 @@ function discordMemberAvatar(user = {}) {
 }
 
 
+
+// ======================================================
+// ELIGIBILITATE UP — CERINȚE PE GRAD
+// ======================================================
+
+const PROMOTION_REQUIREMENTS = {
+    1: {
+        nextRank: "AGENT OPERATIV DIICOT",
+        reports: 50,
+        raids: 0,
+        trainings: 0,
+        minDays: 7,
+        manual: [
+            "Evaluare comportamentală",
+            "Analiză capabilitate"
+        ]
+    },
+
+    2: {
+        nextRank: "AGENT PRINCIPAL DIICOT",
+        reports: 70,
+        raids: 0,
+        trainings: 0,
+        minDays: 7,
+        manual: [
+            "Seriozitate și capabilitate"
+        ]
+    },
+
+    3: {
+        nextRank: "SUB INSPECTOR DIICOT",
+        reports: 100,
+        raids: 0,
+        trainings: 0,
+        minDays: 14,
+        manual: [
+            "Seriozitate și capabilitate",
+            "Evaluare comportamentală",
+            "Testarea capacităților de coordonare"
+        ]
+    },
+
+    4: {
+        nextRank: "INSPECTOR DIICOT",
+        reports: 50,
+        raids: 5,
+        trainings: 2,
+        minDays: 14,
+        manual: [
+            "Seriozitate și capabilitate",
+            "Evaluare comportamentală",
+            "Recomandare de la superiori"
+        ]
+    },
+
+    5: {
+        nextRank: "INSPECTOR PRINCIPAL DIICOT",
+        reports: 60,
+        raids: 7,
+        trainings: 3,
+        minDays: 14,
+        manual: [
+            "Prezențe neanunțate",
+            "Recomandare de la superiori",
+            "Implicare activă în structura DIICOT"
+        ]
+    },
+
+    6: {
+        nextRank: "SUB COMISAR DIICOT",
+        reports: 50,
+        raids: 8,
+        trainings: 2,
+        minDays: 14,
+        manual: [
+            "Ajutarea gradelor mai mici",
+            "Implicare activă în structura DIICOT",
+            "Recomandare de la CONDUCERE"
+        ]
+    }
+};
+
+
+async function ensureRankProgressRow(
+    userId,
+    rank
+) {
+    const fallback = {
+        user_id:
+            String(userId),
+
+        rank_role_id:
+            rank?.id ||
+            "",
+
+        rank_name:
+            rank?.name ||
+            "",
+
+        rank_since:
+            new Date().toISOString()
+    };
+
+    if (!supabase || !rank?.id) {
+        return fallback;
+    }
+
+    try {
+        const {
+            data,
+            error
+        } =
+            await supabase
+                .from("rank_progress")
+                .select("*")
+                .eq(
+                    "user_id",
+                    String(userId)
+                )
+                .maybeSingle();
+
+        if (error) {
+            throw error;
+        }
+
+        if (
+            !data ||
+            String(data.rank_role_id || "") !==
+                String(rank.id)
+        ) {
+            const row = {
+                user_id:
+                    String(userId),
+
+                rank_role_id:
+                    String(rank.id),
+
+                rank_name:
+                    String(rank.name),
+
+                rank_since:
+                    new Date().toISOString(),
+
+                updated_at:
+                    new Date().toISOString()
+            };
+
+            const {
+                data:
+                    saved,
+
+                error:
+                    saveError
+            } =
+                await supabase
+                    .from("rank_progress")
+                    .upsert(
+                        row,
+                        {
+                            onConflict:
+                                "user_id"
+                        }
+                    )
+                    .select("*")
+                    .single();
+
+            if (saveError) {
+                throw saveError;
+            }
+
+            return saved;
+        }
+
+        return data;
+
+    } catch (error) {
+        console.error(
+            "Rank Progress Error:",
+            error.message ||
+            error
+        );
+
+        return fallback;
+    }
+}
+
+
+async function resetRankProgressNow(
+    userId,
+    rank
+) {
+    if (!supabase || !rank?.id) {
+        return;
+    }
+
+    try {
+        const now =
+            new Date().toISOString();
+
+        const {
+            error
+        } =
+            await supabase
+                .from("rank_progress")
+                .upsert(
+                    {
+                        user_id:
+                            String(userId),
+
+                        rank_role_id:
+                            String(rank.id),
+
+                        rank_name:
+                            String(rank.name),
+
+                        rank_since:
+                            now,
+
+                        updated_at:
+                            now
+                    },
+                    {
+                        onConflict:
+                            "user_id"
+                    }
+                );
+
+        if (error) {
+            throw error;
+        }
+
+    } catch (error) {
+        console.error(
+            "Rank Progress Reset Error:",
+            error.message ||
+            error
+        );
+    }
+}
+
+
+function getReportTimestamp(report) {
+    const value =
+        report?.createdAt ||
+        report?.created_at ||
+        null;
+
+    const time =
+        value
+            ? new Date(value).getTime()
+            : NaN;
+
+    return Number.isFinite(time)
+        ? time
+        : 0;
+}
+
+
+async function buildPromotionEligibility(
+    userId,
+    rank,
+    ownReports = []
+) {
+    const requirement =
+        PROMOTION_REQUIREMENTS[
+            Number(rank?.level || 0)
+        ] ||
+        null;
+
+    const tracker =
+        await ensureRankProgressRow(
+            userId,
+            rank
+        );
+
+    const rankSinceISO =
+        tracker?.rank_since ||
+        new Date().toISOString();
+
+    const rankSinceTime =
+        new Date(
+            rankSinceISO
+        ).getTime();
+
+    const validSince =
+        Number.isFinite(rankSinceTime)
+            ? rankSinceTime
+            : Date.now();
+
+    const daysInRank =
+        Math.max(
+            0,
+            Math.floor(
+                (
+                    Date.now() -
+                    validSince
+                ) /
+                86400000
+            )
+        );
+
+    if (!requirement) {
+        return {
+            tracked:
+                true,
+
+            meritOnly:
+                Number(rank?.level || 0) >= 7,
+
+            currentRank:
+                rank?.name ||
+                "-",
+
+            nextRank:
+                null,
+
+            rankSince:
+                rankSinceISO,
+
+            daysInRank,
+
+            requirements:
+                null,
+
+            progress: {
+                reports: 0,
+                raids: 0,
+                trainings: 0
+            },
+
+            numericEligible:
+                false,
+
+            manualCriteria:
+                [
+                    "Promovarea se acordă strict pe încredere și merit."
+                ]
+        };
+    }
+
+    const reportsSinceRank =
+        (Array.isArray(ownReports)
+            ? ownReports
+            : []
+        ).filter(
+            report =>
+                getReportTimestamp(
+                    report
+                ) >= validSince
+        );
+
+    let raids = 0;
+    let trainings = 0;
+
+    if (
+        Number(requirement.raids || 0) > 0 ||
+        Number(requirement.trainings || 0) > 0
+    ) {
+        try {
+            const allReports =
+                await listB2Reports();
+
+            const userIdString =
+                String(userId);
+
+            const involvedReports =
+                allReports.filter(
+                    report => {
+                        if (
+                            getReportTimestamp(
+                                report
+                            ) < validSince
+                        ) {
+                            return false;
+                        }
+
+                        const isAuthor =
+                            String(
+                                report.authorId ||
+                                ""
+                            ) ===
+                            userIdString;
+
+                        const isCoOrganizer =
+                            String(
+                                report.coOrganizer?.id ||
+                                ""
+                            ) ===
+                            userIdString;
+
+                        return (
+                            isAuthor ||
+                            isCoOrganizer
+                        );
+                    }
+                );
+
+            raids =
+                involvedReports.filter(
+                    report =>
+                        report.type ===
+                        "RAZIE"
+                ).length;
+
+            trainings =
+                involvedReports.filter(
+                    report =>
+                        report.type ===
+                        "ANTRENAMENT"
+                ).length;
+
+        } catch (error) {
+            console.error(
+                "Promotion Activity Count Error:",
+                error.message ||
+                error
+            );
+        }
+    }
+
+    const progress = {
+        reports:
+            reportsSinceRank.length,
+
+        raids,
+
+        trainings
+    };
+
+    const numericEligible =
+        progress.reports >=
+            Number(requirement.reports || 0) &&
+        raids >=
+            Number(requirement.raids || 0) &&
+        trainings >=
+            Number(requirement.trainings || 0) &&
+        daysInRank >=
+            Number(requirement.minDays || 0);
+
+    return {
+        tracked:
+            true,
+
+        meritOnly:
+            false,
+
+        currentRank:
+            rank?.name ||
+            "-",
+
+        nextRank:
+            requirement.nextRank,
+
+        rankSince:
+            rankSinceISO,
+
+        daysInRank,
+
+        requirements: {
+            reports:
+                Number(
+                    requirement.reports ||
+                    0
+                ),
+
+            raids:
+                Number(
+                    requirement.raids ||
+                    0
+                ),
+
+            trainings:
+                Number(
+                    requirement.trainings ||
+                    0
+                ),
+
+            minDays:
+                Number(
+                    requirement.minDays ||
+                    0
+                )
+        },
+
+        progress,
+
+        numericEligible,
+
+        manualCriteria:
+            Array.isArray(
+                requirement.manual
+            )
+                ? requirement.manual
+                : []
+    };
+}
+
+
 function getHighestDIICOTRole(roles = []) {
     return (
         DIICOT_ROLES.find(
@@ -2427,6 +2925,23 @@ app.get(
                 ).length;
 
 
+            const promotionEligibility =
+                await buildPromotionEligibility(
+                    userId,
+                    {
+                        id:
+                            req.session.user.rankRoleId,
+
+                        name:
+                            req.session.user.rank,
+
+                        level:
+                            req.session.user.rankLevel
+                    },
+                    myReports
+                );
+
+
             res.json({
 
                 success:
@@ -2456,6 +2971,8 @@ app.get(
 
                             ? profileRow.duties
                             : [],
+
+                    promotionEligibility,
 
                     statistics: {
 
@@ -7325,6 +7842,14 @@ app.get(
                 ).length;
 
 
+            const promotionEligibility =
+                await buildPromotionEligibility(
+                    userId,
+                    rank,
+                    reports
+                );
+
+
             const recentActivity =
                 reports
                     .slice(
@@ -7405,6 +7930,8 @@ app.get(
                     isOwnProfile,
 
                     canManage,
+
+                    promotionEligibility,
 
                     statistics: {
 
@@ -7657,6 +8184,12 @@ app.patch(
                             "application/json"
                     }
                 }
+            );
+
+
+            await resetRankProgressNow(
+                userId,
+                targetRole
             );
 
 
@@ -7967,6 +8500,12 @@ app.patch(
                             "application/json"
                     }
                 }
+            );
+
+
+            await resetRankProgressNow(
+                userId,
+                targetRank
             );
 
 
