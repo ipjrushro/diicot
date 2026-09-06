@@ -654,16 +654,16 @@ footer{border-top:1px solid rgba(255,255,255,.055);background:rgba(4,9,15,.84)}
 }
 
 #features .cinematic-card.card-rapoarte{
-    background-image:url('/uploads/card-rapoarte.jpg') !important;
+    background-image:url('/uploads/card-rapoarte-hd.jpg') !important;
 }
 #features .cinematic-card.card-personal{
-    background-image:url('/uploads/card-personal.jpg') !important;
+    background-image:url('/uploads/card-personal-hd.jpg') !important;
 }
 #features .cinematic-card.card-admin{
-    background-image:url('/uploads/card-admin.jpg') !important;
+    background-image:url('/uploads/card-admin-hd.jpg') !important;
 }
 #features .cinematic-card.card-cod{
-    background-image:url('/uploads/card-cod-penal.jpg') !important;
+    background-image:url('/uploads/card-cod-penal-hd.jpg') !important;
 }
 
 #features .cinematic-card::before,
@@ -801,6 +801,36 @@ footer{border-top:1px solid rgba(255,255,255,.055);background:rgba(4,9,15,.84)}
     #features .cinematic-card{
         min-height:390px !important;
     }
+}
+
+
+/* ===== CARD BACKGROUNDS HD V6 ===== */
+#features .cinematic-card{
+    background-position:center 32% !important;
+    background-size:cover !important;
+}
+#features .cinematic-card.card-rapoarte{background-position:center 34% !important;}
+#features .cinematic-card.card-personal{background-position:center 30% !important;}
+#features .cinematic-card.card-admin{background-position:center 28% !important;}
+#features .cinematic-card.card-cod{background-position:center 30% !important;}
+
+#features .cinematic-overlay{
+    background:
+        linear-gradient(180deg,
+            rgba(2,7,12,.02) 0%,
+            rgba(2,7,12,.05) 36%,
+            rgba(2,7,12,.46) 60%,
+            rgba(2,7,12,.92) 80%,
+            rgba(2,7,12,.985) 100%) !important;
+}
+#features .cinematic-card:hover .cinematic-overlay{
+    background:
+        linear-gradient(180deg,
+            rgba(2,7,12,0) 0%,
+            rgba(2,7,12,.03) 35%,
+            rgba(2,7,12,.40) 59%,
+            rgba(2,7,12,.89) 79%,
+            rgba(2,7,12,.98) 100%) !important;
 }
 
 </style>
