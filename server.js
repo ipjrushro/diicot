@@ -4273,6 +4273,9 @@ app.post(
         const allowedTypes = [
             "RAZIE",
             "ANTRENAMENT",
+            "DOVADA RAZIE",
+            "DOVADA ANTRENAMENT",
+            "REGRUPARE",
             "JAFURI",
             "PATRULA",
             "PERCHEZITIE",
@@ -4284,6 +4287,52 @@ app.post(
             return res.status(400).json({
                 error:
                     "Tipul raportului nu este valid."
+            });
+        }
+
+        // RAZIE / ANTRENAMENT normale pot fi postate doar de SUB INSPECTOR DIICOT+.
+        // Gradele mici (Agent Stagiar / Operativ / Principal) folosesc variantele DOVADĂ.
+        const authorRankLevel =
+            Number(
+                req.session.user.rankLevel ||
+                0
+            );
+
+        const isOrganizerReport =
+            type === "RAZIE" ||
+            type === "ANTRENAMENT";
+
+        const isParticipationProof =
+            type === "DOVADA RAZIE" ||
+            type === "DOVADA ANTRENAMENT";
+
+        if (
+            isOrganizerReport &&
+            authorRankLevel < 4
+        ) {
+            return res.status(403).json({
+                error:
+                    "RAZIE și ANTRENAMENT pot fi postate doar de la SUB INSPECTOR DIICOT în sus. Pentru participare folosește DOVADĂ RAZIE / DOVADĂ ANTRENAMENT."
+            });
+        }
+
+        if (
+            isParticipationProof &&
+            authorRankLevel >= 4
+        ) {
+            return res.status(403).json({
+                error:
+                    "DOVEZILE RAZIE / ANTRENAMENT sunt destinate gradelor AGENT STAGIAR, AGENT OPERATIV și AGENT PRINCIPAL."
+            });
+        }
+
+        if (
+            isParticipationProof &&
+            (!Array.isArray(req.files) || req.files.length < 1)
+        ) {
+            return res.status(400).json({
+                error:
+                    "Pentru DOVADĂ RAZIE / DOVADĂ ANTRENAMENT trebuie să încarci cel puțin o poză."
             });
         }
 
@@ -4334,20 +4383,10 @@ app.post(
             }
 
             try {
-                const memberResponse =
-                    await axios.get(
-                        `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${coOrganizerId}`,
-                        {
-                            headers: {
-                                Authorization:
-                                    `Bot ${BOT_TOKEN}`
-                            }
-                        }
-                    );
-
                 const member =
-                    memberResponse.data ||
-                    {};
+                    await getDiscordMemberCached(
+                        coOrganizerId
+                    ) || {};
 
                 const user =
                     member.user ||
