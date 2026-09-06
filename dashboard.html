@@ -7260,6 +7260,14 @@
             display: block;
         }
 
+        .home-action-card.sanction-manager-card {
+            display: none;
+        }
+
+        body.can-manage-sanctions .home-action-card.sanction-manager-card {
+            display: block;
+        }
+
         @media (max-width: 1350px) {
             .home-actions-grid {
                 grid-template-columns: repeat(3, minmax(0,1fr));
@@ -11545,14 +11553,14 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
                         <button
                             type="button"
-                            class="home-action-card gold admin-home-card"
+                            class="home-action-card gold sanction-manager-card"
                             id="open-sanction-modal"
                         >
                             <div class="home-action-icon">⚒</div>
                             <h3>APLICĂ SANCȚIUNI</h3>
                             <p>
-                                Aplică Faction Warn (maximum 5) sau OUT unui
-                                membru, cu motiv obligatoriu.
+                                Sub Comisar+ poate aplica Faction Warn (maximum 5)
+                                sau OUT unui membru, cu motiv obligatoriu.
                             </p>
                             <span class="home-action-arrow">→</span>
                         </button>
@@ -16910,6 +16918,17 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                 isAdmin
             );
 
+            const canManageSanctions =
+                Number(
+                    currentUser.rankLevel ||
+                    0
+                ) >= 7;
+
+            document.body.classList.toggle(
+                "can-manage-sanctions",
+                canManageSanctions
+            );
+
             document
                 .querySelectorAll(
                     ".admin-home-card"
@@ -19152,7 +19171,7 @@ const query =
                     Number(
                         currentUser?.rankLevel ||
                         0
-                    ) < 10
+                    ) < 7
                 ) {
                     return;
                 }
@@ -19441,7 +19460,7 @@ const query =
                     Number(
                         currentUser?.rankLevel ||
                         0
-                    ) < 10
+                    ) < 7
                 ) {
                     return;
                 }
