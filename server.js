@@ -4315,17 +4315,6 @@ app.post(
                     "RAZIE și ANTRENAMENT pot fi postate doar de la SUB INSPECTOR DIICOT în sus. Pentru participare folosește DOVADĂ RAZIE / DOVADĂ ANTRENAMENT."
             });
         }
-
-        if (
-            isParticipationProof &&
-            authorRankLevel >= 4
-        ) {
-            return res.status(403).json({
-                error:
-                    "DOVEZILE RAZIE / ANTRENAMENT sunt destinate gradelor AGENT STAGIAR, AGENT OPERATIV și AGENT PRINCIPAL."
-            });
-        }
-
         if (
             isParticipationProof &&
             (!Array.isArray(req.files) || req.files.length < 1)
