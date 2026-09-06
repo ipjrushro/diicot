@@ -2619,6 +2619,42 @@ function requireAdmin(
 }
 
 
+function requireSanctionManager(
+    req,
+    res,
+    next
+) {
+
+    if (
+        !req.session?.user
+    ) {
+        return res
+            .status(401)
+            .json({
+                error:
+                    "Trebuie să fii autentificat."
+            });
+    }
+
+    // SUB COMISAR+ (rankLevel 7+) poate vedea, aplica și retrage sancțiuni.
+    if (
+        Number(
+            req.session.user.rankLevel ||
+            0
+        ) < 7
+    ) {
+        return res
+            .status(403)
+            .json({
+                error:
+                    "Doar SUB COMISAR+ poate gestiona sancțiunile."
+            });
+    }
+
+    next();
+}
+
+
 function hasTesterAccess(
     user
 ) {
@@ -12820,7 +12856,7 @@ app.post(
 
 app.get(
     "/api/admin/sanctions/active",
-    requireAdmin,
+    requireSanctionManager,
     async (req, res) => {
         if (!ensureSupabase(res)) return;
 
@@ -12859,7 +12895,7 @@ app.get(
 
 app.patch(
     "/api/admin/sanctions/:id/revoke",
-    requireAdmin,
+    requireSanctionManager,
     async (req, res) => {
         if (!ensureSupabase(res)) return;
 
@@ -13000,7 +13036,7 @@ app.patch(
 app.post(
     "/api/admin/sanctions",
 
-    requireAdmin,
+    requireSanctionManager,
 
     async (
         req,
