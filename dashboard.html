@@ -13264,6 +13264,40 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
                 </div>
 
+                <div id="direct-callsign-center" class="direct-callsign-center callsign-manager-only">
+                    <div class="dcc-head">
+                        <div class="dcc-icon">D</div>
+                        <div>
+                            <span>CENTRU SECURIZAT • ACCES EXCLUSIV</span>
+                            <h3>Dare Callsign</h3>
+                            <p>Selectează un membru DIICOT și acordă-i direct un indicativ. Callsign-ul se schimbă doar pe Discord, iar membrul primește mesaj privat. Nu modifică DOCS-ul.</p>
+                        </div>
+                        <div class="dcc-live">● SISTEM ACTIV</div>
+                    </div>
+
+                    <div class="dcc-grid">
+                        <div class="dcc-card">
+                            <label>MEMBRU DIICOT</label>
+                            <input id="dcc-search" class="dcc-search" type="text" placeholder="Caută nume, grad sau Discord ID...">
+                            <div id="dcc-list" class="dcc-list"><div class="dcc-empty">Se încarcă personalul...</div></div>
+                        </div>
+
+                        <div class="dcc-card">
+                            <span class="dcc-label">MEMBRU SELECTAT</span>
+                            <div id="dcc-selected" class="dcc-selected">
+                                <div class="dcc-avatar">?</div>
+                                <div><strong>Niciun membru selectat</strong><small>Alege un membru din listă</small></div>
+                            </div>
+
+                            <label>CALLSIGN NOU</label>
+                            <div class="dcc-call-input"><span>[D-</span><input id="dcc-call" maxlength="2" inputmode="numeric" placeholder="00"><span>]</span></div>
+
+                            <div class="dcc-preview"><span>PREVIZUALIZARE DISCORD</span><strong id="dcc-preview">[D-XX] NUME MEMBRU</strong></div>
+                            <button id="dcc-submit" type="button" disabled>◆ ACORDĂ CALLSIGN</button>
+                            <div id="dcc-result" class="dcc-result"></div>
+                        </div>
+                    </div>
+                </div>
 
             </section>
 
@@ -16928,6 +16962,9 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                 "can-manage-sanctions",
                 canManageSanctions
             );
+
+            const canManageDirectCallsign = Boolean(data?.permissions?.callsignManager);
+            document.body.classList.toggle("can-manage-direct-callsign", canManageDirectCallsign);
 
             document
                 .querySelectorAll(
@@ -32185,6 +32222,45 @@ const query =
     }
 }
 </style>
+
+
+<style id="dcc-premium-css">
+.callsign-manager-only{display:none!important}
+body.can-manage-direct-callsign .callsign-manager-only{display:block!important}
+.direct-callsign-center{margin-top:22px;padding:22px;border:1px solid rgba(232,180,65,.22);border-radius:18px;background:radial-gradient(circle at 90% 0%,rgba(232,180,65,.1),transparent 35%),linear-gradient(145deg,rgba(7,18,31,.96),rgba(2,10,18,.97));box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.dcc-head{display:grid;grid-template-columns:58px 1fr auto;gap:16px;align-items:center;margin-bottom:18px}
+.dcc-icon{width:58px;height:58px;border-radius:15px;display:grid;place-items:center;border:1px solid rgba(232,180,65,.32);background:rgba(232,180,65,.09);color:#e8b441;font-size:22px;font-weight:900}
+.dcc-head span,.dcc-label,.dcc-card label,.dcc-preview span{display:block;color:#8499af;font-size:7px;font-weight:900;letter-spacing:1.1px}
+.dcc-head h3{margin:4px 0;color:#f2f6fa;font-size:22px}.dcc-head p{margin:4px 0 0;color:#71869c;font-size:8px;line-height:1.6}
+.dcc-live{padding:9px 12px;border:1px solid rgba(72,217,154,.2);border-radius:999px;background:rgba(72,217,154,.05);color:#48d99a;font-size:7px;font-weight:900}
+.dcc-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.dcc-card{padding:16px;border:1px solid rgba(135,167,201,.11);border-radius:15px;background:rgba(2,10,18,.5)}
+.dcc-search{box-sizing:border-box;width:100%;height:44px;margin-top:8px;padding:0 13px;border:1px solid rgba(135,167,201,.14);border-radius:10px;background:#06111d;color:#eaf0f7;outline:0}
+.dcc-search:focus{border-color:rgba(232,180,65,.45)}
+.dcc-list{max-height:300px;overflow:auto;display:grid;gap:7px;margin-top:10px}
+.dcc-member{display:flex;align-items:center;gap:10px;width:100%;padding:10px;border:1px solid rgba(135,167,201,.09);border-radius:11px;background:rgba(7,19,32,.7);color:#dce6f0;text-align:left;cursor:pointer}
+.dcc-member:hover,.dcc-member.active{border-color:rgba(232,180,65,.32);background:rgba(232,180,65,.06)}
+.dcc-avatar{width:36px;height:36px;display:grid;place-items:center;flex:0 0 36px;border:1px solid rgba(232,180,65,.16);border-radius:10px;background:#0b1a29;color:#e8b441;font-weight:900}
+.dcc-member strong,.dcc-selected strong{display:block;font-size:9px}.dcc-member small,.dcc-selected small{display:block;margin-top:3px;color:#71869c;font-size:7px}
+.dcc-empty{padding:28px;text-align:center;color:#60758b;font-size:8px}.dcc-selected{display:flex;gap:10px;align-items:center;margin:8px 0 18px;padding:12px;border:1px solid rgba(232,180,65,.13);border-radius:12px;background:rgba(232,180,65,.035)}
+.dcc-call-input{height:62px;margin-top:8px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(232,180,65,.25);border-radius:13px;background:#050e18;color:#e8b441;font-size:23px;font-weight:900}
+.dcc-call-input input{width:54px;border:0;background:transparent;outline:0;color:#fff;text-align:center;font-size:23px;font-weight:900}
+.dcc-preview{margin-top:10px;padding:12px;border:1px solid rgba(255,255,255,.05);border-radius:11px;background:rgba(255,255,255,.025)}.dcc-preview strong{display:block;margin-top:5px;color:#dfe8f2;font-size:9px}
+#dcc-submit{width:100%;height:46px;margin-top:12px;border:1px solid rgba(232,180,65,.35);border-radius:11px;background:linear-gradient(135deg,#e8b441,#b67d12);color:#07111b;font-size:8px;font-weight:1000;cursor:pointer}
+#dcc-submit:disabled{opacity:.35;cursor:not-allowed}.dcc-result{min-height:18px;margin-top:10px;text-align:center;font-size:8px;color:#7f93a8}.dcc-result.ok{color:#48d99a}.dcc-result.err{color:#ff6f79}
+@media(max-width:900px){.dcc-grid{grid-template-columns:1fr}.dcc-head{grid-template-columns:50px 1fr}.dcc-live{display:none}}
+</style>
+
+<script id="dcc-premium-js">
+(function(){
+let members=[], selected=null, loaded=false;
+const E=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]));
+function flat(groups){const a=[];(groups||[]).forEach(g=>(g.members||[]).forEach(m=>a.push({id:String(m.id||m.userId||""),name:m.displayName||m.name||m.username||"Membru DIICOT",username:m.username||"",rank:m.rank||g.name||g.rank||"DIICOT"})));return a.filter(x=>x.id)}
+function render(q=""){const box=document.getElementById("dcc-list");if(!box)return;q=String(q).toLowerCase().trim();const arr=members.filter(m=>!q||m.name.toLowerCase().includes(q)||m.username.toLowerCase().includes(q)||m.rank.toLowerCase().includes(q)||m.id.includes(q));if(!arr.length){box.innerHTML='<div class="dcc-empty">Nu am găsit niciun membru.</div>';return}box.innerHTML=arr.map(m=>`<button type="button" class="dcc-member ${selected?.id===m.id?"active":""}" data-id="${E(m.id)}"><div class="dcc-avatar">${E(m.name.charAt(0).toUpperCase())}</div><div><strong>${E(m.name)}</strong><small>${E(m.rank)} • @${E(m.username||"-")} • ${E(m.id)}</small></div></button>`).join("");box.querySelectorAll("[data-id]").forEach(b=>b.onclick=()=>{selected=members.find(m=>m.id===b.dataset.id)||null;render(document.getElementById("dcc-search")?.value||"");update()})}
+function update(){const box=document.getElementById("dcc-selected"),p=document.getElementById("dcc-preview"),i=document.getElementById("dcc-call"),b=document.getElementById("dcc-submit");if(!box||!p||!b)return;if(!selected){box.innerHTML='<div class="dcc-avatar">?</div><div><strong>Niciun membru selectat</strong><small>Alege un membru din listă</small></div>';p.textContent="[D-XX] NUME MEMBRU";b.disabled=true;return}box.innerHTML=`<div class="dcc-avatar">${E(selected.name.charAt(0).toUpperCase())}</div><div><strong>${E(selected.name)}</strong><small>${E(selected.rank)} • ${E(selected.id)}</small></div>`;const n=String(i?.value||"").replace(/\D/g,"").slice(0,2),cs=n?`D-${n.padStart(2,"0")}`:"D-XX",clean=selected.name.replace(/^\s*\[?D-\d{1,2}\]?\s*/i,"").trim();p.textContent=`[${cs}] ${clean}`;b.disabled=!/^\d{1,2}$/.test(n)}
+async function load(){if(!document.body.classList.contains("can-manage-direct-callsign"))return;const box=document.getElementById("dcc-list");try{const r=await fetch("/api/personnel",{credentials:"include",cache:"no-store"}),d=await r.json();if(!r.ok)throw new Error(d.error||"Personalul nu a putut fi încărcat.");members=flat(d.groups||[]);loaded=true;render()}catch(e){if(box)box.innerHTML=`<div class="dcc-empty">${E(e.message)}</div>`}}
+document.addEventListener("DOMContentLoaded",()=>{const s=document.getElementById("dcc-search"),i=document.getElementById("dcc-call"),b=document.getElementById("dcc-submit"),r=document.getElementById("dcc-result");s?.addEventListener("input",()=>render(s.value));i?.addEventListener("input",()=>{i.value=i.value.replace(/\D/g,"").slice(0,2);update()});b?.addEventListener("click",async()=>{if(!selected)return;const n=String(i.value||"").replace(/\D/g,"");if(!n)return;const cs=`D-${n.padStart(2,"0")}`;if(!confirm(`Acorzi callsign-ul ${cs} lui ${selected.name}?`))return;b.disabled=true;r.className="dcc-result";r.textContent="Se actualizează Discord...";try{const x=await fetch("/api/callsign-manager/assign",{method:"PATCH",credentials:"include",headers:{"Content-Type":"application/json"},body:JSON.stringify({userId:selected.id,callsign:cs})}),d=await x.json();if(!x.ok)throw new Error(d.error||"Callsign-ul nu a putut fi acordat.");r.className="dcc-result ok";r.textContent=`✓ ${d.callsign} acordat. Nickname actualizat.${d.dmSent?" Mesaj privat trimis.":" DM-ul nu a putut fi trimis."}`;selected.name=d.displayName||selected.name;i.value="";update();render(s?.value||"")}catch(e){r.className="dcc-result err";r.textContent="✕ "+e.message}finally{update()}});const t=setInterval(()=>{if(!loaded&&document.body.classList.contains("can-manage-direct-callsign"))load()},700);setTimeout(()=>clearInterval(t),30000)})
+})();
+</script>
 
 </body>
 </html>
