@@ -93,8 +93,8 @@ const supabase = createClient(
 // ======================================================
 
 // IMPORTANT: INSPECTOR ROLE IDS
-// INSPECTOR DIICOT           = 1528758226416435214 (level 5)
-// INSPECTOR PRINCIPAL DIICOT = 1528758226416435213 (level 6)
+// INSPECTOR DIICOT           = 1528758226416435213 (level 5)
+// INSPECTOR PRINCIPAL DIICOT = 1528758226416435214 (level 6)
 // Nu inversa aceste două ID-uri.
 const DIICOT_ROLES = [
     {
@@ -133,12 +133,12 @@ const DIICOT_ROLES = [
         level: 7
     },
     {
-        id: "1528758226416435213",
+        id: "1528758226416435214",
         name: "INSPECTOR PRINCIPAL DIICOT",
         level: 6
     },
     {
-        id: "1528758226416435214",
+        id: "1528758226416435213",
         name: "INSPECTOR DIICOT",
         level: 5
     },
@@ -174,8 +174,8 @@ const DIICOT_ROLES = [
 const REPORT_ORGANIZER_DEPARTMENTS = {
     DIICOT: [
         { id: "1528758226416435211", name: "SUB INSPECTOR DIICOT", weight: 1 },
-        { id: "1528758226416435214", name: "INSPECTOR DIICOT", weight: 2 },
-        { id: "1528758226416435213", name: "INSPECTOR PRINCIPAL DIICOT", weight: 3 },
+        { id: "1528758226416435213", name: "INSPECTOR DIICOT", weight: 2 },
+        { id: "1528758226416435214", name: "INSPECTOR PRINCIPAL DIICOT", weight: 3 },
         { id: "1528758226416435215", name: "SUB COMISAR DIICOT", weight: 4 },
         { id: "1528758226416435216", name: "COMISAR DIICOT", weight: 5 },
         { id: "1528758226416435217", name: "COMISAR ȘEF DIICOT", weight: 6 },
@@ -880,16 +880,18 @@ async function buildPromotionEligibility(
             ? rankSinceTime
             : Date.now();
 
+    // Numărăm inclusiv ziua intrării în grad:
+    // în prima zi afișăm 1, apoi 2, 3 etc.
     const daysInRank =
         Math.max(
-            0,
+            1,
             Math.floor(
                 (
                     Date.now() -
                     validSince
                 ) /
                 86400000
-            )
+            ) + 1
         );
 
     if (!requirement) {
@@ -931,16 +933,13 @@ async function buildPromotionEligibility(
         };
     }
 
+    // Pentru progresul RAPOARTE folosim toate rapoartele existente ale
+    // utilizatorului. rank_progress poate fi creat abia la prima accesare,
+    // iar filtrarea după rank_since făcea rapoartele deja existente să apară 0.
     const reportsSinceRank =
-        (Array.isArray(ownReports)
+        Array.isArray(ownReports)
             ? ownReports
-            : []
-        ).filter(
-            report =>
-                getReportTimestamp(
-                    report
-                ) >= validSince
-        );
+            : [];
 
     let raids = 0;
     let trainings = 0;
