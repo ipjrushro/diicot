@@ -2623,18 +2623,6 @@ function requireAdmin(
 }
 
 
-const CALLSIGN_MANAGER_ID = "1315733546312142921";
-
-function requireCallsignManager(req, res, next) {
-    if (!req.session?.user) {
-        return res.status(401).json({ error: "Trebuie să fii autentificat." });
-    }
-    if (!CALLSIGN_MANAGER_ID || String(req.session.user.id) !== CALLSIGN_MANAGER_ID) {
-        return res.status(403).json({ error: "Nu ai acces la Centrul de Callsign." });
-    }
-    next();
-}
-
 function requireSanctionManager(
     req,
     res,
@@ -3223,13 +3211,7 @@ app.get(
 
                 testManagement:
                     isAdmin ||
-                    isTester,
-
-                callsignManager:
-                    Boolean(
-                        CALLSIGN_MANAGER_ID &&
-                        String(req.session.user.id) === CALLSIGN_MANAGER_ID
-                    )
+                    isTester
             }
         });
     }
@@ -9948,105 +9930,6 @@ app.patch(
 
 
 
-
-// ======================================================
-// CENTRU CALLSIGN — ACCES EXCLUSIV
-// Persoană autorizată: 1315733546312142921
-// Nu scrie nimic în DOCS / Supabase pentru callsign.
-// ======================================================
-app.patch("/api/callsign-manager/assign", requireCallsignManager, async (req, res) => {
-    if (!ensureSupabase(res)) return;
-
-    const userId = String(req.body?.userId || "").trim();
-    const callsign = normalizeCallsign(req.body?.callsign);
-
-    if (!/^\d{17,20}$/.test(userId)) {
-        return res.status(400).json({ error: "Discord ID invalid." });
-    }
-    if (!callsign) {
-        return res.status(400).json({ error: "Callsign invalid. Folosește un număr între 01 și 99." });
-    }
-    if (!BOT_TOKEN) {
-        return res.status(500).json({ error: "Botul Discord nu este configurat." });
-    }
-
-    try {
-        const member = await getDiscordMemberCached(userId);
-        const roles = Array.isArray(member.roles) ? member.roles.map(String) : [];
-        const rank = getHighestDIICOTRole(roles);
-
-        if (!rank) {
-            return res.status(400).json({ error: "Acest utilizator nu face parte din structura DIICOT." });
-        }
-
-        const discordUser = member.user || {};
-        const currentName = member.nick || discordUser.global_name || discordUser.username || "Membru";
-        const cleanName = removeExistingCallsign(currentName);
-        const newNickname = buildCallsignNickname(callsign, cleanName);
-
-        if (newNickname.length > 32) {
-            return res.status(400).json({ error: "Numele rezultat este prea lung pentru Discord." });
-        }
-
-        await axios.patch(
-            `https://discord.com/api/v10/guilds/${GUILD_ID}/members/${userId}`,
-            { nick: newNickname },
-            { headers: { Authorization: `Bot ${BOT_TOKEN}`, "Content-Type": "application/json" } }
-        );
-
-        // Nu salvăm nimic în DOCS sau în profilurile site-ului.
-
-        let dmSent = false;
-        try {
-            const dmChannel = await axios.post(
-                "https://discord.com/api/v10/users/@me/channels",
-                { recipient_id: userId },
-                { headers: { Authorization: `Bot ${BOT_TOKEN}`, "Content-Type": "application/json" } }
-            );
-
-            await axios.post(
-                `https://discord.com/api/v10/channels/${dmChannel.data.id}/messages`,
-                {
-                    content:
-                        `📟 **CALLSIGN DIICOT ACORDAT**\n\n` +
-                        `Ți-a fost acordat callsign-ul **${callsign}**.\n` +
-                        `Numele tău pe server a fost actualizat în **${newNickname}**.\n\n` +
-                        `*DIICOT • Rush România*`
-                },
-                { headers: { Authorization: `Bot ${BOT_TOKEN}`, "Content-Type": "application/json" } }
-            );
-            dmSent = true;
-        } catch (dmError) {
-            console.warn("Callsign Manager DM Error:", dmError.response?.data || dmError.message);
-        }
-
-        res.json({
-            success: true,
-            callsign,
-            displayName: newNickname,
-            dmSent,
-            member: {
-                id: userId,
-                username: discordUser.username || "Necunoscut",
-                displayName: newNickname,
-                rank: rank.name,
-                rankLevel: rank.level
-            }
-        });
-    } catch (error) {
-        console.error("Callsign Manager Assign Error:", error.response?.data || error.message);
-
-        if (error.response?.status === 403) {
-            return res.status(403).json({
-                error: "Discord a refuzat schimbarea nickname-ului. Rolul botului trebuie să fie deasupra membrului."
-            });
-        }
-        if (error.response?.status === 404) {
-            return res.status(404).json({ error: "Membrul nu a fost găsit pe Discord." });
-        }
-        res.status(500).json({ error: "Callsign-ul nu a putut fi acordat." });
-    }
-});
 
 // ======================================================
 // DOCS — REGISTRU PERSONAL
