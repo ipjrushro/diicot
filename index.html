@@ -626,6 +626,183 @@ footer{border-top:1px solid rgba(255,255,255,.055);background:rgba(4,9,15,.84)}
     }
 }
 
+
+/* ======================================================
+   CINEMATIC DIICOT FEATURE CARDS V5
+   ====================================================== */
+#features .cinematic-feature-grid{
+    display:grid !important;
+    grid-template-columns:repeat(4,minmax(0,1fr)) !important;
+    gap:16px !important;
+}
+
+#features .cinematic-card{
+    position:relative !important;
+    min-height:420px !important;
+    overflow:hidden !important;
+    padding:0 !important;
+    border-radius:18px !important;
+    border:1px solid rgba(227,179,65,.24) !important;
+    background-color:#07111b !important;
+    background-size:cover !important;
+    background-position:center !important;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,.015),
+        0 18px 50px rgba(0,0,0,.26) !important;
+    isolation:isolate;
+    transition:transform .24s ease,border-color .24s ease,box-shadow .24s ease !important;
+}
+
+#features .cinematic-card.card-rapoarte{
+    background-image:url('/uploads/card-rapoarte.jpg') !important;
+}
+#features .cinematic-card.card-personal{
+    background-image:url('/uploads/card-personal.jpg') !important;
+}
+#features .cinematic-card.card-admin{
+    background-image:url('/uploads/card-admin.jpg') !important;
+}
+#features .cinematic-card.card-cod{
+    background-image:url('/uploads/card-cod-penal.jpg') !important;
+}
+
+#features .cinematic-card::before,
+#features .cinematic-card::after{
+    display:none !important;
+}
+
+#features .cinematic-overlay{
+    position:absolute;
+    inset:0;
+    z-index:0;
+    background:
+        linear-gradient(180deg,rgba(3,8,14,.05) 0%,rgba(3,8,14,.16) 35%,rgba(3,8,14,.82) 72%,rgba(3,8,14,.98) 100%),
+        linear-gradient(90deg,rgba(4,10,17,.14),rgba(4,10,17,.04));
+}
+
+#features .cinematic-card .feature-icon{
+    position:absolute !important;
+    z-index:2 !important;
+    top:18px !important;
+    left:18px !important;
+    width:54px !important;
+    height:54px !important;
+    border-radius:14px !important;
+    display:grid !important;
+    place-items:center !important;
+    border:1px solid rgba(227,179,65,.42) !important;
+    background:rgba(7,15,25,.72) !important;
+    backdrop-filter:blur(10px);
+    color:#f1c95d !important;
+    font-size:21px !important;
+    box-shadow:0 14px 28px rgba(0,0,0,.28) !important;
+}
+
+#features .cinematic-arrow{
+    position:absolute;
+    z-index:2;
+    top:20px;
+    right:20px;
+    color:#e9bd52;
+    font-size:17px;
+    opacity:.86;
+    transition:transform .22s ease;
+}
+
+#features .cinematic-copy{
+    position:absolute;
+    z-index:2;
+    left:22px;
+    right:22px;
+    bottom:20px;
+}
+
+#features .cinematic-kicker{
+    display:inline-block;
+    margin-bottom:8px;
+    color:#e4b849;
+    font-size:7px;
+    font-weight:950;
+    letter-spacing:1.45px;
+}
+
+#features .cinematic-card h3{
+    position:static !important;
+    margin:0 0 9px !important;
+    font-size:24px !important;
+    line-height:1.08 !important;
+    letter-spacing:-.55px !important;
+    color:#fff !important;
+    text-shadow:0 4px 18px rgba(0,0,0,.72);
+}
+
+#features .cinematic-card p{
+    position:static !important;
+    margin:0 !important;
+    max-width:100% !important;
+    color:#b0bfd1 !important;
+    font-size:10px !important;
+    line-height:1.65 !important;
+    text-shadow:0 2px 12px rgba(0,0,0,.8);
+}
+
+#features .cinematic-card .feature-link{
+    position:static !important;
+    width:max-content !important;
+    min-height:auto !important;
+    margin:17px 0 0 !important;
+    padding:0 0 6px !important;
+    border:0 !important;
+    border-bottom:1px solid rgba(227,179,65,.28) !important;
+    border-radius:0 !important;
+    background:transparent !important;
+    display:inline-flex !important;
+    align-items:center !important;
+    gap:10px !important;
+    color:#efc45a !important;
+    font-size:8px !important;
+    font-weight:1000 !important;
+    letter-spacing:.9px !important;
+}
+
+#features .cinematic-card .feature-link::after{
+    content:"→" !important;
+    font-size:14px !important;
+    color:#efc45a !important;
+}
+
+#features .cinematic-card:hover{
+    transform:translateY(-7px) scale(1.008) !important;
+    border-color:rgba(227,179,65,.52) !important;
+    box-shadow:
+        0 28px 72px rgba(0,0,0,.42),
+        0 0 0 1px rgba(227,179,65,.04),
+        0 0 34px rgba(227,179,65,.08) !important;
+}
+
+#features .cinematic-card:hover .cinematic-arrow{
+    transform:translate(3px,-3px);
+}
+
+#features .cinematic-card:hover .cinematic-overlay{
+    background:
+        linear-gradient(180deg,rgba(3,8,14,.02) 0%,rgba(3,8,14,.11) 35%,rgba(3,8,14,.74) 72%,rgba(3,8,14,.97) 100%);
+}
+
+@media(max-width:1280px){
+    #features .cinematic-feature-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+    }
+}
+@media(max-width:700px){
+    #features .cinematic-feature-grid{
+        grid-template-columns:1fr !important;
+    }
+    #features .cinematic-card{
+        min-height:390px !important;
+    }
+}
+
 </style>
 </head>
 
@@ -797,45 +974,59 @@ footer{border-top:1px solid rgba(255,255,255,.055);background:rgba(4,9,15,.84)}
         </p>
     </div>
 
-    <div class="feature-grid">
+    
+    <div class="feature-grid cinematic-feature-grid">
 
-        <article class="feature-card" data-num="01">
+        <article class="feature-card cinematic-card card-rapoarte">
+            <div class="cinematic-overlay"></div>
             <div class="feature-icon">▤</div>
-            <h3>RAPOARTE</h3>
-            <p>
-                Postează, urmărește și gestionează rapoarte de activitate
-                cu suport pentru imagini și istoric complet.
-            </p>
-            <a href="/dashboard?section=my-reports" class="feature-link">
-                ACCESEAZĂ →
-            </a>
+            <div class="cinematic-arrow">↗</div>
+            <div class="cinematic-copy">
+                <span class="cinematic-kicker">ACTIVITATE</span>
+                <h3>RAPOARTE</h3>
+                <p>Postează, urmărește și gestionează rapoarte de activitate cu suport pentru imagini și istoric complet.</p>
+                <a href="/dashboard?section=my-reports" class="feature-link">ACCESEAZĂ</a>
+            </div>
         </article>
 
-        <article class="feature-card" data-num="02">
+        <article class="feature-card cinematic-card card-personal">
+            <div class="cinematic-overlay"></div>
             <div class="feature-icon">♙</div>
-            <h3>PERSONAL DIICOT</h3>
-            <p>
-                Vizualizează membrii structurii, gradele, profilurile,
-                callsign-urile și datele operaționale disponibile.
-            </p>
-            <a href="/dashboard?section=personnel" class="feature-link">
-                ACCESEAZĂ →
-            </a>
+            <div class="cinematic-arrow">↗</div>
+            <div class="cinematic-copy">
+                <span class="cinematic-kicker">STRUCTURĂ</span>
+                <h3>PERSONAL DIICOT</h3>
+                <p>Vizualizează membrii structurii, gradele, profilurile, callsign-urile și datele operaționale disponibile.</p>
+                <a href="/dashboard?section=personnel" class="feature-link">ACCESEAZĂ</a>
+            </div>
         </article>
 
-        <article class="feature-card" data-num="03">
+        <article class="feature-card cinematic-card card-admin">
+            <div class="cinematic-overlay"></div>
             <div class="feature-icon">⚙</div>
-            <h3>ADMINISTRARE</h3>
-            <p>
-                Instrumente pentru conducere, blacklist, concedii,
-                învoiri, anunțuri și controlul structurii interne.
-            </p>
-            <a href="/dashboard?section=admin" class="feature-link">
-                ACCESEAZĂ →
-            </a>
+            <div class="cinematic-arrow">↗</div>
+            <div class="cinematic-copy">
+                <span class="cinematic-kicker">CONDUCERE</span>
+                <h3>ADMINISTRARE</h3>
+                <p>Instrumente pentru conducere, blacklist, concedii, învoiri, anunțuri și controlul structurii interne.</p>
+                <a href="/dashboard?section=admin" class="feature-link">ACCESEAZĂ</a>
+            </div>
+        </article>
+
+        <article class="feature-card cinematic-card card-cod">
+            <div class="cinematic-overlay"></div>
+            <div class="feature-icon">§</div>
+            <div class="cinematic-arrow">↗</div>
+            <div class="cinematic-copy">
+                <span class="cinematic-kicker">LEGISLAȚIE</span>
+                <h3>COD PENAL</h3>
+                <p>Accesează legislația penală și instrumentele juridice disponibile în centrul operațional.</p>
+                <a href="/dashboard?section=penal-code" class="feature-link">ACCESEAZĂ</a>
+            </div>
         </article>
 
     </div>
+
 
     <div class="security-strip" id="security">
 
