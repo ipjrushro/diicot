@@ -241,7 +241,7 @@ function discordMemberAvatar(user = {}) {
 // Evită zeci de request-uri identice către Discord.
 // ======================================================
 
-const DISCORD_MEMBER_CACHE_TTL_MS = 2 * 60 * 1000;
+const DISCORD_MEMBER_CACHE_TTL_MS = 5 * 60 * 1000;
 const DISCORD_GUILD_CACHE_TTL_MS = 5 * 60 * 1000;
 
 const discordMemberCache =
@@ -1299,6 +1299,52 @@ app.use(
     )
 );
 
+
+// ======================================================
+// COADA RAPOARTE - PROTECTIE PENTRU TRAFIC SIMULTAN
+// Proceseaza maximum 2 trimiteri de rapoarte simultan.
+// Restul asteapta in coada, in loc sa incarce serverul deodata.
+// ======================================================
+const REPORT_UPLOAD_CONCURRENCY = 2;
+const REPORT_UPLOAD_QUEUE_LIMIT = 100;
+let activeReportUploads = 0;
+const reportUploadQueue = [];
+
+function releaseReportUploadSlot() {
+    activeReportUploads = Math.max(0, activeReportUploads - 1);
+    const next = reportUploadQueue.shift();
+    if (next) {
+        activeReportUploads += 1;
+        next();
+    }
+}
+
+function reportUploadSlotGuard(req, res, next) {
+    const enter = () => {
+        let released = false;
+        const releaseOnce = () => {
+            if (released) return;
+            released = true;
+            releaseReportUploadSlot();
+        };
+        res.once("finish", releaseOnce);
+        res.once("close", releaseOnce);
+        next();
+    };
+
+    if (activeReportUploads < REPORT_UPLOAD_CONCURRENCY) {
+        activeReportUploads += 1;
+        return enter();
+    }
+
+    if (reportUploadQueue.length >= REPORT_UPLOAD_QUEUE_LIMIT) {
+        return res.status(503).json({
+            error: "Sunt prea multe rapoarte trimise simultan. Incearca din nou in cateva secunde."
+        });
+    }
+
+    reportUploadQueue.push(enter);
+}
 
 // ======================================================
 // MULTER - MEMORIE
@@ -4184,6 +4230,7 @@ async function sendOperationalReportToDiscord(
 app.post(
     "/api/reports",
     requireAuth,
+    reportUploadSlotGuard,
     upload.array(
         "images",
         5
