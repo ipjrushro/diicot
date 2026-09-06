@@ -729,6 +729,8 @@
         }
 
 
+        .sidebar-link[data-section="direct-callsign"]::before { content: "D"; }
+
         .sidebar-link[data-section="leadership"]::before {
 
             content:
@@ -11098,6 +11100,18 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
 
 
+            <div class="callsign-manager-only dcc-sidebar-wrap">
+                <span class="sidebar-group-title">CALLSIGN</span>
+                <button
+                    class="sidebar-link"
+                    data-section="direct-callsign"
+                    type="button"
+                >
+                    DARE CALLSIGN
+                </button>
+            </div>
+
+
             <div class="sidebar-admin-separator"></div>
 
 
@@ -13264,6 +13278,20 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
                 </div>
 
+            </section>
+
+            <!-- =====================================================
+                 DARE CALLSIGN — ACCES EXCLUSIV
+            ====================================================== -->
+            <section
+                class="dashboard-section callsign-manager-only"
+                id="direct-callsign"
+            >
+                <div class="section-title">
+                    <span>CONDUCERE • ACCES RESTRICȚIONAT</span>
+                    <h2>Dare Callsign</h2>
+                </div>
+
                 <div id="direct-callsign-center" class="direct-callsign-center callsign-manager-only">
                     <div class="dcc-head">
                         <div class="dcc-icon">D</div>
@@ -13298,8 +13326,8 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                         </div>
                     </div>
                 </div>
-
             </section>
+
 
                     <!-- =====================================================
                  BLACKLIST
@@ -32227,6 +32255,7 @@ const query =
 <style id="dcc-premium-css">
 .callsign-manager-only{display:none!important}
 body.can-manage-direct-callsign .callsign-manager-only{display:block!important}
+.dcc-sidebar-wrap{margin-top:8px}
 .direct-callsign-center{margin-top:22px;padding:22px;border:1px solid rgba(232,180,65,.22);border-radius:18px;background:radial-gradient(circle at 90% 0%,rgba(232,180,65,.1),transparent 35%),linear-gradient(145deg,rgba(7,18,31,.96),rgba(2,10,18,.97));box-shadow:0 24px 70px rgba(0,0,0,.28)}
 .dcc-head{display:grid;grid-template-columns:58px 1fr auto;gap:16px;align-items:center;margin-bottom:18px}
 .dcc-icon{width:58px;height:58px;border-radius:15px;display:grid;place-items:center;border:1px solid rgba(232,180,65,.32);background:rgba(232,180,65,.09);color:#e8b441;font-size:22px;font-weight:900}
