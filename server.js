@@ -92,6 +92,10 @@ const supabase = createClient(
 // GRADE DIICOT
 // ======================================================
 
+// IMPORTANT: INSPECTOR ROLE IDS
+// INSPECTOR DIICOT           = 1528758226416435214 (level 5)
+// INSPECTOR PRINCIPAL DIICOT = 1528758226416435213 (level 6)
+// Nu inversa aceste două ID-uri.
 const DIICOT_ROLES = [
     {
         id: "1528758226420633746",
