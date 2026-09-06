@@ -12004,10 +12004,10 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                 <span class="report-type-menu-kicker">CATEGORIE OPERAȚIONALĂ</span>
                 <strong>Alege tipul activității</strong>
             </div>
-            <span class="report-type-menu-badge">7 TIPURI</span>
+            <span class="report-type-menu-badge" id="report-type-count-badge">TIPURI DISPONIBILE</span>
         </div>
         <div class="report-type-options">
-        <button type="button" class="report-type-option" data-report-value="RAZIE">
+        <button type="button" class="report-type-option" data-report-value="RAZIE" data-min-rank="4">
             <span class="report-type-option-icon">⌁</span>
             <span class="report-type-option-copy">
                 <strong>RAZIE</strong>
@@ -12016,11 +12016,38 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
             <span class="report-type-option-check">✓</span>
         </button>
     
-        <button type="button" class="report-type-option" data-report-value="ANTRENAMENT">
+        <button type="button" class="report-type-option" data-report-value="ANTRENAMENT" data-min-rank="4">
             <span class="report-type-option-icon">◈</span>
             <span class="report-type-option-copy">
                 <strong>ANTRENAMENT</strong>
                 <small>Activitate de pregătire</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+
+        <button type="button" class="report-type-option" data-report-value="DOVADA RAZIE" data-max-rank="3">
+            <span class="report-type-option-icon">▣</span>
+            <span class="report-type-option-copy">
+                <strong>DOVADĂ RAZIE</strong>
+                <small>Participare la razie • încarcă pozele</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+
+        <button type="button" class="report-type-option" data-report-value="DOVADA ANTRENAMENT" data-max-rank="3">
+            <span class="report-type-option-icon">◉</span>
+            <span class="report-type-option-copy">
+                <strong>DOVADĂ ANTRENAMENT</strong>
+                <small>Participare la antrenament • încarcă pozele</small>
+            </span>
+            <span class="report-type-option-check">✓</span>
+        </button>
+
+        <button type="button" class="report-type-option" data-report-value="REGRUPARE">
+            <span class="report-type-option-icon">⌘</span>
+            <span class="report-type-option-copy">
+                <strong>REGRUPARE</strong>
+                <small>Activitate de regrupare DIICOT</small>
             </span>
             <span class="report-type-option-check">✓</span>
         </button>
@@ -12076,6 +12103,9 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                                     <option value="">Selectează tipul raportului</option>
                                     <option value="RAZIE">RAZIE</option>
                                     <option value="ANTRENAMENT">ANTRENAMENT</option>
+                                    <option value="DOVADA RAZIE">DOVADĂ RAZIE</option>
+                                    <option value="DOVADA ANTRENAMENT">DOVADĂ ANTRENAMENT</option>
+                                    <option value="REGRUPARE">REGRUPARE</option>
                                     <option value="JAFURI">JAFURI</option>
                                     <option value="PATRULA">PATRULĂ</option>
                                     <option value="PERCHEZITIE">PERCHEZIȚIE</option>
@@ -16795,6 +16825,10 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
             currentUser =
                 data.user ||
                 data;
+
+            if (typeof window.applyReportTypePermissions === "function") {
+                window.applyReportTypePermissions();
+            }
 
             syncLeaveResetAccess();
 
@@ -21683,6 +21717,28 @@ const query =
                     document.getElementById(
                         "report-images"
                     ).files;
+
+
+                const selectedReportType =
+                    document.getElementById(
+                        "report-type"
+                    ).value;
+
+                if (
+                    (
+                        selectedReportType === "DOVADA RAZIE" ||
+                        selectedReportType === "DOVADA ANTRENAMENT"
+                    ) &&
+                    files.length < 1
+                ) {
+                    message.className =
+                        "form-message error";
+
+                    message.textContent =
+                        "Pentru dovada de participare trebuie să încarci cel puțin o poză.";
+
+                    return;
+                }
 
 
                 if (
@@ -30931,44 +30987,128 @@ const query =
 
 <script id="report-type-v7-js">
 (() => {
+    let reportTypeUI = null;
+
+    window.applyReportTypePermissions = function () {
+        if (!reportTypeUI) return;
+
+        const { wrap, label, native, options } = reportTypeUI;
+        const rankLevel = Number(window.currentUser?.rankLevel || currentUser?.rankLevel || 0);
+
+        let visibleCount = 0;
+
+        options.forEach(btn => {
+            const min = Number(btn.dataset.minRank || 0);
+            const max = Number(btn.dataset.maxRank || 999);
+            const allowed = rankLevel >= min && rankLevel <= max;
+
+            btn.style.display = allowed ? '' : 'none';
+            btn.disabled = !allowed;
+
+            const nativeOption = [...native.options]
+                .find(opt => opt.value === btn.dataset.reportValue);
+
+            if (nativeOption) {
+                nativeOption.disabled = !allowed;
+                nativeOption.hidden = !allowed;
+            }
+
+            if (allowed) visibleCount++;
+        });
+
+        const selectedBtn = options.find(btn =>
+            btn.dataset.reportValue === native.value &&
+            btn.style.display !== 'none'
+        );
+
+        if (!selectedBtn && native.value) {
+            native.value = '';
+            options.forEach(btn => btn.classList.remove('selected'));
+            label.textContent = 'Selectează tipul raportului';
+            native.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        const badge = document.getElementById('report-type-count-badge');
+        if (badge) badge.textContent = `${visibleCount} TIPURI`;
+
+        wrap.dataset.rankReady = '1';
+    };
+
     const initPremiumReportType = () => {
         const wrap = document.getElementById('report-type-premium');
         const trigger = document.getElementById('report-type-trigger');
         const label = document.getElementById('report-type-trigger-label');
         const native = document.getElementById('report-type');
+
         if (!wrap || !trigger || !label || !native || wrap.dataset.ready === '1') return;
+
         wrap.dataset.ready = '1';
+
         const options = [...wrap.querySelectorAll('.report-type-option')];
+        reportTypeUI = { wrap, trigger, label, native, options };
+
         const setValue = (value, fire = true) => {
-            native.value = value;
-            const chosen = options.find(btn => btn.dataset.reportValue === value);
-            options.forEach(btn => btn.classList.toggle('selected', btn === chosen));
-            label.textContent = chosen ? chosen.querySelector('strong').textContent : 'Selectează tipul raportului';
-            if (fire) native.dispatchEvent(new Event('change', { bubbles: true }));
+            const chosen = options.find(btn =>
+                btn.dataset.reportValue === value &&
+                btn.style.display !== 'none' &&
+                !btn.disabled
+            );
+
+            native.value = chosen ? value : '';
+
+            options.forEach(btn =>
+                btn.classList.toggle('selected', btn === chosen)
+            );
+
+            label.textContent = chosen
+                ? chosen.querySelector('strong').textContent
+                : 'Selectează tipul raportului';
+
+            if (fire) {
+                native.dispatchEvent(new Event('change', { bubbles: true }));
+            }
         };
-        trigger.addEventListener('click', (e) => {
+
+        trigger.addEventListener('click', e => {
             e.preventDefault();
             e.stopPropagation();
+
+            if (typeof window.applyReportTypePermissions === 'function') {
+                window.applyReportTypePermissions();
+            }
+
             const open = !wrap.classList.contains('open');
             wrap.classList.toggle('open', open);
             trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
         });
+
         options.forEach(btn => btn.addEventListener('click', () => {
+            if (btn.disabled || btn.style.display === 'none') return;
             setValue(btn.dataset.reportValue);
             wrap.classList.remove('open');
             trigger.setAttribute('aria-expanded', 'false');
         }));
-        document.addEventListener('click', (e) => {
+
+        document.addEventListener('click', e => {
             if (!wrap.contains(e.target)) {
                 wrap.classList.remove('open');
                 trigger.setAttribute('aria-expanded', 'false');
             }
         });
+
         native.addEventListener('change', () => setValue(native.value, false));
         setValue(native.value, false);
+
+        if (typeof window.applyReportTypePermissions === 'function') {
+            window.applyReportTypePermissions();
+        }
     };
-    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', initPremiumReportType);
-    else initPremiumReportType();
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initPremiumReportType);
+    } else {
+        initPremiumReportType();
+    }
 })();
 </script>
 
