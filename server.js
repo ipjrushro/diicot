@@ -1737,44 +1737,24 @@ async function readB2JSON(key) {
     return JSON.parse(text);
 }
 
-async function listB2Reports(authorId = null) {
-    const prefix = authorId
-        ? `reports/${String(authorId)}/`
-        : "reports/";
+// ======================================================
+// CACHE RAPOARTE BACKBLAZE B2
+// Evită descărcarea tuturor fișierelor JSON la fiecare accesare.
+// Cache-ul este global pe instanța Render și este actualizat imediat
+// când se postează un raport nou.
+// ======================================================
 
-    const keys = (await listB2ObjectKeys(prefix))
-        .filter(key => key.endsWith(".json"));
+const B2_REPORT_CACHE_TTL_MS =
+    6 * 60 * 60 * 1000; // 6 ore
 
-    const reports = [];
+let b2ReportCache = {
+    reports: [],
+    loadedAt: 0
+};
 
-    // Citim pe loturi mici, ca să nu deschidem sute/mii de request-uri simultan.
-    const batchSize = 12;
+let b2ReportCacheRefreshPromise = null;
 
-    for (let index = 0; index < keys.length; index += batchSize) {
-        const batch = keys.slice(index, index + batchSize);
-
-        const rows = await Promise.all(
-            batch.map(async key => {
-                try {
-                    return mapB2Report(
-                        await readB2JSON(key)
-                    );
-                }
-                catch (error) {
-                    console.error(
-                        "B2 report read error:",
-                        key,
-                        error.message
-                    );
-
-                    return null;
-                }
-            })
-        );
-
-        reports.push(...rows.filter(Boolean));
-    }
-
+function sortB2Reports(reports) {
     reports.sort(
         (a, b) =>
             new Date(b.createdAt).getTime() -
@@ -1782,6 +1762,172 @@ async function listB2Reports(authorId = null) {
     );
 
     return reports;
+}
+
+function isB2ReportCacheFresh() {
+    return (
+        Array.isArray(b2ReportCache.reports) &&
+        b2ReportCache.loadedAt > 0 &&
+        Date.now() - b2ReportCache.loadedAt <
+            B2_REPORT_CACHE_TTL_MS
+    );
+}
+
+function addReportToB2Cache(report) {
+    if (!b2ReportCache.loadedAt) {
+        return;
+    }
+
+    const mapped = mapB2Report(report);
+
+    b2ReportCache.reports =
+        b2ReportCache.reports.filter(
+            existing =>
+                String(existing.id) !==
+                String(mapped.id)
+        );
+
+    b2ReportCache.reports.push(mapped);
+    sortB2Reports(b2ReportCache.reports);
+
+    // Tocmai am actualizat cache-ul cu raportul nou,
+    // deci îl considerăm din nou proaspăt.
+    b2ReportCache.loadedAt = Date.now();
+}
+
+function clearB2ReportCache() {
+    b2ReportCache = {
+        reports: [],
+        loadedAt: 0
+    };
+}
+
+async function loadAllB2ReportsFromStorage() {
+    const keys = (await listB2ObjectKeys("reports/"))
+        .filter(key => key.endsWith(".json"));
+
+    const reports = [];
+
+    // Loturi mici ca să nu trimitem foarte multe request-uri simultan.
+    const batchSize = 6;
+
+    for (
+        let index = 0;
+        index < keys.length;
+        index += batchSize
+    ) {
+        const batch =
+            keys.slice(
+                index,
+                index + batchSize
+            );
+
+        const rows =
+            await Promise.all(
+                batch.map(
+                    async key => {
+                        try {
+                            return mapB2Report(
+                                await readB2JSON(
+                                    key
+                                )
+                            );
+                        }
+                        catch (error) {
+                            console.error(
+                                "B2 report read error:",
+                                key,
+                                error.message
+                            );
+
+                            return null;
+                        }
+                    }
+                )
+            );
+
+        reports.push(
+            ...rows.filter(Boolean)
+        );
+    }
+
+    return sortB2Reports(reports);
+}
+
+async function getAllB2ReportsCached() {
+    if (isB2ReportCacheFresh()) {
+        return b2ReportCache.reports;
+    }
+
+    // Dacă mai există deja un refresh pornit, toate request-urile
+    // așteaptă același Promise în loc să descarce aceleași JSON-uri iar.
+    if (b2ReportCacheRefreshPromise) {
+        return b2ReportCacheRefreshPromise;
+    }
+
+    b2ReportCacheRefreshPromise =
+        (async () => {
+            try {
+                const reports =
+                    await loadAllB2ReportsFromStorage();
+
+                b2ReportCache = {
+                    reports,
+                    loadedAt: Date.now()
+                };
+
+                console.log(
+                    `[B2 CACHE] ${reports.length} rapoarte încărcate în cache pentru 6 ore.`
+                );
+
+                return reports;
+            }
+            catch (error) {
+                // Dacă B2 atinge iar cap-ul, folosim copia veche din memorie
+                // în loc să stricăm pagina, dacă avem una disponibilă.
+                if (
+                    Array.isArray(
+                        b2ReportCache.reports
+                    ) &&
+                    b2ReportCache.loadedAt > 0
+                ) {
+                    console.warn(
+                        "[B2 CACHE] B2 indisponibil/cap depășit. Folosesc cache-ul existent.",
+                        error.message
+                    );
+
+                    return b2ReportCache.reports;
+                }
+
+                throw error;
+            }
+            finally {
+                b2ReportCacheRefreshPromise =
+                    null;
+            }
+        })();
+
+    return b2ReportCacheRefreshPromise;
+}
+
+async function listB2Reports(authorId = null) {
+    const allReports =
+        await getAllB2ReportsCached();
+
+    if (!authorId) {
+        return allReports;
+    }
+
+    const authorIdString =
+        String(authorId);
+
+    return allReports.filter(
+        report =>
+            String(
+                report.authorId ||
+                ""
+            ) === authorIdString
+    );
 }
 
 async function listB2ObjectVersions(prefix) {
@@ -4548,6 +4694,9 @@ app.post(
                 })
             );
 
+            // Raportul apare imediat pe site fără recitire din B2.
+            addReportToB2Cache(report);
+
             let discordNotification = {
                 sent: false,
                 skipped: true
@@ -4749,6 +4898,8 @@ app.delete(
                     `Au rămas obiecte în B2: reports=${remainingReports.length}, images=${remainingImages.length}`
                 );
             }
+
+            clearB2ReportCache();
 
             console.log(
                 `[B2] Ștergere globală completă: ${reportVersions.length} versiuni rapoarte, ${imageVersions.length} versiuni imagini.`
