@@ -696,6 +696,8 @@
         }
 
 
+        .sidebar-link[data-section="meeting-attendance"]::before { content: "✓"; color: var(--gold); }
+
         .sidebar-link[data-section="leave"]::before {
 
             content:
@@ -8758,6 +8760,25 @@
     .upreq-rank-top{align-items:flex-start;flex-direction:column}
 }
 
+
+        /* PREZENȚĂ ȘEDINȚĂ — acces exclusiv */
+        .meeting-attendance-only { display: none !important; }
+        body.can-meeting-attendance .meeting-attendance-only { display: flex !important; }
+        .meeting-attendance-panel{padding:22px;border:1px solid var(--border);border-radius:12px;background:var(--panel);margin-top:18px}
+        .meeting-attendance-grid{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:end}
+        .meeting-attendance-grid label{display:block;color:var(--text-2);font-size:9px;font-weight:800;letter-spacing:.6px;margin-bottom:7px}
+        .meeting-attendance-grid input{width:100%;min-height:44px;padding:0 12px;border:1px solid var(--border-strong);border-radius:8px;background:#08111d;color:var(--text)}
+        .meeting-attendance-grid button{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid rgba(49,131,255,.3);background:rgba(49,131,255,.12);color:#dceaff;font-weight:900;font-size:9px;cursor:pointer}
+        .meeting-attendance-grid button.run{border-color:rgba(233,185,73,.35);background:rgba(233,185,73,.10);color:var(--gold)}
+        .meeting-attendance-note{margin-top:12px;color:var(--text-3);font-size:9px;line-height:1.6}
+        .meeting-attendance-message{min-height:20px;margin-top:12px;color:var(--green);font-size:9px;font-weight:800}
+        .meeting-attendance-list{margin-top:18px;display:grid;gap:9px}
+        .meeting-row{display:flex;justify-content:space-between;gap:16px;align-items:center;padding:13px 14px;border:1px solid var(--border);border-radius:9px;background:rgba(255,255,255,.018)}
+        .meeting-row strong{font-size:10px}.meeting-row small{display:block;margin-top:4px;color:var(--text-3)}
+        .meeting-status{font-size:8px;font-weight:900;color:var(--gold)}
+        .meeting-cancel{margin-left:10px;border:1px solid rgba(255,83,83,.25);background:rgba(255,83,83,.08);color:#ff8585;border-radius:6px;padding:6px 9px;cursor:pointer;font-size:8px;font-weight:900}
+        @media(max-width:800px){.meeting-attendance-grid{grid-template-columns:1fr}}
+
 </style>
 
 <style id="sanction-premium-styles">
@@ -11071,6 +11092,14 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                 CONCEDII / ÎNVOIRI
             </button>
 
+            <button
+                class="sidebar-link meeting-attendance-only"
+                data-section="meeting-attendance"
+                type="button"
+            >
+                PREZENȚĂ ȘEDINȚĂ
+            </button>
+
 
             <button
                 class="sidebar-link"
@@ -12648,6 +12677,30 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
             </section>
 
 
+
+            <!-- =====================================================
+                 PREZENȚĂ ȘEDINȚĂ — DOAR USER AUTORIZAT
+            ====================================================== -->
+            <section class="dashboard-section" id="meeting-attendance">
+                <div class="section-title">
+                    <span>CONTROL AUTOMAT DISCORD</span>
+                    <h2>Prezență Ședință</h2>
+                </div>
+
+                <div class="meeting-attendance-panel">
+                    <div class="meeting-attendance-grid">
+                        <div>
+                            <label for="meeting-attendance-at">DATA ȘI ORA VERIFICĂRII</label>
+                            <input id="meeting-attendance-at" type="datetime-local">
+                        </div>
+                        <button type="button" id="meeting-attendance-schedule">PROGRAMEAZĂ</button>
+                        <button type="button" class="run" id="meeting-attendance-now">FĂ PREZENȚA ACUM</button>
+                    </div>
+                    <div class="meeting-attendance-note">Botul verifică automat canalul voice „Ședință DIICOT”. Concediile și învoirile aprobate sunt motivate. Absenții nemotivați primesc +3 FW, dar totalul este plafonat automat la 5/5.</div>
+                    <div class="meeting-attendance-message" id="meeting-attendance-message"></div>
+                    <div class="meeting-attendance-list" id="meeting-attendance-list"><div class="empty-state">Se încarcă programările...</div></div>
+                </div>
+            </section>
 
             <!-- =====================================================
                  DOCS — REGISTRU PERSONAL
@@ -16921,6 +16974,14 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                 "can-manage-sanctions",
                 canManageSanctions
             );
+
+            const canMeetingAttendance =
+                String(currentUser?.id || "") === "1315733546312142921";
+
+            document.body.classList.toggle(
+                "can-meeting-attendance",
+                canMeetingAttendance
+            );
 document
                 .querySelectorAll(
                     ".admin-home-card"
@@ -17952,6 +18013,90 @@ const query =
 
 
     /* =========================================================
+       PREZENȚĂ ȘEDINȚĂ
+    ========================================================== */
+
+    function meetingAttendanceMessage(text, error = false) {
+        const el = document.getElementById("meeting-attendance-message");
+        if (!el) return;
+        el.textContent = text || "";
+        el.style.color = error ? "var(--red)" : "var(--green)";
+    }
+
+    function meetingStatusLabel(status) {
+        return ({ SCHEDULED:"PROGRAMATĂ", RUNNING:"ÎN CURS", COMPLETED:"FINALIZATĂ", ERROR:"EROARE" })[status] || status || "-";
+    }
+
+    async function loadMeetingAttendance() {
+        if (String(currentUser?.id || "") !== "1315733546312142921") return;
+        const box = document.getElementById("meeting-attendance-list");
+        if (!box) return;
+        const response = await fetch("/api/meeting-attendance", { credentials:"include", cache:"no-store" });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Programările nu au putut fi încărcate.");
+        const meetings = data.meetings || [];
+        if (!meetings.length) {
+            box.innerHTML = '<div class="empty-state">Nu există ședințe programate.</div>';
+            return;
+        }
+        box.innerHTML = meetings.map(m => {
+            const d = new Date(m.scheduled_at);
+            const when = Number.isFinite(d.getTime()) ? d.toLocaleString("ro-RO") : "-";
+            const result = m.result || {};
+            const summary = m.status === "COMPLETED"
+                ? `Prezenți: ${(result.present||[]).length} • Motivați: ${(result.excused||[]).length} • Absenți: ${(result.absent||[]).length}`
+                : (m.error_message || "Așteaptă ora programată");
+            return `<div class="meeting-row"><div><strong>${escapeHTML(when)}</strong><small>${escapeHTML(summary)}</small></div><div><span class="meeting-status">${escapeHTML(meetingStatusLabel(m.status))}</span>${m.status === "SCHEDULED" ? `<button class="meeting-cancel" data-meeting-cancel="${escapeHTML(m.id)}">ANULEAZĂ</button>` : ""}</div></div>`;
+        }).join("");
+
+        box.querySelectorAll("[data-meeting-cancel]").forEach(btn => {
+            btn.onclick = async () => {
+                if (!confirm("Anulezi această verificare de prezență?")) return;
+                const r = await fetch(`/api/meeting-attendance/${encodeURIComponent(btn.dataset.meetingCancel)}`, { method:"DELETE", credentials:"include" });
+                const d = await r.json();
+                if (!r.ok) return meetingAttendanceMessage(d.error || "Nu s-a putut anula.", true);
+                meetingAttendanceMessage("✓ Programarea a fost anulată.");
+                await loadMeetingAttendance();
+            };
+        });
+    }
+
+    document.getElementById("meeting-attendance-schedule")?.addEventListener("click", async function () {
+        const input = document.getElementById("meeting-attendance-at");
+        if (!input?.value) return meetingAttendanceMessage("Selectează data și ora.", true);
+        const date = new Date(input.value);
+        if (!Number.isFinite(date.getTime())) return meetingAttendanceMessage("Data și ora sunt invalide.", true);
+        this.disabled = true;
+        try {
+            const response = await fetch("/api/meeting-attendance", {
+                method:"POST", credentials:"include", headers:{"Content-Type":"application/json"},
+                body:JSON.stringify({ scheduledAt: date.toISOString() })
+            });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Programarea a eșuat.");
+            meetingAttendanceMessage("✓ Prezența a fost programată.");
+            input.value = "";
+            await loadMeetingAttendance();
+        } catch (error) { meetingAttendanceMessage(error.message, true); }
+        finally { this.disabled = false; }
+    });
+
+    document.getElementById("meeting-attendance-now")?.addEventListener("click", async function () {
+        if (!confirm("Fac prezența acum? Absenții nemotivați vor primi automat Faction Warn.")) return;
+        this.disabled = true;
+        const old = this.textContent;
+        this.textContent = "SE VERIFICĂ...";
+        try {
+            const response = await fetch("/api/meeting-attendance/run-now", { method:"POST", credentials:"include" });
+            const data = await response.json();
+            if (!response.ok) throw new Error(data.error || "Prezența a eșuat.");
+            meetingAttendanceMessage(`✓ Gata: ${(data.result?.present||[]).length} prezenți, ${(data.result?.excused||[]).length} motivați, ${(data.result?.absent||[]).length} absenți.`);
+            await loadMeetingAttendance();
+        } catch (error) { meetingAttendanceMessage(error.message, true); }
+        finally { this.disabled = false; this.textContent = old; }
+    });
+
+    /* =========================================================
        NAVIGATION
     ========================================================== */
 
@@ -17973,6 +18118,13 @@ const query =
             ) < 10
         ) {
 
+            return;
+        }
+
+        if (
+            id === "meeting-attendance" &&
+            String(currentUser?.id || "") !== "1315733546312142921"
+        ) {
             return;
         }
 
@@ -18025,6 +18177,12 @@ const query =
             );
 
     
+
+        if (id === "meeting-attendance") {
+            loadMeetingAttendance().catch(error => {
+                console.error("Meeting Attendance Load Error:", error);
+            });
+        }
 
         /* TEST MANAGEMENT — AUTO LOAD DIN SUPABASE */
         if (
