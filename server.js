@@ -70,6 +70,12 @@ const MEETING_EXCUSES_LIMIT = 2;
 const TESTER_DIICOT_ROLE_ID = "1528758226407919637";
 const LEAVE_RESET_USER_ID = "1315733546312142921";
 
+// PREZENȚĂ ȘEDINȚĂ — acces exclusiv + canale Discord
+const MEETING_ATTENDANCE_MANAGER_ID = "1315733546312142921";
+const MEETING_ATTENDANCE_TEXT_CHANNEL_ID = "1547327388478738643";
+const MEETING_ATTENDANCE_VOICE_CHANNEL_ID = "1529134820368847061";
+const MEETING_AUTO_FW = 3;
+
 if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
     console.warn(
         "[SUPABASE] Lipsesc SUPABASE_URL sau SUPABASE_SERVICE_KEY."
@@ -2798,6 +2804,19 @@ function requireSanctionManager(
                 error:
                     "Doar SUB COMISAR+ poate gestiona sancțiunile."
             });
+    }
+
+    next();
+}
+
+
+function requireMeetingAttendanceManager(req, res, next) {
+    if (!req.session?.user) {
+        return res.status(401).json({ error: "Trebuie să fii autentificat." });
+    }
+
+    if (String(req.session.user.id) !== MEETING_ATTENDANCE_MANAGER_ID) {
+        return res.status(403).json({ error: "Nu ai acces la Prezență Ședință." });
     }
 
     next();
@@ -14702,6 +14721,313 @@ app.use(
     }
 );
 
+
+// ======================================================
+// PREZENȚĂ ȘEDINȚĂ — AUTOMAT
+// ======================================================
+
+function meetingMemberName(member) {
+    return String(
+        member?.nick ||
+        member?.user?.global_name ||
+        member?.user?.username ||
+        member?.user?.id ||
+        "Necunoscut"
+    ).slice(0, 120);
+}
+
+async function getDiscordUserVoiceState(userId) {
+    try {
+        const response = await axios.get(
+            `https://discord.com/api/v10/guilds/${GUILD_ID}/voice-states/${encodeURIComponent(String(userId))}`,
+            {
+                headers: { Authorization: `Bot ${BOT_TOKEN}` },
+                timeout: 10000,
+                validateStatus: status => status === 200 || status === 404
+            }
+        );
+
+        if (response.status === 404) return null;
+        return response.data || null;
+    } catch (error) {
+        console.warn("Meeting Voice State Warning:", userId, error?.response?.status || error.message);
+        return null;
+    }
+}
+
+async function getApprovedMeetingExcusesForDate(userIds, meetingDate) {
+    const result = new Map();
+    if (!userIds.length) return result;
+
+    const { data, error } = await supabase
+        .from("leave_requests")
+        .select("author_id,type,start_date,end_date,status")
+        .in("author_id", userIds.map(String))
+        .eq("status", "APPROVED")
+        .lte("start_date", meetingDate)
+        .gte("end_date", meetingDate);
+
+    if (error) throw error;
+
+    for (const row of data || []) {
+        if (!["VACATION", "MEETING_EXCUSE"].includes(String(row.type))) continue;
+        const label = row.type === "VACATION" ? "CONCEDIU" : "ÎNVOIRE ȘEDINȚĂ";
+        result.set(String(row.author_id), label);
+    }
+
+    return result;
+}
+
+async function applyAutomaticMeetingFactionWarn(member, meetingRow) {
+    const targetId = String(member?.user?.id || "");
+    const targetName = meetingMemberName(member);
+    if (!targetId) return { applied: 0, activeFw: 0 };
+
+    const { data: existing, error: existingError } = await supabase
+        .from("sanctions")
+        .select("fw_count")
+        .eq("target_id", targetId)
+        .eq("type", "FW")
+        .eq("active", true);
+
+    if (existingError) throw existingError;
+
+    const currentFw = (existing || []).reduce((total, row) => total + Number(row.fw_count || 0), 0);
+    const increment = Math.max(0, Math.min(MEETING_AUTO_FW, 5 - currentFw));
+    const activeFw = Math.min(5, currentFw + increment);
+
+    if (increment <= 0) {
+        try { await syncFactionWarnDiscordRole(targetId, 5); } catch {}
+        return { applied: 0, activeFw: 5 };
+    }
+
+    const reason = `Absență nemotivată la ședința DIICOT din ${new Date(meetingRow.scheduled_at).toLocaleDateString("ro-RO", { timeZone: "Europe/Bucharest" })}.`;
+    const row = {
+        id: crypto.randomUUID(),
+        target_id: targetId,
+        target_name: targetName,
+        type: "FW",
+        fw_count: increment,
+        reason,
+        active: true,
+        applied_by_id: MEETING_ATTENDANCE_MANAGER_ID,
+        applied_by_name: "Sistem Prezență Ședință",
+        applied_by_rank: "AUTOMAT"
+    };
+
+    const { error } = await supabase.from("sanctions").insert(row);
+    if (error) throw error;
+
+    try { await syncFactionWarnDiscordRole(targetId, activeFw); } catch (e) {
+        console.warn("Meeting FW Role Warning:", targetId, e?.response?.data?.message || e.message);
+    }
+
+    try {
+        await sendSanctionInfoMessage({
+            targetId, targetName, type: "FW", fwCount: increment, activeFw, reason,
+            appliedByName: "Sistem Prezență Ședință", appliedByRank: "AUTOMAT"
+        });
+    } catch (e) {
+        console.warn("Meeting FW Channel Warning:", e?.response?.data?.message || e.message);
+    }
+
+    try {
+        await sendDiscordDM(targetId, [
+            "⚠️ **NOTIFICARE SANCȚIUNE — DIICOT**", "",
+            `Ai primit **${increment} Faction Warn** pentru absență nemotivată la ședință.`,
+            `**Situație activă:** ${activeFw}/5 FW`, "",
+            "Sancțiunea a fost aplicată automat de sistemul de prezență."
+        ].join("\n"));
+    } catch {}
+
+    return { applied: increment, activeFw };
+}
+
+function attendanceLines(items, suffix = "") {
+    if (!items.length) return "—";
+    return items.map(item => `• ${item.name}${suffix ? ` — ${suffix}` : ""}`).join("\n").slice(0, 1000);
+}
+
+async function postMeetingAttendanceDiscord(meetingRow, present, excused, absent) {
+    const when = new Date(meetingRow.scheduled_at);
+    const dateText = when.toLocaleString("ro-RO", {
+        timeZone: "Europe/Bucharest", dateStyle: "full", timeStyle: "short"
+    });
+
+    const embed = {
+        title: "📋 PREZENȚĂ ȘEDINȚĂ DIICOT",
+        description: `**Ședință:** ${dateText}\n**Total verificat:** ${present.length + excused.length + absent.length}`,
+        color: 0x3183ff,
+        fields: [
+            { name: `🟢 PREZENȚI — ${present.length}`, value: attendanceLines(present), inline: false },
+            { name: `🟡 ÎNVOIȚI / CONCEDIU — ${excused.length}`, value: excused.length ? excused.map(x => `• ${x.name} — ${x.reason}`).join("\n").slice(0,1000) : "—", inline: false },
+            { name: `🔴 ABSENȚI — ${absent.length}`, value: absent.length ? absent.map(x => `• ${x.name} — ${x.fwText}`).join("\n").slice(0,1000) : "—", inline: false }
+        ],
+        footer: { text: "DIICOT • Prezență automată • Rush România" },
+        timestamp: new Date().toISOString()
+    };
+
+    await axios.post(
+        `https://discord.com/api/v10/channels/${MEETING_ATTENDANCE_TEXT_CHANNEL_ID}/messages`,
+        { embeds: [embed], allowed_mentions: { parse: [] } },
+        { headers: { Authorization: `Bot ${BOT_TOKEN}`, "Content-Type": "application/json" }, timeout: 15000 }
+    );
+}
+
+let meetingAttendanceRunning = false;
+
+async function executeMeetingAttendance(meetingRow) {
+    if (!meetingRow?.id) throw new Error("Ședință invalidă.");
+
+    // Marchează RUNNING înainte de procesare pentru a preveni rularea dublă.
+    const { error: lockError } = await supabase
+        .from("meeting_attendance")
+        .update({ status: "RUNNING", started_at: new Date().toISOString() })
+        .eq("id", meetingRow.id)
+        .eq("status", "SCHEDULED");
+    if (lockError) throw lockError;
+
+    const members = (await getGuildMembersCached({ force: true }))
+        .filter(member => !member?.user?.bot)
+        .filter(member => Boolean(resolveHighestDIICOTRoleSafe(member.roles || [])));
+
+    const meetingDate = new Date(meetingRow.scheduled_at).toLocaleDateString("en-CA", { timeZone: "Europe/Bucharest" });
+    const excuses = await getApprovedMeetingExcusesForDate(members.map(m => m.user.id), meetingDate);
+
+    const present = [];
+    const excused = [];
+    const absent = [];
+
+    // Verificăm voice state pe rând pentru a evita un burst agresiv către Discord.
+    for (const member of members) {
+        const userId = String(member.user.id);
+        const name = meetingMemberName(member);
+        const excuse = excuses.get(userId);
+
+        if (excuse) {
+            excused.push({ id: userId, name, reason: excuse });
+            continue;
+        }
+
+        const voiceState = await getDiscordUserVoiceState(userId);
+        if (String(voiceState?.channel_id || "") === MEETING_ATTENDANCE_VOICE_CHANNEL_ID) {
+            present.push({ id: userId, name });
+            continue;
+        }
+
+        const fw = await applyAutomaticMeetingFactionWarn(member, meetingRow);
+        absent.push({
+            id: userId,
+            name,
+            fwApplied: fw.applied,
+            activeFw: fw.activeFw,
+            fwText: fw.applied > 0 ? `+${fw.applied} FW → ${fw.activeFw}/5` : `${fw.activeFw}/5 (deja la limită)`
+        });
+    }
+
+    await postMeetingAttendanceDiscord(meetingRow, present, excused, absent);
+
+    const result = { present, excused, absent };
+    const { error: doneError } = await supabase
+        .from("meeting_attendance")
+        .update({ status: "COMPLETED", completed_at: new Date().toISOString(), result })
+        .eq("id", meetingRow.id);
+    if (doneError) throw doneError;
+
+    return result;
+}
+
+async function processDueMeetingAttendance() {
+    if (meetingAttendanceRunning || !SUPABASE_URL || !SUPABASE_SERVICE_KEY) return;
+    meetingAttendanceRunning = true;
+    try {
+        const { data, error } = await supabase
+            .from("meeting_attendance")
+            .select("*")
+            .eq("status", "SCHEDULED")
+            .lte("scheduled_at", new Date().toISOString())
+            .order("scheduled_at", { ascending: true })
+            .limit(3);
+        if (error) throw error;
+        for (const meeting of data || []) {
+            try { await executeMeetingAttendance(meeting); }
+            catch (e) {
+                console.error("Meeting Attendance Execute Error:", e?.response?.data || e.message || e);
+                await supabase.from("meeting_attendance").update({ status: "ERROR", error_message: String(e?.message || e).slice(0,1000) }).eq("id", meeting.id);
+            }
+        }
+    } catch (e) {
+        // Tabela poate să nu existe până când SQL-ul este rulat.
+        if (!String(e?.message || "").includes("meeting_attendance")) console.error("Meeting Attendance Scheduler Error:", e.message || e);
+    } finally {
+        meetingAttendanceRunning = false;
+    }
+}
+
+app.get("/api/meeting-attendance", requireMeetingAttendanceManager, async (req, res) => {
+    if (!ensureSupabase(res)) return;
+    try {
+        const { data, error } = await supabase.from("meeting_attendance").select("*").order("scheduled_at", { ascending: false }).limit(30);
+        if (error) throw error;
+        res.json({ success: true, meetings: data || [] });
+    } catch (error) {
+        res.status(500).json({ error: "Ședințele programate nu au putut fi încărcate. Rulează SQL-ul V11 în Supabase dacă nu ai creat încă tabela." });
+    }
+});
+
+app.post("/api/meeting-attendance", requireMeetingAttendanceManager, async (req, res) => {
+    if (!ensureSupabase(res)) return;
+    try {
+        const scheduledAt = new Date(req.body?.scheduledAt || "");
+        if (!Number.isFinite(scheduledAt.getTime())) return res.status(400).json({ error: "Data și ora sunt invalide." });
+        if (scheduledAt.getTime() < Date.now() - 60000) return res.status(400).json({ error: "Nu poți programa prezența în trecut." });
+
+        const row = {
+            id: crypto.randomUUID(),
+            scheduled_at: scheduledAt.toISOString(),
+            status: "SCHEDULED",
+            created_by_id: String(req.session.user.id),
+            created_by_name: req.session.user.displayName || req.session.user.username || "-"
+        };
+        const { data, error } = await supabase.from("meeting_attendance").insert(row).select().single();
+        if (error) throw error;
+        res.status(201).json({ success: true, meeting: data });
+    } catch (error) {
+        console.error("Meeting Attendance Create Error:", error);
+        res.status(500).json({ error: "Prezența nu a putut fi programată." });
+    }
+});
+
+app.post("/api/meeting-attendance/run-now", requireMeetingAttendanceManager, async (req, res) => {
+    if (!ensureSupabase(res)) return;
+    try {
+        const row = {
+            id: crypto.randomUUID(), scheduled_at: new Date().toISOString(), status: "SCHEDULED",
+            created_by_id: String(req.session.user.id), created_by_name: req.session.user.displayName || req.session.user.username || "-"
+        };
+        const { data, error } = await supabase.from("meeting_attendance").insert(row).select().single();
+        if (error) throw error;
+        const result = await executeMeetingAttendance(data);
+        res.json({ success: true, result });
+    } catch (error) {
+        console.error("Meeting Attendance Run Now Error:", error?.response?.data || error);
+        res.status(500).json({ error: "Prezența nu a putut fi efectuată." });
+    }
+});
+
+app.delete("/api/meeting-attendance/:id", requireMeetingAttendanceManager, async (req, res) => {
+    if (!ensureSupabase(res)) return;
+    try {
+        const { error } = await supabase.from("meeting_attendance").delete().eq("id", String(req.params.id)).eq("status", "SCHEDULED");
+        if (error) throw error;
+        res.json({ success: true });
+    } catch (error) {
+        res.status(500).json({ error: "Programarea nu a putut fi anulată." });
+    }
+});
+
+setInterval(processDueMeetingAttendance, 15000);
+setTimeout(processDueMeetingAttendance, 5000);
 
 // ======================================================
 // START SERVER
