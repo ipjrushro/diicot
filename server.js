@@ -25,6 +25,11 @@ const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
 const GUILD_ID = process.env.DISCORD_GUILD_ID;
 const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 
+const CALLSIGN_LOG_CHANNEL_ID = "1547395877503500318";
+const CALLSIGN_DASHBOARD_URL =
+    process.env.CALLSIGN_DASHBOARD_URL ||
+    "https://diicot-1.onrender.com/dashboard.html";
+
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
 
@@ -11724,6 +11729,201 @@ async function sendDiscordDM(userId, content) {
 }
 
 
+function callsignLogStatusLabel(status) {
+    if (status === "APPROVED") return "APROBATĂ";
+    if (status === "REJECTED") return "RESPINSĂ";
+    return "ÎN AȘTEPTARE";
+}
+
+
+function buildCallsignLogEmbed(requestRow, {
+    status = "PENDING",
+    callsign = null,
+    decidedByName = null,
+    decidedByRank = null,
+    decisionNote = null
+} = {}) {
+    const color =
+        status === "APPROVED"
+            ? 0x57F287
+            : status === "REJECTED"
+                ? 0xED4245
+                : 0xF0B232;
+
+    const fields = [
+        {
+            name: "Membru",
+            value:
+                `${requestRow.author_name || "Membru"}\n` +
+                `<@${requestRow.author_id}>`,
+            inline: true
+        },
+        {
+            name: "Grad",
+            value: String(requestRow.author_rank || "MEMBRU").slice(0, 1024),
+            inline: true
+        },
+        {
+            name: "Status",
+            value: callsignLogStatusLabel(status),
+            inline: true
+        },
+        {
+            name: "Date din joc",
+            value:
+                `**ID:** ${requestRow.game_id || "-"}\n` +
+                `**Nume:** ${requestRow.game_name || "-"}`,
+            inline: false
+        }
+    ];
+
+    if (requestRow.note) {
+        fields.push({
+            name: "Mențiune",
+            value: String(requestRow.note).slice(0, 1024),
+            inline: false
+        });
+    }
+
+    if (status === "APPROVED") {
+        fields.push({
+            name: "Callsign acordat",
+            value: `**${callsign || requestRow.assigned_callsign || "-"}**`,
+            inline: true
+        });
+    }
+
+    if (status !== "PENDING") {
+        fields.push({
+            name: "Soluționat de",
+            value:
+                `${decidedByName || "Conducerea DIICOT"}` +
+                `${decidedByRank ? `\n${decidedByRank}` : ""}`,
+            inline: true
+        });
+
+        if (decisionNote) {
+            fields.push({
+                name: status === "REJECTED" ? "Motiv" : "Observație",
+                value: String(decisionNote).slice(0, 1024),
+                inline: false
+            });
+        }
+    }
+
+    return {
+        title:
+            status === "APPROVED"
+                ? "✅ Cerere Callsign — Aprobată"
+                : status === "REJECTED"
+                    ? "❌ Cerere Callsign — Respinsă"
+                    : "📟 Cerere nouă de Callsign",
+        color,
+        fields,
+        footer: {
+            text: `DIICOT • Cerere ${requestRow.id}`
+        },
+        timestamp:
+            status === "PENDING"
+                ? (requestRow.created_at || new Date().toISOString())
+                : new Date().toISOString()
+    };
+}
+
+
+function callsignReviewUrl(requestId) {
+    const base = String(CALLSIGN_DASHBOARD_URL || "").replace(/\/+$/, "");
+    const separator = base.includes("?") ? "&" : "?";
+    return `${base}${separator}callsignRequest=${encodeURIComponent(requestId)}`;
+}
+
+
+async function sendCallsignLogMessage(requestRow) {
+    if (!BOT_TOKEN || !CALLSIGN_LOG_CHANNEL_ID) {
+        throw new Error("Botul Discord sau canalul de logs callsign nu este configurat.");
+    }
+
+    const response = await axios.post(
+        `https://discord.com/api/v10/channels/${CALLSIGN_LOG_CHANNEL_ID}/messages`,
+        {
+            embeds: [
+                buildCallsignLogEmbed(requestRow, {
+                    status: "PENDING"
+                })
+            ],
+            components: [
+                {
+                    type: 1,
+                    components: [
+                        {
+                            type: 2,
+                            style: 5,
+                            label: "VERIFICĂ CALLSIGN",
+                            url: callsignReviewUrl(requestRow.id)
+                        }
+                    ]
+                }
+            ],
+            allowed_mentions: {
+                parse: []
+            }
+        },
+        {
+            headers: {
+                Authorization: `Bot ${BOT_TOKEN}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+
+    return response.data;
+}
+
+
+async function updateCallsignLogMessage(requestRow, {
+    status,
+    callsign = null,
+    decidedByName = null,
+    decidedByRank = null,
+    decisionNote = null
+}) {
+    const messageId = String(requestRow.discord_log_message_id || "").trim();
+    const channelId =
+        String(requestRow.discord_log_channel_id || CALLSIGN_LOG_CHANNEL_ID || "").trim();
+
+    if (!BOT_TOKEN || !messageId || !channelId) {
+        return false;
+    }
+
+    await axios.patch(
+        `https://discord.com/api/v10/channels/${channelId}/messages/${messageId}`,
+        {
+            embeds: [
+                buildCallsignLogEmbed(requestRow, {
+                    status,
+                    callsign,
+                    decidedByName,
+                    decidedByRank,
+                    decisionNote
+                })
+            ],
+            components: [],
+            allowed_mentions: {
+                parse: []
+            }
+        },
+        {
+            headers: {
+                Authorization: `Bot ${BOT_TOKEN}`,
+                "Content-Type": "application/json"
+            }
+        }
+    );
+
+    return true;
+}
+
+
 // ======================================================
 // SANCȚIUNI — ROLURI FW + CANAL INFO-SANCTIUNI
 // ======================================================
@@ -12048,9 +12248,52 @@ app.post(
 
             if (error) throw error;
 
+            let discordLogSent = false;
+
+            try {
+                const logMessage =
+                    await sendCallsignLogMessage(data);
+
+                if (logMessage?.id) {
+                    const { error: logStoreError } =
+                        await supabase
+                            .from("callsign_requests")
+                            .update({
+                                discord_log_message_id:
+                                    String(logMessage.id),
+                                discord_log_channel_id:
+                                    CALLSIGN_LOG_CHANNEL_ID,
+                                discord_log_sent_at:
+                                    new Date().toISOString()
+                            })
+                            .eq("id", data.id);
+
+                    if (logStoreError) {
+                        console.warn(
+                            "Callsign Log Store Warning:",
+                            logStoreError
+                        );
+                    }
+                    else {
+                        data.discord_log_message_id =
+                            String(logMessage.id);
+                        data.discord_log_channel_id =
+                            CALLSIGN_LOG_CHANNEL_ID;
+                        discordLogSent = true;
+                    }
+                }
+            }
+            catch (logError) {
+                console.warn(
+                    "Callsign Request Log Warning:",
+                    logError.response?.data || logError.message
+                );
+            }
+
             return res.status(201).json({
                 success: true,
-                request: mapCallsignRequest(data)
+                request: mapCallsignRequest(data),
+                discordLogSent
             });
         }
         catch (error) {
@@ -12273,6 +12516,34 @@ app.patch(
 
             if (decisionError) throw decisionError;
 
+            let discordLogUpdated = false;
+
+            try {
+                discordLogUpdated =
+                    await updateCallsignLogMessage(
+                        requestRow,
+                        {
+                            status: "APPROVED",
+                            callsign,
+                            decidedByName:
+                                req.session.user.displayName ||
+                                req.session.user.username,
+                            decidedByRank:
+                                req.session.user.rank || "",
+                            decisionNote:
+                                String(req.body?.decisionNote || "")
+                                    .trim()
+                                    .slice(0, 500)
+                        }
+                    );
+            }
+            catch (logError) {
+                console.warn(
+                    "Callsign Approve Log Update Warning:",
+                    logError.response?.data || logError.message
+                );
+            }
+
             let dmSent = true;
 
             try {
@@ -12293,7 +12564,8 @@ app.patch(
                 success: true,
                 callsign,
                 displayName: newNickname,
-                dmSent
+                dmSent,
+                discordLogUpdated
             });
         }
         catch (error) {
@@ -12366,6 +12638,31 @@ app.patch(
 
             if (error) throw error;
 
+            let discordLogUpdated = false;
+
+            try {
+                discordLogUpdated =
+                    await updateCallsignLogMessage(
+                        requestRow,
+                        {
+                            status: "REJECTED",
+                            decidedByName:
+                                req.session.user.displayName ||
+                                req.session.user.username,
+                            decidedByRank:
+                                req.session.user.rank || "",
+                            decisionNote:
+                                reason
+                        }
+                    );
+            }
+            catch (logError) {
+                console.warn(
+                    "Callsign Reject Log Update Warning:",
+                    logError.response?.data || logError.message
+                );
+            }
+
             let dmSent = true;
 
             try {
@@ -12384,7 +12681,8 @@ app.patch(
 
             return res.json({
                 success: true,
-                dmSent
+                dmSent,
+                discordLogUpdated
             });
         }
         catch (error) {
