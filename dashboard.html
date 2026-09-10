@@ -30986,33 +30986,95 @@ const query =
                 window.location.search
             );
 
+        /*
+         * Link venit din Discord:
+         * dashboard.html?callsignRequest=<UUID>
+         *
+         * Doar COORDONATOR+ poate deschide panoul de verificare.
+         * Deschidem direct modalul, încărcăm cererile și evidențiem
+         * exact cererea din mesajul de logs.
+         */
         const callsignRequestId =
-            params.get("callsignRequest");
+            String(
+                params.get("callsignRequest") ||
+                ""
+            ).trim();
 
-        if (
-            callsignRequestId &&
-            Number(currentUser?.rankLevel || 0) >= 10
-        ) {
-            openModal("callsign-management-modal");
+        if (callsignRequestId) {
+
+            if (
+                Number(
+                    currentUser?.rankLevel ||
+                    0
+                ) < 10
+            ) {
+                alert(
+                    "Doar COORDONATOR+ poate verifica cererile de callsign."
+                );
+                return;
+            }
+
+            openModal(
+                "callsign-management-modal"
+            );
+
             await loadAdminCallsignRequests();
 
-            const card =
-                document.querySelector(
-                    `[data-callsign-request="${CSS.escape(callsignRequestId)}"]`
+            const container =
+                document.getElementById(
+                    "callsign-management-list"
                 );
 
-            if (card) {
-                card.scrollIntoView({
+            const cards =
+                Array.from(
+                    container?.querySelectorAll(
+                        "[data-callsign-request]"
+                    ) || []
+                );
+
+            const targetCard =
+                cards.find(
+                    card =>
+                        String(
+                            card.dataset.callsignRequest ||
+                            ""
+                        ) ===
+                        callsignRequestId
+                );
+
+            if (targetCard) {
+                targetCard.classList.add(
+                    "callsign-log-focus"
+                );
+
+                targetCard.scrollIntoView({
                     behavior: "smooth",
                     block: "center"
                 });
 
-                card.style.boxShadow =
-                    "0 0 0 2px rgba(233,185,73,.75), 0 18px 45px rgba(0,0,0,.35)";
+                const input =
+                    targetCard.querySelector(
+                        ".callsign-approve-input"
+                    );
 
-                setTimeout(() => {
-                    card.style.boxShadow = "";
-                }, 5000);
+                setTimeout(
+                    () => input?.focus(),
+                    450
+                );
+            }
+            else {
+                const message =
+                    document.getElementById(
+                        "callsign-management-message"
+                    );
+
+                if (message) {
+                    message.className =
+                        "form-message";
+
+                    message.textContent =
+                        "Cererea nu mai este în așteptare sau nu a fost găsită.";
+                }
             }
 
             return;
@@ -31068,7 +31130,6 @@ const query =
 
         button.click();
     }
-
 
     loadUser()
 
@@ -32478,6 +32539,22 @@ const query =
     padding: 0 13px !important;
     font-size: 10px !important;
 }
+
+
+
+        /* V16 — cerere callsign deschisă direct din Discord logs */
+        .callsign-admin-request.callsign-log-focus {
+            border-color: rgba(233, 185, 73, .75) !important;
+            box-shadow:
+                0 0 0 2px rgba(233, 185, 73, .13),
+                0 18px 50px rgba(0, 0, 0, .28) !important;
+            animation: callsignLogFocusPulse 1.15s ease 2;
+        }
+
+        @keyframes callsignLogFocusPulse {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+        }
 
 </style>
 </body>
