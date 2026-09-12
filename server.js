@@ -4,6 +4,7 @@ const cookieSession = require("cookie-session");
 const path = require("path");
 const crypto = require("crypto");
 const multer = require("multer");
+const compression = require("compression");
 const { createClient } = require("@supabase/supabase-js");
 const {
     S3Client,
@@ -21,6 +22,21 @@ require("dotenv").config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// ======================================================
+// BANDWIDTH OPTIMIZATION
+// Comprimă automat HTML/CSS/JS/JSON înainte de a pleca din Render.
+// Fișierele deja mici nu sunt comprimate pentru a evita overhead inutil.
+// ======================================================
+app.set("etag", "strong");
+
+app.use(
+    compression({
+        threshold: 1024,
+        level: 6
+    })
+);
+
+
 const CLIENT_ID = process.env.DISCORD_CLIENT_ID;
 const CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET;
 const REDIRECT_URI = process.env.DISCORD_REDIRECT_URI;
@@ -30,7 +46,7 @@ const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const CALLSIGN_LOG_CHANNEL_ID = "1547395877503500318";
 const CALLSIGN_DASHBOARD_URL =
     process.env.CALLSIGN_DASHBOARD_URL ||
-    "https://diicot-07hy.onrender.com//dashboard.html";
+    "https://diicot-07hy.onrender.com/dashboard.html";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -1357,7 +1373,13 @@ const uploadsDirectory =
 app.use(
     "/uploads",
     express.static(
-        uploadsDirectory
+        uploadsDirectory,
+        {
+            maxAge: "7d",
+            immutable: true,
+            etag: true,
+            lastModified: true
+        }
     )
 );
 
@@ -2975,11 +2997,21 @@ app.get(
         res
     ) => {
 
+        res.set(
+            "Cache-Control",
+            "public, max-age=300, must-revalidate"
+        );
+
         res.sendFile(
             path.join(
                 __dirname,
                 "index.html"
-            )
+            ),
+            {
+                maxAge: "5m",
+                cacheControl: true,
+                lastModified: true
+            }
         );
     }
 );
@@ -3002,11 +3034,21 @@ app.get(
             );
         }
 
+        res.set(
+            "Cache-Control",
+            "private, max-age=300, must-revalidate"
+        );
+
         res.sendFile(
             path.join(
                 __dirname,
                 "dashboard.html"
-            )
+            ),
+            {
+                maxAge: "5m",
+                cacheControl: true,
+                lastModified: true
+            }
         );
     }
 );
@@ -3020,11 +3062,21 @@ app.get(
         res
     ) => {
 
+        res.set(
+            "Cache-Control",
+            "public, max-age=86400, must-revalidate"
+        );
+
         res.sendFile(
             path.join(
                 __dirname,
                 "style.css"
-            )
+            ),
+            {
+                maxAge: "1d",
+                cacheControl: true,
+                lastModified: true
+            }
         );
     }
 );
