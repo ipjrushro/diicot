@@ -3936,47 +3936,181 @@ app.patch(
 // Imagini:  images/<reportId>/<fisier>
 // ======================================================
 
-async function uploadReportImagesToB2(
-    files,
-    reportId
-) {
-    const uploadedImages = [];
+const DIRECT_UPLOAD_TTL_SECONDS = 15 * 60;
+const DIRECT_UPLOAD_MAX_FILES = 5;
+const DIRECT_UPLOAD_MAX_FILE_SIZE = 8 * 1024 * 1024;
+const DIRECT_UPLOAD_ALLOWED_TYPES = new Set([
+    "image/jpeg",
+    "image/png",
+    "image/webp"
+]);
 
-    for (const file of files) {
-        const extension =
-            getExtensionFromMime(
-                file.mimetype
-            );
+function getDirectUploadTokenSecret() {
+    return String(
+        process.env.SESSION_SECRET ||
+        B2_APPLICATION_KEY ||
+        "change-this-secret"
+    );
+}
 
-        const filename =
-            `${Date.now()}-${crypto
-                .randomBytes(8)
-                .toString("hex")}.${extension}`;
+function signDirectUploadManifest(payload) {
+    const encoded = Buffer
+        .from(JSON.stringify(payload), "utf8")
+        .toString("base64url");
 
-        const key =
-            `images/${reportId}/${filename}`;
+    const signature = crypto
+        .createHmac("sha256", getDirectUploadTokenSecret())
+        .update(encoded)
+        .digest("base64url");
 
-        await b2.send(
-            new PutObjectCommand({
-                Bucket: B2_BUCKET,
-                Key: key,
-                Body: file.buffer,
-                ContentLength: file.buffer.length,
-                ContentType: file.mimetype,
-                CacheControl: "private, max-age=3600"
-            })
-        );
+    return `${encoded}.${signature}`;
+}
 
-        uploadedImages.push({
-            filename,
-            key,
-            path: key,
-            provider: "b2"
-        });
+function verifyDirectUploadManifest(token, userId) {
+    const [encoded, signature, ...extra] = String(token || "").split(".");
+
+    if (!encoded || !signature || extra.length) {
+        throw new Error("Manifestul de upload este invalid.");
     }
 
-    return uploadedImages;
+    const expected = crypto
+        .createHmac("sha256", getDirectUploadTokenSecret())
+        .update(encoded)
+        .digest("base64url");
+
+    const a = Buffer.from(signature);
+    const b = Buffer.from(expected);
+
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+        throw new Error("Manifestul de upload nu este valid.");
+    }
+
+    const payload = JSON.parse(
+        Buffer.from(encoded, "base64url").toString("utf8")
+    );
+
+    if (String(payload.userId || "") !== String(userId || "")) {
+        throw new Error("Manifestul de upload aparține altui utilizator.");
+    }
+
+    if (!payload.exp || Date.now() > Number(payload.exp)) {
+        throw new Error("Linkurile de upload au expirat. Încearcă din nou.");
+    }
+
+    if (!/^[0-9a-f-]{36}$/i.test(String(payload.reportId || ""))) {
+        throw new Error("ID-ul raportului din manifest este invalid.");
+    }
+
+    const images = Array.isArray(payload.images) ? payload.images : [];
+
+    if (images.length > DIRECT_UPLOAD_MAX_FILES) {
+        throw new Error("Manifestul conține prea multe imagini.");
+    }
+
+    for (const image of images) {
+        const key = String(image?.key || "");
+        const expectedPrefix = `images/${payload.reportId}/`;
+
+        if (
+            !key.startsWith(expectedPrefix) ||
+            key.includes("..") ||
+            !DIRECT_UPLOAD_ALLOWED_TYPES.has(String(image?.contentType || "")) ||
+            Number(image?.size || 0) < 1 ||
+            Number(image?.size || 0) > DIRECT_UPLOAD_MAX_FILE_SIZE
+        ) {
+            throw new Error("Manifestul conține o imagine invalidă.");
+        }
+    }
+
+    return payload;
 }
+
+// Browserul cere URL-uri PUT semnate, apoi trimite fișierele DIRECT în B2.
+// Render vede doar metadatele (nume, tip, dimensiune, key), nu bytes-ii imaginilor.
+app.post(
+    "/api/report-upload-urls",
+    requireAuth,
+    async (req, res) => {
+        if (!ensureB2(res)) {
+            return;
+        }
+
+        const files = Array.isArray(req.body?.files) ? req.body.files : [];
+
+        if (files.length > DIRECT_UPLOAD_MAX_FILES) {
+            return res.status(400).json({
+                error: "Poți încărca maximum 5 imagini."
+            });
+        }
+
+        for (const file of files) {
+            const contentType = String(file?.type || "");
+            const size = Number(file?.size || 0);
+
+            if (!DIRECT_UPLOAD_ALLOWED_TYPES.has(contentType)) {
+                return res.status(400).json({
+                    error: "Sunt acceptate doar imagini JPG, PNG și WEBP."
+                });
+            }
+
+            if (!Number.isFinite(size) || size < 1 || size > DIRECT_UPLOAD_MAX_FILE_SIZE) {
+                return res.status(400).json({
+                    error: "Fiecare imagine trebuie să aibă maximum 8 MB."
+                });
+            }
+        }
+
+        const reportId = crypto.randomUUID();
+        const images = [];
+        const uploads = [];
+
+        for (const file of files) {
+            const contentType = String(file.type);
+            const extension = getExtensionFromMime(contentType);
+            const filename = `${Date.now()}-${crypto.randomBytes(8).toString("hex")}.${extension}`;
+            const key = `images/${reportId}/${filename}`;
+
+            const uploadUrl = await getSignedUrl(
+                b2,
+                new PutObjectCommand({
+                    Bucket: B2_BUCKET,
+                    Key: key,
+                    ContentType: contentType,
+                    CacheControl: "private, max-age=3600"
+                }),
+                { expiresIn: DIRECT_UPLOAD_TTL_SECONDS }
+            );
+
+            images.push({
+                filename,
+                key,
+                path: key,
+                provider: "b2",
+                contentType,
+                size: Number(file.size)
+            });
+
+            uploads.push({
+                key,
+                uploadUrl,
+                contentType
+            });
+        }
+
+        const uploadManifestToken = signDirectUploadManifest({
+            userId: String(req.session.user.id),
+            reportId,
+            images,
+            exp: Date.now() + DIRECT_UPLOAD_TTL_SECONDS * 1000
+        });
+
+        return res.json({
+            reportId,
+            uploads,
+            uploadManifestToken
+        });
+    }
+);
 
 
 // ======================================================
@@ -4099,14 +4233,9 @@ app.get(
 // DISCORD - NOTIFICARE RAZIE / ANTRENAMENT
 // ======================================================
 
-async function sendOperationalReportToDiscord(
-    report,
-    sourceFiles = []
-) {
+async function sendOperationalReportToDiscord(report) {
     if (!BOT_TOKEN) {
-        throw new Error(
-            "DISCORD_BOT_TOKEN nu este configurat."
-        );
+        throw new Error("DISCORD_BOT_TOKEN nu este configurat.");
     }
 
     const channelId =
@@ -4117,256 +4246,90 @@ async function sendOperationalReportToDiscord(
                 : null;
 
     if (!channelId) {
-        return {
-            sent: false,
-            skipped: true
-        };
+        return { sent: false, skipped: true };
     }
 
-    const typeLabel =
-        report.type === "RAZIE"
-            ? "RAZIE"
-            : "ANTRENAMENT";
+    const typeLabel = report.type === "RAZIE" ? "RAZIE" : "ANTRENAMENT";
+    const color = report.type === "RAZIE" ? 0xD9A11E : 0x3498DB;
+    const authorMention = report.authorId
+        ? `<@${report.authorId}>`
+        : (report.authorName || "Necunoscut");
 
-    const color =
-        report.type === "RAZIE"
-            ? 0xD9A11E
-            : 0x3498DB;
+    const coOrganizer = report.coOrganizer || null;
+    const secondOrganizer = coOrganizer?.id
+        ? `<@${coOrganizer.id}>\n${coOrganizer.rank || "-"} • ${coOrganizer.department || "-"}`
+        : "Neselectat";
 
-    const authorMention =
-        report.authorId
-            ? `<@${report.authorId}>`
-            : (
-                report.authorName ||
-                "Necunoscut"
-            );
+    const reportImages = Array.isArray(report.images)
+        ? report.images.slice(0, 5)
+        : [];
 
-    const coOrganizer =
-        report.coOrganizer ||
-        null;
+    // Discord descarcă imaginile direct din Backblaze folosind URL-uri GET semnate.
+    // Render trimite către Discord doar JSON-ul cu URL-urile, nu fișierele.
+    const imageEmbeds = [];
 
-    const secondOrganizer =
-        coOrganizer?.id
-            ? `<@${coOrganizer.id}>\n${coOrganizer.rank || "-"} • ${coOrganizer.department || "-"}`
-            : "Neselectat";
+    for (const image of reportImages) {
+        const key = getB2ImageKey(image);
+        if (!key) continue;
 
-    const validSourceFiles =
-        Array.isArray(sourceFiles)
-            ? sourceFiles
-                .filter(
-                    file =>
-                        file &&
-                        Buffer.isBuffer(file.buffer) &&
-                        file.buffer.length > 0 &&
-                        String(file.mimetype || "")
-                            .startsWith("image/")
-                )
-                .slice(0, 5)
-            : [];
+        const url = await getB2DirectSignedUrl(key);
+        if (!url) continue;
 
-    const imageCount =
-        validSourceFiles.length ||
-        (
-            Array.isArray(report.images)
-                ? report.images.length
-                : 0
-        );
+        imageEmbeds.push({
+            color,
+            image: { url }
+        });
+    }
 
     const mainEmbed = {
-        title:
-            report.type === "RAZIE"
-                ? "📋 RAZIE POSTATĂ"
-                : "🎯 ANTRENAMENT POSTAT",
-
-        description:
-            `**${String(
-                report.title ||
-                "Raport operațional"
-            ).slice(0, 200)}**`,
-
+        title: report.type === "RAZIE"
+            ? "📋 RAZIE POSTATĂ"
+            : "🎯 ANTRENAMENT POSTAT",
+        description: `**${String(report.title || "Raport operațional").slice(0, 200)}**`,
         color,
-
         fields: [
-            {
-                name: "TIP ACTIVITATE",
-                value: typeLabel,
-                inline: true
-            },
+            { name: "TIP ACTIVITATE", value: typeLabel, inline: true },
             {
                 name: "DOVEZI",
-                value:
-                    `${imageCount} ${
-                        imageCount === 1
-                            ? "imagine"
-                            : "imagini"
-                    }`,
+                value: `${reportImages.length} ${reportImages.length === 1 ? "imagine" : "imagini"}`,
                 inline: true
             },
             {
                 name: "ORGANIZATOR 1",
-                value:
-                    `${authorMention}\n${
-                        report.authorRank ||
-                        "Membru DIICOT"
-                    }`,
+                value: `${authorMention}\n${report.authorRank || "Membru DIICOT"}`,
                 inline: false
             },
-            {
-                name: "ORGANIZATOR 2",
-                value: secondOrganizer,
-                inline: false
-            }
+            { name: "ORGANIZATOR 2", value: secondOrganizer, inline: false }
         ],
-
-        footer: {
-            text:
-                "DIICOT • Centru de Comandă • Rush România"
-        },
-
-        timestamp:
-            report.createdAt ||
-            new Date().toISOString()
+        footer: { text: "DIICOT • Centru de Comandă • Rush România" },
+        timestamp: report.createdAt || new Date().toISOString()
     };
-
-    // Dacă există poze în raport, le trimitem chiar în același mesaj Discord.
-    // Folosim attachment:// pentru că bucket-ul Backblaze este privat.
-    const attachmentData =
-        validSourceFiles.map(
-            (file, index) => {
-                const extension =
-                    getExtensionFromMime(
-                        file.mimetype
-                    );
-
-                return {
-                    file,
-                    filename:
-                        `dovada-${index + 1}.${extension}`
-                };
-            }
-        );
-
-    const imageEmbeds =
-        attachmentData.map(
-            item => ({
-                color,
-
-                image: {
-                    url:
-                        `attachment://${item.filename}`
-                }
-            })
-        );
 
     const payload = {
-        embeds: [
-            mainEmbed,
-            ...imageEmbeds
-        ],
-
-        // Mențiunile apar vizual, fără ping.
-        allowed_mentions: {
-            parse: []
-        }
+        embeds: [mainEmbed, ...imageEmbeds],
+        allowed_mentions: { parse: [] }
     };
 
-    let responseData = null;
-
-    if (attachmentData.length > 0) {
-        const form =
-            new FormData();
-
-        form.append(
-            "payload_json",
-            JSON.stringify(payload)
-        );
-
-        attachmentData.forEach(
-            (item, index) => {
-                form.append(
-                    `files[${index}]`,
-                    new Blob(
-                        [item.file.buffer],
-                        {
-                            type:
-                                item.file.mimetype ||
-                                "application/octet-stream"
-                        }
-                    ),
-                    item.filename
-                );
+    const response = await axios.post(
+        `https://discord.com/api/v10/channels/${channelId}/messages`,
+        payload,
+        {
+            headers: {
+                Authorization: `Bot ${BOT_TOKEN}`,
+                "Content-Type": "application/json"
             }
-        );
-
-        const response =
-            await fetch(
-                `https://discord.com/api/v10/channels/${channelId}/messages`,
-                {
-                    method:
-                        "POST",
-
-                    headers: {
-                        Authorization:
-                            `Bot ${BOT_TOKEN}`
-                    },
-
-                    body:
-                        form
-                }
-            );
-
-        responseData =
-            await response
-                .json()
-                .catch(
-                    () => ({})
-                );
-
-        if (!response.ok) {
-            const error =
-                new Error(
-                    `Discord API ${response.status}`
-                );
-
-            error.response = {
-                data:
-                    responseData
-            };
-
-            throw error;
         }
-    }
-    else {
-        const response =
-            await axios.post(
-                `https://discord.com/api/v10/channels/${channelId}/messages`,
-                payload,
-                {
-                    headers: {
-                        Authorization:
-                            `Bot ${BOT_TOKEN}`,
-
-                        "Content-Type":
-                            "application/json"
-                    }
-                }
-            );
-
-        responseData =
-            response.data;
-    }
+    );
 
     return {
         sent: true,
         skipped: false,
         channelId,
-        imageCount:
-            attachmentData.length,
-        messageId:
-            responseData?.id ||
-            null
+        imageCount: imageEmbeds.length,
+        messageId: response.data?.id || null
     };
 }
+
 
 // ======================================================
 // RAPOARTE - POSTARE
@@ -4376,14 +4339,33 @@ app.post(
     "/api/reports",
     requireAuth,
     reportUploadSlotGuard,
-    upload.array(
-        "images",
-        5
-    ),
     async (req, res) => {
         if (!ensureB2(res)) {
             return;
         }
+
+        let uploadManifest;
+
+        try {
+            uploadManifest = verifyDirectUploadManifest(
+                req.body.uploadManifestToken,
+                req.session.user.id
+            );
+        }
+        catch (error) {
+            return res.status(400).json({
+                error: error.message || "Manifestul de upload este invalid."
+            });
+        }
+
+        const uploadedImages = Array.isArray(uploadManifest.images)
+            ? uploadManifest.images.map(image => ({
+                filename: image.filename,
+                key: image.key,
+                path: image.key,
+                provider: "b2"
+            }))
+            : [];
 
         const type =
             String(
@@ -4462,7 +4444,7 @@ app.post(
         }
         if (
             isParticipationProof &&
-            (!Array.isArray(req.files) || req.files.length < 1)
+            uploadedImages.length < 1
         ) {
             return res.status(400).json({
                 error:
@@ -4580,7 +4562,7 @@ app.post(
         }
 
         const reportId =
-            crypto.randomUUID();
+            String(uploadManifest.reportId);
 
         const authorId =
             String(
@@ -4590,15 +4572,7 @@ app.post(
         const metadataKey =
             `reports/${authorId}/${reportId}.json`;
 
-        let uploadedImages = [];
-
         try {
-            uploadedImages =
-                await uploadReportImagesToB2(
-                    req.files || [],
-                    reportId
-                );
-
             const now =
                 new Date().toISOString();
 
@@ -4669,8 +4643,7 @@ app.post(
                 try {
                     discordNotification =
                         await sendOperationalReportToDiscord(
-                            report,
-                            req.files || []
+                            report
                         );
                 }
                 catch (discordError) {
