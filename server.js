@@ -29,7 +29,7 @@ const BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const CALLSIGN_LOG_CHANNEL_ID = "1547395877503500318";
 const CALLSIGN_DASHBOARD_URL =
     process.env.CALLSIGN_DASHBOARD_URL ||
-    "https://diicot-1.onrender.com/dashboard.html";
+    "https://diicot-07hy.onrender.com//dashboard.html";
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
@@ -2989,17 +2989,25 @@ app.get(
         res
     ) => {
 
-        if (
-            !CLIENT_ID ||
-            !CLIENT_SECRET ||
-            !REDIRECT_URI ||
-            !GUILD_ID
-        ) {
+        const missingDiscordEnv = [
+            ["DISCORD_CLIENT_ID", CLIENT_ID],
+            ["DISCORD_CLIENT_SECRET", CLIENT_SECRET],
+            ["DISCORD_REDIRECT_URI", REDIRECT_URI],
+            ["DISCORD_GUILD_ID", GUILD_ID]
+        ]
+            .filter(([, value]) => !String(value || "").trim())
+            .map(([name]) => name);
+
+        if (missingDiscordEnv.length) {
+            console.error(
+                "[DISCORD CONFIG] Lipsesc variabilele:",
+                missingDiscordEnv.join(", ")
+            );
 
             return res
                 .status(500)
                 .send(
-                    "Configurarea Discord este incompletă."
+                    `Configurarea Discord este incompletă. Lipsesc: ${missingDiscordEnv.join(", ")}`
                 );
         }
 
