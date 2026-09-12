@@ -13,6 +13,7 @@ const {
     ListObjectVersionsCommand,
     DeleteObjectsCommand
 } = require("@aws-sdk/client-s3");
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 require("dotenv").config();
 
@@ -1613,11 +1614,94 @@ function ensureB2(res) {
     return true;
 }
 
-function encodeB2KeyForURL(key) {
-    return String(key || "")
-        .split("/")
-        .map(encodeURIComponent)
-        .join("/");
+const B2_SIGNED_URL_TTL_SECONDS = 60 * 60; // 1 oră
+
+function getB2ImageKey(image = {}) {
+    const directKey = String(
+        image?.key ||
+        image?.path ||
+        ""
+    ).trim();
+
+    if (directKey.startsWith("images/")) {
+        return directKey;
+    }
+
+    // Compatibilitate cu rapoartele vechi care au URL-ul proxy Render salvat.
+    const oldUrl = String(image?.url || "");
+    const prefix = "/api/report-files/";
+
+    if (oldUrl.startsWith(prefix)) {
+        try {
+            const decoded = decodeURIComponent(
+                oldUrl.slice(prefix.length)
+            );
+
+            if (decoded.startsWith("images/") && !decoded.includes("..")) {
+                return decoded;
+            }
+        } catch {
+            return "";
+        }
+    }
+
+    return "";
+}
+
+async function getB2DirectSignedUrl(key) {
+    const cleanKey = String(key || "").trim();
+
+    if (!cleanKey.startsWith("images/") || cleanKey.includes("..")) {
+        return null;
+    }
+
+    return getSignedUrl(
+        b2,
+        new GetObjectCommand({
+            Bucket: B2_BUCKET,
+            Key: cleanKey
+        }),
+        {
+            expiresIn: B2_SIGNED_URL_TTL_SECONDS
+        }
+    );
+}
+
+async function withDirectB2ImageUrls(report) {
+    const mapped = mapB2Report(report);
+
+    if (!mapped) {
+        return null;
+    }
+
+    mapped.images = await Promise.all(
+        (mapped.images || []).map(async image => {
+            const key = getB2ImageKey(image);
+
+            if (!key) {
+                return { ...image };
+            }
+
+            return {
+                ...image,
+                key,
+                path: key,
+                provider: "b2",
+                // Browserul descarcă direct din Backblaze B2.
+                // Traficul imaginii NU mai trece prin Render.
+                url: await getB2DirectSignedUrl(key)
+            };
+        })
+    );
+
+    return mapped;
+}
+
+async function withDirectB2ImageUrlsMany(reports = []) {
+    return Promise.all(
+        (Array.isArray(reports) ? reports : [])
+            .map(report => withDirectB2ImageUrls(report))
+    );
 }
 
 function mapB2Report(report) {
@@ -3879,9 +3963,7 @@ async function uploadReportImagesToB2(
             filename,
             key,
             path: key,
-            provider: "b2",
-            url:
-                `/api/report-files/${encodeB2KeyForURL(key)}`
+            provider: "b2"
         });
     }
 
@@ -3890,99 +3972,11 @@ async function uploadReportImagesToB2(
 
 
 // ======================================================
-// RAPOARTE - SERVIRE IMAGINI DIN BUCKET-UL PRIVAT B2
+// IMAGINI RAPOARTE
 // ======================================================
-
-app.get(
-    "/api/report-files/*",
-    requireAuth,
-    async (req, res) => {
-        if (!ensureB2(res)) {
-            return;
-        }
-
-        const key =
-            decodeURIComponent(
-                String(req.params[0] || "")
-            );
-
-        if (
-            !key.startsWith("images/") ||
-            key.includes("..")
-        ) {
-            return res.status(400).json({
-                error:
-                    "Calea fișierului nu este validă."
-            });
-        }
-
-        try {
-            const object = await b2.send(
-                new GetObjectCommand({
-                    Bucket: B2_BUCKET,
-                    Key: key
-                })
-            );
-
-            if (object.ContentType) {
-                res.setHeader(
-                    "Content-Type",
-                    object.ContentType
-                );
-            }
-
-            res.setHeader(
-                "Cache-Control",
-                "private, max-age=3600"
-            );
-
-            if (
-                object.ContentLength !== undefined
-            ) {
-                res.setHeader(
-                    "Content-Length",
-                    String(object.ContentLength)
-                );
-            }
-
-            if (
-                object.Body &&
-                typeof object.Body.pipe === "function"
-            ) {
-                object.Body.pipe(res);
-                return;
-            }
-
-            const chunks = [];
-
-            for await (const chunk of object.Body || []) {
-                chunks.push(Buffer.from(chunk));
-            }
-
-            res.end(Buffer.concat(chunks));
-        }
-        catch (error) {
-            const status =
-                error?.$metadata?.httpStatusCode === 404 ||
-                error?.name === "NoSuchKey"
-                    ? 404
-                    : 500;
-
-            console.error(
-                "B2 report file error:",
-                error.message
-            );
-
-            res.status(status).json({
-                error:
-                    status === 404
-                        ? "Imaginea nu a fost găsită."
-                        : "Imaginea nu a putut fi încărcată."
-            });
-        }
-    }
-);
-
+// Nu mai există rută proxy /api/report-files/*.
+// URL-urile semnate sunt generate la răspunsul API, iar browserul
+// descarcă imaginile direct din Backblaze B2.
 
 
 // ======================================================
@@ -4695,7 +4689,7 @@ app.post(
                         : "Raportul a fost postat în Backblaze B2.",
                 discordNotification,
                 report:
-                    mapB2Report(report)
+                    await withDirectB2ImageUrls(report)
             });
         }
         catch (error) {
@@ -4752,8 +4746,11 @@ app.get(
                     req.session.user.id
                 );
 
+            const reportsForClient =
+                await withDirectB2ImageUrlsMany(reports);
+
             res.json({
-                reports
+                reports: reportsForClient
             });
         }
         catch (error) {
@@ -4787,11 +4784,14 @@ app.get(
             const reports =
                 await listB2Reports();
 
+            const reportsForClient =
+                await withDirectB2ImageUrlsMany(reports);
+
             res.json({
                 success: true,
                 total:
                     reports.length,
-                reports
+                reports: reportsForClient
             });
         }
         catch (error) {
@@ -8906,8 +8906,12 @@ app.get(
                 );
 
 
+            const reportsForClient =
+                await withDirectB2ImageUrlsMany(reports);
+
+
             const recentActivity =
-                reports
+                reportsForClient
                     .slice(
                         0,
                         10
@@ -9005,7 +9009,8 @@ app.get(
                                 : "-"
                     },
 
-                    reports,
+                    reports:
+                        reportsForClient,
 
                     recentActivity
                 }
