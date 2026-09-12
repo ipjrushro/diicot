@@ -21964,51 +21964,17 @@ const query =
                 }
 
 
-                const formData =
-                    new FormData();
-
-
-                formData.append(
-                    "type",
-                    document.getElementById(
-                        "report-type"
-                    ).value
-                );
-
-
-                formData.append(
-                    "title",
-                    document.getElementById(
-                        "report-title"
-                    ).value.trim()
-                );
-
+                const reportPayload = {
+                    type: document.getElementById("report-type").value,
+                    title: document.getElementById("report-title").value.trim()
+                };
 
                 if (
                     reportNeedsOrganizer() &&
                     selectedReportOrganizer
                 ) {
-                    formData.append(
-                        "coOrganizerId",
-                        selectedReportOrganizer.id
-                    );
-
-                    formData.append(
-                        "coOrganizerDepartment",
-                        selectedReportOrganizer.department
-                    );
-                }
-
-
-                for (
-                    const file
-                    of files
-                ) {
-
-                    formData.append(
-                        "images",
-                        file
-                    );
+                    reportPayload.coOrganizerId = selectedReportOrganizer.id;
+                    reportPayload.coOrganizerDepartment = selectedReportOrganizer.department;
                 }
 
 
@@ -22022,21 +21988,85 @@ const query =
 
                 try {
 
-                    const response =
-                        await fetch(
-                            "/api/reports",
+                    // 1) Cerem de la Render doar URL-uri PUT semnate.
+                    // Niciun byte din imagini nu este trimis către Render.
+                    const signResponse = await fetch(
+                        "/api/report-upload-urls",
+                        {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                files: Array.from(files).map(file => ({
+                                    name: file.name,
+                                    type: file.type,
+                                    size: file.size
+                                }))
+                            })
+                        }
+                    );
+
+                    const signData = await signResponse.json();
+
+                    if (!signResponse.ok) {
+                        throw new Error(
+                            signData.error ||
+                            "Nu am putut pregăti uploadul imaginilor."
+                        );
+                    }
+
+                    // 2) Browser -> Backblaze B2 direct.
+                    // Render nu primește fișierele.
+                    const selectedFiles = Array.from(files);
+
+                    for (let index = 0; index < selectedFiles.length; index += 1) {
+                        const file = selectedFiles[index];
+                        const upload = signData.uploads[index];
+
+                        if (!upload?.uploadUrl) {
+                            throw new Error("Lipsește URL-ul de upload pentru una dintre imagini.");
+                        }
+
+                        button.textContent =
+                            `SE ÎNCARCĂ POZELE ${index + 1}/${selectedFiles.length}...`;
+
+                        const b2Response = await fetch(
+                            upload.uploadUrl,
                             {
-                                method:
-                                    "POST",
-
-                                credentials:
-                                    "include",
-
-                                body:
-                                    formData
+                                method: "PUT",
+                                headers: {
+                                    "Content-Type": upload.contentType,
+                                    "Cache-Control": "private, max-age=3600"
+                                },
+                                body: file
                             }
                         );
 
+                        if (!b2Response.ok) {
+                            throw new Error(
+                                `Backblaze a refuzat imaginea ${index + 1} (HTTP ${b2Response.status}). Verifică CORS-ul bucket-ului.`
+                            );
+                        }
+                    }
+
+                    button.textContent = "SE SALVEAZĂ RAPORTUL...";
+
+                    // 3) Către Render merg doar textul raportului + manifestul semnat.
+                    reportPayload.uploadManifestToken = signData.uploadManifestToken;
+
+                    const response = await fetch(
+                        "/api/reports",
+                        {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(reportPayload)
+                        }
+                    );
 
                     const data =
                         await response.json();
