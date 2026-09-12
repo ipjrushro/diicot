@@ -8,6 +8,7 @@ const { createClient } = require("@supabase/supabase-js");
 const {
     S3Client,
     PutObjectCommand,
+    PutBucketCorsCommand,
     GetObjectCommand,
     ListObjectsV2Command,
     ListObjectVersionsCommand,
@@ -62,6 +63,58 @@ if (
     console.warn(
         "[BACKBLAZE B2] Lipsesc una sau mai multe variabile B2_* din Environment."
     );
+}
+
+
+// ======================================================
+// BACKBLAZE B2 CORS — DIRECT BROWSER UPLOAD
+// ======================================================
+const B2_DIRECT_UPLOAD_ORIGIN =
+    process.env.B2_DIRECT_UPLOAD_ORIGIN ||
+    "https://diicot-07hy.onrender.com";
+
+async function configureB2CorsForDirectUpload() {
+    if (
+        !B2_BUCKET ||
+        !B2_REGION ||
+        !B2_ENDPOINT ||
+        !B2_KEY_ID ||
+        !B2_APPLICATION_KEY
+    ) {
+        console.warn(
+            "[BACKBLAZE B2 CORS] Configurarea CORS a fost omisă: lipsesc variabile B2_*."
+        );
+        return;
+    }
+
+    try {
+        await b2.send(
+            new PutBucketCorsCommand({
+                Bucket: B2_BUCKET,
+                CORSConfiguration: {
+                    CORSRules: [
+                        {
+                            ID: "diicot-direct-upload",
+                            AllowedOrigins: [B2_DIRECT_UPLOAD_ORIGIN],
+                            AllowedHeaders: ["*"],
+                            AllowedMethods: ["GET", "PUT", "HEAD"],
+                            ExposeHeaders: ["ETag"],
+                            MaxAgeSeconds: 3600
+                        }
+                    ]
+                }
+            })
+        );
+
+        console.log(
+            `[BACKBLAZE B2 CORS] OK pentru ${B2_DIRECT_UPLOAD_ORIGIN}`
+        );
+    } catch (error) {
+        console.error(
+            "[BACKBLAZE B2 CORS] Eroare la configurare:",
+            error?.name || error?.message || error
+        );
+    }
 }
 
 const ANNOUNCEMENT_CHANNEL_ID = "1528758228450672803";
@@ -14960,5 +15013,10 @@ app.listen(
         console.log(
             `Supabase: ${SUPABASE_URL ? "CONFIGURAT" : "NECONFIGURAT"}`
         );
+
+        // Regula este idempotentă: poate fi reaplicată la fiecare deploy.
+        // După ce apare mesajul [BACKBLAZE B2 CORS] OK în Logs,
+        // browserul poate încărca direct în B2 de pe domeniul Render.
+        configureB2CorsForDirectUpload();
     }
 );
