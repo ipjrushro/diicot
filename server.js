@@ -15043,22 +15043,64 @@ async function getApprovedMeetingExcuses(at = new Date()) {
     return new Set((data || []).map(row => String(row.author_id || "")).filter(Boolean));
 }
 
-async function getDiscordVoiceState(userId) {
-    try {
-        const response = await axios.get(
-            `https://discord.com/api/v10/guilds/${GUILD_ID}/voice-states/${encodeURIComponent(String(userId))}`,
-            {
-                headers: { Authorization: `Bot ${BOT_TOKEN}` },
-                timeout: 10000,
-                validateStatus: status => status === 200 || status === 404
-            }
-        );
+const MEETING_VOICE_REQUEST_DELAY_MS = 400;
+const MEETING_VOICE_MAX_RETRIES = 4;
 
-        return response.status === 200 ? response.data : null;
-    } catch (error) {
-        if (Number(error?.response?.status) === 404) return null;
-        throw error;
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, Math.max(0, Number(ms) || 0)));
+}
+
+async function getDiscordVoiceState(userId) {
+    const id = encodeURIComponent(String(userId));
+
+    for (let attempt = 0; attempt <= MEETING_VOICE_MAX_RETRIES; attempt += 1) {
+        try {
+            const response = await axios.get(
+                `https://discord.com/api/v10/guilds/${GUILD_ID}/voice-states/${id}`,
+                {
+                    headers: { Authorization: `Bot ${BOT_TOKEN}` },
+                    timeout: 10000,
+                    validateStatus: status => status === 200 || status === 404 || status === 429
+                }
+            );
+
+            if (response.status === 404) return null;
+            if (response.status === 200) return response.data;
+
+            // Discord 429: respectăm retry_after și NU bombardăm API-ul.
+            const retryAfterSeconds = Number(response.data?.retry_after || 0);
+            const retryAfterHeader = Number(response.headers?.['retry-after'] || 0);
+            const waitMs = Math.max(
+                1000,
+                Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0
+                    ? Math.ceil(retryAfterSeconds * 1000)
+                    : 0,
+                Number.isFinite(retryAfterHeader) && retryAfterHeader > 0
+                    ? Math.ceil(retryAfterHeader * 1000)
+                    : 0
+            );
+
+            if (attempt >= MEETING_VOICE_MAX_RETRIES) {
+                throw new Error(`Discord rate limit după ${MEETING_VOICE_MAX_RETRIES + 1} încercări.`);
+            }
+
+            console.warn(`Meeting voice-state rate limit pentru ${userId}; retry în ${waitMs}ms.`);
+            await sleep(waitMs);
+        } catch (error) {
+            if (Number(error?.response?.status) === 404) return null;
+
+            if (Number(error?.response?.status) === 429 && attempt < MEETING_VOICE_MAX_RETRIES) {
+                const waitMs = Math.max(1000, getDiscordRetryAfterMs(error) || 1000);
+                console.warn(`Meeting voice-state 429 pentru ${userId}; retry în ${waitMs}ms.`);
+                await sleep(waitMs);
+                continue;
+            }
+
+            throw error;
+        }
     }
+
+    return null;
 }
 
 async function mapWithConcurrency(items, limit, worker) {
@@ -15177,31 +15219,47 @@ async function runMeetingAttendanceCheck(actor = {}) {
         .filter(isDiicotMemberForAttendance);
     const excusedIds = await getApprovedMeetingExcuses(new Date());
 
-    const checked = await mapWithConcurrency(members, 5, async member => {
+    // IMPORTANT: verificăm SECVENȚIAL membrii și introducem o pauză între request-uri.
+    // Endpoint-ul Discord pentru voice-state este per utilizator; request-urile paralele
+    // produceau 429 (rate limit) și făceau prezența instabilă.
+    const checked = [];
+
+    for (const member of members) {
         const id = String(member?.user?.id || "");
         const name = discordDisplayName(member);
 
         if (excusedIds.has(id)) {
-            return { id, name, status: "EXCUSED" };
+            checked.push({ id, name, status: "EXCUSED" });
+            continue;
         }
 
         let voiceState = null;
+        let voiceCheckFailed = false;
+
         try {
             voiceState = await getDiscordVoiceState(id);
         } catch (error) {
+            voiceCheckFailed = true;
             console.warn("Meeting voice-state warning:", id, error?.message || error);
         }
 
-        if (String(voiceState?.channel_id || "") === String(voiceChannel.id)) {
-            return { id, name, status: "PRESENT" };
+        // Dacă Discord încă refuză verificarea după retry-uri, NU marcăm persoana absentă.
+        // Astfel evităm sancțiuni greșite cauzate doar de rate-limit/API.
+        if (voiceCheckFailed) {
+            checked.push({ id, name, status: "UNKNOWN" });
+        } else if (String(voiceState?.channel_id || "") === String(voiceChannel.id)) {
+            checked.push({ id, name, status: "PRESENT" });
+        } else {
+            checked.push({ id, name, status: "ABSENT", member });
         }
 
-        return { id, name, status: "ABSENT", member };
-    });
+        await sleep(MEETING_VOICE_REQUEST_DELAY_MS);
+    }
 
     const present = checked.filter(item => item.status === "PRESENT").map(({ id, name }) => ({ id, name }));
     const excused = checked.filter(item => item.status === "EXCUSED").map(({ id, name }) => ({ id, name }));
     const absentRows = checked.filter(item => item.status === "ABSENT");
+    const unknown = checked.filter(item => item.status === "UNKNOWN").map(({ id, name }) => ({ id, name }));
 
     const sanctions = [];
     for (const item of absentRows) {
@@ -15224,6 +15282,7 @@ async function runMeetingAttendanceCheck(actor = {}) {
         present,
         excused,
         absent: absentRows.map(({ id, name }) => ({ id, name })),
+        unknown,
         sanctions
     };
 }
