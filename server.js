@@ -14901,6 +14901,497 @@ app.post(
 );
 
 
+
+// ======================================================
+// PREZENȚĂ ȘEDINȚĂ — DISCORD VOICE + FW AUTOMAT
+// Acces exclusiv pentru utilizatorul configurat mai jos.
+// Programările sunt persistate în B2 dacă B2 este disponibil.
+// ======================================================
+
+const MEETING_ATTENDANCE_USER_ID = "1315733546312142921";
+const MEETING_VOICE_CHANNEL_NAME = "Ședință DIICOT";
+const MEETING_ATTENDANCE_STATE_KEY = "system/meeting-attendance.json";
+
+let meetingAttendanceJobs = [];
+const meetingAttendanceTimers = new Map();
+
+function requireMeetingAttendanceAccess(req, res, next) {
+    if (!req.session?.user) {
+        return res.status(401).json({ error: "Trebuie să fii autentificat." });
+    }
+
+    if (String(req.session.user.id || "") !== MEETING_ATTENDANCE_USER_ID) {
+        return res.status(403).json({ error: "Nu ai acces la această secțiune." });
+    }
+
+    next();
+}
+
+function meetingAttendanceB2Ready() {
+    return Boolean(B2_BUCKET && B2_REGION && B2_ENDPOINT && B2_KEY_ID && B2_APPLICATION_KEY);
+}
+
+async function loadMeetingAttendanceState() {
+    if (!meetingAttendanceB2Ready()) return meetingAttendanceJobs;
+
+    try {
+        const state = await readB2JSON(MEETING_ATTENDANCE_STATE_KEY);
+        meetingAttendanceJobs = Array.isArray(state?.meetings) ? state.meetings : [];
+    } catch (error) {
+        const status = Number(error?.$metadata?.httpStatusCode || error?.statusCode || 0);
+        const name = String(error?.name || "");
+        if (status !== 404 && !/NoSuchKey|NotFound/i.test(name)) {
+            console.warn("Meeting Attendance state load warning:", error?.message || error);
+        }
+    }
+
+    return meetingAttendanceJobs;
+}
+
+async function saveMeetingAttendanceState() {
+    if (!meetingAttendanceB2Ready()) return;
+
+    await b2.send(
+        new PutObjectCommand({
+            Bucket: B2_BUCKET,
+            Key: MEETING_ATTENDANCE_STATE_KEY,
+            Body: JSON.stringify({ meetings: meetingAttendanceJobs }, null, 2),
+            ContentType: "application/json; charset=utf-8",
+            CacheControl: "no-store"
+        })
+    );
+}
+
+function serializeMeetingJob(job) {
+    return {
+        id: String(job.id),
+        scheduledAt: job.scheduledAt,
+        status: job.status || "SCHEDULED",
+        createdAt: job.createdAt || null,
+        startedAt: job.startedAt || null,
+        finishedAt: job.finishedAt || null,
+        createdById: job.createdById || null,
+        createdByName: job.createdByName || null,
+        error: job.error || null,
+        result: job.result || null
+    };
+}
+
+async function discordGuildChannels() {
+    if (!BOT_TOKEN || !GUILD_ID) {
+        throw new Error("Botul Discord sau serverul Discord nu este configurat.");
+    }
+
+    const response = await axios.get(
+        `https://discord.com/api/v10/guilds/${GUILD_ID}/channels`,
+        {
+            headers: { Authorization: `Bot ${BOT_TOKEN}` },
+            timeout: 15000
+        }
+    );
+
+    return Array.isArray(response.data) ? response.data : [];
+}
+
+async function resolveMeetingVoiceChannel() {
+    const channels = await discordGuildChannels();
+    const target = channels.find(channel =>
+        String(channel?.name || "").trim().toLocaleLowerCase("ro-RO") ===
+        MEETING_VOICE_CHANNEL_NAME.toLocaleLowerCase("ro-RO") &&
+        [2, 13].includes(Number(channel?.type))
+    );
+
+    if (!target?.id) {
+        throw new Error(`Nu am găsit canalul voice „${MEETING_VOICE_CHANNEL_NAME}”.`);
+    }
+
+    return target;
+}
+
+function discordDisplayName(member = {}) {
+    return String(
+        member?.nick ||
+        member?.user?.global_name ||
+        member?.user?.username ||
+        member?.user?.id ||
+        "Necunoscut"
+    );
+}
+
+function isDiicotMemberForAttendance(member = {}) {
+    if (member?.user?.bot) return false;
+    return Boolean(resolveHighestDIICOTRoleSafe(member?.roles || []));
+}
+
+async function getApprovedMeetingExcuses(at = new Date()) {
+    if (!supabase) return new Set();
+
+    const day = new Date(at);
+    if (!Number.isFinite(day.getTime())) return new Set();
+    const isoDate = day.toISOString().slice(0, 10);
+
+    const { data, error } = await supabase
+        .from("leave_requests")
+        .select("author_id,type,start_date,end_date,status")
+        .eq("status", "APPROVED")
+        .in("type", ["VACATION", "MEETING_EXCUSE"])
+        .lte("start_date", isoDate)
+        .gte("end_date", isoDate);
+
+    if (error) throw error;
+
+    return new Set((data || []).map(row => String(row.author_id || "")).filter(Boolean));
+}
+
+async function getDiscordVoiceState(userId) {
+    try {
+        const response = await axios.get(
+            `https://discord.com/api/v10/guilds/${GUILD_ID}/voice-states/${encodeURIComponent(String(userId))}`,
+            {
+                headers: { Authorization: `Bot ${BOT_TOKEN}` },
+                timeout: 10000,
+                validateStatus: status => status === 200 || status === 404
+            }
+        );
+
+        return response.status === 200 ? response.data : null;
+    } catch (error) {
+        if (Number(error?.response?.status) === 404) return null;
+        throw error;
+    }
+}
+
+async function mapWithConcurrency(items, limit, worker) {
+    const results = new Array(items.length);
+    let cursor = 0;
+
+    async function run() {
+        while (true) {
+            const index = cursor++;
+            if (index >= items.length) return;
+            results[index] = await worker(items[index], index);
+        }
+    }
+
+    const workers = Array.from({ length: Math.max(1, Math.min(limit, items.length || 1)) }, run);
+    await Promise.all(workers);
+    return results;
+}
+
+async function applyMeetingAbsenceFactionWarn(member, actor = {}) {
+    const targetId = String(member?.user?.id || "");
+    const targetName = discordDisplayName(member);
+    if (!targetId) return { targetId, targetName, added: 0, activeFw: 0 };
+
+    const { data: existing, error: existingError } = await supabase
+        .from("sanctions")
+        .select("fw_count")
+        .eq("target_id", targetId)
+        .eq("type", "FW")
+        .eq("active", true);
+
+    if (existingError) throw existingError;
+
+    const currentFw = (existing || []).reduce(
+        (total, row) => total + Number(row.fw_count || 0),
+        0
+    );
+
+    const fwCount = Math.max(0, Math.min(3, 5 - currentFw));
+    const activeFw = Math.min(5, currentFw + fwCount);
+
+    if (fwCount <= 0) {
+        return { targetId, targetName, added: 0, activeFw };
+    }
+
+    const actorName = actor.displayName || actor.username || "Sistem Prezență DIICOT";
+    const actorRank = actor.rank || "CONTROL AUTOMAT";
+    const reason = "Absență nemotivată la ședință";
+
+    const row = {
+        id: crypto.randomUUID(),
+        target_id: targetId,
+        target_name: targetName,
+        type: "FW",
+        fw_count: fwCount,
+        reason,
+        active: true,
+        applied_by_id: String(actor.id || MEETING_ATTENDANCE_USER_ID),
+        applied_by_name: actorName,
+        applied_by_rank: actorRank
+    };
+
+    const { error } = await supabase.from("sanctions").insert(row);
+    if (error) throw error;
+
+    try {
+        await syncFactionWarnDiscordRole(targetId, activeFw);
+    } catch (discordRoleError) {
+        console.warn("Meeting FW role warning:", targetId, discordRoleError?.message || discordRoleError);
+    }
+
+    try {
+        await sendSanctionInfoMessage({
+            targetId,
+            targetName,
+            type: "FW",
+            fwCount,
+            activeFw,
+            reason,
+            appliedByName: actorName,
+            appliedByRank: actorRank
+        });
+    } catch (channelError) {
+        console.warn("Meeting FW channel warning:", targetId, channelError?.message || channelError);
+    }
+
+    try {
+        await sendDiscordDM(
+            targetId,
+            [
+                "⚠️ **PREZENȚĂ ȘEDINȚĂ — DIICOT**",
+                "",
+                `Ai primit **${fwCount} Faction Warn** pentru absență nemotivată la ședință.`,
+                `**Situație activă:** ${activeFw}/5 FW`,
+                "",
+                "Sancțiunea a fost înregistrată automat de sistemul de prezență."
+            ].join("\n")
+        );
+    } catch (dmError) {
+        console.warn("Meeting FW DM warning:", targetId, dmError?.message || dmError);
+    }
+
+    return { targetId, targetName, added: fwCount, activeFw };
+}
+
+async function runMeetingAttendanceCheck(actor = {}) {
+    if (!BOT_TOKEN || !GUILD_ID) {
+        throw new Error("Botul Discord nu este configurat complet.");
+    }
+    if (!supabase) {
+        throw new Error("Supabase nu este configurat.");
+    }
+
+    const voiceChannel = await resolveMeetingVoiceChannel();
+    const members = (await getGuildMembersCached({ force: true }))
+        .filter(isDiicotMemberForAttendance);
+    const excusedIds = await getApprovedMeetingExcuses(new Date());
+
+    const checked = await mapWithConcurrency(members, 5, async member => {
+        const id = String(member?.user?.id || "");
+        const name = discordDisplayName(member);
+
+        if (excusedIds.has(id)) {
+            return { id, name, status: "EXCUSED" };
+        }
+
+        let voiceState = null;
+        try {
+            voiceState = await getDiscordVoiceState(id);
+        } catch (error) {
+            console.warn("Meeting voice-state warning:", id, error?.message || error);
+        }
+
+        if (String(voiceState?.channel_id || "") === String(voiceChannel.id)) {
+            return { id, name, status: "PRESENT" };
+        }
+
+        return { id, name, status: "ABSENT", member };
+    });
+
+    const present = checked.filter(item => item.status === "PRESENT").map(({ id, name }) => ({ id, name }));
+    const excused = checked.filter(item => item.status === "EXCUSED").map(({ id, name }) => ({ id, name }));
+    const absentRows = checked.filter(item => item.status === "ABSENT");
+
+    const sanctions = [];
+    for (const item of absentRows) {
+        try {
+            sanctions.push(await applyMeetingAbsenceFactionWarn(item.member, actor));
+        } catch (error) {
+            sanctions.push({
+                targetId: item.id,
+                targetName: item.name,
+                added: 0,
+                error: error?.message || "Sancțiunea nu a putut fi aplicată."
+            });
+        }
+    }
+
+    return {
+        channelId: String(voiceChannel.id),
+        channelName: voiceChannel.name,
+        checkedAt: new Date().toISOString(),
+        present,
+        excused,
+        absent: absentRows.map(({ id, name }) => ({ id, name })),
+        sanctions
+    };
+}
+
+function clearMeetingAttendanceTimer(id) {
+    const timer = meetingAttendanceTimers.get(String(id));
+    if (timer) clearTimeout(timer);
+    meetingAttendanceTimers.delete(String(id));
+}
+
+function armMeetingAttendanceJob(job) {
+    clearMeetingAttendanceTimer(job.id);
+
+    if (job.status !== "SCHEDULED") return;
+
+    const delay = new Date(job.scheduledAt).getTime() - Date.now();
+    if (!Number.isFinite(delay)) return;
+
+    const runJob = async () => {
+        job.status = "RUNNING";
+        job.startedAt = new Date().toISOString();
+        job.error = null;
+        await saveMeetingAttendanceState().catch(() => {});
+
+        try {
+            job.result = await runMeetingAttendanceCheck({
+                id: MEETING_ATTENDANCE_USER_ID,
+                displayName: job.createdByName || "Sistem Prezență DIICOT",
+                rank: "CONTROL AUTOMAT"
+            });
+            job.status = "COMPLETED";
+        } catch (error) {
+            job.status = "ERROR";
+            job.error = error?.message || "Verificarea a eșuat.";
+        }
+
+        job.finishedAt = new Date().toISOString();
+        await saveMeetingAttendanceState().catch(() => {});
+        clearMeetingAttendanceTimer(job.id);
+    };
+
+    if (delay <= 0) {
+        setTimeout(runJob, 1000);
+        return;
+    }
+
+    const MAX_TIMEOUT = 2147483647;
+    if (delay > MAX_TIMEOUT) {
+        const timer = setTimeout(() => armMeetingAttendanceJob(job), MAX_TIMEOUT);
+        meetingAttendanceTimers.set(String(job.id), timer);
+        return;
+    }
+
+    const timer = setTimeout(runJob, delay);
+    meetingAttendanceTimers.set(String(job.id), timer);
+}
+
+async function initMeetingAttendanceScheduler() {
+    try {
+        await loadMeetingAttendanceState();
+        for (const job of meetingAttendanceJobs) {
+            if (job.status === "RUNNING") job.status = "SCHEDULED";
+            if (job.status === "SCHEDULED") armMeetingAttendanceJob(job);
+        }
+        await saveMeetingAttendanceState().catch(() => {});
+        console.log(`[Meeting Attendance] ${meetingAttendanceJobs.length} programări încărcate.`);
+    } catch (error) {
+        console.warn("Meeting Attendance init warning:", error?.message || error);
+    }
+}
+
+app.get(
+    "/api/meeting-attendance",
+    requireMeetingAttendanceAccess,
+    async (req, res) => {
+        try {
+            if (!meetingAttendanceJobs.length) {
+                await loadMeetingAttendanceState();
+            }
+            return res.json({
+                meetings: [...meetingAttendanceJobs]
+                    .sort((a, b) => new Date(b.scheduledAt) - new Date(a.scheduledAt))
+                    .map(serializeMeetingJob)
+            });
+        } catch (error) {
+            console.error("Meeting Attendance List Error:", error);
+            return res.status(500).json({ error: "Programările nu au putut fi încărcate." });
+        }
+    }
+);
+
+app.post(
+    "/api/meeting-attendance",
+    requireMeetingAttendanceAccess,
+    async (req, res) => {
+        try {
+            const scheduledAt = new Date(String(req.body?.scheduledAt || ""));
+            if (!Number.isFinite(scheduledAt.getTime())) {
+                return res.status(400).json({ error: "Data și ora sunt invalide." });
+            }
+            if (scheduledAt.getTime() < Date.now() + 5000) {
+                return res.status(400).json({ error: "Alege o oră cu cel puțin câteva secunde în viitor." });
+            }
+
+            const job = {
+                id: crypto.randomUUID(),
+                scheduledAt: scheduledAt.toISOString(),
+                status: "SCHEDULED",
+                createdAt: new Date().toISOString(),
+                createdById: String(req.session.user.id),
+                createdByName: req.session.user.displayName || req.session.user.username || "Administrator",
+                startedAt: null,
+                finishedAt: null,
+                result: null,
+                error: null
+            };
+
+            meetingAttendanceJobs.push(job);
+            await saveMeetingAttendanceState();
+            armMeetingAttendanceJob(job);
+
+            return res.status(201).json({ success: true, meeting: serializeMeetingJob(job) });
+        } catch (error) {
+            console.error("Meeting Attendance Schedule Error:", error);
+            return res.status(500).json({ error: error?.message || "Programarea a eșuat." });
+        }
+    }
+);
+
+app.post(
+    "/api/meeting-attendance/run-now",
+    requireMeetingAttendanceAccess,
+    async (req, res) => {
+        try {
+            const result = await runMeetingAttendanceCheck(req.session.user || {});
+            return res.json({ success: true, result });
+        } catch (error) {
+            console.error("Meeting Attendance Run Error:", error);
+            return res.status(500).json({ error: error?.message || "Prezența a eșuat." });
+        }
+    }
+);
+
+app.delete(
+    "/api/meeting-attendance/:id",
+    requireMeetingAttendanceAccess,
+    async (req, res) => {
+        try {
+            const id = String(req.params.id || "");
+            const job = meetingAttendanceJobs.find(item => String(item.id) === id);
+            if (!job) {
+                return res.status(404).json({ error: "Programarea nu a fost găsită." });
+            }
+            if (job.status === "RUNNING") {
+                return res.status(409).json({ error: "Verificarea este deja în curs." });
+            }
+
+            clearMeetingAttendanceTimer(id);
+            meetingAttendanceJobs = meetingAttendanceJobs.filter(item => String(item.id) !== id);
+            await saveMeetingAttendanceState();
+            return res.json({ success: true });
+        } catch (error) {
+            console.error("Meeting Attendance Delete Error:", error);
+            return res.status(500).json({ error: "Programarea nu a putut fi anulată." });
+        }
+    }
+);
+
 // ======================================================
 // HEALTH CHECK
 // ======================================================
@@ -15070,5 +15561,7 @@ app.listen(
         // După ce apare mesajul [BACKBLAZE B2 CORS] OK în Logs,
         // browserul poate încărca direct în B2 de pe domeniul Render.
         configureB2CorsForDirectUpload();
+
+        initMeetingAttendanceScheduler();
     }
 );
