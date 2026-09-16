@@ -8779,28 +8779,7 @@
         .meeting-cancel{margin-left:10px;border:1px solid rgba(255,83,83,.25);background:rgba(255,83,83,.08);color:#ff8585;border-radius:6px;padding:6px 9px;cursor:pointer;font-size:8px;font-weight:900}
         @media(max-width:800px){.meeting-attendance-grid{grid-template-columns:1fr}}
 
-
-        /* POLITIE DOCS — layout mai mare */
-        #docs .docs-toolbar{padding:18px 20px !important;gap:16px !important;}
-        #docs .docs-search{min-height:46px !important;font-size:11px !important;min-width:360px !important;}
-        #docs .docs-table{min-width:1900px !important;}
-        #docs .docs-table th{height:64px !important;padding:10px 9px !important;font-size:8px !important;}
-        #docs .docs-table td{height:54px !important;padding:7px 8px !important;font-size:9px !important;}
-        #docs .docs-row-input{min-height:38px !important;font-size:9px !important;padding:7px 8px !important;}
-        #docs .docs-rank-badge{min-height:52px !important;font-size:7px !important;padding:7px 9px !important;}
-        #docs .docs-cert-grid{grid-template-columns:repeat(3,minmax(30px,1fr)) !important;gap:5px !important;}
-        #docs .docs-cert-item{min-height:30px !important;}
-        #docs .docs-table-scroll{max-height:72vh;overflow:auto !important;}
-
-        /* POLITIE DOCS FINAL — registru fix pe callsign */
-        #docs-add-btn { display:none !important; }
-        #docs .docs-command-hero { border-color: rgba(49,131,255,.28); box-shadow: 0 28px 80px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.035); }
-        #docs .docs-table-panel { border-color: rgba(75,139,230,.20); }
-        #docs .docs-table thead th { position:sticky; top:0; z-index:4; backdrop-filter:blur(14px); }
-        #docs .docs-table tbody tr:hover { transform: translateY(-1px); box-shadow: inset 3px 0 0 rgba(49,131,255,.65); }
-        #docs .docs-search:focus { border-color: rgba(74,151,255,.55); box-shadow: 0 0 0 3px rgba(49,131,255,.08); }
-
-    </style>
+</style>
 
 <style id="sanction-premium-styles">
 #sanction-modal{--sg:#f4b92f;--sr:#ff5c68;--sgn:#36d399;--sb:#53a7ff}
@@ -10999,75 +10978,6 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 }
 </style>
 
-
-<style id="docs-premium-v2">
-/* =========================================================
-   POLIȚIE DOCS — PREMIUM COMMAND REGISTRY V2
-========================================================= */
-#docs{--dp-gold:#e8b541;--dp-blue:#4b91ff;--dp-ink:#050b13;--dp-panel:#091522;--dp-line:rgba(144,174,210,.13);position:relative;}
-#docs::before{content:"";position:absolute;inset:-30px -26px auto;height:340px;pointer-events:none;background:radial-gradient(circle at 82% 4%,rgba(53,113,205,.12),transparent 35%),radial-gradient(circle at 20% 0%,rgba(232,181,65,.055),transparent 30%);filter:blur(2px);z-index:-1}
-#docs .docs-command-hero{position:relative;min-height:205px;display:flex;align-items:center;justify-content:space-between;gap:32px;margin-bottom:18px;padding:30px 34px;overflow:hidden;border:1px solid rgba(144,174,210,.14);border-radius:24px;background:linear-gradient(112deg,rgba(11,25,42,.96),rgba(6,15,26,.94) 62%,rgba(11,28,48,.92));box-shadow:0 26px 70px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.035)}
-#docs .docs-command-hero::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:34px 34px;mask-image:linear-gradient(90deg,#000,transparent 76%)}
-#docs .docs-command-hero::after{content:"";position:absolute;width:420px;height:420px;right:-160px;top:-210px;border-radius:50%;border:1px solid rgba(75,145,255,.12);box-shadow:0 0 0 55px rgba(75,145,255,.025),0 0 0 110px rgba(75,145,255,.015)}
-#docs .docs-command-copy{position:relative;z-index:2;max-width:760px}
-#docs .docs-command-kicker{display:flex;align-items:center;gap:9px;color:#8095ad;font-size:9px;font-weight:950;letter-spacing:.15em;text-transform:uppercase}
-#docs .docs-command-kicker i{width:7px;height:7px;border-radius:50%;background:var(--dp-gold);box-shadow:0 0 0 5px rgba(232,181,65,.08),0 0 20px rgba(232,181,65,.35)}
-#docs .docs-command-copy h2{margin:12px 0 8px;color:#f5f8fb;font-size:clamp(34px,4vw,58px);line-height:.98;letter-spacing:-.055em;font-weight:800}
-#docs .docs-command-copy h2 em{font-style:normal;color:var(--dp-gold)}
-#docs .docs-command-copy p{max-width:650px;margin:0;color:#71869d;font-size:11px;line-height:1.7}
-#docs .docs-command-status{display:flex;gap:7px;flex-wrap:wrap;margin-top:18px}
-#docs .docs-command-status span{display:inline-flex;align-items:center;gap:7px;min-height:29px;padding:0 10px;border:1px solid rgba(144,174,210,.11);border-radius:999px;background:rgba(255,255,255,.022);color:#8194aa;font-size:7px;font-weight:900;letter-spacing:.08em}
-#docs .docs-command-status span:first-child{color:#70d8ac;border-color:rgba(62,210,150,.15);background:rgba(62,210,150,.035)}
-#docs .docs-command-status b{width:6px;height:6px;border-radius:50%;background:#43d49a;box-shadow:0 0 12px rgba(67,212,154,.65)}
-#docs .docs-command-mark{position:relative;z-index:2;flex:0 0 138px;height:138px;display:grid;place-items:center;border:1px solid rgba(232,181,65,.16);border-radius:50%;background:radial-gradient(circle,rgba(232,181,65,.08),rgba(232,181,65,.015) 58%,transparent 59%);box-shadow:inset 0 0 40px rgba(232,181,65,.035)}
-#docs .docs-command-ring{position:absolute;inset:10px;border:1px dashed rgba(232,181,65,.22);border-radius:50%;animation:docsSpin 22s linear infinite}
-#docs .docs-command-mark strong{color:#f2c45e;font-size:35px;letter-spacing:-.08em;text-shadow:0 8px 30px rgba(232,181,65,.12)}
-#docs .docs-command-mark small{position:absolute;bottom:25px;color:#687b91;font-size:6px;font-weight:900;letter-spacing:.18em}
-@keyframes docsSpin{to{transform:rotate(360deg)}}
-
-#docs .docs-toolbar{position:relative;padding:15px 16px!important;margin-bottom:12px!important;border:1px solid var(--dp-line);border-radius:17px;background:linear-gradient(145deg,rgba(10,23,38,.82),rgba(5,13,23,.84));box-shadow:0 15px 42px rgba(0,0,0,.14),inset 0 1px 0 rgba(255,255,255,.025);backdrop-filter:blur(18px)}
-#docs .docs-search{height:46px!important;padding:0 15px!important;border:1px solid rgba(144,174,210,.14)!important;border-radius:12px!important;background:rgba(3,10,18,.72)!important;color:#eaf0f6!important;font-size:10px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.018)}
-#docs .docs-search:focus{border-color:rgba(75,145,255,.42)!important;box-shadow:0 0 0 3px rgba(75,145,255,.06)!important}
-#docs #docs-count{height:46px;min-width:135px;padding:0 13px!important;border:1px solid rgba(144,174,210,.11)!important;border-radius:12px!important;background:rgba(255,255,255,.022)!important}
-#docs #docs-count span{color:#687d95!important;font-size:6.5px!important;letter-spacing:.08em}
-#docs #docs-count strong{color:#f2f6fa!important;font-size:15px!important}
-#docs .docs-toolbar-right .primary-btn{min-height:42px!important;padding:0 14px!important;border-radius:11px!important;font-size:7.5px!important;transition:.18s ease!important}
-#docs .docs-toolbar-right .primary-btn:hover{transform:translateY(-2px);filter:brightness(1.08)}
-#docs #docs-sync-btn{border-color:rgba(232,181,65,.28)!important;background:linear-gradient(135deg,rgba(232,181,65,.17),rgba(185,125,17,.09))!important;color:#f0c35f!important;box-shadow:0 10px 25px rgba(185,125,17,.08)!important}
-#docs #docs-save-all-btn{border-color:rgba(65,202,149,.22)!important;background:rgba(65,202,149,.07)!important;color:#65d9ab!important}
-#docs #docs-add-btn{border-color:rgba(75,145,255,.22)!important;background:rgba(75,145,255,.07)!important;color:#8eb9ff!important}
-#docs .docs-admin-badge{min-height:38px!important;border-radius:10px!important;padding:0 12px!important}
-
-#docs .docs-table-panel{border:1px solid rgba(144,174,210,.13)!important;border-radius:19px!important;background:linear-gradient(145deg,rgba(8,19,32,.94),rgba(4,11,19,.95))!important;box-shadow:0 26px 65px rgba(0,0,0,.22),inset 0 1px 0 rgba(255,255,255,.025)!important}
-#docs .docs-table-scroll{max-height:68vh!important;scrollbar-width:thin;scrollbar-color:rgba(118,148,183,.28) rgba(255,255,255,.02)}
-#docs .docs-table-scroll::-webkit-scrollbar{width:8px;height:8px}
-#docs .docs-table-scroll::-webkit-scrollbar-thumb{background:rgba(118,148,183,.24);border-radius:10px}
-#docs .docs-table{border-collapse:separate!important;border-spacing:0 6px!important;padding:0 7px 7px!important}
-#docs .docs-table thead th{top:0;height:58px!important;background:rgba(7,17,29,.98)!important;color:#7890a9!important;border-top:0!important;border-bottom:1px solid rgba(144,174,210,.12)!important;font-size:7.5px!important;letter-spacing:.09em!important;backdrop-filter:blur(16px)}
-#docs .docs-table tbody td{height:58px!important;background:rgba(10,22,36,.62)!important;border-top:1px solid rgba(144,174,210,.07)!important;border-bottom:1px solid rgba(144,174,210,.07)!important;border-right-color:rgba(144,174,210,.045)!important;transition:.16s ease}
-#docs .docs-table tbody tr td:first-child{border-left:1px solid rgba(144,174,210,.07)!important;border-radius:11px 0 0 11px;overflow:hidden}
-#docs .docs-table tbody tr td:last-child{border-right:1px solid rgba(144,174,210,.07)!important;border-radius:0 11px 11px 0}
-#docs .docs-table tbody tr:hover td{background:rgba(15,32,52,.88)!important;border-top-color:rgba(75,145,255,.14)!important;border-bottom-color:rgba(75,145,255,.14)!important}
-#docs .docs-table tbody tr:hover{filter:drop-shadow(0 8px 16px rgba(0,0,0,.10))}
-#docs .docs-rank-badge{min-height:56px!important;border-radius:10px 0 0 10px!important;background:linear-gradient(135deg,#163f78,#0b264b)!important;box-shadow:inset 3px 0 0 rgba(94,158,255,.7);font-size:7px!important;letter-spacing:.035em}
-#docs .docs-rank-badge[data-level="13"],#docs .docs-rank-badge[data-level="12"],#docs .docs-rank-badge[data-level="11"]{background:linear-gradient(135deg,#785517,#39290d)!important;box-shadow:inset 3px 0 0 #e8b541}
-#docs .docs-rank-badge[data-level="10"]{background:linear-gradient(135deg,#17616b,#0b3239)!important;box-shadow:inset 3px 0 0 #43c5ce}
-#docs .docs-rank-badge[data-level="9"],#docs .docs-rank-badge[data-level="8"],#docs .docs-rank-badge[data-level="7"]{background:linear-gradient(135deg,#174b86,#0c2b50)!important;box-shadow:inset 3px 0 0 #4b91ff}
-#docs .docs-row-input,#docs .docs-row-select,#docs .docs-row-textarea{min-height:38px!important;border:1px solid rgba(144,174,210,.10)!important;border-radius:9px!important;background:rgba(2,8,15,.56)!important;color:#dfe8f1!important;font-size:8.5px!important;transition:.15s ease}
-#docs .docs-row-input:focus,#docs .docs-row-select:focus,#docs .docs-row-textarea:focus{border-color:rgba(75,145,255,.38)!important;background:rgba(4,12,21,.82)!important;box-shadow:0 0 0 3px rgba(75,145,255,.045)!important}
-#docs .docs-row-input:disabled,#docs .docs-row-select:disabled,#docs .docs-row-textarea:disabled{border-color:transparent!important;background:transparent!important}
-#docs .docs-cert-grid{grid-template-columns:repeat(3,minmax(34px,1fr))!important;gap:5px!important}
-#docs .docs-cert-item{min-height:27px;border:1px solid rgba(144,174,210,.07);border-radius:7px;background:rgba(255,255,255,.018)}
-#docs .docs-check{width:15px;height:15px;accent-color:#e8b541}
-#docs .docs-role-pill{min-height:32px!important;border:1px solid rgba(75,145,255,.12);border-radius:8px!important;background:rgba(75,145,255,.055)!important;color:#8db9ff!important}
-#docs .docs-mini-btn{min-height:32px!important;border-radius:8px!important;transition:.16s ease}
-#docs .docs-mini-btn:hover{transform:translateY(-1px)}
-#docs .docs-help{margin-top:12px;padding:12px 14px;border:1px solid rgba(144,174,210,.08);border-radius:11px;background:rgba(255,255,255,.015);color:#657a91!important;font-size:8px!important}
-#docs #docs-message:not(:empty){margin-top:10px;padding:11px 13px;border-radius:10px;border:1px solid rgba(75,145,255,.12);background:rgba(75,145,255,.035)}
-@media(max-width:900px){#docs .docs-command-hero{padding:24px;min-height:180px}#docs .docs-command-mark{display:none}#docs .docs-command-copy h2{font-size:38px}#docs .docs-toolbar{padding:12px!important}#docs .docs-toolbar-left,#docs .docs-toolbar-right{width:100%}#docs .docs-search{min-width:0!important;flex:1}#docs #docs-count{min-width:110px}}
-@media(max-width:600px){#docs .docs-command-hero{border-radius:18px;padding:21px 18px}#docs .docs-command-copy h2{font-size:32px}#docs .docs-command-copy p{font-size:9px}#docs .docs-command-status span{font-size:6px}#docs .docs-search{width:100%;flex-basis:100%}#docs .docs-toolbar-right .primary-btn{flex:1}}
-</style>
-
 </head>
 
 
@@ -11633,7 +11543,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                             <h3>CERERI CALLSIGN</h3>
                             <p>
                                 COORDONATOR+ poate verifica cererile și acorda
-                                callsign-uri 000 — 660.
+                                callsign-uri D-01 — D-99.
                             </p>
                             <span class="home-action-arrow">→</span>
                         </button>
@@ -12801,22 +12711,16 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                 id="docs"
             >
 
-                <div class="docs-command-hero">
-                    <div class="docs-command-copy">
-                        <div class="docs-command-kicker"><i></i> REGISTRU OPERAȚIONAL • POLIȚIA RUSH ROMÂNIA</div>
-                        <h2>Centru <em>DOCS</em></h2>
-                        <p>Evidența personalului, callsign-urilor, gradelor și certificărilor într-un singur registru operațional.</p>
-                        <div class="docs-command-status">
-                            <span><b></b> SISTEM ONLINE</span>
-                            <span>SYNC DISCORD</span>
-                            <span>ACCES SECURIZAT</span>
-                        </div>
-                    </div>
-                    <div class="docs-command-mark" aria-hidden="true">
-                        <div class="docs-command-ring"></div>
-                        <strong>PR</strong>
-                        <small>DOCS / 01</small>
-                    </div>
+                <div class="section-title">
+
+                    <span>
+                        REGISTRU OPERAȚIONAL
+                    </span>
+
+                    <h2>
+                        DOCS
+                    </h2>
+
                 </div>
 
 
@@ -12836,8 +12740,8 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                             class="personnel-summary"
                             style="margin:0;"
                         >
-                            <span>CALLSIGN-URI POLIȚIE</span>
-                            <strong>123</strong>
+                            <span>SLOTURI D-01 — D-99</span>
+                            <strong>99</strong>
                         </span>
 
                     </div>
@@ -12849,7 +12753,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                             id="docs-admin-badge"
                             class="docs-admin-badge"
                         >
-                            EDITARE ACTIVĂ • RESPONSABIL PERSONALE / CONDUCERE
+                            EDITARE ACTIVĂ • COORDONATOR+
                         </span>
 
                         <button
@@ -12897,7 +12801,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                                     <th style="width:65px;">ACTIV</th>
                                     <th style="width:112px;">ULTIMA PROMOVARE</th>
                                     <th style="width:112px;">INTRARE DEPARTAMENT</th>
-                                    <th style="width:150px;">CERTIFICĂRI<br>FTP • RADIO • AC • HS • AIR • MOTO</th>
+                                    <th style="width:150px;">CERTIFICĂRI<br>FTP • RADIO • AIR • DCCO</th>
                                     <th style="width:150px;">ROLURI</th>
                                     <th style="width:155px;">DISCORD</th>
                                     <th style="width:125px;">ACȚIUNI</th>
@@ -12923,7 +12827,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
 
                 <div class="docs-help">
-                    DOCS este vizibil membrilor autentificați. Editarea și sincronizarea sunt disponibile pentru Responsabil Personale și Conducere.
+                    DOCS este vizibil tuturor membrilor autentificați. Modificarea, sincronizarea și ștergerea datelor sunt disponibile doar pentru COORDONATOR+.
                 </div>
 
                 <div
@@ -15137,7 +15041,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                         <h3>CERERE CALLSIGN</h3>
                         <p>
                             Solicită conducerii acordarea unui identificativ
-                            operațional conform schemei Poliției.
+                            operațional D-01 — D-99.
                         </p>
                     </div>
                 </div>
@@ -17212,8 +17116,10 @@ document
     ========================================================== */
 
     function docsCanEdit() {
-        const docsManagers = new Set(["803998303230230538", "927528327156203560"]);
-        return Number(currentUser?.rankLevel || 0) >= 10 || docsManagers.has(String(currentUser?.id || ""));
+        return Number(
+            currentUser?.rankLevel ||
+            0
+        ) >= 10;
     }
 
 
@@ -17445,7 +17351,7 @@ const query =
                                         class="docs-row-input"
                                         data-field="callsign"
                                         value="${escapeHTML(docsValue(row.callsign))}"
-                                        placeholder="000"
+                                        placeholder="D-01"
                                         ${disabled}
                                     >
                                 </td>
@@ -17513,9 +17419,15 @@ const query =
                                             >
                                         </label>
 
-                                        <label class="docs-cert-item" title="AC"><input type="checkbox" class="docs-check" data-field="certAc" ${checked(row.certAc)} ${disabled}></label>
-                                        <label class="docs-cert-item" title="HS"><input type="checkbox" class="docs-check" data-field="certHs" ${checked(row.certHs)} ${disabled}></label>
-                                        <label class="docs-cert-item" title="MOTO"><input type="checkbox" class="docs-check" data-field="certMoto" ${checked(row.certMoto)} ${disabled}></label>
+                                        <label class="docs-cert-item" title="DCCO">
+                                            <input
+                                                type="checkbox"
+                                                class="docs-check"
+                                                data-field="certDcco"
+                                                ${checked(row.certDcco)}
+                                                ${disabled}
+                                            >
+                                        </label>
 
                                     </div>
                                 </td>
@@ -17597,9 +17509,10 @@ const query =
                     get("certAir")?.checked
                 ),
 
-            certAc: Boolean(get("certAc")?.checked),
-            certHs: Boolean(get("certHs")?.checked),
-            certMoto: Boolean(get("certMoto")?.checked),
+            certDcco:
+                Boolean(
+                    get("certDcco")?.checked
+                ),
 
             roles:
                 get("roles")?.value?.trim() || "",
@@ -18043,7 +17956,7 @@ const query =
                     true;
 
                 docsSetMessage(
-                    "Se sincronizează personalul POLIȚIE..."
+                    "Se sincronizează personalul DIICOT..."
                 );
 
                 try {
@@ -18071,7 +17984,7 @@ const query =
                     }
 
                     docsSetMessage(
-                        `Sincronizare finalizată: schema POLIȚIE 000 — 660 a fost actualizată. ${Number(data.assigned || 0)} membri au fost asociați pe callsign-ul exact din Discord. ${Number(data.moved || 0)} mutări de callsign au fost procesate.`,
+                        `Sincronizare finalizată: schema D-01 — D-99 și gradele aferente au fost actualizate. ${Number(data.assigned || 0)} membri au fost asociați pe callsign.`,
                         "success"
                     );
 
@@ -24501,7 +24414,7 @@ const query =
                         "form-message error";
 
                     message.textContent =
-                        "Indicativul trebuie să respecte schema de callsign-uri a Poliției.";
+                        "Indicativul trebuie să fie între D-01 și D-99.";
 
                     return;
                 }
