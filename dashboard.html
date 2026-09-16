@@ -8791,7 +8791,16 @@
         #docs .docs-cert-grid{grid-template-columns:repeat(3,minmax(30px,1fr)) !important;gap:5px !important;}
         #docs .docs-cert-item{min-height:30px !important;}
         #docs .docs-table-scroll{max-height:72vh;overflow:auto !important;}
-</style>
+
+        /* POLITIE DOCS FINAL — registru fix pe callsign */
+        #docs-add-btn { display:none !important; }
+        #docs .docs-command-hero { border-color: rgba(49,131,255,.28); box-shadow: 0 28px 80px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.035); }
+        #docs .docs-table-panel { border-color: rgba(75,139,230,.20); }
+        #docs .docs-table thead th { position:sticky; top:0; z-index:4; backdrop-filter:blur(14px); }
+        #docs .docs-table tbody tr:hover { transform: translateY(-1px); box-shadow: inset 3px 0 0 rgba(49,131,255,.65); }
+        #docs .docs-search:focus { border-color: rgba(74,151,255,.55); box-shadow: 0 0 0 3px rgba(49,131,255,.08); }
+
+    </style>
 
 <style id="sanction-premium-styles">
 #sanction-modal{--sg:#f4b92f;--sr:#ff5c68;--sgn:#36d399;--sb:#53a7ff}
@@ -11624,7 +11633,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                             <h3>CERERI CALLSIGN</h3>
                             <p>
                                 COORDONATOR+ poate verifica cererile și acorda
-                                callsign-uri D-01 — D-99.
+                                callsign-uri 000 — 660.
                             </p>
                             <span class="home-action-arrow">→</span>
                         </button>
@@ -12828,7 +12837,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                             style="margin:0;"
                         >
                             <span>CALLSIGN-URI POLIȚIE</span>
-                            <strong>99</strong>
+                            <strong>123</strong>
                         </span>
 
                     </div>
@@ -15128,7 +15137,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                         <h3>CERERE CALLSIGN</h3>
                         <p>
                             Solicită conducerii acordarea unui identificativ
-                            operațional D-01 — D-99.
+                            operațional conform schemei Poliției.
                         </p>
                     </div>
                 </div>
@@ -17436,7 +17445,7 @@ const query =
                                         class="docs-row-input"
                                         data-field="callsign"
                                         value="${escapeHTML(docsValue(row.callsign))}"
-                                        placeholder="D-01"
+                                        placeholder="000"
                                         ${disabled}
                                     >
                                 </td>
@@ -18034,7 +18043,7 @@ const query =
                     true;
 
                 docsSetMessage(
-                    "Se sincronizează personalul DIICOT..."
+                    "Se sincronizează personalul POLIȚIE..."
                 );
 
                 try {
@@ -18062,7 +18071,7 @@ const query =
                     }
 
                     docsSetMessage(
-                        `Sincronizare finalizată: schema D-01 — D-99 și gradele aferente au fost actualizate. ${Number(data.assigned || 0)} membri au fost asociați pe callsign.`,
+                        `Sincronizare finalizată: schema POLIȚIE 000 — 660 a fost actualizată. ${Number(data.assigned || 0)} membri au fost asociați pe callsign-ul exact din Discord. ${Number(data.moved || 0)} mutări de callsign au fost procesate.`,
                         "success"
                     );
 
@@ -24492,7 +24501,7 @@ const query =
                         "form-message error";
 
                     message.textContent =
-                        "Indicativul trebuie să fie între D-01 și D-99.";
+                        "Indicativul trebuie să respecte schema de callsign-uri a Poliției.";
 
                     return;
                 }
