@@ -10187,13 +10187,20 @@ app.get(
                 canEdit: hasDocsEditAccess(req.session.user),
 
                 rows:
-                    (
-                        data ||
-                        []
-                    )
-                        .map(
-                            mapDocsRow
-                        )
+                    (data || [])
+                        .map(row => {
+                            const cs = normalizePoliceCallsign(row.callsign);
+                            if (!cs) return null;
+                            return mapDocsRow({
+                                ...row,
+                                callsign: cs.callsign,
+                                rank: cs.rank.name,
+                                rank_level: cs.rank.level,
+                                position: cs.number
+                            });
+                        })
+                        .filter(Boolean)
+                        .sort((a, b) => Number(a.callsign) - Number(b.callsign))
             });
 
         }
@@ -10250,10 +10257,10 @@ app.post(
                     null,
 
                 rank:
-                    "AGENT STAGIAR DIICOT",
+                    "CADET",
 
                 rank_level:
-                    1,
+                    0,
 
                 full_name:
                     String(
@@ -10991,7 +10998,7 @@ app.delete(
 
 // ======================================================
 // DOCS — SINCRONIZARE CU PERSONALUL DISCORD
-// Creează doar membrii DIICOT care lipsesc.
+// POLIȚIE: păstrează sloturile fixe 000–660 și sincronizează membrii după callsign-ul din Discord.
 // Nu suprascrie câmpurile editate manual.
 // ======================================================
 
