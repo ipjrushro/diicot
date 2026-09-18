@@ -12707,7 +12707,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
             ====================================================== -->
 
             <section
-                class="dashboard-section"
+                class="dashboard-section docs-section"
                 id="docs"
             >
 
@@ -12723,6 +12723,16 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
 
                 </div>
 
+
+                <div class="docs-overview">
+                    <div class="docs-overview-intro"><span class="docs-kicker">CENTRU DE EVIDENȚĂ • DIICOT</span>
+                        <h3>Personal, într-un singur registru.</h3>
+                        <p>Call sign-urile D-01 – D-99 sunt așezate automat după nickname-ul Discord. Mutările eliberează slotul vechi.</p>
+                    </div>
+                    <div class="docs-stat"><small>SLOTURI</small><strong id="docs-stat-total">99</strong><span>D-01 — D-99</span></div>
+                    <div class="docs-stat"><small>OCUPATE</small><strong id="docs-stat-active">0</strong><span>membri sincronizați</span></div>
+                    <div class="docs-stat"><small>LIBERE</small><strong id="docs-stat-free">99</strong><span>disponibile</span></div>
+                </div>
 
                 <div class="docs-toolbar">
 
@@ -12761,7 +12771,7 @@ body.v8-font-small{font-size:92%!important}body.v8-font-large{font-size:108%!imp
                             id="docs-sync-btn"
                             class="primary-btn gold-btn admin-only"
                         >
-                            SINCRONIZEAZĂ PERSONAL
+                            SINCRONIZEAZĂ PERSONAL + CALL SIGN
                         </button>
 
                         <button
@@ -17255,10 +17265,15 @@ const query =
                 }
             );
 
-        if (count) {
-            count.textContent =
-                String(filtered.length);
-        }
+        if (count) count.textContent = String(filtered.length);
+        const slots = docsRows.filter(row => /^D-(?:0[1-9]|[1-9][0-9])$/i.test(row.callsign || ""));
+        const occupied = slots.filter(row => row.discordId).length;
+        const statTotal = document.getElementById("docs-stat-total");
+        const statActive = document.getElementById("docs-stat-active");
+        const statFree = document.getElementById("docs-stat-free");
+        if (statTotal) statTotal.textContent = String(slots.length);
+        if (statActive) statActive.textContent = String(occupied);
+        if (statFree) statFree.textContent = String(Math.max(0, slots.length - occupied));
 
         if (!filtered.length) {
 
@@ -17952,6 +17967,11 @@ const query =
                     return;
                 }
 
+                if (docsHasUnsavedChanges) {
+                    docsSetMessage("Salvează modificările din tabel înainte de sincronizare.", "error");
+                    return;
+                }
+
                 this.disabled =
                     true;
 
@@ -17983,12 +18003,11 @@ const query =
                         );
                     }
 
+                    await loadDocs();
                     docsSetMessage(
-                        `Sincronizare finalizată: schema D-01 — D-99 și gradele aferente au fost actualizate. ${Number(data.assigned || 0)} membri au fost asociați pe callsign.`,
+                        `Sincronizare completă: ${Number(data.assigned || 0)} asociați, ${Number(data.moved || 0)} mutați, ${Number(data.cleared || 0)} sloturi vechi eliberate, ${Number(data.created || 0)} sloturi create.`,
                         "success"
                     );
-
-                    await loadDocs();
 
                 }
 
@@ -32586,6 +32605,34 @@ const query =
             50% { transform: translateY(-2px); }
         }
 
+
+/* DOCS: operational register */
+.docs-section .section-title { margin-bottom: 18px; }
+.docs-section .section-title h2 { font-size: clamp(32px, 5vw, 54px); letter-spacing: -.04em; }
+.docs-overview { display: grid; grid-template-columns: minmax(280px, 2fr) repeat(3, minmax(110px, 1fr)); gap: 12px; margin: 0 0 18px; }
+.docs-overview-intro, .docs-stat { border: 1px solid rgba(119,157,201,.18); border-radius: 16px; background: linear-gradient(145deg, #102238, #0a1728); box-shadow: 0 14px 35px rgba(0,0,0,.15); padding: 20px; }
+.docs-overview-intro { background: radial-gradient(circle at 95% 0%, rgba(234,181,66,.15), transparent 45%), linear-gradient(145deg, #13263f, #0a1728); }
+.docs-kicker, .docs-stat small { display: block; color: #d9ad5e; letter-spacing: 1.5px; font-size: 10px; font-weight: 850; }
+.docs-overview-intro h3 { color: #f4f7fa; font-size: clamp(18px, 2vw, 25px); line-height: 1.2; margin: 12px 0 8px; }
+.docs-overview-intro p { color: #a6b7cb; font-size: 12px; line-height: 1.6; margin: 0; max-width: 570px; }
+.docs-stat { display: flex; flex-direction: column; justify-content: center; }
+.docs-stat strong { display: block; margin: 8px 0 3px; color: #f6f8fc; font-size: 35px; line-height: 1; font-weight: 900; }
+.docs-stat span { color: #8fa6bf; font-size: 11px; }
+.docs-section .docs-toolbar { padding: 14px; border: 1px solid rgba(119,157,201,.17); border-radius: 14px; background: #0d1b2e; }
+.docs-section .docs-search { min-height: 44px; border-radius: 9px; padding: 0 14px; font-size: 12px; }
+.docs-section .docs-toolbar button { min-height: 40px; border-radius: 8px; font-size: 10px; letter-spacing: .4px; }
+.docs-section .docs-table-panel { border: 1px solid rgba(119,157,201,.18); border-radius: 15px; }
+.docs-section .docs-table th { height: 49px; font-size: 9px; letter-spacing: .65px; background: #152840; }
+.docs-section .docs-table td { height: 51px; font-size: 11px; }
+.docs-section .docs-table tbody tr:nth-child(even) td { background: #0e2034; }
+.docs-section .docs-table tbody tr:hover td { background: #17304b; }
+.docs-section .docs-rank-badge { min-height: 49px; font-size: 9px; padding: 8px; }
+.docs-section .docs-row-input, .docs-section .docs-row-select, .docs-section .docs-row-textarea { min-height: 36px; font-size: 11px; border-radius: 7px; }
+.docs-section .docs-role-pill, .docs-section .docs-mini-btn, .docs-section .docs-help { font-size: 10px; }
+.docs-section .docs-check { width: 17px; height: 17px; }
+.docs-section .docs-help { color: #94a8bd; line-height: 1.65; }
+@media (max-width: 920px) { .docs-overview { grid-template-columns: repeat(3, minmax(0, 1fr)); } .docs-overview-intro { grid-column: 1 / -1; } }
+@media (max-width: 520px) { .docs-overview { gap: 7px; } .docs-stat { padding: 12px 9px; } .docs-stat strong { font-size: 26px; } .docs-stat span, .docs-stat small { font-size: 9px; } .docs-section .docs-toolbar-left, .docs-section .docs-toolbar-right, .docs-section .docs-search { width: 100%; } .docs-section .docs-toolbar button { flex: 1; } }
 </style>
 </body>
 </html>
