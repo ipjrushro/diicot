@@ -11008,752 +11008,164 @@ app.delete(
 );
 
 
-// ======================================================
-// DOCS — SINCRONIZARE CU PERSONALUL DISCORD
-// Creează doar membrii DIICOT care lipsesc.
-// Nu suprascrie câmpurile editate manual.
-// ======================================================
-
-app.post(
-    "/api/admin/docs/sync",
-
-    requireAdmin,
-
-    async (
-        req,
-        res
-    ) => {
-
-        if (
-            !ensureSupabase(res)
-        ) {
-            return;
-        }
-
-        if (!BOT_TOKEN) {
-
-            return res
-                .status(500)
-                .json({
-                    error:
-                        "Botul Discord nu este configurat."
-                });
-        }
-
-        try {
-
-            const now =
-                new Date()
-                    .toISOString();
-
-            const editorId =
-                String(
-                    req.session.user.id
-                );
-
-            const editorName =
-                req.session.user.displayName ||
-                req.session.user.username;
-
-
-            // --------------------------------------------------
-            // 1. Citim registrul existent.
-            // --------------------------------------------------
-
-            const {
-                data:
-                    originalRows,
-
-                error:
-                    originalError
-            } =
-                await supabase
-                    .from(
-                        "docs_personnel"
-                    )
-                    .select(
-                        "*"
-                    );
-
-            if (originalError) {
-                throw originalError;
-            }
-
-            let rows =
-                originalRows ||
-                [];
-
-
-            function slotFromCallsign(
-                value
-            ) {
-
-                const match =
-                    String(
-                        value ||
-                        ""
-                    )
-                        .trim()
-                        .toUpperCase()
-                        .match(
-                            /^D-(\d{1,2})$/
-                        );
-
-                if (!match) {
-                    return null;
-                }
-
-                const number =
-                    Number(
-                        match[1]
-                    );
-
-                if (
-                    number < 1 ||
-                    number > 99
-                ) {
-                    return null;
-                }
-
-                return {
-                    number,
-
-                    callsign:
-                        `D-${String(number).padStart(2, "0")}`
-                };
-            }
-
-
-            // --------------------------------------------------
-            // 2. Creăm toate sloturile D-01 ... D-99 lipsă.
-            // --------------------------------------------------
-
-            const existingCallsigns =
-                new Set(
-                    rows
-                        .map(
-                            row =>
-                                slotFromCallsign(
-                                    row.callsign
-                                )?.callsign
-                        )
-                        .filter(Boolean)
-                );
-
-            const slotsToInsert =
-                [];
-
-            for (
-                let number = 1;
-                number <= 99;
-                number++
-            ) {
-
-                const callsign =
-                    `D-${String(number).padStart(2, "0")}`;
-
-                if (
-                    existingCallsigns.has(
-                        callsign
-                    )
-                ) {
-                    continue;
-                }
-
-                const slotRank =
-                    getDocsRankForSlot(
-                        number
-                    );
-
-                slotsToInsert.push({
-                    id:
-                        crypto.randomUUID(),
-
-                    discord_id:
-                        null,
-
-                    rank:
-                        slotRank.name,
-
-                    rank_level:
-                        slotRank.level,
-
-                    full_name:
-                        "",
-
-                    internal_id:
-                        "",
-
-                    callsign,
-
-                    active:
-                        false,
-
-                    last_promotion:
-                        null,
-
-                    joined_at:
-                        null,
-
-                    cert_ftp:
-                        false,
-
-                    cert_radio:
-                        false,
-
-                    cert_air:
-                        false,
-
-                    cert_dcco:
-                        false,
-
-                    roles:
-                        "",
-
-                    notes:
-                        "",
-
-                    penalty_points:
-                        0,
-
-                    discord:
-                        "",
-
-                    position:
-                        number,
-
-                    created_at:
-                        now,
-
-                    updated_at:
-                        now,
-
-                    updated_by_id:
-                        editorId,
-
-                    updated_by_name:
-                        editorName
-                });
-            }
-
-            if (
-                slotsToInsert.length
-            ) {
-
-                const {
-                    error:
-                        slotInsertError
-                } =
-                    await supabase
-                        .from(
-                            "docs_personnel"
-                        )
-                        .insert(
-                            slotsToInsert
-                        );
-
-                if (slotInsertError) {
-                    throw slotInsertError;
-                }
-            }
-
-
-            // Recitim după crearea sloturilor.
-            const {
-                data:
-                    refreshedRows,
-
-                error:
-                    refreshedError
-            } =
-                await supabase
-                    .from(
-                        "docs_personnel"
-                    )
-                    .select(
-                        "*"
-                    );
-
-            if (refreshedError) {
-                throw refreshedError;
-            }
-
-            rows =
-                refreshedRows ||
-                [];
-
-
-            // Orice rând fără callsign valid este pus după D-99.
-            const invalidPositionRows =
-                rows.filter(
-                    row =>
-                        !slotFromCallsign(
-                            row.callsign
-                        ) &&
-                        Number(
-                            row.position ||
-                            0
-                        ) < 1000
-                );
-
-            for (
-                const row
-                of invalidPositionRows
-            ) {
-
-                await supabase
-                    .from(
-                        "docs_personnel"
-                    )
-                    .update({
-                        position:
-                            1000,
-
-                        updated_at:
-                            now
-                    })
-                    .eq(
-                        "id",
-                        row.id
-                    );
-            }
-
-
-            // --------------------------------------------------
-            // 2.1 Actualizăm gradul fiecărui slot D-01 ... D-99
-            // după schema fixă DOCS.
-            // --------------------------------------------------
-
-            const {
-                data:
-                    allSlotRows,
-
-                error:
-                    allSlotRowsError
-            } =
-                await supabase
-                    .from(
-                        "docs_personnel"
-                    )
-                    .select(
-                        "id, callsign"
-                    );
-
-            if (allSlotRowsError) {
-                throw allSlotRowsError;
-            }
-
-            for (
-                const row
-                of allSlotRows || []
-            ) {
-
-                const slot =
-                    slotFromCallsign(
-                        row.callsign
-                    );
-
-                if (!slot) {
-                    continue;
-                }
-
-                const docsRank =
-                    getDocsRankForSlot(
-                        slot.number
-                    );
-
-                const {
-                    error:
-                        rankUpdateError
-                } =
-                    await supabase
-                        .from(
-                            "docs_personnel"
-                        )
-                        .update({
-                            rank:
-                                docsRank.name,
-
-                            rank_level:
-                                docsRank.level,
-
-                            position:
-                                slot.number,
-
-                            updated_at:
-                                now
-                        })
-                        .eq(
-                            "id",
-                            row.id
-                        );
-
-                if (rankUpdateError) {
-                    throw rankUpdateError;
-                }
-            }
-
-
-            // --------------------------------------------------
-            // 3. Luăm membrii DIICOT din Discord.
-            // --------------------------------------------------
-
-            const memberResponse =
-                await axios.get(
-
-                    `https://discord.com/api/v10/guilds/${GUILD_ID}/members?limit=1000`,
-
-                    {
-                        headers: {
-                            Authorization:
-                                `Bot ${BOT_TOKEN}`
-                        }
-                    }
-                );
-
-            const members =
-                Array.isArray(
-                    memberResponse.data
-                )
-                    ? memberResponse.data
-                    : [];
-
-
-            let assigned =
-                0;
-
-            let merged =
-                0;
-
-
-            for (
-                const member
-                of members
-            ) {
-
-                const roles =
-                    Array.isArray(
-                        member.roles
-                    )
-                        ? member.roles
-                            .map(String)
-                        : [];
-
-                const rank =
-                    getHighestDIICOTRole(
-                        roles
-                    );
-
-                if (!rank) {
-                    continue;
-                }
-
-                const discordId =
-                    String(
-                        member.user?.id ||
-                        ""
-                    );
-
-                if (!discordId) {
-                    continue;
-                }
-
-                const displayName =
-                    member.nick ||
-                    member.user?.global_name ||
-                    member.user?.username ||
-                    "Membru DIICOT";
-
-                const callsignMatch =
-                    displayName.match(
-                        /\[(D-\d{1,2})\]/i
-                    );
-
-                if (!callsignMatch) {
-                    continue;
-                }
-
-                const slot =
-                    slotFromCallsign(
-                        callsignMatch[1]
-                    );
-
-                if (!slot) {
-                    continue;
-                }
-
-                rows =
-                    (
-                        await supabase
-                            .from(
-                                "docs_personnel"
-                            )
-                            .select(
-                                "*"
-                            )
-                    ).data ||
-                    rows;
-
-                const target =
-                    rows.find(
-                        row =>
-                            slotFromCallsign(
-                                row.callsign
-                            )?.callsign ===
-                            slot.callsign
-                    );
-
-                if (!target) {
-                    continue;
-                }
-
-                const oldDiscordRow =
-                    rows.find(
-                        row =>
-                            String(
-                                row.discord_id ||
-                                ""
-                            ) ===
-                            discordId &&
-                            row.id !==
-                            target.id
-                    );
-
-
-                // Dacă vechiul sync crease un rând separat pentru membru,
-                // mutăm datele manuale în slotul său și ștergem duplicatul.
-                let manualSource =
-                    target;
-
-                if (oldDiscordRow) {
-
-                    manualSource = {
-                        ...target,
-
-                        internal_id:
-                            target.internal_id ||
-                            oldDiscordRow.internal_id ||
-                            "",
-
-                        last_promotion:
-                            target.last_promotion ||
-                            oldDiscordRow.last_promotion ||
-                            null,
-
-                        joined_at:
-                            target.joined_at ||
-                            oldDiscordRow.joined_at ||
-                            null,
-
-                        cert_ftp:
-                            Boolean(
-                                target.cert_ftp ||
-                                oldDiscordRow.cert_ftp
-                            ),
-
-                        cert_radio:
-                            Boolean(
-                                target.cert_radio ||
-                                oldDiscordRow.cert_radio
-                            ),
-
-                        cert_air:
-                            Boolean(
-                                target.cert_air ||
-                                oldDiscordRow.cert_air
-                            ),
-
-                        cert_dcco:
-                            Boolean(
-                                target.cert_dcco ||
-                                oldDiscordRow.cert_dcco
-                            ),
-
-                        roles:
-                            target.roles ||
-                            oldDiscordRow.roles ||
-                            "",
-
-                        notes:
-                            target.notes ||
-                            oldDiscordRow.notes ||
-                            "",
-
-                        penalty_points:
-                            Number(
-                                target.penalty_points ||
-                                oldDiscordRow.penalty_points ||
-                                0
-                            )
-                    };
-
-                    const {
-                        error:
-                            deleteDuplicateError
-                    } =
-                        await supabase
-                            .from(
-                                "docs_personnel"
-                            )
-                            .delete()
-                            .eq(
-                                "id",
-                                oldDiscordRow.id
-                            );
-
-                    if (deleteDuplicateError) {
-                        throw deleteDuplicateError;
-                    }
-
-                    merged++;
-                }
-
-
-                const docsSlotRank =
-                    getDocsRankForSlot(
-                        slot.number
-                    );
-
-                const {
-                    error:
-                        assignError
-                } =
-                    await supabase
-                        .from(
-                            "docs_personnel"
-                        )
-                        .update({
-                            discord_id:
-                                discordId,
-
-                            rank:
-                                docsSlotRank.name,
-
-                            rank_level:
-                                docsSlotRank.level,
-
-                            full_name:
-                                removeExistingCallsign(
-                                    displayName
-                                ),
-
-                            internal_id:
-                                manualSource.internal_id ||
-                                "",
-
-                            callsign:
-                                slot.callsign,
-
-                            active:
-                                true,
-
-                            last_promotion:
-                                manualSource.last_promotion ||
-                                null,
-
-                            joined_at:
-                                manualSource.joined_at ||
-                                null,
-
-                            cert_ftp:
-                                Boolean(
-                                    manualSource.cert_ftp
-                                ),
-
-                            cert_radio:
-                                Boolean(
-                                    manualSource.cert_radio
-                                ),
-
-                            cert_air:
-                                Boolean(
-                                    manualSource.cert_air
-                                ),
-
-                            cert_dcco:
-                                Boolean(
-                                    manualSource.cert_dcco
-                                ),
-
-                            roles:
-                                manualSource.roles ||
-                                "",
-
-                            notes:
-                                manualSource.notes ||
-                                "",
-
-                            penalty_points:
-                                Number(
-                                    manualSource.penalty_points ||
-                                    0
-                                ),
-
-                            discord:
-                                member.user?.username
-                                    ? `@${member.user.username}`
-                                    : discordId,
-
-                            position:
-                                slot.number,
-
-                            updated_at:
-                                now,
-
-                            updated_by_id:
-                                editorId,
-
-                            updated_by_name:
-                                editorName
-                        })
-                        .eq(
-                            "id",
-                            target.id
-                        );
-
-                if (assignError) {
-                    throw assignError;
-                }
-
-                assigned++;
-            }
-
-
-            res.json({
-                success:
-                    true,
-
-                created:
-                    slotsToInsert.length,
-
-                assigned,
-
-                merged,
-
-                totalSlots:
-                    99
-            });
-
-        }
-
-        catch (error) {
-
-            console.error(
-                "DOCS Sync Error:",
-                error.response?.data ||
-                error.message
-            );
-
-            res
-                .status(500)
-                .json({
-                    error:
-                        "Personalul DOCS nu a putut fi sincronizat."
-                });
-        }
+// DOCS — sincronizare completă a sloturilor cu Discord
+// Pure reconciliation logic for the DIICOT DOCS register.
+// A member is identified by Discord ID; the current nickname owns the slot.
+function docsSlot(value) {
+    const match = String(value || "").trim().toUpperCase().match(/^D-(\d{1,2})$/);
+    const number = match && Number(match[1]);
+    return number >= 1 && number <= 99 ? `D-${String(number).padStart(2, "0")}` : null;
+}
+
+function reconcileDocs(rows, members, getMemberRank, getSlotRank, cleanName) {
+    const bySlot = new Map();
+    const duplicates = new Set();
+    for (const row of rows) {
+        const slot = docsSlot(row.callsign);
+        if (!slot) continue;
+        if (bySlot.has(slot)) duplicates.add(slot);
+        else bySlot.set(slot, row);
     }
-);
+    if (duplicates.size) throw new Error(`Call sign duplicat în DOCS: ${[...duplicates].join(", ")}. Rezolvă dublurile înainte de sincronizare.`);
 
+    const desired = new Map();
+    const byMember = new Map();
+    const conflicts = new Set();
+    for (const member of members) {
+        if (!getMemberRank(member.roles || [])) continue;
+        const id = String(member.user?.id || "");
+        const nick = member.nick || member.user?.global_name || member.user?.username || "";
+        const slot = docsSlot(nick.match(/^\s*\[(D-\d{1,2})\]/i)?.[1]);
+        if (!id || !slot) continue;
+        if (desired.has(slot) && desired.get(slot).id !== id) conflicts.add(slot);
+        desired.set(slot, { id, nick, user: member.user });
+        if (byMember.has(id) && byMember.get(id) !== slot) conflicts.add(slot);
+        byMember.set(id, slot);
+    }
+    if (conflicts.size) throw new Error(`Call sign folosit de mai mulți membri pe Discord: ${[...conflicts].join(", ")}. Corectează nickname-urile înainte de sincronizare.`);
+
+    const sources = new Map();
+    for (const row of rows) {
+        const id = String(row.discord_id || "");
+        if (id && byMember.has(id) && !sources.has(id)) sources.set(id, row);
+    }
+    const updates = [];
+    const inserts = [];
+    let assigned = 0;
+    let moved = 0;
+    let cleared = 0;
+    for (let number = 1; number <= 99; number++) {
+        const slot = `D-${String(number).padStart(2, "0")}`;
+        const rank = getSlotRank(number);
+        const row = bySlot.get(slot);
+        const member = desired.get(slot);
+        const source = member && sources.get(member.id);
+        const previousId = String(row?.discord_id || "");
+        const previousMoved = previousId && byMember.has(previousId) && byMember.get(previousId) !== slot;
+        const vacated = Boolean(previousMoved && !member);
+        const occupant = member ? {
+            discord_id: member.id,
+            full_name: cleanName(member.nick),
+            discord: member.user?.username ? `@${member.user.username}` : member.id,
+            active: true,
+            // Keep the identity-linked manual fields when a member changes slot.
+            internal_id: source?.internal_id || (previousId === member.id ? row?.internal_id : "") || "",
+            last_promotion: source?.last_promotion || (previousId === member.id ? row?.last_promotion : null) || null,
+            joined_at: source?.joined_at || (previousId === member.id ? row?.joined_at : null) || null,
+            cert_ftp: Boolean(source?.cert_ftp || (previousId === member.id && row?.cert_ftp)),
+            cert_radio: Boolean(source?.cert_radio || (previousId === member.id && row?.cert_radio)),
+            cert_air: Boolean(source?.cert_air || (previousId === member.id && row?.cert_air)),
+            cert_dcco: Boolean(source?.cert_dcco || (previousId === member.id && row?.cert_dcco)),
+            roles: source?.roles || (previousId === member.id ? row?.roles : "") || "",
+            notes: source?.notes || (previousId === member.id ? row?.notes : "") || "",
+            penalty_points: Number(source?.penalty_points || (previousId === member.id ? row?.penalty_points : 0) || 0)
+        } : vacated ? {
+            discord_id: null, full_name: "", internal_id: "", discord: "", active: false,
+            last_promotion: null, joined_at: null, cert_ftp: false, cert_radio: false,
+            cert_air: false, cert_dcco: false, roles: "", notes: "", penalty_points: 0
+        } : {};
+        const payload = { callsign: slot, rank: rank.name, rank_level: rank.level, position: number, ...occupant };
+        if (member && previousId !== member.id) assigned++;
+        if (member && source && docsSlot(source.callsign) !== slot) moved++;
+        if (vacated) cleared++;
+        if (row) {
+            if (Object.entries(payload).some(([key, value]) => row[key] !== value)) updates.push({ id: row.id, payload });
+        } else inserts.push(payload);
+    }
+    return { updates, inserts, assigned, moved, cleared, conflicts: 0 };
+}
+
+
+
+app.post("/api/admin/docs/sync", requireAdmin, async (req, res) => {
+    if (!ensureSupabase(res)) return;
+    if (!BOT_TOKEN) return res.status(500).json({ error: "Botul Discord nu este configurat." });
+    try {
+        // Paginare completă, proaspătă. Dacă Discord eșuează, nu atingem registrul.
+        const members = [];
+        let after = "0";
+        for (let page = 0; page < 50; page++) {
+            const response = await axios.get(`https://discord.com/api/v10/guilds/${GUILD_ID}/members`, {
+                params: { limit: 1000, after },
+                headers: { Authorization: `Bot ${BOT_TOKEN}` }, timeout: 20000
+            });
+            if (!Array.isArray(response.data)) throw new Error("Discord nu a returnat o listă completă.");
+            members.push(...response.data);
+            if (response.data.length < 1000) break;
+            const last = String(response.data.at(-1)?.user?.id || "");
+            if (!last || last === after || page === 49) throw new Error("Lista Discord este incompletă.");
+            after = last;
+        }
+        const { data: rows, error } = await supabase.from("docs_personnel").select("*");
+        if (error) throw error;
+        const rankForMember = roles => getHighestDIICOTRole(roles.map(String));
+        const plan = reconcileDocs(rows || [], members, rankForMember, getDocsRankForSlot, removeExistingCallsign);
+        const now = new Date().toISOString();
+        const audit = { updated_at: now, updated_by_id: String(req.session.user.id),
+            updated_by_name: req.session.user.displayName || req.session.user.username };
+        // Eliberăm ID-urile mutate înainte de atribuire (compatibil cu un index unic pe discord_id).
+        const targetById = new Map();
+        for (const member of members) {
+            if (!rankForMember((member.roles || []).map(String))) continue;
+            const match = (member.nick || "").match(/^\s*\[(D-\d{1,2})\]/i);
+            const slot = docsSlot(match?.[1]);
+            if (slot && member.user?.id) targetById.set(String(member.user.id), slot);
+        }
+        for (const row of rows || []) {
+            const id = String(row.discord_id || "");
+            if (!id || !targetById.has(id) || docsSlot(row.callsign) === targetById.get(id)) continue;
+            const { error: releaseError } = await supabase.from("docs_personnel")
+                .update({ discord_id: null, ...audit }).eq("id", row.id);
+            if (releaseError) throw releaseError;
+        }
+        for (const item of plan.updates) {
+            const { error: updateError } = await supabase.from("docs_personnel")
+                .update({ ...item.payload, ...audit }).eq("id", item.id);
+            if (updateError) throw updateError;
+        }
+        if (plan.inserts.length) {
+            const { error: insertError } = await supabase.from("docs_personnel")
+                .insert(plan.inserts.map(row => ({
+                    id: crypto.randomUUID(), ...row, discord_id: row.discord_id || null,
+                    full_name: row.full_name || "", internal_id: row.internal_id || "",
+                    discord: row.discord || "", active: Boolean(row.active),
+                    last_promotion: row.last_promotion || null, joined_at: row.joined_at || null,
+                    cert_ftp: Boolean(row.cert_ftp), cert_radio: Boolean(row.cert_radio),
+                    cert_air: Boolean(row.cert_air), cert_dcco: Boolean(row.cert_dcco),
+                    roles: row.roles || "", notes: row.notes || "",
+                    penalty_points: Number(row.penalty_points || 0), created_at: now, ...audit
+                })));
+            if (insertError) throw insertError;
+        }
+        res.json({ success: true, created: plan.inserts.length, assigned: plan.assigned,
+            moved: plan.moved, cleared: plan.cleared, updated: plan.updates.length, totalSlots: 99 });
+    } catch (error) {
+        console.error("DOCS Sync Error:", error.response?.data || error.message);
+        const conflict = /duplicat|mai mulți membri/.test(error.message || "");
+        res.status(conflict ? 409 : 500).json({ error: conflict ? error.message :
+            "Sincronizarea DOCS a eșuat. Verifică legătura Discord și baza de date; încearcă din nou." });
+    }
+});
 
 
 // ======================================================
