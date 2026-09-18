@@ -11017,7 +11017,26 @@ function docsSlot(value) {
     return number >= 1 && number <= 99 ? `D-${String(number).padStart(2, "0")}` : null;
 }
 
-function reconcileDocs(rows, members, getMemberRank, getSlotRank, cleanName) {
+function docsMemberSlot(member) {
+    // Call sign only at the beginning of the Discord nickname.
+    const nick = String(member.nick || "");
+    const match = nick.match(/^\s*(?:\[(D-\d{1,2})\]|(D-\d{1,2})(?=\s|[|•:]))/i);
+    return docsSlot(match?.[1] || match?.[2]);
+}
+
+function docsMemberIdentity(member, cleanName) {
+    const name = cleanName(String(member.nick || member.user?.global_name || member.user?.username || ""))
+        .replace(/^D-\d{1,2}(?=\s|[|•:])\s*[|•:]?\s*/i, "").trim();
+    // Format Discord: [D-38] manu 29686 (or [D-38] manu | ID: 29686).
+    const match = name.match(/^(.+?)\s*(?:[|•:]\s*)?(?:ID\s*[:#-]?\s*)?(\d{2,10})$/i);
+    return match ? { name: match[1].trim(), gameId: match[2] } : { name, gameId: "" };
+}
+
+function docsMemberName(member, cleanName) {
+    return docsMemberIdentity(member, cleanName).name;
+}
+
+function reconcileDocs(rows, members, getMemberRank, getSlotRank, cleanName, approvedGameIds = new Map()) {
     const bySlot = new Map();
     const duplicates = new Set();
     for (const row of rows) {
@@ -11035,7 +11054,7 @@ function reconcileDocs(rows, members, getMemberRank, getSlotRank, cleanName) {
         if (!getMemberRank(member.roles || [])) continue;
         const id = String(member.user?.id || "");
         const nick = member.nick || member.user?.global_name || member.user?.username || "";
-        const slot = docsSlot(nick.match(/^\s*\[(D-\d{1,2})\]/i)?.[1]);
+        const slot = docsMemberSlot(member);
         if (!id || !slot) continue;
         if (desired.has(slot) && desired.get(slot).id !== id) conflicts.add(slot);
         desired.set(slot, { id, nick, user: member.user });
@@ -11044,6 +11063,33 @@ function reconcileDocs(rows, members, getMemberRank, getSlotRank, cleanName) {
     }
     if (conflicts.size) throw new Error(`Call sign folosit de mai mulți membri pe Discord: ${[...conflicts].join(", ")}. Corectează nickname-urile înainte de sincronizare.`);
 
+    // Fail closed if the role/nickname configuration matched nobody.
+    // An empty result must not erase a populated register.
+    if (!desired.size && rows.some(row => docsSlot(row.callsign) &&
+        (row.full_name || row.internal_id || row.discord_id))) {
+        throw new Error("Nu am găsit membri DIICOT cu call sign în nickname pe Discord. DOCS nu a fost modificat. Verifică rolurile și formatul [D-XX].");
+    }
+
+    const normalizedName = name => String(name || "").trim().toLocaleLowerCase("ro-RO").replace(/\s+/g, " ");
+    const currentNames = new Map();
+    for (const member of desired.values()) {
+        const key = normalizedName(docsMemberName(member, cleanName));
+        currentNames.set(key, (currentNames.get(key) || 0) + 1);
+    }
+    const nameSources = new Map();
+    for (const row of rows) {
+        if (!docsSlot(row.callsign) || !row.full_name) continue;
+        const key = normalizedName(row.full_name);
+        if (!nameSources.has(key)) nameSources.set(key, []);
+        nameSources.get(key).push(row);
+    }
+    const idSources = new Map();
+    for (const row of rows) {
+        const gameId = String(row.internal_id || "").trim();
+        if (!docsSlot(row.callsign) || !gameId) continue;
+        if (!idSources.has(gameId)) idSources.set(gameId, []);
+        idSources.get(gameId).push(row);
+    }
     const sources = new Map();
     for (const row of rows) {
         const id = String(row.discord_id || "");
@@ -11059,17 +11105,31 @@ function reconcileDocs(rows, members, getMemberRank, getSlotRank, cleanName) {
         const rank = getSlotRank(number);
         const row = bySlot.get(slot);
         const member = desired.get(slot);
-        const source = member && sources.get(member.id);
+        const identity = member && docsMemberIdentity(member, cleanName);
+        if (identity && !identity.gameId) identity.gameId = approvedGameIds.get(member.id) || "";
+        const memberName = identity?.name;
+        const nameMatches = member && nameSources.get(normalizedName(memberName));
+        const idMatches = identity?.gameId && idSources.get(identity.gameId);
+        const safeManualSource = matches => matches?.length === 1 &&
+            (!matches[0].discord_id || String(matches[0].discord_id) === member.id)
+            ? matches[0] : null;
+        const source = member && (sources.get(member.id) || safeManualSource(idMatches) ||
+            (currentNames.get(normalizedName(memberName)) === 1 ? safeManualSource(nameMatches) : null));
         const previousId = String(row?.discord_id || "");
-        const previousMoved = previousId && byMember.has(previousId) && byMember.get(previousId) !== slot;
-        const vacated = Boolean(previousMoved && !member);
+        // Every empty slot mirrors the current Discord roster, including old
+        // manually entered rows which never had a Discord ID attached.
+        const vacated = Boolean(!member && row && (
+            row.discord_id || row.full_name || row.internal_id || row.discord || row.active ||
+            row.last_promotion || row.joined_at || row.cert_ftp || row.cert_radio ||
+            row.cert_air || row.cert_dcco || row.roles || row.notes || row.penalty_points));
         const occupant = member ? {
             discord_id: member.id,
-            full_name: cleanName(member.nick),
+            full_name: memberName,
             discord: member.user?.username ? `@${member.user.username}` : member.id,
             active: true,
             // Keep the identity-linked manual fields when a member changes slot.
-            internal_id: source?.internal_id || (previousId === member.id ? row?.internal_id : "") || "",
+            internal_id: identity.gameId || source?.internal_id ||
+                (previousId === member.id ? row?.internal_id : "") || "",
             last_promotion: source?.last_promotion || (previousId === member.id ? row?.last_promotion : null) || null,
             joined_at: source?.joined_at || (previousId === member.id ? row?.joined_at : null) || null,
             cert_ftp: Boolean(source?.cert_ftp || (previousId === member.id && row?.cert_ftp)),
@@ -11119,7 +11179,21 @@ app.post("/api/admin/docs/sync", requireAdmin, async (req, res) => {
         const { data: rows, error } = await supabase.from("docs_personnel").select("*");
         if (error) throw error;
         const rankForMember = roles => getHighestDIICOTRole(roles.map(String));
-        const plan = reconcileDocs(rows || [], members, rankForMember, getDocsRankForSlot, removeExistingCallsign);
+        // ID-ul de joc poate lipsi din nickname; cererea aprobată îl conține.
+        const { data: approvedRequests, error: requestsError } = await supabase
+            .from("callsign_requests").select("author_id, game_id")
+            .eq("status", "APPROVED").order("decided_at", { ascending: false }).limit(1000);
+        if (requestsError) throw requestsError;
+        const approvedGameIds = new Map();
+        for (const request of approvedRequests || []) {
+            const id = String(request.author_id || "");
+            const gameId = String(request.game_id || "").trim();
+            if (id && /^\d{1,20}$/.test(gameId) && !approvedGameIds.has(id)) {
+                approvedGameIds.set(id, gameId);
+            }
+        }
+        const plan = reconcileDocs(rows || [], members, rankForMember, getDocsRankForSlot,
+            removeExistingCallsign, approvedGameIds);
         const now = new Date().toISOString();
         const audit = { updated_at: now, updated_by_id: String(req.session.user.id),
             updated_by_name: req.session.user.displayName || req.session.user.username };
@@ -11127,13 +11201,12 @@ app.post("/api/admin/docs/sync", requireAdmin, async (req, res) => {
         const targetById = new Map();
         for (const member of members) {
             if (!rankForMember((member.roles || []).map(String))) continue;
-            const match = (member.nick || "").match(/^\s*\[(D-\d{1,2})\]/i);
-            const slot = docsSlot(match?.[1]);
+            const slot = docsMemberSlot(member);
             if (slot && member.user?.id) targetById.set(String(member.user.id), slot);
         }
         for (const row of rows || []) {
             const id = String(row.discord_id || "");
-            if (!id || !targetById.has(id) || docsSlot(row.callsign) === targetById.get(id)) continue;
+            if (!id || !docsSlot(row.callsign) || targetById.get(id) === docsSlot(row.callsign)) continue;
             const { error: releaseError } = await supabase.from("docs_personnel")
                 .update({ discord_id: null, ...audit }).eq("id", row.id);
             if (releaseError) throw releaseError;
@@ -11161,7 +11234,7 @@ app.post("/api/admin/docs/sync", requireAdmin, async (req, res) => {
             moved: plan.moved, cleared: plan.cleared, updated: plan.updates.length, totalSlots: 99 });
     } catch (error) {
         console.error("DOCS Sync Error:", error.response?.data || error.message);
-        const conflict = /duplicat|mai mulți membri/.test(error.message || "");
+        const conflict = /duplicat|mai mulți membri|Nu am găsit membri/.test(error.message || "");
         res.status(conflict ? 409 : 500).json({ error: conflict ? error.message :
             "Sincronizarea DOCS a eșuat. Verifică legătura Discord și baza de date; încearcă din nou." });
     }
